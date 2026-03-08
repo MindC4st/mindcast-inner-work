@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
@@ -72,9 +73,12 @@ const Live = () => {
                 <p className="text-sm text-muted-foreground mb-4">{s.topic}</p>
                 <p className="text-xs text-primary/40 tracking-wider mb-1">{s.location}</p>
                 <p className="text-xs text-primary/40 tracking-wider mb-6">{s.duration}</p>
-                <div className="flex gap-3">
-                  <button className="btn-navy text-xs py-3 flex-1">RESERVE MY SPOT</button>
-                  <button className="btn-outlined text-xs py-3 flex-1 border-primary text-primary hover:bg-primary hover:text-silver">LEARN MORE</button>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-3">
+                    <button className="btn-navy text-xs py-3 flex-1">RESERVE MY SPOT</button>
+                    <button className="btn-outlined text-xs py-3 flex-1 border-primary text-primary hover:bg-primary hover:text-silver">LEARN MORE</button>
+                  </div>
+                  {i === 0 && <Link to="/session/communication-reset" className="btn-navy text-xs py-3 text-center bg-silver/10 border-primary/30">OPEN COMPANION MODULE</Link>}
                 </div>
               </motion.div>
             ))}
