@@ -76,8 +76,21 @@ const Portal = () => {
         </div>
       </section>
 
+      {/* Tonight's Session */}
+      <section className="section-white pt-16 pb-0">
+        <div className="container mx-auto px-6">
+          <div className="max-w-5xl mx-auto">
+            <Link to="/session/communication-reset" className="block border-[3px] border-primary bg-primary p-8 hover:bg-primary/90 transition-colors">
+              <span className="text-silver/40 text-[10px] tracking-widest">TONIGHT'S SESSION</span>
+              <h2 className="font-display text-2xl tracking-widest text-silver mt-1">COMMUNICATION RESET</h2>
+              <span className="text-silver/50 text-xs tracking-widest mt-2 inline-flex items-center gap-2">OPEN MODULE →</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Dashboard Grid */}
-      <section className="section-white py-16">
+      <section className="section-white py-8">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
             {/* Upcoming Events */}
