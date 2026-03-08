@@ -138,7 +138,7 @@ const DragDropSorting = ({ instruction, cards, columns, storageKey, onSave, init
                           >
                             {card}
                             {checked && (results[card] ? <Check size={14} /> : <X size={14} />)}
-                          </motion.div>
+                          </div>
                         )}
                       </Draggable>
                     ))}
