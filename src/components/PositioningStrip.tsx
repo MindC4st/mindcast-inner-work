@@ -4,11 +4,12 @@ const labels = [
   { text: "NOT THERAPY", bold: false },
   { text: "NOT RELIGION", bold: false },
   { text: "NOT SELF-HELP", bold: false },
+  { text: "NOT A PODCAST", bold: false },
   { text: "A STRUCTURED LIFE PRACTICE", bold: true },
 ];
 
 const PositioningStrip = () => (
-  <section className="section-white py-12 border-y-2 border-primary">
+  <section className="section-white py-12 border-y-[3px] border-primary">
     <div className="container mx-auto px-6">
       <motion.div
         initial={{ opacity: 0 }}
@@ -21,7 +22,7 @@ const PositioningStrip = () => (
           <span
             key={i}
             className={`font-display text-xl md:text-2xl tracking-widest ${
-              label.bold ? "text-primary" : "text-primary/50"
+              label.bold ? "text-primary" : "text-primary/40"
             }`}
           >
             {label.text}
