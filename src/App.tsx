@@ -10,6 +10,7 @@ import Membership from "./pages/Membership";
 import Portal from "./pages/Portal";
 import About from "./pages/About";
 import EcosystemPage from "./pages/EcosystemPage";
+import Session from "./pages/Session";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/portal" element={<Portal />} />
           <Route path="/about" element={<About />} />
           <Route path="/ecosystem" element={<EcosystemPage />} />
+          <Route path="/session/:sessionId" element={<Session />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
