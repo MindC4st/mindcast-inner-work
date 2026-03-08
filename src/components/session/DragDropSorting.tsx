@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Check, X, RotateCcw } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface DragDropSortingProps {
   instruction: string;
