@@ -1,0 +1,107 @@
+import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
+
+const team = [
+  { name: "JORDAN COLE", role: "Founder & Vision", bio: "Former tech founder. Lifelong student of human psychology." },
+  { name: "PRIYA NAIR", role: "Head of Community", bio: "Community builder. Facilitator. Deep listener." },
+  { name: "MIKE TRAN", role: "Product & Design", bio: "Building tools that make inner work accessible." },
+];
+
+const values = [
+  "CONSENT BEFORE EVERYTHING",
+  "EVIDENCE WHERE POSSIBLE, HONESTY ABOUT THE REST",
+  "INNER WORK IS FOR EVERYONE",
+  "COMMUNITY OVER CONTENT",
+  "SAFETY IS NON-NEGOTIABLE",
+  "ONE STEP AT A TIME",
+];
+
+const About = () => (
+  <>
+    <Navbar />
+    <section className="section-navy min-h-[60vh] flex items-center pt-16">
+      <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
+        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
+          WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION
+        </motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-silver/60 font-body text-base max-w-xl mx-auto leading-relaxed">
+          A place to go each week. A community that holds you. Frameworks for the hard stuff. Tools you carry into real life.
+        </motion.p>
+      </div>
+    </section>
+
+    {/* The Story */}
+    <section className="section-white py-24">
+      <div className="container mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+          <ImagePlaceholder label="Founder portrait" className="w-full h-96" />
+          <div>
+            <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              MINDCAST started with a question: what if there was a place — like church — where you could go every week to work on yourself, connect with others, and leave with real tools? No dogma. No guru. Just a structured practice built on evidence, consent, and community.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed">
+              We couldn't find it, so we built it. MINDCAST is for anyone who believes that healing is a skill — not a luxury, not a mystery, but something you can learn and practice every single week.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* The Mission */}
+    <section className="section-navy py-24">
+      <div className="container mx-auto px-6">
+        <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {["COMMUNITY", "PRACTICE", "TOOLS"].map((pillar, i) => (
+            <motion.div key={pillar} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-silver/20 p-8 text-center">
+              <h3 className="font-display text-3xl tracking-widest mb-4">{pillar}</h3>
+              <p className="text-silver/50 text-sm font-body leading-relaxed">
+                {pillar === "COMMUNITY" && "A weekly gathering. People who show up for each other."}
+                {pillar === "PRACTICE" && "Frameworks you can use every day. Notice. Name. Rewire."}
+                {pillar === "TOOLS" && "Four products that make inner work tangible and accessible."}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* The Team */}
+    <section className="section-white py-24">
+      <div className="container mx-auto px-6">
+        <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">THE TEAM</h2>
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {team.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-[3px] border-primary p-6 text-center">
+              <ImagePlaceholder label="Team portrait" className="w-full h-48 mb-6" />
+              <h3 className="font-display text-xl tracking-wider text-primary mb-1">{t.name}</h3>
+              <p className="text-xs tracking-widest text-primary/40 mb-3">{t.role}</p>
+              <p className="text-sm text-muted-foreground font-body">{t.bio}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* Values */}
+    <section className="section-navy py-24">
+      <div className="container mx-auto px-6">
+        <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR VALUES</h2>
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {values.map((v, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-silver/20 p-6">
+              <p className="font-display text-lg tracking-wider text-silver leading-snug">{v}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <Footer />
+  </>
+);
+
+export default About;
