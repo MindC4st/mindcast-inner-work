@@ -80,12 +80,37 @@ const Portal = () => {
       {/* Tonight's Session */}
       <section className="section-white pt-16 pb-0">
         <div className="container mx-auto px-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-5xl mx-auto space-y-4">
             <Link to="/session/communication-reset" className="block border-[3px] border-primary bg-primary p-8 hover:bg-primary/90 transition-colors">
               <span className="text-silver/40 text-[10px] tracking-widest">TONIGHT'S SESSION</span>
               <h2 className="font-display text-2xl tracking-widest text-silver mt-1">COMMUNICATION RESET</h2>
               <span className="text-silver/50 text-xs tracking-widest mt-2 inline-flex items-center gap-2">OPEN MODULE →</span>
             </Link>
+
+            {/* Trust Series */}
+            <div className="border-[3px] border-primary p-8">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-primary/40 text-[10px] tracking-[0.3em]">TRUST — A 3-PART SERIES</span>
+                {(() => {
+                  const allDone = ["trust-1", "trust-2", "trust-3"].every((id) => {
+                    try { const s = localStorage.getItem(`mindcast_session_${id}_progress`); return s && Object.values(JSON.parse(s)).some((v: any) => v?.locked || v?.sealed); } catch { return false; }
+                  });
+                  return allDone ? <span className="bg-primary text-silver text-[10px] tracking-widest px-3 py-1">🛡 COMPLETE</span> : null;
+                })()}
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: "trust-1", label: "S1: WHAT IS TRUST?" },
+                  { id: "trust-2", label: "S2: HOW TRUST BREAKS" },
+                  { id: "trust-3", label: "S3: REBUILDING TRUST" },
+                ].map((s) => (
+                  <Link key={s.id} to={`/session/${s.id}`} className="border-2 border-primary/20 p-4 hover:border-primary transition-colors text-center">
+                    <h3 className="font-display text-xs tracking-wider text-primary">{s.label}</h3>
+                    <span className="text-primary/30 text-[10px] tracking-widest mt-1 inline-block">OPEN →</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
