@@ -31,7 +31,7 @@ const Waitlist = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-silver/50 text-sm mb-12 tracking-wide"
         >
-          First 100 members shape the community.
+          The first 100 members shape the community, the format, and the culture.
         </motion.p>
 
         {submitted ? (
@@ -69,8 +69,9 @@ const Waitlist = () => {
               className="w-full bg-transparent border-2 border-silver/30 text-silver px-6 py-4 text-sm tracking-widest placeholder:text-silver/30 focus:border-silver focus:outline-none transition-colors"
             />
             <button type="submit" className="btn-filled w-full text-xs">
-              JOIN THE WAITLIST
+              JOIN THE FOUNDING COMMUNITY
             </button>
+            <p className="text-silver/30 text-xs tracking-wide">No spam. Just MINDCAST.</p>
           </motion.form>
         )}
       </div>
