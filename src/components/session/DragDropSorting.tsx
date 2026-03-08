@@ -122,13 +122,13 @@ const DragDropSorting = ({ instruction, cards, columns, storageKey, onSave, init
                     {zones[col.id].map((card, i) => (
                       <Draggable key={card} draggableId={card} index={i}>
                         {(provided) => (
-                          <motion.div
+                          <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            animate={checked && results[card] === false ? { x: [0, -5, 5, -5, 0] } : {}}
-                            transition={{ duration: 0.3 }}
-                            className={`px-4 py-2 text-xs tracking-widest cursor-grab flex items-center justify-between ${
+                            className={`px-4 py-2 text-xs tracking-widest cursor-grab flex items-center justify-between transition-transform ${
+                              checked && results[card] === false ? "animate-[shake_0.3s_ease-in-out]" : ""
+                            } ${
                               checked
                                 ? results[card]
                                   ? "bg-green-900/30 border-2 border-green-500/50 text-green-300"
