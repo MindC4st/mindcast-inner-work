@@ -14,16 +14,269 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cohort_members: {
+        Row: {
+          cohort_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          cohort_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          cohort_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cohort_members_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cohorts: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          start_date: string | null
+          term: string
+          theme: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          start_date?: string | null
+          term: string
+          theme: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          start_date?: string | null
+          term?: string
+          theme?: string
+        }
+        Relationships: []
+      }
+      commitments: {
+        Row: {
+          checkin_sentence: string | null
+          cohort_id: string
+          commitment_text: string | null
+          created_at: string
+          id: string
+          is_locked: boolean
+          measure_text: string | null
+          obstacle_text: string | null
+          updated_at: string
+          user_id: string
+          week_number: number
+          why_text: string | null
+        }
+        Insert: {
+          checkin_sentence?: string | null
+          cohort_id: string
+          commitment_text?: string | null
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          measure_text?: string | null
+          obstacle_text?: string | null
+          updated_at?: string
+          user_id: string
+          week_number: number
+          why_text?: string | null
+        }
+        Update: {
+          checkin_sentence?: string | null
+          cohort_id?: string
+          commitment_text?: string | null
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          measure_text?: string | null
+          obstacle_text?: string | null
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+          why_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commitments_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domain_scores: {
+        Row: {
+          cohort_id: string
+          created_at: string
+          domain_name: string
+          id: string
+          score: number
+          updated_at: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          cohort_id: string
+          created_at?: string
+          domain_name: string
+          id?: string
+          score: number
+          updated_at?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          cohort_id?: string
+          created_at?: string
+          domain_name?: string
+          id?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_scores_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entries: {
+        Row: {
+          answer_text: string | null
+          cohort_id: string
+          created_at: string
+          id: string
+          is_locked: boolean
+          is_shared: boolean
+          photo_url: string | null
+          question_key: string
+          updated_at: string
+          user_id: string
+          week_number: number
+        }
+        Insert: {
+          answer_text?: string | null
+          cohort_id: string
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          is_shared?: boolean
+          photo_url?: string | null
+          question_key: string
+          updated_at?: string
+          user_id: string
+          week_number: number
+        }
+        Update: {
+          answer_text?: string | null
+          cohort_id?: string
+          created_at?: string
+          id?: string
+          is_locked?: boolean
+          is_shared?: boolean
+          photo_url?: string | null
+          question_key?: string
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entries_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "member" | "facilitator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +403,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["member", "facilitator"],
+    },
   },
 } as const
