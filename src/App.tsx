@@ -2,18 +2,55 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Live from "./pages/Live";
 import Resources from "./pages/Resources";
 import Membership from "./pages/Membership";
-import Portal from "./pages/Portal";
 import About from "./pages/About";
 import EcosystemPage from "./pages/EcosystemPage";
 import Session from "./pages/Session";
 import NotFound from "./pages/NotFound";
+import PortalLogin from "./pages/portal/PortalLogin";
+import PortalDashboard from "./pages/portal/PortalDashboard";
+import PortalWeek from "./pages/portal/PortalWeek";
+import PortalWeeks from "./pages/portal/PortalWeeks";
+import PortalGroup from "./pages/portal/PortalGroup";
+import PortalInsights from "./pages/portal/PortalInsights";
+import PortalDownloads from "./pages/portal/PortalDownloads";
+import PortalSettings from "./pages/portal/PortalSettings";
 
 const queryClient = new QueryClient();
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, loading } = useAuth();
+  if (loading) return <div className="min-h-screen bg-primary flex items-center justify-center"><span className="text-secondary text-xs tracking-widest animate-pulse">LOADING...</span></div>;
+  if (!session) return <Navigate to="/portal/login" replace />;
+  return <>{children}</>;
+};
+
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="/live" element={<Live />} />
+    <Route path="/resources" element={<Resources />} />
+    <Route path="/membership" element={<Membership />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/ecosystem" element={<EcosystemPage />} />
+    <Route path="/session/:sessionId" element={<Session />} />
+    <Route path="/portal/login" element={<PortalLogin />} />
+    <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
+    <Route path="/portal/dashboard" element={<ProtectedRoute><PortalDashboard /></ProtectedRoute>} />
+    <Route path="/portal/week/:weekNumber" element={<ProtectedRoute><PortalWeek /></ProtectedRoute>} />
+    <Route path="/portal/weeks" element={<ProtectedRoute><PortalWeeks /></ProtectedRoute>} />
+    <Route path="/portal/group" element={<ProtectedRoute><PortalGroup /></ProtectedRoute>} />
+    <Route path="/portal/insights" element={<ProtectedRoute><PortalInsights /></ProtectedRoute>} />
+    <Route path="/portal/downloads" element={<ProtectedRoute><PortalDownloads /></ProtectedRoute>} />
+    <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -21,17 +58,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/live" element={<Live />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/membership" element={<Membership />} />
-          <Route path="/portal" element={<Portal />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/ecosystem" element={<EcosystemPage />} />
-          <Route path="/session/:sessionId" element={<Session />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
