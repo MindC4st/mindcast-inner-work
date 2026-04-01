@@ -169,6 +169,8 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
       </div>
     </div>
   );
-};
+});
+
+PodcastPlayer.displayName = "PodcastPlayer";
 
 export default PodcastPlayer;
