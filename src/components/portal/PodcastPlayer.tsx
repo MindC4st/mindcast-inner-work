@@ -17,7 +17,7 @@ declare global {
   interface Window { YT: any; onYouTubeIframeAPIReady: () => void; }
 }
 
-const PodcastPlayer = ({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks }: PodcastPlayerProps) => {
+const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks }, ref) => {
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
