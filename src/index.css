@@ -99,4 +99,22 @@
     font-family: var(--font-display);
     @apply uppercase tracking-wider leading-none;
   }
+  /* Portal — quiet reading room feel */
+  .portal-bg {
+    background-color: hsl(var(--ivory));
+  }
+  .portal-card {
+    @apply border border-primary/[0.07] bg-white/70 backdrop-blur-sm;
+  }
+  .portal-heading {
+    font-family: var(--font-serif);
+    @apply text-foreground font-medium tracking-normal;
+  }
+  .portal-label {
+    font-family: var(--font-body);
+    @apply text-[10px] tracking-[0.2em] uppercase text-muted-foreground;
+  }
+  .portal-divider {
+    @apply border-t border-primary/[0.06];
+  }
 }
