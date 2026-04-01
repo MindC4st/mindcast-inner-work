@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookmark_responses: {
+        Row: {
+          bookmark_id: string
+          cohort_id: string
+          created_at: string
+          id: string
+          is_shared: boolean
+          response_text: string | null
+          updated_at: string
+          user_id: string
+          voice_url: string | null
+          week_number: number
+        }
+        Insert: {
+          bookmark_id: string
+          cohort_id: string
+          created_at?: string
+          id?: string
+          is_shared?: boolean
+          response_text?: string | null
+          updated_at?: string
+          user_id: string
+          voice_url?: string | null
+          week_number: number
+        }
+        Update: {
+          bookmark_id?: string
+          cohort_id?: string
+          created_at?: string
+          id?: string
+          is_shared?: boolean
+          response_text?: string | null
+          updated_at?: string
+          user_id?: string
+          voice_url?: string | null
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmark_responses_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cohort_members: {
         Row: {
           cohort_id: string
@@ -210,6 +257,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "entries_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      implementation_checkins: {
+        Row: {
+          cohort_id: string
+          created_at: string
+          did_achieve: string | null
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+          week_number: number
+          what_happened: string | null
+          what_learned: string | null
+        }
+        Insert: {
+          cohort_id: string
+          created_at?: string
+          did_achieve?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          week_number: number
+          what_happened?: string | null
+          what_learned?: string | null
+        }
+        Update: {
+          cohort_id?: string
+          created_at?: string
+          did_achieve?: string | null
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          week_number?: number
+          what_happened?: string | null
+          what_learned?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "implementation_checkins_cohort_id_fkey"
             columns: ["cohort_id"]
             isOneToOne: false
             referencedRelation: "cohorts"
