@@ -28,6 +28,7 @@ const PortalWeek = () => {
   const [saved, setSaved] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const podcastRef = useRef<PodcastPlayerHandle>(null);
 
   // Load data
   useEffect(() => {
