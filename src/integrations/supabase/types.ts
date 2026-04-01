@@ -316,6 +316,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          is_active: boolean
           name: string
           updated_at: string
           user_id: string
@@ -324,6 +325,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          is_active?: boolean
           name?: string
           updated_at?: string
           user_id: string
@@ -332,11 +334,100 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          is_active?: boolean
           name?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      session_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          question: string
+          session_id: string
+          sort_order: number
+          timestamp_seconds: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string
+          question?: string
+          session_id: string
+          sort_order?: number
+          timestamp_seconds?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          question?: string
+          session_id?: string
+          sort_order?: number
+          timestamp_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_bookmarks_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          cohort_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          podcast_url: string | null
+          session_date: string | null
+          session_number: number
+          status: string
+          title: string
+          updated_at: string
+          youtube_id: string | null
+        }
+        Insert: {
+          cohort_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          podcast_url?: string | null
+          session_date?: string | null
+          session_number: number
+          status?: string
+          title?: string
+          updated_at?: string
+          youtube_id?: string | null
+        }
+        Update: {
+          cohort_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          podcast_url?: string | null
+          session_date?: string | null
+          session_number?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          youtube_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
