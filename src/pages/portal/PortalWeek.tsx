@@ -136,6 +136,8 @@ const PortalWeek = () => {
     saveBookmarkResponse(bookmarkId, data);
     setActiveBookmark(null);
     setSaved(true); setTimeout(() => setSaved(false), 2000);
+    // Auto-resume playback after saving
+    setTimeout(() => podcastRef.current?.resume(), 300);
   };
 
   const sharedCount = Object.values(entries).filter(e => e.shared).length + Object.values(bookmarkResponses).filter(r => r.shared).length;
