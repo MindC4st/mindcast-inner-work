@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           id: string
           is_shared: boolean
+          privacy: string
           response_text: string | null
           updated_at: string
           user_id: string
@@ -33,6 +34,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_shared?: boolean
+          privacy?: string
           response_text?: string | null
           updated_at?: string
           user_id: string
@@ -45,6 +47,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_shared?: boolean
+          privacy?: string
           response_text?: string | null
           updated_at?: string
           user_id?: string
@@ -311,10 +314,65 @@ export type Database = {
           },
         ]
       }
+      implementation_goals: {
+        Row: {
+          checkin_notes: string | null
+          checkin_status: string | null
+          created_at: string
+          how_i_will_know: string | null
+          id: string
+          member_id: string
+          session_id: string | null
+          shared_with_group: boolean
+          status: string
+          updated_at: string
+          what_i_will_implement: string | null
+          why_it_matters: string | null
+        }
+        Insert: {
+          checkin_notes?: string | null
+          checkin_status?: string | null
+          created_at?: string
+          how_i_will_know?: string | null
+          id?: string
+          member_id: string
+          session_id?: string | null
+          shared_with_group?: boolean
+          status?: string
+          updated_at?: string
+          what_i_will_implement?: string | null
+          why_it_matters?: string | null
+        }
+        Update: {
+          checkin_notes?: string | null
+          checkin_status?: string | null
+          created_at?: string
+          how_i_will_know?: string | null
+          id?: string
+          member_id?: string
+          session_id?: string | null
+          shared_with_group?: boolean
+          status?: string
+          updated_at?: string
+          what_i_will_implement?: string | null
+          why_it_matters?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "implementation_goals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          cohort: string | null
           created_at: string
+          email: string | null
           id: string
           is_active: boolean
           name: string
@@ -323,7 +381,9 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          cohort?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           name?: string
@@ -332,7 +392,9 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          cohort?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           is_active?: boolean
           name?: string
@@ -345,28 +407,34 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_final_reflection: boolean
           label: string
           question: string
           session_id: string
           sort_order: number
+          timestamp_label: string | null
           timestamp_seconds: number
         }
         Insert: {
           created_at?: string
           id?: string
+          is_final_reflection?: boolean
           label?: string
           question?: string
           session_id: string
           sort_order?: number
+          timestamp_label?: string | null
           timestamp_seconds?: number
         }
         Update: {
           created_at?: string
           id?: string
+          is_final_reflection?: boolean
           label?: string
           question?: string
           session_id?: string
           sort_order?: number
+          timestamp_label?: string | null
           timestamp_seconds?: number
         }
         Relationships: [
@@ -385,6 +453,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          podcast_guest: string | null
+          podcast_title: string | null
           podcast_url: string | null
           session_date: string | null
           session_number: number
@@ -398,6 +468,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          podcast_guest?: string | null
+          podcast_title?: string | null
           podcast_url?: string | null
           session_date?: string | null
           session_number: number
@@ -411,6 +483,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          podcast_guest?: string | null
+          podcast_title?: string | null
           podcast_url?: string | null
           session_date?: string | null
           session_number?: number
