@@ -18,6 +18,7 @@ import type { Bookmark } from "@/data/weekData";
 import { toast } from "@/hooks/use-toast";
 
 const PortalWeek = () => {
+  const isMobile = useIsMobile();
   const { weekNumber } = useParams<{ weekNumber: string }>();
   const weekNum = parseInt(weekNumber || "1", 10);
   const week = WEEKS[weekNum - 1];
