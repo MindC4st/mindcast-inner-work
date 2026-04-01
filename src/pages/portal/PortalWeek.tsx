@@ -143,24 +143,25 @@ const PortalWeek = () => {
   const sharedCount = Object.values(entries).filter(e => e.shared).length + Object.values(bookmarkResponses).filter(r => r.shared).length;
   const allBookmarksCompleted = week?.bookmarks.every(bm => triggeredBookmarks.has(bm.id)) ?? false;
 
-  const sections = ["LISTEN", "BELIEFS", "REFLECTIONS", "SELF AUDIT", "COMMITMENT"];
+  const sections = ["Listen", "Beliefs", "Reflections", "Self Audit", "Commitment"];
 
-  if (!week) return <PortalLayout><p>Week not found</p></PortalLayout>;
+  if (!week) return <PortalLayout><p className="text-muted-foreground font-body">Week not found</p></PortalLayout>;
 
   return (
     <PortalLayout>
       {/* Header */}
-      <div className="mb-6">
-        <Link to="/portal/dashboard" className="text-xs text-muted-foreground tracking-widest hover:text-primary mb-4 inline-block">← BACK TO DASHBOARD</Link>
+      <div className="mb-8">
+        <Link to="/portal/dashboard" className="text-[11px] text-muted-foreground tracking-[0.1em] hover:text-foreground mb-5 inline-flex items-center gap-1 font-body transition-colors">
+          ← Back to dashboard
+        </Link>
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="heading-display text-2xl md:text-3xl text-primary">WEEK {weekNum}: {week.title.toUpperCase()}</h1>
-            <p className="text-xs text-muted-foreground mt-1 font-body">{week.episode}</p>
-            <p className="text-xs text-primary/60 mt-2 italic font-body">{week.focus}</p>
+            <span className="portal-label block mb-2">Session {weekNum}</span>
+            <h1 className="portal-heading text-2xl md:text-3xl">{week.title}</h1>
+            <p className="text-sm text-muted-foreground mt-2 font-body font-light leading-relaxed max-w-lg">{week.focus}</p>
           </div>
-          <div className="flex items-center gap-2">
-            {saved && <span className="text-xs text-muted-foreground flex items-center gap-1"><Check size={12} /> SAVED</span>}
-            <span className="border-2 border-primary/20 text-[10px] tracking-widest px-3 py-1 text-primary/60">TERM 2 — WIRED</span>
+          <div className="flex items-center gap-3">
+            {saved && <span className="text-[11px] text-muted-foreground/60 flex items-center gap-1 font-body"><Check size={12} /> Saved</span>}
           </div>
         </div>
       </div>
@@ -169,11 +170,13 @@ const PortalWeek = () => {
       <ImplementationCheckin weekNumber={weekNum} />
 
       {/* Section nav */}
-      <div className="flex gap-1 mb-8 overflow-x-auto">
+      <div className="flex gap-0 mb-10 overflow-x-auto border-b border-foreground/[0.06]">
         {sections.map((s, i) => (
           <button key={s} onClick={() => setActiveSection(i)}
-            className={`text-[10px] tracking-widest px-4 py-2 border-2 whitespace-nowrap transition-colors ${
-              activeSection === i ? "bg-primary text-secondary border-primary" : "border-primary/20 text-primary/60 hover:border-primary"
+            className={`text-[11px] tracking-[0.12em] px-5 py-3 whitespace-nowrap font-body transition-all duration-200 ${
+              activeSection === i
+                ? "text-foreground border-b-2 border-foreground -mb-px"
+                : "text-muted-foreground/50 hover:text-muted-foreground"
             }`}
           >{s}</button>
         ))}
