@@ -9,6 +9,7 @@ const PortalLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -21,6 +22,17 @@ const PortalLogin = () => {
       toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
     } else {
       navigate("/portal/dashboard");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    const { error } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    setGoogleLoading(false);
+    if (error) {
+      toast({ title: "Google sign in failed", description: error.message, variant: "destructive" });
     }
   };
 
