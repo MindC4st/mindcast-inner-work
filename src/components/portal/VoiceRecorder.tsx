@@ -206,9 +206,9 @@ const VoiceRecorder = ({ onRecordingComplete, existingUrl, onDelete }: VoiceReco
             </div>
             <button
               onClick={stopRecording}
-              className="w-10 h-10 bg-destructive flex items-center justify-center hover:bg-destructive/80 transition-colors"
+              className="w-14 h-14 md:w-10 md:h-10 bg-destructive flex items-center justify-center hover:bg-destructive/80 transition-colors touch-manipulation shrink-0"
             >
-              <Square size={14} className="text-destructive-foreground" />
+              <Square size={18} className="md:w-[14px] md:h-[14px] text-destructive-foreground" />
             </button>
           </div>
           <canvas

@@ -109,25 +109,25 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
   }
 
   return (
-    <div className="border-[3px] border-primary bg-primary text-secondary">
-      {/* YouTube embed (hidden-ish, styled) */}
+    <div className="border-[3px] border-primary bg-primary text-secondary -mx-4 md:mx-0">
+      {/* YouTube embed — full width on mobile */}
       <div className="aspect-video w-full bg-black">
         <div ref={containerRef} className="w-full h-full" />
       </div>
 
       {/* Custom controls bar */}
-      <div className="p-4">
+      <div className="p-3 md:p-4">
         <div className="flex items-center gap-3 mb-3">
-          <button onClick={togglePlay} className="w-10 h-10 border-2 border-secondary/30 flex items-center justify-center hover:border-secondary transition-colors">
-            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+          <button onClick={togglePlay} className="w-12 h-12 md:w-10 md:h-10 border-2 border-secondary/30 flex items-center justify-center hover:border-secondary transition-colors shrink-0">
+            {isPlaying ? <Pause size={18} /> : <Play size={18} />}
           </button>
           <span className="text-xs font-mono tracking-wider text-secondary/60">
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
         </div>
 
-        {/* Progress bar with bookmark markers */}
-        <div className="relative h-2 bg-secondary/10 cursor-pointer" onClick={(e) => {
+        {/* Progress bar with larger tappable bookmark dots */}
+        <div className="relative h-3 md:h-2 bg-secondary/10 cursor-pointer" onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const pct = (e.clientX - rect.left) / rect.width;
           seekTo(pct * duration);
@@ -140,7 +140,7 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
               <button
                 key={bm.id}
                 onClick={(e) => { e.stopPropagation(); seekTo(bm.timestamp - 5); }}
-                className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 transition-colors ${
+                className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 md:w-3 md:h-3 -ml-2.5 md:-ml-1.5 rounded-full border-2 transition-colors touch-manipulation ${
                   completed ? "bg-green-400 border-green-400" : "bg-secondary border-secondary"
                 }`}
                 style={{ left: `${pos}%` }}
@@ -150,13 +150,13 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
           })}
         </div>
 
-        {/* Bookmark legend */}
-        <div className="flex flex-wrap gap-3 mt-3">
+        {/* Bookmark legend — scrollable on mobile */}
+        <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-3 mt-3 overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0 scrollbar-none">
           {bookmarks.map((bm) => (
             <button
               key={bm.id}
               onClick={() => seekTo(bm.timestamp - 5)}
-              className={`text-[9px] tracking-widest px-2 py-1 border transition-colors ${
+              className={`text-[9px] tracking-widest px-3 py-2 md:px-2 md:py-1 border transition-colors whitespace-nowrap shrink-0 touch-manipulation ${
                 triggeredBookmarks.has(bm.id) 
                   ? "border-green-400/40 text-green-400" 
                   : "border-secondary/20 text-secondary/50 hover:text-secondary"
