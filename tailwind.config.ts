@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         display: ["'Bebas Neue'", "sans-serif"],
         body: ["'Inter'", "sans-serif"],
+        serif: ["'Cormorant Garamond'", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
