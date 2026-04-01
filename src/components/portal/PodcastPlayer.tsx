@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Play, Pause, SkipForward } from "lucide-react";
 import type { Bookmark } from "@/data/weekData";
 
