@@ -202,17 +202,30 @@ const PortalWeek = () => {
             triggeredBookmarks={triggeredBookmarks}
           />
 
-          {/* Active bookmark reflection */}
-          <AnimatePresence>
-            {activeBookmark && (
-              <BookmarkReflection
-                bookmark={activeBookmark}
-                response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
-                onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
-                onDismiss={() => setActiveBookmark(null)}
-              />
-            )}
-          </AnimatePresence>
+          {/* Active bookmark reflection — bottom sheet on mobile, inline on desktop */}
+          {isMobile ? (
+            <MobileBottomSheet open={!!activeBookmark} onClose={() => setActiveBookmark(null)}>
+              {activeBookmark && (
+                <BookmarkReflection
+                  bookmark={activeBookmark}
+                  response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
+                  onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
+                  onDismiss={() => setActiveBookmark(null)}
+                />
+              )}
+            </MobileBottomSheet>
+          ) : (
+            <AnimatePresence>
+              {activeBookmark && (
+                <BookmarkReflection
+                  bookmark={activeBookmark}
+                  response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
+                  onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
+                  onDismiss={() => setActiveBookmark(null)}
+                />
+              )}
+            </AnimatePresence>
+          )}
 
           {/* Completed responses */}
           {Object.keys(bookmarkResponses).length > 0 && (
