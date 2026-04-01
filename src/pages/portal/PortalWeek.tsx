@@ -1,20 +1,145 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Camera, Check, Lock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, Mic, Pen, ChevronDown } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import PodcastPlayer from "@/components/portal/PodcastPlayer";
 import type { PodcastPlayerHandle } from "@/components/portal/PodcastPlayer";
-import BookmarkReflection from "@/components/portal/BookmarkReflection";
 import MobileBottomSheet from "@/components/portal/MobileBottomSheet";
 import ImplementationCheckin from "@/components/portal/ImplementationCheckin";
+import VoiceRecorder from "@/components/portal/VoiceRecorder";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { WEEKS, BELIEF_QUESTIONS, REFLECTION_QUESTIONS, DOMAINS, SELF_AUDIT_QUESTIONS } from "@/data/weekData";
+import { WEEKS, BELIEF_QUESTIONS, REFLECTION_QUESTIONS } from "@/data/weekData";
 import type { Bookmark } from "@/data/weekData";
 import { toast } from "@/hooks/use-toast";
 
+/* ─── Bookmark Drawer ─── */
+const BookmarkDrawer = ({
+  bookmark,
+  response,
+  onSave,
+  onDismiss,
+}: {
+  bookmark: Bookmark;
+  response: { text: string; voiceUrl: string; shared: boolean };
+  onSave: (data: { text: string; voiceUrl: string; shared: boolean }) => void;
+  onDismiss: () => void;
+}) => {
+  const [text, setText] = useState(response.text);
+  const [voiceUrl, setVoiceUrl] = useState(response.voiceUrl);
+  const [mode, setMode] = useState<"voice" | "text">(response.voiceUrl ? "voice" : "text");
+
+  const handleSave = () => {
+    onSave({ text, voiceUrl, shared: true });
+  };
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <span className="portal-label text-electric">{bookmark.label}</span>
+        <h3 className="portal-heading text-lg mt-1.5 leading-snug">{bookmark.question}</h3>
+      </div>
+
+      {/* Mode toggle */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setMode("voice")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            mode === "voice"
+              ? "bg-electric text-accent-foreground shadow-sm"
+              : "bg-foreground/[0.04] text-muted-foreground hover:bg-foreground/[0.08]"
+          }`}
+        >
+          <Mic size={16} /> Voice Note
+        </button>
+        <button
+          onClick={() => setMode("text")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            mode === "text"
+              ? "bg-electric text-accent-foreground shadow-sm"
+              : "bg-foreground/[0.04] text-muted-foreground hover:bg-foreground/[0.08]"
+          }`}
+        >
+          <Pen size={16} /> Type
+        </button>
+      </div>
+
+      {/* Input */}
+      {mode === "voice" ? (
+        <VoiceRecorder
+          existingUrl={voiceUrl}
+          onRecordingComplete={(url) => setVoiceUrl(url)}
+          onDelete={() => setVoiceUrl("")}
+        />
+      ) : (
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="What comes to mind..."
+          className="input-underline min-h-[100px]"
+          autoFocus
+        />
+      )}
+
+      {/* Save */}
+      <button
+        onClick={handleSave}
+        className="w-full py-3.5 rounded-xl bg-electric text-accent-foreground font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity"
+      >
+        Done — keep listening
+      </button>
+    </div>
+  );
+};
+
+/* ─── Belief Card (flip style) ─── */
+const BeliefCard = ({
+  question,
+  beforeEntry,
+  afterEntry,
+  onUpdate,
+}: {
+  question: string;
+  beforeEntry: { text: string; shared: boolean };
+  afterEntry: { text: string; shared: boolean };
+  onUpdate: (phase: "before" | "after", value: string) => void;
+}) => {
+  const [showAfter, setShowAfter] = useState(!!afterEntry.text);
+
+  return (
+    <div className="portal-card p-5 md:p-6">
+      <p className="text-sm font-semibold text-foreground leading-relaxed mb-4">"{question}"</p>
+      <div className="flex gap-2 mb-3">
+        <button
+          onClick={() => setShowAfter(false)}
+          className={`text-xs font-medium px-3 py-1.5 rounded-md transition-colors ${
+            !showAfter ? "bg-foreground/10 text-foreground" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Before
+        </button>
+        <button
+          onClick={() => setShowAfter(true)}
+          className={`text-xs font-medium px-3 py-1.5 rounded-md transition-colors ${
+            showAfter ? "bg-bronze/20 text-bronze" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          After
+        </button>
+      </div>
+      <textarea
+        value={showAfter ? afterEntry.text : beforeEntry.text}
+        onChange={(e) => onUpdate(showAfter ? "after" : "before", e.target.value)}
+        placeholder={showAfter ? "Has your view shifted?" : "What do you believe right now?"}
+        className="input-underline min-h-[60px]"
+      />
+    </div>
+  );
+};
+
+/* ─── Main Page ─── */
 const PortalWeek = () => {
   const isMobile = useIsMobile();
   const { weekNumber } = useParams<{ weekNumber: string }>();
@@ -23,13 +148,12 @@ const PortalWeek = () => {
   const { user, cohortId } = useAuth();
 
   const [entries, setEntries] = useState<Record<string, { text: string; shared: boolean; locked: boolean; photoUrl: string }>>({});
-  const [domainScores, setDomainScores] = useState<Record<string, number>>({});
   const [commitment, setCommitment] = useState({ commitment_text: "", why_text: "", measure_text: "", obstacle_text: "", checkin_sentence: "", is_locked: false });
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, { text: string; voiceUrl: string; shared: boolean }>>({});
   const [triggeredBookmarks, setTriggeredBookmarks] = useState<Set<string>>(new Set());
   const [activeBookmark, setActiveBookmark] = useState<Bookmark | null>(null);
   const [saved, setSaved] = useState(false);
-  const [activeSection, setActiveSection] = useState(0);
+  const [showDeeper, setShowDeeper] = useState(false);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const podcastRef = useRef<PodcastPlayerHandle>(null);
 
@@ -37,9 +161,8 @@ const PortalWeek = () => {
   useEffect(() => {
     if (!user || !cohortId) return;
     const load = async () => {
-      const [entriesRes, scoresRes, commitRes, bmRes] = await Promise.all([
+      const [entriesRes, commitRes, bmRes] = await Promise.all([
         supabase.from("entries").select("*").eq("user_id", user.id).eq("cohort_id", cohortId).eq("week_number", weekNum),
-        supabase.from("domain_scores").select("*").eq("user_id", user.id).eq("cohort_id", cohortId).eq("week_number", weekNum),
         supabase.from("commitments").select("*").eq("user_id", user.id).eq("cohort_id", cohortId).eq("week_number", weekNum).single(),
         supabase.from("bookmark_responses").select("*").eq("user_id", user.id).eq("cohort_id", cohortId).eq("week_number", weekNum),
       ]);
@@ -49,10 +172,6 @@ const PortalWeek = () => {
         entryMap[e.question_key] = { text: e.answer_text || "", shared: e.is_shared, locked: e.is_locked, photoUrl: e.photo_url || "" };
       });
       setEntries(entryMap);
-
-      const scoreMap: typeof domainScores = {};
-      (scoresRes.data || []).forEach(s => { scoreMap[s.domain_name] = s.score; });
-      setDomainScores(scoreMap);
 
       if (commitRes.data) {
         setCommitment({
@@ -86,13 +205,6 @@ const PortalWeek = () => {
     }, { onConflict: "user_id,cohort_id,week_number,question_key" });
   }, [user, cohortId, weekNum]);
 
-  const saveDomainScore = useCallback(async (domain: string, score: number) => {
-    if (!user || !cohortId) return;
-    await supabase.from("domain_scores").upsert({
-      user_id: user.id, cohort_id: cohortId, week_number: weekNum, domain_name: domain, score,
-    }, { onConflict: "user_id,cohort_id,week_number,domain_name" });
-  }, [user, cohortId, weekNum]);
-
   const saveCommitment = useCallback(async (data: typeof commitment) => {
     if (!user || !cohortId) return;
     await supabase.from("commitments").upsert({
@@ -120,15 +232,6 @@ const PortalWeek = () => {
     }, 1000);
   };
 
-  const handlePhotoUpload = async (key: string, file: File) => {
-    if (!user) return;
-    const path = `${user.id}/${weekNum}/${key}_${Date.now()}.${file.name.split(".").pop()}`;
-    const { error } = await supabase.storage.from("worksheet-photos").upload(path, file);
-    if (error) { toast({ title: "Upload failed", description: error.message, variant: "destructive" }); return; }
-    const { data: urlData } = supabase.storage.from("worksheet-photos").getPublicUrl(path);
-    updateEntry(key, "photoUrl", urlData.publicUrl);
-  };
-
   const handleBookmarkHit = (bookmark: Bookmark) => {
     setActiveBookmark(bookmark);
   };
@@ -139,61 +242,34 @@ const PortalWeek = () => {
     saveBookmarkResponse(bookmarkId, data);
     setActiveBookmark(null);
     setSaved(true); setTimeout(() => setSaved(false), 2000);
-    // Auto-resume playback after saving
     setTimeout(() => podcastRef.current?.resume(), 300);
   };
 
-  const sharedCount = Object.values(entries).filter(e => e.shared).length + Object.values(bookmarkResponses).filter(r => r.shared).length;
-  const allBookmarksCompleted = week?.bookmarks.every(bm => triggeredBookmarks.has(bm.id)) ?? false;
+  const completedCount = week ? week.bookmarks.filter(bm => triggeredBookmarks.has(bm.id)).length : 0;
+  const totalBookmarks = week?.bookmarks.length || 0;
 
-  const sections = ["Listen", "Beliefs", "Reflections", "Self Audit", "Commitment"];
-
-  if (!week) return <PortalLayout><p className="text-muted-foreground font-body">Week not found</p></PortalLayout>;
+  if (!week) return <PortalLayout><p className="text-muted-foreground">Session not found</p></PortalLayout>;
 
   return (
     <PortalLayout>
-      {/* Header */}
-      <div className="mb-8">
-        <Link to="/portal/dashboard" className="text-[11px] text-muted-foreground tracking-[0.1em] hover:text-foreground mb-5 inline-flex items-center gap-1 font-body transition-colors">
-          ← Back to dashboard
+      <div className="max-w-2xl mx-auto">
+        {/* Back */}
+        <Link to="/portal/dashboard" className="text-sm text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 transition-colors">
+          <ChevronLeft size={16} /> Back
         </Link>
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <span className="portal-label block mb-2">Session {weekNum}</span>
-            <h1 className="portal-heading text-2xl md:text-3xl">{week.title}</h1>
-            <p className="text-sm text-muted-foreground mt-2 font-body font-light leading-relaxed max-w-lg">{week.focus}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {saved && <span className="text-[11px] text-muted-foreground/60 flex items-center gap-1 font-body"><Check size={12} /> Saved</span>}
-          </div>
-        </div>
-      </div>
 
-      {/* Implementation Check-in from previous week */}
-      <ImplementationCheckin weekNumber={weekNum} />
+        {/* Implementation Check-in from previous week */}
+        <ImplementationCheckin weekNumber={weekNum} />
 
-      {/* Section nav */}
-      <div className="flex gap-0 mb-10 overflow-x-auto border-b border-foreground/[0.06]">
-        {sections.map((s, i) => (
-          <button key={s} onClick={() => setActiveSection(i)}
-            className={`text-[11px] tracking-[0.12em] px-5 py-3 whitespace-nowrap font-body transition-all duration-200 ${
-              activeSection === i
-                ? "text-foreground border-b-2 border-foreground -mb-px"
-                : "text-muted-foreground/50 hover:text-muted-foreground"
-            }`}
-          >{s}</button>
-        ))}
-      </div>
+        {/* ── 1. SESSION HEADER ── */}
+        <section className="mb-8">
+          <span className="portal-label text-electric block mb-2">Session {weekNum}</span>
+          <h1 className="heading-display text-2xl md:text-3xl text-foreground mb-3">{week.title}</h1>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-lg">{week.focus}</p>
+        </section>
 
-      {/* LISTEN SECTION */}
-      {activeSection === 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-          <h2 className="heading-display text-xl text-primary mb-4">LISTEN & REFLECT</h2>
-          <p className="text-sm text-muted-foreground mb-4 font-body">
-            Press play. When you hit a bookmark moment, the player will pause and a reflection question will appear.
-            Record a voice note or type your response.
-          </p>
-
+        {/* ── 2. LISTEN & CAPTURE ── */}
+        <section className="mb-12">
           <PodcastPlayer
             ref={podcastRef}
             youtubeId={week.youtubeId}
@@ -202,11 +278,45 @@ const PortalWeek = () => {
             triggeredBookmarks={triggeredBookmarks}
           />
 
-          {/* Active bookmark reflection — bottom sheet on mobile, inline on desktop */}
+          {/* Progress indicator */}
+          {totalBookmarks > 0 && (
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">{completedCount}</span> of {totalBookmarks} bookmarks captured
+              </p>
+              {saved && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Check size={12} className="text-electric" /> Saved
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Bookmark chips (manual access) */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {week.bookmarks.map(bm => {
+              const done = triggeredBookmarks.has(bm.id);
+              return (
+                <button
+                  key={bm.id}
+                  onClick={() => setActiveBookmark(bm)}
+                  className={`text-xs font-medium px-3 py-2 rounded-lg transition-all ${
+                    done
+                      ? "bg-electric/10 text-electric border border-electric/20"
+                      : "bg-foreground/[0.03] text-muted-foreground border border-foreground/[0.06] hover:border-foreground/20"
+                  }`}
+                >
+                  {done && "✓ "}{bm.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Bottom sheet for bookmark reflection */}
           {isMobile ? (
             <MobileBottomSheet open={!!activeBookmark} onClose={() => setActiveBookmark(null)}>
               {activeBookmark && (
-                <BookmarkReflection
+                <BookmarkDrawer
                   bookmark={activeBookmark}
                   response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
                   onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
@@ -217,255 +327,151 @@ const PortalWeek = () => {
           ) : (
             <AnimatePresence>
               {activeBookmark && (
-                <BookmarkReflection
-                  bookmark={activeBookmark}
-                  response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
-                  onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
-                  onDismiss={() => setActiveBookmark(null)}
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="portal-card p-6 md:p-8 mt-6"
+                >
+                  <BookmarkDrawer
+                    bookmark={activeBookmark}
+                    response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
+                    onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
+                    onDismiss={() => setActiveBookmark(null)}
+                  />
+                </motion.div>
               )}
             </AnimatePresence>
           )}
+        </section>
 
-          {/* Completed responses */}
-          {Object.keys(bookmarkResponses).length > 0 && (
-            <div className="space-y-3 mt-6">
-              <h3 className="text-[10px] tracking-widest text-primary/40">YOUR BOOKMARK RESPONSES</h3>
-              {week.bookmarks.filter(bm => bookmarkResponses[bm.id]).map(bm => {
-                const resp = bookmarkResponses[bm.id];
-                return (
-                  <div key={bm.id} className="border-2 border-primary/10 p-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] tracking-widest text-primary/40">{bm.label.toUpperCase()}</span>
-                      {resp.shared ? <Eye size={12} className="text-primary/40" /> : <EyeOff size={12} className="text-primary/20" />}
-                    </div>
-                    <p className="text-xs text-primary font-body italic">{bm.question}</p>
-                    {resp.text && <p className="text-sm text-primary font-body mt-2">{resp.text}</p>}
-                    {resp.voiceUrl && <span className="text-[10px] text-primary/40 tracking-widest mt-1 block">🎙 VOICE NOTE ATTACHED</span>}
-                    <button onClick={() => setActiveBookmark(bm)} className="text-[10px] tracking-widest text-primary/40 hover:text-primary mt-2">EDIT →</button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Final reflection — shown after all bookmarks completed */}
-          {allBookmarksCompleted && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="portal-card p-6 md:p-8 mt-8">
-              <h3 className="portal-heading text-xl mb-2">Final Reflection</h3>
-              <p className="text-sm text-muted-foreground mb-6 font-body font-light">You've completed all bookmark reflections. Capture your key takeaway.</p>
-              {[
-                { key: "final_insight", label: "What is the one insight that most challenged or excited you?", placeholder: "The insight that stands out..." },
-              ].map(field => {
-                const entry = entries[field.key] || { text: "", shared: false, locked: false, photoUrl: "" };
-                return (
-                  <div key={field.key} className="mb-4">
-                    <label className="portal-label block mb-1.5">{field.label}</label>
-                    <textarea
-                      value={entry.text}
-                      onChange={(e) => updateEntry(field.key, "text", e.target.value)}
-                      placeholder={field.placeholder}
-                      className="w-full bg-foreground/[0.02] text-foreground p-3 text-sm font-body font-light border border-foreground/[0.07] focus:border-foreground/20 focus:outline-none resize-none min-h-[80px] leading-relaxed placeholder:text-muted-foreground/30"
-                    />
-                  </div>
-                );
-              })}
-              <p className="text-xs text-muted-foreground font-body font-light">
-                Now head to the <button onClick={() => setActiveSection(4)} className="underline hover:text-foreground transition-colors">Commitment</button> tab to set your implementation for the week.
-              </p>
-            </motion.div>
-          )}
-        </motion.div>
-      )}
-
-      {/* BELIEFS SECTION */}
-      {activeSection === 1 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-          <h2 className="heading-display text-xl text-primary mb-4">BELIEF AUDIT</h2>
-          <p className="text-sm text-muted-foreground mb-6 font-body">Rate each belief before and after listening to this week's episode.</p>
-          {BELIEF_QUESTIONS.map((q, i) => {
-            const beforeKey = `belief_${i}_before`;
-            const afterKey = `belief_${i}_after`;
-            const before = entries[beforeKey] || { text: "", shared: false, locked: false, photoUrl: "" };
-            const after = entries[afterKey] || { text: "", shared: false, locked: false, photoUrl: "" };
-            return (
-              <div key={i} className="border-2 border-primary/10 p-4 md:p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-display text-sm tracking-wider text-primary">"{q.toUpperCase()}"</h3>
-                  <button onClick={() => { updateEntry(beforeKey, "shared", !before.shared); updateEntry(afterKey, "shared", !before.shared); }}
-                    className="text-muted-foreground hover:text-primary" title={before.shared ? "Shared with group" : "Private"}>
-                    {before.shared ? <Eye size={14} /> : <EyeOff size={14} />}
-                  </button>
-                </div>
-                <div className="grid md:grid-cols-2 gap-3">
-                  <div className="relative">
-                    <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">BEFORE LISTENING</label>
-                    <textarea value={before.text} onChange={(e) => updateEntry(beforeKey, "text", e.target.value)}
-                      disabled={before.locked} placeholder="Your initial belief..."
-                      className="w-full bg-muted/30 text-primary p-3 text-sm font-body border-2 border-primary/10 focus:border-primary focus:outline-none resize-none min-h-[60px] disabled:opacity-60" />
-                    {before.locked && <Lock size={12} className="absolute top-7 right-3 text-muted-foreground" />}
-                  </div>
-                  <div>
-                    <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">AFTER LISTENING</label>
-                    <textarea value={after.text} onChange={(e) => updateEntry(afterKey, "text", e.target.value)}
-                      placeholder="How has it changed?"
-                      className="w-full bg-muted/30 text-primary p-3 text-sm font-body border-2 border-primary/10 focus:border-primary focus:outline-none resize-none min-h-[60px]" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          {!Object.keys(entries).some(k => k.startsWith("belief_") && k.endsWith("_before") && entries[k]?.locked) && (
-            <button onClick={() => {
-              BELIEF_QUESTIONS.forEach((_, i) => {
-                const key = `belief_${i}_before`;
-                const current = entries[key] || { text: "", shared: false, locked: false, photoUrl: "" };
-                const updated = { ...current, locked: true };
-                setEntries(prev => ({ ...prev, [key]: updated }));
-                saveEntry(key, updated);
-              });
-              toast({ title: "Before responses locked", description: "Your initial beliefs are now preserved." });
-            }} className="btn-navy text-xs py-2 px-6">LOCK MY BEFORE RESPONSES</button>
-          )}
-        </motion.div>
-      )}
-
-      {/* REFLECTIONS SECTION */}
-      {activeSection === 2 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-          <h2 className="heading-display text-xl text-primary mb-4">REFLECTION QUESTIONS</h2>
-          {REFLECTION_QUESTIONS.map((q, i) => {
-            const key = `reflection_${i}`;
-            const entry = entries[key] || { text: "", shared: false, locked: false, photoUrl: "" };
-            return (
-              <div key={i} className="border-2 border-primary/10 p-4 md:p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-body text-primary">{q}</h3>
-                  <div className="flex items-center gap-2">
-                    <label className="cursor-pointer" title="Upload photo">
-                      <Camera size={14} className="text-muted-foreground hover:text-primary" />
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handlePhotoUpload(key, e.target.files[0])} />
-                    </label>
-                    <button onClick={() => updateEntry(key, "shared", !entry.shared)} className="text-muted-foreground hover:text-primary">
-                      {entry.shared ? <Eye size={14} /> : <EyeOff size={14} />}
-                    </button>
-                  </div>
-                </div>
-                <textarea value={entry.text} onChange={(e) => updateEntry(key, "text", e.target.value)}
-                  placeholder="Your reflection..."
-                  className="w-full bg-muted/30 text-primary p-3 text-sm font-body border-2 border-primary/10 focus:border-primary focus:outline-none resize-none min-h-[80px]" />
-                {entry.photoUrl && (
-                  <div className="mt-2"><img src={entry.photoUrl} alt="Uploaded note" className="h-24 object-cover border-2 border-primary/10" /></div>
-                )}
-              </div>
-            );
-          })}
-        </motion.div>
-      )}
-
-      {/* SELF AUDIT SECTION */}
-      {activeSection === 3 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-          <h2 className="heading-display text-xl text-primary mb-4">SELF AUDIT</h2>
-          <p className="text-sm text-muted-foreground mb-6 font-body">Rate yourself across 9 domains on a scale of 1–5.</p>
-          <div className="grid gap-4">
-            {DOMAINS.map((d) => (
-              <div key={d} className="border-2 border-primary/10 p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-display text-xs tracking-wider text-primary">{d.toUpperCase()}</h3>
-                  <span className="text-lg font-display text-primary">{domainScores[d] || "-"}</span>
-                </div>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button key={n} onClick={() => {
-                      setDomainScores(prev => ({ ...prev, [d]: n }));
-                      saveDomainScore(d, n);
-                      setSaved(true); setTimeout(() => setSaved(false), 2000);
-                    }} className={`flex-1 py-2 border-2 text-xs font-display tracking-wider transition-colors ${
-                      domainScores[d] === n ? "bg-primary text-secondary border-primary" : "border-primary/20 text-primary/60 hover:border-primary"
-                    }`}>{n}</button>
-                  ))}
-                </div>
-              </div>
-            ))}
+        {/* ── 3. BELIEF CHECK ── */}
+        <section className="mb-12">
+          <h2 className="heading-display text-xl text-foreground mb-2">Belief Check</h2>
+          <p className="text-sm text-muted-foreground mb-6">Quick pulse — how do you feel about these ideas?</p>
+          <div className="space-y-4">
+            {BELIEF_QUESTIONS.slice(0, 3).map((q, i) => {
+              const beforeKey = `belief_${i}_before`;
+              const afterKey = `belief_${i}_after`;
+              const before = entries[beforeKey] || { text: "", shared: false, locked: false, photoUrl: "" };
+              const after = entries[afterKey] || { text: "", shared: false, locked: false, photoUrl: "" };
+              return (
+                <BeliefCard
+                  key={i}
+                  question={q}
+                  beforeEntry={before}
+                  afterEntry={after}
+                  onUpdate={(phase, value) => updateEntry(phase === "before" ? beforeKey : afterKey, "text", value)}
+                />
+              );
+            })}
           </div>
-          <div className="space-y-4 mt-6">
-            {SELF_AUDIT_QUESTIONS.map((q, i) => {
-              const key = `audit_${i}`;
+        </section>
+
+        {/* ── 4. REFLECTION ── */}
+        <section className="mb-12">
+          <h2 className="heading-display text-xl text-foreground mb-2">Reflection</h2>
+          <p className="text-sm text-muted-foreground mb-6">Two questions to sit with.</p>
+          <div className="space-y-6">
+            {REFLECTION_QUESTIONS.slice(0, 2).map((q, i) => {
+              const key = `reflection_${i}`;
               const entry = entries[key] || { text: "", shared: false, locked: false, photoUrl: "" };
               return (
-                <div key={i} className="border-2 border-primary/10 p-4">
-                  <h3 className="text-sm font-body text-primary mb-2">{q}</h3>
-                  <textarea value={entry.text} onChange={(e) => updateEntry(key, "text", e.target.value)}
-                    placeholder="Your response..."
-                    className="w-full bg-muted/30 text-primary p-3 text-sm font-body border-2 border-primary/10 focus:border-primary focus:outline-none resize-none min-h-[60px]" />
+                <div key={i} className="portal-card p-5 md:p-6">
+                  <p className="text-sm font-semibold text-foreground mb-4">{q}</p>
+                  <textarea
+                    value={entry.text}
+                    onChange={(e) => updateEntry(key, "text", e.target.value)}
+                    placeholder="What comes to mind..."
+                    className="input-underline min-h-[80px]"
+                  />
                 </div>
               );
             })}
           </div>
-        </motion.div>
-      )}
 
-      {/* COMMITMENT SECTION */}
-      {activeSection === 4 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-          <h2 className="portal-heading text-xl mb-1">This Week's Commitment</h2>
-          <p className="text-sm text-muted-foreground mb-6 font-body font-light">Your single implementation for the week. Be specific.</p>
-          <div className="portal-card p-6 md:p-8 space-y-5">
-            {[
-              { key: "commitment_text", label: "What will you implement this week?", placeholder: "My commitment this week..." },
-              { key: "why_text", label: "Why does this matter to you?", placeholder: "Why this matters to me..." },
-              { key: "measure_text", label: "How will you know you've succeeded?", placeholder: "I'll know I succeeded when..." },
-              { key: "obstacle_text", label: "What might get in the way?", placeholder: "The biggest obstacle is..." },
-            ].map((field) => (
-              <div key={field.key}>
-                <label className="portal-label block mb-1.5">{field.label}</label>
-                <textarea
-                  value={(commitment as any)[field.key] || ""}
-                  onChange={(e) => {
-                    const updated = { ...commitment, [field.key]: e.target.value };
-                    setCommitment(updated);
-                    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-                    saveTimerRef.current = setTimeout(() => {
-                      saveCommitment(updated); setSaved(true); setTimeout(() => setSaved(false), 2000);
-                    }, 1000);
-                  }}
-                  disabled={commitment.is_locked}
-                  placeholder={field.placeholder}
-                  className="w-full bg-foreground/[0.02] text-foreground p-3 text-sm font-body font-light border border-foreground/[0.07] focus:border-foreground/20 focus:outline-none resize-none min-h-[70px] leading-relaxed placeholder:text-muted-foreground/30 disabled:opacity-50" />
-              </div>
-            ))}
-            <div>
-              <label className="portal-label block mb-1.5">Check-in sentence (private)</label>
-              <textarea
-                value={commitment.checkin_sentence}
-                onChange={(e) => {
-                  const updated = { ...commitment, checkin_sentence: e.target.value };
-                  setCommitment(updated);
-                  if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-                  saveTimerRef.current = setTimeout(() => { saveCommitment(updated); setSaved(true); setTimeout(() => setSaved(false), 2000); }, 1000);
-                }}
-                placeholder="How will you check in with yourself?"
-                className="w-full bg-foreground/[0.02] text-foreground p-3 text-sm font-body font-light border border-foreground/[0.07] focus:border-foreground/20 focus:outline-none resize-none min-h-[70px] leading-relaxed placeholder:text-muted-foreground/30" />
+          {/* Go deeper */}
+          {REFLECTION_QUESTIONS.length > 2 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowDeeper(!showDeeper)}
+                className="text-sm font-medium text-electric hover:opacity-80 transition-opacity flex items-center gap-1"
+              >
+                Go deeper <ChevronDown size={14} className={`transition-transform ${showDeeper ? "rotate-180" : ""}`} />
+              </button>
+              <AnimatePresence>
+                {showDeeper && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden space-y-4 mt-4"
+                  >
+                    {REFLECTION_QUESTIONS.slice(2).map((q, i) => {
+                      const key = `reflection_${i + 2}`;
+                      const entry = entries[key] || { text: "", shared: false, locked: false, photoUrl: "" };
+                      return (
+                        <div key={i + 2} className="portal-card p-5 md:p-6">
+                          <p className="text-sm font-semibold text-foreground mb-4">{q}</p>
+                          <textarea
+                            value={entry.text}
+                            onChange={(e) => updateEntry(key, "text", e.target.value)}
+                            placeholder="What comes to mind..."
+                            className="input-underline min-h-[80px]"
+                          />
+                        </div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Sharing summary + navigation */}
-      <div className="mt-8 flex items-center justify-between flex-wrap gap-4">
-        <p className="text-xs text-muted-foreground font-body">
-          You're sharing <strong className="text-primary">{sharedCount}</strong> responses with the group this week.
-        </p>
-        <div className="flex gap-2">
-          {weekNum > 1 && (
-            <Link to={`/portal/week/${weekNum - 1}`} className="border-2 border-primary/20 text-primary/60 text-[10px] tracking-widest px-4 py-2 hover:border-primary transition-colors flex items-center gap-1">
-              <ChevronLeft size={12} /> WEEK {weekNum - 1}
-            </Link>
           )}
+        </section>
+
+        {/* ── 5. THIS WEEK'S ONE THING ── */}
+        <section className="mb-12">
+          <div className="portal-card p-6 md:p-10 text-center">
+            <span className="portal-label text-bronze block mb-3">This week's commitment</span>
+            <h2 className="heading-display text-2xl text-foreground mb-6">What's the one thing?</h2>
+            <textarea
+              value={commitment.commitment_text}
+              onChange={(e) => {
+                const updated = { ...commitment, commitment_text: e.target.value };
+                setCommitment(updated);
+                if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+                saveTimerRef.current = setTimeout(() => {
+                  saveCommitment(updated);
+                  setSaved(true); setTimeout(() => setSaved(false), 2000);
+                }, 1000);
+              }}
+              disabled={commitment.is_locked}
+              placeholder="I will..."
+              className="input-underline text-center text-lg font-medium min-h-[60px] disabled:opacity-50"
+            />
+            <p className="text-xs text-muted-foreground mt-6">
+              This is your signed commitment for the week. Be specific. Be honest.
+            </p>
+          </div>
+        </section>
+
+        {/* ── SOCIAL LAYER ── */}
+        <section className="mb-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{completedCount > 0 ? "You" : "No one"}</span> {completedCount > 0 ? "and other members have" : "has"} completed this session
+          </p>
+        </section>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between pb-8">
+          {weekNum > 1 ? (
+            <Link to={`/portal/week/${weekNum - 1}`} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
+              <ChevronLeft size={14} /> Session {weekNum - 1}
+            </Link>
+          ) : <div />}
           {weekNum < 10 && (
-            <Link to={`/portal/week/${weekNum + 1}`} className="border-2 border-primary/20 text-primary/60 text-[10px] tracking-widest px-4 py-2 hover:border-primary transition-colors flex items-center gap-1">
-              WEEK {weekNum + 1} <ChevronRight size={12} />
+            <Link to={`/portal/week/${weekNum + 1}`} className="text-sm text-electric font-medium hover:opacity-80 transition-opacity">
+              Session {weekNum + 1} →
             </Link>
           )}
         </div>
