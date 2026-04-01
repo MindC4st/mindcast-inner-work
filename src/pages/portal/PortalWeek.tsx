@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Camera, Check, Lock, ChevronLeft, ChevronRight } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import PodcastPlayer from "@/components/portal/PodcastPlayer";
+import type { PodcastPlayerHandle } from "@/components/portal/PodcastPlayer";
 import BookmarkReflection from "@/components/portal/BookmarkReflection";
 import ImplementationCheckin from "@/components/portal/ImplementationCheckin";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +28,7 @@ const PortalWeek = () => {
   const [saved, setSaved] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const podcastRef = useRef<PodcastPlayerHandle>(null);
 
   // Load data
   useEffect(() => {
@@ -134,6 +136,8 @@ const PortalWeek = () => {
     saveBookmarkResponse(bookmarkId, data);
     setActiveBookmark(null);
     setSaved(true); setTimeout(() => setSaved(false), 2000);
+    // Auto-resume playback after saving
+    setTimeout(() => podcastRef.current?.resume(), 300);
   };
 
   const sharedCount = Object.values(entries).filter(e => e.shared).length + Object.values(bookmarkResponses).filter(r => r.shared).length;
@@ -185,6 +189,7 @@ const PortalWeek = () => {
           </p>
 
           <PodcastPlayer
+            ref={podcastRef}
             youtubeId={week.youtubeId}
             bookmarks={week.bookmarks}
             onBookmarkHit={handleBookmarkHit}

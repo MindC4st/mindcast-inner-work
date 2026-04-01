@@ -1,6 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Play, Pause, SkipForward } from "lucide-react";
 import type { Bookmark } from "@/data/weekData";
+
+export interface PodcastPlayerHandle {
+  resume: () => void;
+}
 
 interface PodcastPlayerProps {
   youtubeId?: string;
@@ -13,7 +17,7 @@ declare global {
   interface Window { YT: any; onYouTubeIframeAPIReady: () => void; }
 }
 
-const PodcastPlayer = ({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks }: PodcastPlayerProps) => {
+const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks }, ref) => {
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -22,7 +26,10 @@ const PodcastPlayer = ({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks
   const [duration, setDuration] = useState(0);
   const [apiReady, setApiReady] = useState(false);
 
-  // Load YouTube IFrame API
+  useImperativeHandle(ref, () => ({
+    resume: () => { playerRef.current?.playVideo?.(); },
+  }));
+
   useEffect(() => {
     if (!youtubeId) return;
     if (window.YT && window.YT.Player) { setApiReady(true); return; }
@@ -162,6 +169,8 @@ const PodcastPlayer = ({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks
       </div>
     </div>
   );
-};
+});
+
+PodcastPlayer.displayName = "PodcastPlayer";
 
 export default PodcastPlayer;
