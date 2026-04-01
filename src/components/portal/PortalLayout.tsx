@@ -54,16 +54,26 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
               </Link>
             );
           })}
+          <Link
+            to="/portal/group"
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-6 py-3 text-xs tracking-widest transition-colors ${
+              location.pathname === "/portal/group" ? "bg-secondary/10 text-secondary border-l-2 border-secondary" : "text-secondary/40 hover:text-secondary hover:bg-secondary/5"
+            }`}
+          >
+            <Users size={16} />
+            GROUP VIEW
+          </Link>
           {role === "facilitator" && (
             <Link
-              to="/portal/group"
+              to="/portal/admin"
               onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-6 py-3 text-xs tracking-widest transition-colors ${
-                location.pathname === "/portal/group" ? "bg-secondary/10 text-secondary border-l-2 border-secondary" : "text-secondary/40 hover:text-secondary hover:bg-secondary/5"
+                location.pathname === "/portal/admin" ? "bg-secondary/10 text-secondary border-l-2 border-secondary" : "text-secondary/40 hover:text-secondary hover:bg-secondary/5"
               }`}
             >
-              <BookOpen size={16} />
-              GROUP VIEW
+              <Settings size={16} />
+              ADMIN PANEL
             </Link>
           )}
         </nav>
