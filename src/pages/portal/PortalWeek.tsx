@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Camera, Check, Lock, ChevronLeft, ChevronRight } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import PodcastPlayer from "@/components/portal/PodcastPlayer";
+import type { PodcastPlayerHandle } from "@/components/portal/PodcastPlayer";
 import BookmarkReflection from "@/components/portal/BookmarkReflection";
 import ImplementationCheckin from "@/components/portal/ImplementationCheckin";
 import { useAuth } from "@/contexts/AuthContext";
