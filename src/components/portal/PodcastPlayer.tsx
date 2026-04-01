@@ -26,7 +26,10 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
   const [duration, setDuration] = useState(0);
   const [apiReady, setApiReady] = useState(false);
 
-  // Load YouTube IFrame API
+  useImperativeHandle(ref, () => ({
+    resume: () => { playerRef.current?.playVideo?.(); },
+  }));
+
   useEffect(() => {
     if (!youtubeId) return;
     if (window.YT && window.YT.Player) { setApiReady(true); return; }
