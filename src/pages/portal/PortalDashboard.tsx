@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Lock, CheckCircle, PlayCircle } from "lucide-react";
+import { Lock, CheckCircle, PlayCircle, ArrowRight } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { WEEKS } from "@/data/weekData";
 
-const CURRENT_WEEK = 3; // Simulated — in prod this would be calculated from cohort start_date
+const CURRENT_WEEK = 3;
 
 const PortalDashboard = () => {
   const { profile, user, cohortId } = useAuth();
@@ -45,94 +45,106 @@ const PortalDashboard = () => {
     return "not-started";
   };
 
+  const firstName = (profile?.name || "").split(" ")[0] || "there";
+
   return (
     <PortalLayout>
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="heading-display text-3xl md:text-4xl text-primary">
-          WELCOME BACK, {(profile?.name || "MEMBER").toUpperCase()}
+      {/* Greeting */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-10">
+        <h1 className="portal-heading text-3xl md:text-4xl text-foreground">
+          Welcome back, {firstName}
         </h1>
-        <div className="flex items-center gap-3 mt-3">
-          <span className="inline-block border-2 border-primary/20 text-primary/60 text-[10px] tracking-widest px-4 py-1">
-            TERM 2 — WIRED
-          </span>
-        </div>
+        <p className="text-sm text-muted-foreground mt-2 font-body font-light">
+          Pick up where you left off, or explore a new session.
+        </p>
       </motion.div>
 
-      {/* Progress bar */}
-      <div className="mb-8">
-        <div className="flex items-center gap-1">
+      {/* Term & Progress */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.5 }} className="mb-10">
+        <div className="flex items-center justify-between mb-3">
+          <span className="portal-label">Term 2 — Wired</span>
+          <span className="portal-label">Week {CURRENT_WEEK} of 10</span>
+        </div>
+        <div className="flex items-center gap-[3px]">
           {WEEKS.map((w) => {
             const status = getWeekStatus(w.number);
             return (
               <div
                 key={w.number}
-                className={`flex-1 h-2 ${
-                  status === "complete" ? "bg-green-600" :
-                  status === "in-progress" ? "bg-blue-500" :
-                  w.number === CURRENT_WEEK ? "bg-primary" :
-                  "bg-muted"
+                className={`flex-1 h-1.5 transition-colors ${
+                  status === "complete" ? "bg-foreground" :
+                  status === "in-progress" ? "bg-foreground/40" :
+                  w.number === CURRENT_WEEK ? "bg-foreground/25" :
+                  "bg-foreground/[0.06]"
                 }`}
               />
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground mt-2 tracking-widest">WEEK {CURRENT_WEEK} OF 10</p>
-      </div>
+      </motion.div>
 
-      {/* This Week CTA */}
-      <Link to={`/portal/week/${CURRENT_WEEK}`} className="block mb-8">
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          className="border-[3px] border-primary bg-primary p-6 md:p-8 text-secondary"
-        >
-          <span className="text-secondary/40 text-[10px] tracking-widest">THIS WEEK</span>
-          <h2 className="font-display text-2xl tracking-widest mt-1">
-            WEEK {CURRENT_WEEK}: {WEEKS[CURRENT_WEEK - 1]?.title.toUpperCase()}
-          </h2>
-          <p className="text-secondary/50 text-xs mt-2 font-body">{WEEKS[CURRENT_WEEK - 1]?.focus}</p>
-          <span className="inline-flex items-center gap-2 text-secondary/60 text-xs tracking-widest mt-4">
-            <PlayCircle size={14} /> OPEN WORKSHEET →
-          </span>
-        </motion.div>
-      </Link>
-
-      {/* Week Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {WEEKS.map((w) => {
-          const status = getWeekStatus(w.number);
-          const locked = status === "locked";
-          const borderColor = status === "complete" ? "border-l-green-600" :
-                              status === "in-progress" ? "border-l-blue-500" :
-                              "border-l-muted-foreground/30";
-
-          return (
-            <div key={w.number} className="relative">
-              {locked ? (
-                <div className={`border-2 border-primary/10 border-l-4 ${borderColor} p-4 opacity-50`}>
-                  <Lock size={14} className="text-muted-foreground mb-2" />
-                  <p className="font-display text-xs tracking-wider text-primary">WEEK {w.number}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">{w.title}</p>
-                </div>
-              ) : (
-                <Link to={`/portal/week/${w.number}`}>
-                  <motion.div
-                    whileHover={{ scale: 1.03 }}
-                    className={`border-2 border-primary/20 border-l-4 ${borderColor} p-4 hover:border-primary transition-colors`}
-                  >
-                    {status === "complete" && <CheckCircle size={14} className="text-green-600 mb-2" />}
-                    <p className="font-display text-xs tracking-wider text-primary">WEEK {w.number}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">{w.title}</p>
-                    <span className="text-[9px] text-primary/40 tracking-widest mt-2 block">
-                      {status === "complete" ? "COMPLETE" : status === "in-progress" ? "IN PROGRESS" : "NOT STARTED"}
-                    </span>
-                  </motion.div>
-                </Link>
-              )}
+      {/* This Week — Hero card */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}>
+        <Link to={`/portal/week/${CURRENT_WEEK}`} className="block mb-10 group">
+          <div className="bg-primary p-8 md:p-10 text-primary-foreground transition-all duration-300 group-hover:shadow-lg">
+            <span className="text-primary-foreground/30 text-[10px] tracking-[0.2em] font-body">THIS WEEK'S SESSION</span>
+            <h2 className="font-serif text-2xl md:text-3xl mt-3 font-medium tracking-normal">
+              {WEEKS[CURRENT_WEEK - 1]?.title}
+            </h2>
+            <p className="text-primary-foreground/40 text-sm mt-3 font-body font-light leading-relaxed max-w-lg">
+              {WEEKS[CURRENT_WEEK - 1]?.focus}
+            </p>
+            <div className="flex items-center gap-2 text-primary-foreground/50 text-[11px] tracking-[0.15em] font-body mt-6 group-hover:text-primary-foreground/70 transition-colors">
+              <PlayCircle size={15} strokeWidth={1.5} />
+              Open session
+              <ArrowRight size={13} strokeWidth={1.5} className="ml-1 group-hover:translate-x-1 transition-transform" />
             </div>
-          );
-        })}
-      </div>
+          </div>
+        </Link>
+      </motion.div>
+
+      {/* All sessions */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25, duration: 0.5 }}>
+        <h2 className="portal-label mb-5">All Sessions</h2>
+        <div className="space-y-2">
+          {WEEKS.map((w) => {
+            const status = getWeekStatus(w.number);
+            const locked = status === "locked";
+
+            return (
+              <div key={w.number}>
+                {locked ? (
+                  <div className="portal-card px-5 py-4 flex items-center gap-5 opacity-40">
+                    <span className="font-serif text-lg text-foreground/30 w-8 text-center">{w.number}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-serif text-sm text-foreground/40">{w.title}</p>
+                    </div>
+                    <Lock size={13} className="text-muted-foreground/40 shrink-0" strokeWidth={1.5} />
+                  </div>
+                ) : (
+                  <Link to={`/portal/week/${w.number}`}>
+                    <div className="portal-card px-5 py-4 flex items-center gap-5 hover:bg-white transition-colors group cursor-pointer">
+                      <span className="font-serif text-lg text-foreground/50 w-8 text-center group-hover:text-foreground transition-colors">{w.number}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-serif text-sm text-foreground">{w.title}</p>
+                        <p className="text-[10px] text-muted-foreground font-body mt-0.5 truncate font-light">{w.episode}</p>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-2">
+                        {status === "complete" && (
+                          <CheckCircle size={14} className="text-foreground/30" strokeWidth={1.5} />
+                        )}
+                        <span className="portal-label text-[9px]">
+                          {status === "complete" ? "Complete" : status === "in-progress" ? "In progress" : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
     </PortalLayout>
   );
 };
