@@ -189,6 +189,7 @@ const PortalWeek = () => {
           </p>
 
           <PodcastPlayer
+            ref={podcastRef}
             youtubeId={week.youtubeId}
             bookmarks={week.bookmarks}
             onBookmarkHit={handleBookmarkHit}
