@@ -16,11 +16,11 @@ interface WeekProgress {
   checkinStatus: string;
 }
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  achieved: { bg: "bg-green-600", text: "text-green-600", label: "Achieved" },
-  in_progress: { bg: "bg-amber-500", text: "text-amber-500", label: "In Progress" },
-  carried_forward: { bg: "bg-blue-500", text: "text-blue-500", label: "Carried Forward" },
-  not_started: { bg: "bg-muted", text: "text-muted-foreground", label: "Not Started" },
+const STATUS_STYLES: Record<string, { dot: string; text: string; label: string }> = {
+  achieved: { dot: "bg-foreground", text: "text-foreground", label: "Achieved" },
+  in_progress: { dot: "bg-foreground/50", text: "text-foreground/60", label: "In Progress" },
+  carried_forward: { dot: "bg-foreground/30", text: "text-foreground/40", label: "Carried Forward" },
+  not_started: { dot: "bg-foreground/[0.1]", text: "text-muted-foreground/50", label: "Not started" },
 };
 
 const PortalProgress = () => {
@@ -51,87 +51,112 @@ const PortalProgress = () => {
 
       const entryWeeks = new Set((entriesRes.data || []).map(e => e.week_number));
 
-      const weekProgress = WEEKS.map(w => ({
+      setProgress(WEEKS.map(w => ({
         weekNumber: w.number,
         podcastListened: (bmByWeek[w.number]?.size || 0) > 0 || entryWeeks.has(w.number),
         bookmarksCompleted: bmByWeek[w.number]?.size || 0,
         bookmarksTotal: w.bookmarks.length,
         commitment: commitByWeek[w.number] || "",
         checkinStatus: checkinByWeek[w.number] || "not_started",
-      }));
-
-      setProgress(weekProgress);
+      })));
     };
     load();
   }, [user, cohortId]);
 
+  const achievedCount = progress.filter(p => p.checkinStatus === "achieved").length;
+
   return (
     <PortalLayout>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="heading-display text-3xl text-primary mb-2">MY PROGRESS</h1>
-        <p className="text-sm text-muted-foreground mb-8 font-body">Your implementation journey across all 10 sessions.</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <h1 className="portal-heading text-3xl mb-2">My Progress</h1>
+        <p className="text-sm text-muted-foreground mb-8 font-body font-light">
+          Your implementation journey across all 10 sessions.
+        </p>
+
+        {/* Summary strip */}
+        <div className="flex items-center gap-6 mb-8 pb-6 border-b border-foreground/[0.06]">
+          <div>
+            <span className="font-serif text-3xl text-foreground">{achievedCount}</span>
+            <span className="portal-label block mt-0.5">Goals achieved</span>
+          </div>
+          <div>
+            <span className="font-serif text-3xl text-foreground/40">{progress.filter(p => p.commitment).length}</span>
+            <span className="portal-label block mt-0.5">Commitments set</span>
+          </div>
+          <div className="flex-1" />
+          <div className="flex gap-[3px]">
+            {progress.map(p => {
+              const s = STATUS_STYLES[p.checkinStatus] || STATUS_STYLES.not_started;
+              return <div key={p.weekNumber} className={`w-6 h-1.5 ${s.dot}`} title={`Week ${p.weekNumber}`} />;
+            })}
+          </div>
+        </div>
 
         {/* Timeline */}
         <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary/10" />
+          <div className="absolute left-[11px] top-3 bottom-3 w-px bg-foreground/[0.06]" />
 
-          <div className="space-y-6">
-            {progress.map((wp) => {
+          <div className="space-y-3">
+            {progress.map((wp, i) => {
               const week = WEEKS[wp.weekNumber - 1];
               const status = STATUS_STYLES[wp.checkinStatus] || STATUS_STYLES.not_started;
               const hasActivity = wp.podcastListened || wp.bookmarksCompleted > 0 || wp.commitment;
 
               return (
-                <div key={wp.weekNumber} className="relative pl-12">
+                <motion.div
+                  key={wp.weekNumber}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.03, duration: 0.3 }}
+                  className="relative pl-10"
+                >
                   {/* Timeline dot */}
-                  <div className={`absolute left-2.5 top-3 w-3 h-3 rounded-full ${
-                    wp.checkinStatus === "achieved" ? "bg-green-600" :
-                    hasActivity ? "bg-amber-500" : "bg-muted border-2 border-primary/20"
-                  }`} />
+                  <div className={`absolute left-[7px] top-5 w-2.5 h-2.5 rounded-full ${status.dot}`} />
 
-                  <Link to={`/portal/week/${wp.weekNumber}`} className="block border-2 border-primary/10 p-4 md:p-6 hover:border-primary transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-display text-sm tracking-wider text-primary">
-                        WEEK {wp.weekNumber}: {week.title.toUpperCase()}
-                      </h3>
-                      <ArrowRight size={14} className="text-primary/30" />
+                  <Link to={`/portal/week/${wp.weekNumber}`} className="block portal-card p-5 hover:bg-white transition-colors group">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-3">
+                        <span className="portal-label text-[9px]">Session {wp.weekNumber}</span>
+                        <h3 className="font-serif text-sm text-foreground">{week.title}</h3>
+                      </div>
+                      <ArrowRight size={13} className="text-foreground/15 group-hover:text-foreground/30 transition-colors" strokeWidth={1.5} />
                     </div>
 
-                    <div className="grid sm:grid-cols-3 gap-3 mt-3">
-                      {/* Podcast listened */}
-                      <div className="flex items-center gap-2">
-                        {wp.podcastListened ? <CheckCircle size={14} className="text-green-600" /> : <Circle size={14} className="text-muted-foreground" />}
-                        <span className="text-[10px] tracking-widest text-primary/40">PODCAST</span>
-                      </div>
-
-                      {/* Bookmarks */}
-                      <div className="flex items-center gap-2">
-                        {wp.bookmarksCompleted === wp.bookmarksTotal && wp.bookmarksTotal > 0
-                          ? <CheckCircle size={14} className="text-green-600" />
-                          : wp.bookmarksCompleted > 0
-                            ? <Clock size={14} className="text-amber-500" />
-                            : <Circle size={14} className="text-muted-foreground" />
+                    {/* Status indicators */}
+                    <div className="flex items-center gap-4 mt-2.5">
+                      <div className="flex items-center gap-1.5">
+                        {wp.podcastListened
+                          ? <CheckCircle size={12} className="text-foreground/30" strokeWidth={1.5} />
+                          : <Circle size={12} className="text-foreground/10" strokeWidth={1.5} />
                         }
-                        <span className="text-[10px] tracking-widest text-primary/40">
-                          BOOKMARKS {wp.bookmarksCompleted}/{wp.bookmarksTotal}
+                        <span className="text-[9px] text-muted-foreground/40 font-body">Podcast</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {wp.bookmarksCompleted === wp.bookmarksTotal && wp.bookmarksTotal > 0
+                          ? <CheckCircle size={12} className="text-foreground/30" strokeWidth={1.5} />
+                          : wp.bookmarksCompleted > 0
+                            ? <Clock size={12} className="text-foreground/20" strokeWidth={1.5} />
+                            : <Circle size={12} className="text-foreground/10" strokeWidth={1.5} />
+                        }
+                        <span className="text-[9px] text-muted-foreground/40 font-body">
+                          {wp.bookmarksCompleted}/{wp.bookmarksTotal} reflections
                         </span>
                       </div>
 
-                      {/* Implementation status */}
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${status.bg}`} />
-                        <span className={`text-[10px] tracking-widest ${status.text}`}>
-                          {status.label.toUpperCase()}
-                        </span>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+                        <span className={`text-[9px] font-body ${status.text}`}>{status.label}</span>
                       </div>
                     </div>
 
                     {wp.commitment && (
-                      <p className="text-xs text-primary/60 font-body mt-3 italic">"{wp.commitment}"</p>
+                      <p className="text-[12px] text-foreground/40 font-body mt-2.5 italic font-light leading-relaxed">
+                        "{wp.commitment}"
+                      </p>
                     )}
                   </Link>
-                </div>
+                </motion.div>
               );
             })}
           </div>
