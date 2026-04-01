@@ -2,6 +2,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Play, Pause, SkipForward } from "lucide-react";
 import type { Bookmark } from "@/data/weekData";
 
+export interface PodcastPlayerHandle {
+  resume: () => void;
+}
+
 interface PodcastPlayerProps {
   youtubeId?: string;
   bookmarks: Bookmark[];
