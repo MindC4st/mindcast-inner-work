@@ -20,7 +20,7 @@ export const WEEKS: WeekInfo[] = [
     title: "Uncovering Our Beliefs",
     episode: "Johann Hari — Everything You Think You Know About Meaning & Happiness Is Wrong (Diary of a CEO)",
     focus: "What do we actually believe about happiness, addiction, and connection — before we're told what to think?",
-    youtubeId: "dQw4w9WgXcQ", // Placeholder — replace with real episode
+    youtubeId: "tXuPfMXsIyw",
     bookmarks: [
       { id: "w1_b1", timestamp: 300, label: "Lost Connections", question: "Hari says depression isn't a chemical imbalance — it's a signal. What's your gut reaction to that?" },
       { id: "w1_b2", timestamp: 720, label: "Junk Values", question: "Think about what you spent money on this week. How much was for connection vs. comfort?" },

@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["'Bebas Neue'", "sans-serif"],
-        body: ["'Inter'", "sans-serif"],
+        display: ["'Montserrat'", "sans-serif"],
+        body: ["'Montserrat'", "sans-serif"],
         serif: ["'Cormorant Garamond'", "serif"],
       },
       colors: {
