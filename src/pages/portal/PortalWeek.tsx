@@ -235,26 +235,28 @@ const PortalWeek = () => {
 
           {/* Final reflection — shown after all bookmarks completed */}
           {allBookmarksCompleted && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="border-[3px] border-primary p-6 mt-8">
-              <h3 className="heading-display text-lg text-primary mb-4">FINAL REFLECTION</h3>
-              <p className="text-sm text-muted-foreground mb-6 font-body">You've completed all bookmark reflections. Now capture your key takeaway.</p>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="portal-card p-6 md:p-8 mt-8">
+              <h3 className="portal-heading text-xl mb-2">Final Reflection</h3>
+              <p className="text-sm text-muted-foreground mb-6 font-body font-light">You've completed all bookmark reflections. Capture your key takeaway.</p>
               {[
-                { key: "final_insight", label: "WHAT IS THE ONE INSIGHT THAT MOST CHALLENGED OR EXCITED YOU?", placeholder: "The insight that stands out..." },
+                { key: "final_insight", label: "What is the one insight that most challenged or excited you?", placeholder: "The insight that stands out..." },
               ].map(field => {
                 const entry = entries[field.key] || { text: "", shared: false, locked: false, photoUrl: "" };
                 return (
                   <div key={field.key} className="mb-4">
-                    <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">{field.label}</label>
+                    <label className="portal-label block mb-1.5">{field.label}</label>
                     <textarea
                       value={entry.text}
                       onChange={(e) => updateEntry(field.key, "text", e.target.value)}
                       placeholder={field.placeholder}
-                      className="w-full bg-muted/30 text-primary p-3 text-sm font-body border-2 border-primary/10 focus:border-primary focus:outline-none resize-none min-h-[80px]"
+                      className="w-full bg-foreground/[0.02] text-foreground p-3 text-sm font-body font-light border border-foreground/[0.07] focus:border-foreground/20 focus:outline-none resize-none min-h-[80px] leading-relaxed placeholder:text-muted-foreground/30"
                     />
                   </div>
                 );
               })}
-              <p className="text-xs text-muted-foreground font-body">Now head to the <button onClick={() => setActiveSection(4)} className="underline hover:text-primary">COMMITMENT</button> section to set your implementation for the week.</p>
+              <p className="text-xs text-muted-foreground font-body font-light">
+                Now head to the <button onClick={() => setActiveSection(4)} className="underline hover:text-foreground transition-colors">Commitment</button> tab to set your implementation for the week.
+              </p>
             </motion.div>
           )}
         </motion.div>
