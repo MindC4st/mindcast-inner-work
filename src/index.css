@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=Bebas+Neue&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,54 +6,56 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 213 56% 11%;
+    --background: 30 33% 96%;
+    --foreground: 215 30% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 213 56% 11%;
+    --card: 30 25% 98%;
+    --card-foreground: 215 30% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 213 56% 11%;
+    --popover: 30 25% 98%;
+    --popover-foreground: 215 30% 15%;
 
-    --primary: 213 56% 11%;
-    --primary-foreground: 210 14% 83%;
+    --primary: 215 30% 15%;
+    --primary-foreground: 30 33% 96%;
 
     --secondary: 210 14% 83%;
-    --secondary-foreground: 213 56% 11%;
+    --secondary-foreground: 215 30% 15%;
 
-    --muted: 210 10% 92%;
-    --muted-foreground: 213 10% 40%;
+    --muted: 30 15% 92%;
+    --muted-foreground: 215 10% 45%;
 
-    --accent: 210 14% 83%;
-    --accent-foreground: 213 56% 11%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 213 56% 11%;
-    --input: 213 20% 30%;
-    --ring: 210 14% 83%;
+    --border: 215 15% 85%;
+    --input: 215 15% 85%;
+    --ring: 217 91% 60%;
 
-    --radius: 0rem;
+    --radius: 0.75rem;
 
-    --navy: 213 56% 11%;
+    --navy: 215 30% 15%;
     --silver: 210 14% 83%;
     --white: 0 0% 100%;
-    --ivory: 40 33% 96%;
-    --warm-border: 213 20% 88%;
+    --ivory: 30 33% 96%;
+    --warm-border: 215 15% 88%;
+    --bronze: 28 46% 60%;
+    --electric: 217 91% 60%;
 
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Montserrat', sans-serif;
+    --font-body: 'Montserrat', sans-serif;
     --font-serif: 'Cormorant Garamond', serif;
 
-    --sidebar-background: 213 56% 11%;
-    --sidebar-foreground: 210 14% 83%;
-    --sidebar-primary: 210 14% 83%;
-    --sidebar-primary-foreground: 213 56% 11%;
-    --sidebar-accent: 213 40% 18%;
-    --sidebar-accent-foreground: 210 14% 83%;
-    --sidebar-border: 213 40% 20%;
-    --sidebar-ring: 210 14% 83%;
+    --sidebar-background: 215 30% 15%;
+    --sidebar-foreground: 30 33% 96%;
+    --sidebar-primary: 30 33% 96%;
+    --sidebar-primary-foreground: 215 30% 15%;
+    --sidebar-accent: 215 30% 22%;
+    --sidebar-accent-foreground: 30 33% 96%;
+    --sidebar-border: 215 30% 25%;
+    --sidebar-ring: 217 91% 60%;
   }
 }
 
@@ -64,6 +66,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
@@ -84,38 +88,39 @@
     @apply bg-secondary text-primary;
   }
   .btn-navy {
-    @apply bg-primary text-secondary px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-primary transition-all duration-200;
+    @apply bg-primary text-primary-foreground px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-primary transition-all duration-200 rounded-lg;
   }
   .btn-navy:hover {
     @apply bg-transparent text-primary border-primary;
   }
   .section-navy {
-    @apply bg-primary text-secondary;
+    @apply bg-primary text-primary-foreground;
   }
   .section-white {
     @apply bg-background text-primary;
   }
   .heading-display {
     font-family: var(--font-display);
-    @apply uppercase tracking-wider leading-none;
+    @apply font-bold tracking-tight leading-tight;
   }
-  /* Portal — quiet reading room feel */
+
+  /* Portal — premium guided experience */
   .portal-bg {
     background-color: hsl(var(--ivory));
   }
   .portal-card {
-    @apply border border-primary/[0.07] bg-white/70 backdrop-blur-sm;
+    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-foreground/[0.06];
   }
   .portal-heading {
-    font-family: var(--font-serif);
-    @apply text-foreground font-medium tracking-normal;
+    font-family: var(--font-display);
+    @apply text-foreground font-bold tracking-tight;
   }
   .portal-label {
     font-family: var(--font-body);
-    @apply text-[10px] tracking-[0.2em] uppercase text-muted-foreground;
+    @apply text-[11px] tracking-[0.12em] uppercase text-muted-foreground font-medium;
   }
   .portal-divider {
-    @apply border-t border-primary/[0.06];
+    @apply border-t border-foreground/[0.06];
   }
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -126,5 +131,26 @@
   }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Immersive player */
+  .player-dark {
+    background: hsl(var(--navy));
+    color: hsl(var(--ivory));
+  }
+
+  /* Underline input */
+  .input-underline {
+    @apply w-full bg-transparent text-foreground py-3 text-sm font-normal border-0 border-b border-foreground/10 focus:border-foreground/30 focus:outline-none resize-none leading-relaxed placeholder:text-muted-foreground/40 transition-colors;
+    font-family: var(--font-body);
+  }
+
+  /* Pulse animation for recording */
+  @keyframes pulse-record {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+  }
+  .animate-pulse-record {
+    animation: pulse-record 1.5s ease-in-out infinite;
   }
 }

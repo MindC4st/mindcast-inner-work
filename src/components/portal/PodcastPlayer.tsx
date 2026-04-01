@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
-import { Play, Pause, SkipForward } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import type { Bookmark } from "@/data/weekData";
 
 export interface PodcastPlayerHandle {
@@ -39,7 +39,6 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
     window.onYouTubeIframeAPIReady = () => setApiReady(true);
   }, [youtubeId]);
 
-  // Create player once API ready
   useEffect(() => {
     if (!apiReady || !youtubeId || !containerRef.current) return;
     playerRef.current = new window.YT.Player(containerRef.current, {
@@ -48,26 +47,20 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
       width: "100%",
       playerVars: { modestbranding: 1, rel: 0, playsinline: 1 },
       events: {
-        onReady: () => {
-          setDuration(playerRef.current.getDuration());
-        },
+        onReady: () => { setDuration(playerRef.current.getDuration()); },
         onStateChange: (e: any) => {
           setIsPlaying(e.data === window.YT.PlayerState.PLAYING);
-          if (e.data === window.YT.PlayerState.PLAYING) {
-            setDuration(playerRef.current.getDuration());
-          }
+          if (e.data === window.YT.PlayerState.PLAYING) setDuration(playerRef.current.getDuration());
         },
       },
     });
     return () => { playerRef.current?.destroy?.(); };
   }, [apiReady, youtubeId]);
 
-  // Poll current time & check bookmarks
   const checkBookmarks = useCallback(() => {
     if (!playerRef.current?.getCurrentTime) return;
     const t = Math.floor(playerRef.current.getCurrentTime());
     setCurrentTime(t);
-
     for (const bm of bookmarks) {
       if (t >= bm.timestamp && t < bm.timestamp + 3 && !triggeredBookmarks.has(bm.id)) {
         playerRef.current.pauseVideo();
@@ -89,7 +82,8 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
 
   const togglePlay = () => {
     if (!playerRef.current) return;
-    if (isPlaying) { playerRef.current.pauseVideo(); } else { playerRef.current.playVideo(); }
+    if (isPlaying) playerRef.current.pauseVideo();
+    else playerRef.current.playVideo();
   };
 
   const seekTo = (seconds: number) => {
@@ -97,42 +91,51 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
   };
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
-
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   if (!youtubeId) {
     return (
-      <div className="border-2 border-primary/10 p-8 text-center">
-        <p className="text-muted-foreground text-sm font-body">Podcast episode not yet assigned. Check back later.</p>
+      <div className="portal-card p-8 text-center">
+        <p className="text-muted-foreground text-sm">Episode not yet assigned. Check back later.</p>
       </div>
     );
   }
 
   return (
-    <div className="border-[3px] border-primary bg-primary text-secondary -mx-4 md:mx-0">
-      {/* YouTube embed — full width on mobile */}
-      <div className="aspect-video w-full bg-black">
+    <div className="rounded-xl overflow-hidden player-dark shadow-lg">
+      {/* YouTube embed */}
+      <div className="aspect-video w-full bg-foreground/90">
         <div ref={containerRef} className="w-full h-full" />
       </div>
 
-      {/* Custom controls bar */}
-      <div className="p-3 md:p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <button onClick={togglePlay} className="w-12 h-12 md:w-10 md:h-10 border-2 border-secondary/30 flex items-center justify-center hover:border-secondary transition-colors shrink-0">
-            {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+      {/* Controls */}
+      <div className="p-4 md:p-5">
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={togglePlay}
+            className="w-12 h-12 rounded-full bg-electric flex items-center justify-center hover:opacity-90 transition-opacity shrink-0 shadow-md"
+          >
+            {isPlaying ? <Pause size={20} className="text-accent-foreground" /> : <Play size={20} className="text-accent-foreground ml-0.5" />}
           </button>
-          <span className="text-xs font-mono tracking-wider text-secondary/60">
+          <span className="text-xs font-mono tracking-wider text-primary-foreground/50">
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
         </div>
 
-        {/* Progress bar with larger tappable bookmark dots */}
-        <div className="relative h-3 md:h-2 bg-secondary/10 cursor-pointer" onClick={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const pct = (e.clientX - rect.left) / rect.width;
-          seekTo(pct * duration);
-        }}>
-          <div className="absolute inset-y-0 left-0 bg-secondary/40" style={{ width: `${progress}%` }} />
+        {/* Progress bar */}
+        <div
+          className="relative h-2 bg-primary-foreground/10 rounded-full cursor-pointer group"
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pct = (e.clientX - rect.left) / rect.width;
+            seekTo(pct * duration);
+          }}
+        >
+          <div
+            className="absolute inset-y-0 left-0 bg-electric/60 rounded-full transition-all"
+            style={{ width: `${progress}%` }}
+          />
+          {/* Bookmark dots */}
           {bookmarks.map((bm) => {
             const pos = duration > 0 ? (bm.timestamp / duration) * 100 : 0;
             const completed = triggeredBookmarks.has(bm.id);
@@ -140,31 +143,16 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
               <button
                 key={bm.id}
                 onClick={(e) => { e.stopPropagation(); seekTo(bm.timestamp - 5); }}
-                className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 md:w-3 md:h-3 -ml-2.5 md:-ml-1.5 rounded-full border-2 transition-colors touch-manipulation ${
-                  completed ? "bg-green-400 border-green-400" : "bg-secondary border-secondary"
+                className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 -ml-2 rounded-full border-2 transition-all touch-manipulation hover:scale-125 ${
+                  completed
+                    ? "bg-electric border-electric shadow-[0_0_8px_hsl(217,91%,60%,0.5)]"
+                    : "bg-primary-foreground/30 border-primary-foreground/50"
                 }`}
                 style={{ left: `${pos}%` }}
                 title={bm.label}
               />
             );
           })}
-        </div>
-
-        {/* Bookmark legend — scrollable on mobile */}
-        <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-3 mt-3 overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0 scrollbar-none">
-          {bookmarks.map((bm) => (
-            <button
-              key={bm.id}
-              onClick={() => seekTo(bm.timestamp - 5)}
-              className={`text-[9px] tracking-widest px-3 py-2 md:px-2 md:py-1 border transition-colors whitespace-nowrap shrink-0 touch-manipulation ${
-                triggeredBookmarks.has(bm.id) 
-                  ? "border-green-400/40 text-green-400" 
-                  : "border-secondary/20 text-secondary/50 hover:text-secondary"
-              }`}
-            >
-              {formatTime(bm.timestamp)} — {bm.label.toUpperCase()}
-            </button>
-          ))}
         </div>
       </div>
     </div>

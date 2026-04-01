@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["'Bebas Neue'", "sans-serif"],
-        body: ["'Inter'", "sans-serif"],
+        display: ["'Montserrat'", "sans-serif"],
+        body: ["'Montserrat'", "sans-serif"],
         serif: ["'Cormorant Garamond'", "serif"],
       },
       colors: {
@@ -27,6 +27,8 @@ export default {
         navy: "hsl(var(--navy))",
         silver: "hsl(var(--silver))",
         ivory: "hsl(var(--ivory))",
+        bronze: "hsl(var(--bronze))",
+        electric: "hsl(var(--electric))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
