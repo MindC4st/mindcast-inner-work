@@ -10,8 +10,6 @@ import MobileBottomSheet from "@/components/portal/MobileBottomSheet";
 import ImplementationCheckin from "@/components/portal/ImplementationCheckin";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
-import ImplementationCheckin from "@/components/portal/ImplementationCheckin";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { WEEKS, BELIEF_QUESTIONS, REFLECTION_QUESTIONS, DOMAINS, SELF_AUDIT_QUESTIONS } from "@/data/weekData";
 import type { Bookmark } from "@/data/weekData";
