@@ -20,6 +20,8 @@ import PortalGroup from "./pages/portal/PortalGroup";
 import PortalInsights from "./pages/portal/PortalInsights";
 import PortalDownloads from "./pages/portal/PortalDownloads";
 import PortalSettings from "./pages/portal/PortalSettings";
+import PortalProgress from "./pages/portal/PortalProgress";
+import PortalAdmin from "./pages/portal/PortalAdmin";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const AppRoutes = () => (
     <Route path="/portal/insights" element={<ProtectedRoute><PortalInsights /></ProtectedRoute>} />
     <Route path="/portal/downloads" element={<ProtectedRoute><PortalDownloads /></ProtectedRoute>} />
     <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
+    <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
+    <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

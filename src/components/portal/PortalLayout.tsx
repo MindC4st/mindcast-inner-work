@@ -1,14 +1,15 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "DASHBOARD", to: "/portal/dashboard", icon: LayoutDashboard },
-  { label: "MY WEEKS", to: "/portal/weeks", icon: BookOpen },
+  { label: "SESSIONS", to: "/portal/weeks", icon: BookOpen },
+  { label: "MY PROGRESS", to: "/portal/progress", icon: TrendingUp },
+  { label: "MY PROFILE", to: "/portal/settings", icon: User },
   { label: "AI INSIGHTS", to: "/portal/insights", icon: Brain },
   { label: "MY DOWNLOADS", to: "/portal/downloads", icon: Download },
-  { label: "SETTINGS", to: "/portal/settings", icon: Settings },
 ];
 
 const PortalLayout = ({ children }: { children: ReactNode }) => {
@@ -53,16 +54,26 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
               </Link>
             );
           })}
+          <Link
+            to="/portal/group"
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-6 py-3 text-xs tracking-widest transition-colors ${
+              location.pathname === "/portal/group" ? "bg-secondary/10 text-secondary border-l-2 border-secondary" : "text-secondary/40 hover:text-secondary hover:bg-secondary/5"
+            }`}
+          >
+            <Users size={16} />
+            GROUP VIEW
+          </Link>
           {role === "facilitator" && (
             <Link
-              to="/portal/group"
+              to="/portal/admin"
               onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-6 py-3 text-xs tracking-widest transition-colors ${
-                location.pathname === "/portal/group" ? "bg-secondary/10 text-secondary border-l-2 border-secondary" : "text-secondary/40 hover:text-secondary hover:bg-secondary/5"
+                location.pathname === "/portal/admin" ? "bg-secondary/10 text-secondary border-l-2 border-secondary" : "text-secondary/40 hover:text-secondary hover:bg-secondary/5"
               }`}
             >
-              <BookOpen size={16} />
-              GROUP VIEW
+              <Settings size={16} />
+              ADMIN PANEL
             </Link>
           )}
         </nav>
