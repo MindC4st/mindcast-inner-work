@@ -5,14 +5,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ImplementationCheckinProps {
-  weekNumber: number; // the CURRENT week — will pull commitment from weekNumber - 1
+  weekNumber: number;
 }
 
 const STATUS_OPTIONS = [
-  { value: "achieved", label: "ACHIEVED", color: "bg-green-600 text-white" },
-  { value: "in_progress", label: "IN PROGRESS", color: "bg-amber-500 text-white" },
-  { value: "carried_forward", label: "CARRIED FORWARD", color: "bg-blue-500 text-white" },
-  { value: "not_started", label: "NOT STARTED", color: "bg-muted text-muted-foreground" },
+  { value: "achieved", label: "Achieved", style: "bg-foreground text-primary-foreground" },
+  { value: "in_progress", label: "In Progress", style: "bg-foreground/60 text-primary-foreground" },
+  { value: "carried_forward", label: "Carried Forward", style: "bg-foreground/30 text-primary-foreground" },
+  { value: "not_started", label: "Not Started", style: "bg-foreground/[0.06] text-muted-foreground" },
 ];
 
 const ImplementationCheckin = ({ weekNumber }: ImplementationCheckinProps) => {
@@ -26,7 +26,6 @@ const ImplementationCheckin = ({ weekNumber }: ImplementationCheckinProps) => {
   useEffect(() => {
     if (!user || !cohortId || weekNumber <= 1) return;
     const load = async () => {
-      // Fetch previous week's commitment
       const { data: prevCommit } = await supabase
         .from("commitments")
         .select("commitment_text")
@@ -36,7 +35,6 @@ const ImplementationCheckin = ({ weekNumber }: ImplementationCheckinProps) => {
         .single();
       if (prevCommit?.commitment_text) setPrevCommitment(prevCommit.commitment_text);
 
-      // Fetch existing checkin
       const { data: existing } = await supabase
         .from("implementation_checkins")
         .select("*")
@@ -78,30 +76,30 @@ const ImplementationCheckin = ({ weekNumber }: ImplementationCheckinProps) => {
   if (weekNumber <= 1 || !prevCommitment) return null;
 
   return (
-    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="border-[3px] border-amber-500/40 bg-amber-500/5 mb-6">
-      <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-4 md:p-6">
+    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="portal-card mb-8">
+      <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center justify-between p-5 md:p-6">
         <div className="text-left">
-          <span className="text-[10px] tracking-widest text-amber-600">LAST WEEK'S IMPLEMENTATION CHECK-IN</span>
-          <p className="text-sm text-primary font-body mt-1 italic">"{prevCommitment}"</p>
+          <span className="portal-label text-[9px]">Check in first — last week's commitment</span>
+          <p className="font-serif text-sm text-foreground/70 mt-1.5 italic leading-relaxed">"{prevCommitment}"</p>
         </div>
         <div className="flex items-center gap-2">
-          {saved && <Check size={12} className="text-green-600" />}
-          {expanded ? <ChevronUp size={16} className="text-primary" /> : <ChevronDown size={16} className="text-primary" />}
+          {saved && <Check size={12} className="text-foreground/40" />}
+          {expanded ? <ChevronUp size={16} className="text-foreground/30" /> : <ChevronDown size={16} className="text-foreground/30" />}
         </div>
       </button>
 
       {expanded && (
-        <div className="px-4 md:px-6 pb-4 md:pb-6 space-y-4">
+        <div className="px-5 md:px-6 pb-5 md:pb-6 space-y-5 border-t border-foreground/[0.04] pt-5">
           {/* Status selector */}
           <div>
-            <span className="text-[10px] tracking-widest text-primary/40 block mb-2">STATUS</span>
+            <span className="portal-label block mb-2.5">How did it go?</span>
             <div className="flex flex-wrap gap-2">
               {STATUS_OPTIONS.map(opt => (
                 <button
                   key={opt.value}
                   onClick={() => update("status", opt.value)}
-                  className={`text-[10px] tracking-widest px-3 py-1.5 border-2 transition-colors ${
-                    checkin.status === opt.value ? opt.color + " border-transparent" : "border-primary/20 text-primary/60"
+                  className={`text-[10px] tracking-[0.12em] px-4 py-2 font-body transition-all duration-200 ${
+                    checkin.status === opt.value ? opt.style : "bg-foreground/[0.03] text-muted-foreground/50 hover:bg-foreground/[0.06]"
                   }`}
                 >
                   {opt.label}
@@ -111,17 +109,17 @@ const ImplementationCheckin = ({ weekNumber }: ImplementationCheckinProps) => {
           </div>
 
           {[
-            { key: "what_happened", label: "WHAT HAPPENED?", placeholder: "Describe how it went..." },
-            { key: "did_achieve", label: "DID YOU ACHIEVE IT?", placeholder: "Be honest — no judgement..." },
-            { key: "what_learned", label: "WHAT DID YOU LEARN?", placeholder: "What would you do differently?" },
+            { key: "what_happened", label: "What happened?", placeholder: "Describe how it went..." },
+            { key: "did_achieve", label: "Did you achieve it?", placeholder: "Be honest — no judgement..." },
+            { key: "what_learned", label: "What did you learn?", placeholder: "What would you do differently?" },
           ].map(field => (
             <div key={field.key}>
-              <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">{field.label}</label>
+              <label className="portal-label block mb-1.5">{field.label}</label>
               <textarea
                 value={(checkin as any)[field.key]}
                 onChange={(e) => update(field.key, e.target.value)}
                 placeholder={field.placeholder}
-                className="w-full bg-muted/30 text-primary p-3 text-sm font-body border-2 border-primary/10 focus:border-primary focus:outline-none resize-none min-h-[60px]"
+                className="w-full bg-foreground/[0.02] text-foreground p-3 text-sm font-body font-light border border-foreground/[0.07] focus:border-foreground/20 focus:outline-none resize-none min-h-[70px] leading-relaxed placeholder:text-muted-foreground/30"
               />
             </div>
           ))}
