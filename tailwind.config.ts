@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         display: ["'Bebas Neue'", "sans-serif"],
         body: ["'Inter'", "sans-serif"],
+        serif: ["'Cormorant Garamond'", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -25,6 +26,7 @@ export default {
         foreground: "hsl(var(--foreground))",
         navy: "hsl(var(--navy))",
         silver: "hsl(var(--silver))",
+        ivory: "hsl(var(--ivory))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

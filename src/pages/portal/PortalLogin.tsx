@@ -24,37 +24,52 @@ const PortalLogin = () => {
   };
 
   return (
-    <section className="section-navy min-h-screen flex items-center">
-      <div className="container mx-auto px-6 max-w-md text-center">
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="heading-display text-5xl mb-2 text-secondary">MINDCAST</h1>
-          <p className="text-secondary/40 text-xs tracking-widest mb-12">MEMBER PORTAL</p>
+    <section className="bg-primary min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-sm px-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          {/* Brand mark */}
+          <div className="text-center mb-16">
+            <h1 className="font-display text-4xl tracking-[0.2em] text-primary-foreground">MINDCAST</h1>
+            <div className="w-8 h-px bg-primary-foreground/20 mx-auto mt-4" />
+          </div>
 
-          <h2 className="font-display text-2xl tracking-widest text-secondary mb-8">WELCOME BACK</h2>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body block mb-2">EMAIL</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-transparent border-b border-primary-foreground/15 text-primary-foreground px-0 py-3 text-sm font-body font-light placeholder:text-primary-foreground/15 focus:border-primary-foreground/40 focus:outline-none transition-colors"
+                placeholder="your@email.com"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body block mb-2">PASSWORD</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full bg-transparent border-b border-primary-foreground/15 text-primary-foreground px-0 py-3 text-sm font-body font-light placeholder:text-primary-foreground/15 focus:border-primary-foreground/40 focus:outline-none transition-colors"
+                placeholder="••••••••"
+              />
+            </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="email"
-              placeholder="EMAIL"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full bg-transparent border-2 border-secondary/30 text-secondary px-6 py-4 text-sm tracking-widest placeholder:text-secondary/30 focus:border-secondary focus:outline-none"
-            />
-            <input
-              type="password"
-              placeholder="PASSWORD"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full bg-transparent border-2 border-secondary/30 text-secondary px-6 py-4 text-sm tracking-widest placeholder:text-secondary/30 focus:border-secondary focus:outline-none"
-            />
-            <button type="submit" disabled={loading} className="btn-filled w-full text-xs disabled:opacity-50">
-              {loading ? "SIGNING IN..." : "ENTER YOUR PORTAL"}
-            </button>
+            <div className="pt-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-foreground/10 text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary-foreground/15 transition-colors disabled:opacity-40"
+              >
+                {loading ? "Signing in..." : "Enter"}
+              </button>
+            </div>
           </form>
 
-          <p className="text-secondary/30 text-xs mt-8 tracking-wider">
+          <p className="text-primary-foreground/20 text-[11px] mt-10 text-center font-body font-light leading-relaxed">
             First time? Your facilitator will send you an invite.
           </p>
         </motion.div>
