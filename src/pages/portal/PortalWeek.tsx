@@ -6,7 +6,9 @@ import PortalLayout from "@/components/portal/PortalLayout";
 import PodcastPlayer from "@/components/portal/PodcastPlayer";
 import type { PodcastPlayerHandle } from "@/components/portal/PodcastPlayer";
 import BookmarkReflection from "@/components/portal/BookmarkReflection";
+import MobileBottomSheet from "@/components/portal/MobileBottomSheet";
 import ImplementationCheckin from "@/components/portal/ImplementationCheckin";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { WEEKS, BELIEF_QUESTIONS, REFLECTION_QUESTIONS, DOMAINS, SELF_AUDIT_QUESTIONS } from "@/data/weekData";
@@ -14,6 +16,7 @@ import type { Bookmark } from "@/data/weekData";
 import { toast } from "@/hooks/use-toast";
 
 const PortalWeek = () => {
+  const isMobile = useIsMobile();
   const { weekNumber } = useParams<{ weekNumber: string }>();
   const weekNum = parseInt(weekNumber || "1", 10);
   const week = WEEKS[weekNum - 1];
@@ -199,17 +202,30 @@ const PortalWeek = () => {
             triggeredBookmarks={triggeredBookmarks}
           />
 
-          {/* Active bookmark reflection */}
-          <AnimatePresence>
-            {activeBookmark && (
-              <BookmarkReflection
-                bookmark={activeBookmark}
-                response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
-                onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
-                onDismiss={() => setActiveBookmark(null)}
-              />
-            )}
-          </AnimatePresence>
+          {/* Active bookmark reflection — bottom sheet on mobile, inline on desktop */}
+          {isMobile ? (
+            <MobileBottomSheet open={!!activeBookmark} onClose={() => setActiveBookmark(null)}>
+              {activeBookmark && (
+                <BookmarkReflection
+                  bookmark={activeBookmark}
+                  response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
+                  onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
+                  onDismiss={() => setActiveBookmark(null)}
+                />
+              )}
+            </MobileBottomSheet>
+          ) : (
+            <AnimatePresence>
+              {activeBookmark && (
+                <BookmarkReflection
+                  bookmark={activeBookmark}
+                  response={bookmarkResponses[activeBookmark.id] || { text: "", voiceUrl: "", shared: false }}
+                  onSave={(data) => handleBookmarkSave(activeBookmark.id, data)}
+                  onDismiss={() => setActiveBookmark(null)}
+                />
+              )}
+            </AnimatePresence>
+          )}
 
           {/* Completed responses */}
           {Object.keys(bookmarkResponses).length > 0 && (

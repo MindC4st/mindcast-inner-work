@@ -206,9 +206,9 @@ const VoiceRecorder = ({ onRecordingComplete, existingUrl, onDelete }: VoiceReco
             </div>
             <button
               onClick={stopRecording}
-              className="w-10 h-10 bg-destructive flex items-center justify-center hover:bg-destructive/80 transition-colors"
+              className="w-14 h-14 md:w-10 md:h-10 bg-destructive flex items-center justify-center hover:bg-destructive/80 transition-colors touch-manipulation shrink-0"
             >
-              <Square size={14} className="text-destructive-foreground" />
+              <Square size={18} className="md:w-[14px] md:h-[14px] text-destructive-foreground" />
             </button>
           </div>
           <canvas
@@ -257,14 +257,14 @@ const VoiceRecorder = ({ onRecordingComplete, existingUrl, onDelete }: VoiceReco
       ) : (
         <button
           onClick={startRecording}
-          className="w-full flex items-center justify-center gap-3 p-4 border-2 border-dashed border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all group"
+          className="w-full flex items-center justify-center gap-3 p-5 md:p-4 border-2 border-dashed border-primary/20 hover:border-primary/40 hover:bg-primary/5 transition-all group touch-manipulation"
         >
-          <div className="w-12 h-12 border-[3px] border-primary rounded-full flex items-center justify-center group-hover:bg-primary transition-all">
-            <Mic size={18} className="text-primary group-hover:text-primary-foreground transition-colors" />
+          <div className="w-16 h-16 md:w-12 md:h-12 border-[3px] border-primary rounded-full flex items-center justify-center group-hover:bg-primary transition-all shrink-0">
+            <Mic size={24} className="md:w-[18px] md:h-[18px] text-primary group-hover:text-primary-foreground transition-colors" />
           </div>
           <div className="text-left">
-            <span className="text-xs tracking-widest text-primary block">TAP TO RECORD</span>
-            <span className="text-[9px] tracking-widest text-primary/30">VOICE NOTE</span>
+            <span className="text-sm md:text-xs tracking-widest text-primary block">TAP TO RECORD</span>
+            <span className="text-[10px] md:text-[9px] tracking-widest text-primary/30">VOICE NOTE</span>
           </div>
         </button>
       )}
