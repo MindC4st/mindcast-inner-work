@@ -39,9 +39,12 @@
     --navy: 213 56% 11%;
     --silver: 210 14% 83%;
     --white: 0 0% 100%;
+    --ivory: 40 33% 96%;
+    --warm-border: 213 20% 88%;
 
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Inter', sans-serif;
+    --font-serif: 'Cormorant Garamond', serif;
 
     --sidebar-background: 213 56% 11%;
     --sidebar-foreground: 210 14% 83%;
