@@ -1,14 +1,15 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "DASHBOARD", to: "/portal/dashboard", icon: LayoutDashboard },
-  { label: "MY WEEKS", to: "/portal/weeks", icon: BookOpen },
+  { label: "SESSIONS", to: "/portal/weeks", icon: BookOpen },
+  { label: "MY PROGRESS", to: "/portal/progress", icon: TrendingUp },
+  { label: "MY PROFILE", to: "/portal/settings", icon: User },
   { label: "AI INSIGHTS", to: "/portal/insights", icon: Brain },
   { label: "MY DOWNLOADS", to: "/portal/downloads", icon: Download },
-  { label: "SETTINGS", to: "/portal/settings", icon: Settings },
 ];
 
 const PortalLayout = ({ children }: { children: ReactNode }) => {
