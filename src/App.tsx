@@ -17,7 +17,7 @@ import AdminLive from "./pages/admin/AdminLive";
 import AdminFramework from "./pages/admin/AdminFramework";
 import AdminKids from "./pages/admin/AdminKids";
 import AdminMembers from "./pages/admin/AdminMembers";
-import Workbook from "./pages/Workbook";
+import WorkbookRouter from "./pages/WorkbookRouter";
 import Dashboard from "./pages/Dashboard";
 import Checkin from "./pages/Checkin";
 import WelcomeWall from "./pages/display/WelcomeWall";
