@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
-import logoWhite from "@/assets/logo-white.png";
+import logoBrand from "@/assets/logo-dark-tagline.png";
 import { format } from "date-fns";
 
 /* ─── helpers ─── */
@@ -78,7 +78,7 @@ function Slide1({ session, checkins }: { session: any; checkins: any[] }) {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#C4526E]/[0.06] blur-[120px]" />
       </div>
       <div className="absolute top-8 left-0 right-0 flex flex-col items-center z-10">
-        <img src={logoWhite} alt="Mindcast" className="h-10 mb-2" />
+        <img src={logoBrand} alt="Mindcast" className="h-10 mb-2" />
         <p className="font-mono text-[11px] text-foreground/25 uppercase tracking-widest">
           Week {session.session_number} · {session.session_date ? format(new Date(session.session_date), "d MMM yyyy") : ""}
         </p>
@@ -109,7 +109,7 @@ function Slide2({ session, stories }: { session: any; stories: any[] }) {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-[#C4A96E]/[0.08] blur-[100px]" />
       </div>
       <div className="absolute top-8 left-0 right-0 flex flex-col items-center z-10">
-        <img src={logoWhite} alt="Mindcast" className="h-8 mb-3" />
+        <img src={logoBrand} alt="Mindcast" className="h-8 mb-3" />
         <h2 className="text-3xl font-semibold text-foreground">Last Week's Wins</h2>
         <p className="text-foreground/40 text-sm mt-1">What did you set out to do? How did it go?</p>
       </div>
@@ -195,7 +195,7 @@ function Slide3({ session, pausePoints }: { session: any; pausePoints: any[] }) 
   return (
     <div className="absolute inset-0" style={{ background: "#000" }}>
       <div className="absolute top-4 left-4 z-20 flex items-center gap-2 opacity-40">
-        <img src={logoWhite} alt="" className="h-5" />
+        <img src={logoBrand} alt="" className="h-5" />
         <span className="font-mono text-[9px] text-foreground/60 uppercase tracking-widest">Week {session.session_number}</span>
       </div>
       {videoId && (
@@ -233,7 +233,7 @@ function Slide4({ session }: { session: any }) {
       >
         <div className="w-[500px] h-[500px] rounded-full bg-[#9B89B4] blur-[120px]" />
       </motion.div>
-      <img src={logoWhite} alt="" className="h-12 mb-10 opacity-60 z-10" />
+      <img src={logoBrand} alt="" className="h-12 mb-10 opacity-60 z-10" />
       <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl font-semibold text-foreground text-center mb-4 z-10">Reflect.</motion.h2>
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-foreground/40 text-xl text-center mb-12 z-10">Open your workbook and take 10 minutes.</motion.p>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="flex flex-col items-center gap-3 z-10">
@@ -267,7 +267,7 @@ function Slide5({ session, words }: { session: any; words: any[] }) {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full bg-[#C4526E]/[0.05] blur-[150px]" />
       </div>
       <div className="absolute top-8 left-0 right-0 flex flex-col items-center z-10">
-        <img src={logoWhite} alt="" className="h-8 mb-3" />
+        <img src={logoBrand} alt="" className="h-8 mb-3" />
         <p className="font-mono text-[11px] text-foreground/25 uppercase tracking-widest">How we're leaving tonight</p>
       </div>
       <div className="flex-1 flex items-center justify-center relative">
@@ -444,7 +444,7 @@ const AdminPresenter = () => {
       {/* Presenter controls */}
       <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-8 py-4 bg-black/40 backdrop-blur-xl border-t border-foreground/[0.06] z-50">
         <div className="flex items-center gap-4">
-          <img src={logoWhite} alt="" className="h-5 opacity-40" />
+          <img src={logoBrand} alt="" className="h-5 opacity-40" />
           <span className="font-mono text-[10px] text-foreground/30 uppercase tracking-widest">
             Week {session.session_number} · {session.session_code}
           </span>
