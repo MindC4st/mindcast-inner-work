@@ -46,7 +46,8 @@ const APP_DATA: Record<string, {
 };
 
 const SubAppLanding = () => {
-  const { appSlug } = useParams<{ appSlug: string }>();
+  const location = useLocation();
+  const appSlug = location.pathname.replace("/", "");
   const app = APP_DATA[appSlug || ""];
 
   if (!app) {
