@@ -64,6 +64,57 @@ export type Database = {
           },
         ]
       }
+      check_ins: {
+        Row: {
+          checked_in_at: string | null
+          display_name: string
+          goal_update: string | null
+          id: string
+          is_anonymous: boolean | null
+          profile_id: string | null
+          session_id: string | null
+          share_goal_publicly: boolean | null
+          welcome_note: string | null
+        }
+        Insert: {
+          checked_in_at?: string | null
+          display_name: string
+          goal_update?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          profile_id?: string | null
+          session_id?: string | null
+          share_goal_publicly?: boolean | null
+          welcome_note?: string | null
+        }
+        Update: {
+          checked_in_at?: string | null
+          display_name?: string
+          goal_update?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          profile_id?: string | null
+          session_id?: string | null
+          share_goal_publicly?: boolean | null
+          welcome_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "check_ins_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cohort_members: {
         Row: {
           cohort_id: string
@@ -367,37 +418,105 @@ export type Database = {
           },
         ]
       }
+      kids_sessions: {
+        Row: {
+          activity_description: string | null
+          activity_type: string | null
+          age_group: string
+          created_at: string | null
+          facilitator_notes: string | null
+          id: string
+          lesson_theme: string | null
+          materials_needed: string | null
+          parent_session_id: string | null
+          video_title: string | null
+          video_url: string | null
+        }
+        Insert: {
+          activity_description?: string | null
+          activity_type?: string | null
+          age_group: string
+          created_at?: string | null
+          facilitator_notes?: string | null
+          id?: string
+          lesson_theme?: string | null
+          materials_needed?: string | null
+          parent_session_id?: string | null
+          video_title?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          activity_description?: string | null
+          activity_type?: string | null
+          age_group?: string
+          created_at?: string | null
+          facilitator_notes?: string | null
+          id?: string
+          lesson_theme?: string | null
+          materials_needed?: string | null
+          parent_session_id?: string | null
+          video_title?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kids_sessions_parent_session_id_fkey"
+            columns: ["parent_session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          age_group: string | null
           avatar_url: string | null
           cohort: string | null
           created_at: string
+          display_name: string
           email: string | null
           id: string
           is_active: boolean
+          is_admin: boolean | null
           name: string
+          nfc_id: string | null
+          onboarding_complete: boolean | null
+          opt_in_public_goals: boolean | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          age_group?: string | null
           avatar_url?: string | null
           cohort?: string | null
           created_at?: string
+          display_name?: string
           email?: string | null
           id?: string
           is_active?: boolean
+          is_admin?: boolean | null
           name?: string
+          nfc_id?: string | null
+          onboarding_complete?: boolean | null
+          opt_in_public_goals?: boolean | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          age_group?: string | null
           avatar_url?: string | null
           cohort?: string | null
           created_at?: string
+          display_name?: string
           email?: string | null
           id?: string
           is_active?: boolean
+          is_admin?: boolean | null
           name?: string
+          nfc_id?: string | null
+          onboarding_complete?: boolean | null
+          opt_in_public_goals?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -449,6 +568,9 @@ export type Database = {
       }
       sessions: {
         Row: {
+          admin_notes: string | null
+          age_group: string | null
+          ai_questions: Json | null
           cohort_id: string | null
           created_at: string
           description: string | null
@@ -459,11 +581,18 @@ export type Database = {
           session_date: string | null
           session_number: number
           status: string
+          theme: string | null
           title: string
           updated_at: string
+          video_title: string | null
+          video_transcript: string | null
+          video_url: string | null
           youtube_id: string | null
         }
         Insert: {
+          admin_notes?: string | null
+          age_group?: string | null
+          ai_questions?: Json | null
           cohort_id?: string | null
           created_at?: string
           description?: string | null
@@ -474,11 +603,18 @@ export type Database = {
           session_date?: string | null
           session_number: number
           status?: string
+          theme?: string | null
           title?: string
           updated_at?: string
+          video_title?: string | null
+          video_transcript?: string | null
+          video_url?: string | null
           youtube_id?: string | null
         }
         Update: {
+          admin_notes?: string | null
+          age_group?: string | null
+          ai_questions?: Json | null
           cohort_id?: string | null
           created_at?: string
           description?: string | null
@@ -489,8 +625,12 @@ export type Database = {
           session_date?: string | null
           session_number?: number
           status?: string
+          theme?: string | null
           title?: string
           updated_at?: string
+          video_title?: string | null
+          video_transcript?: string | null
+          video_url?: string | null
           youtube_id?: string | null
         }
         Relationships: [
@@ -520,6 +660,93 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workbook_entries: {
+        Row: {
+          accountability_person: string | null
+          action_step: string | null
+          arriving_word: string | null
+          completed_at: string | null
+          created_at: string | null
+          first_impression: string | null
+          goal_update_from_last_week: string | null
+          id: string
+          key_idea: string | null
+          leaving_word: string | null
+          personal_application: string | null
+          profile_id: string | null
+          question_1_response: string | null
+          question_1_text: string | null
+          question_2_response: string | null
+          question_2_text: string | null
+          question_3_response: string | null
+          question_3_text: string | null
+          session_id: string | null
+          share_leaving_word: boolean | null
+          weekly_goal: string | null
+        }
+        Insert: {
+          accountability_person?: string | null
+          action_step?: string | null
+          arriving_word?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          first_impression?: string | null
+          goal_update_from_last_week?: string | null
+          id?: string
+          key_idea?: string | null
+          leaving_word?: string | null
+          personal_application?: string | null
+          profile_id?: string | null
+          question_1_response?: string | null
+          question_1_text?: string | null
+          question_2_response?: string | null
+          question_2_text?: string | null
+          question_3_response?: string | null
+          question_3_text?: string | null
+          session_id?: string | null
+          share_leaving_word?: boolean | null
+          weekly_goal?: string | null
+        }
+        Update: {
+          accountability_person?: string | null
+          action_step?: string | null
+          arriving_word?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          first_impression?: string | null
+          goal_update_from_last_week?: string | null
+          id?: string
+          key_idea?: string | null
+          leaving_word?: string | null
+          personal_application?: string | null
+          profile_id?: string | null
+          question_1_response?: string | null
+          question_1_text?: string | null
+          question_2_response?: string | null
+          question_2_text?: string | null
+          question_3_response?: string | null
+          question_3_text?: string | null
+          session_id?: string | null
+          share_leaving_word?: boolean | null
+          weekly_goal?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workbook_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workbook_entries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
