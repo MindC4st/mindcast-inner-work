@@ -10,6 +10,11 @@ import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import SubAppLanding from "./pages/SubAppLanding";
 import AdminLanding from "./pages/AdminLanding";
+import AdminSessions from "./pages/admin/AdminSessions";
+import AdminSessionEditor from "./pages/admin/AdminSessionEditor";
+import AdminHistory from "./pages/admin/AdminHistory";
+import AdminLive from "./pages/admin/AdminLive";
+import AdminFramework from "./pages/admin/AdminFramework";
 import Live from "./pages/Live";
 import Resources from "./pages/Resources";
 import Membership from "./pages/Membership";
@@ -44,6 +49,11 @@ const AppRoutes = () => (
     <Route path="/auth" element={<Auth />} />
     <Route path="/onboarding" element={<Onboarding />} />
     <Route path="/admin" element={<AdminLanding />} />
+    <Route path="/admin/sessions" element={<AdminSessions />} />
+    <Route path="/admin/sessions/:id" element={<AdminSessionEditor />} />
+    <Route path="/admin/history" element={<AdminHistory />} />
+    <Route path="/admin/live" element={<AdminLive />} />
+    <Route path="/admin/framework" element={<AdminFramework />} />
     <Route path="/little-minds" element={<SubAppLanding />} />
     <Route path="/signal" element={<SubAppLanding />} />
     <Route path="/connect" element={<SubAppLanding />} />
