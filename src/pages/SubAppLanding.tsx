@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const APP_DATA: Record<string, {
