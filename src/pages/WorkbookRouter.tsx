@@ -19,7 +19,7 @@ const WorkbookRouter = () => {
   }, [user, loading]);
 
   if (loading || profileLoading) {
-    return <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
+    return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
   }
 
   if (ageGroup === "teen") return <TeenWorkbook />;

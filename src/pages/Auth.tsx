@@ -53,7 +53,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0D0B14" }}>
+    <div className="min-h-screen flex items-center justify-center px-4" className="bg-background">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <h1 className="font-display text-3xl font-bold text-white tracking-[0.15em] mb-2">MINDCAST</h1>
@@ -133,7 +133,7 @@ const Auth = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-50"
+            className="w-full py-3.5 bg-white text-background text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-50"
           >
             {loading ? "..." : tab === "signin" ? "SIGN IN" : "CREATE ACCOUNT"}
           </button>

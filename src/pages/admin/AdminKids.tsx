@@ -90,7 +90,7 @@ const AdminKids = () => {
   const labelClass = "text-[10px] font-body text-white/30 uppercase tracking-[0.1em] block mb-2";
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
           <ArrowLeft size={12} /> ADMIN
@@ -102,7 +102,7 @@ const AdminKids = () => {
             className="bg-white/5 border border-white/10 text-white text-xs font-body px-3 py-2 rounded-lg focus:outline-none"
           >
             {sessions.map((s) => (
-              <option key={s.id} value={s.id} className="bg-[#0D0B14]">
+              <option key={s.id} value={s.id} className="bg-background">
                 Week {s.session_number} — {s.title}
               </option>
             ))}
@@ -171,7 +171,7 @@ const AdminKids = () => {
                 <label className={labelClass}>Facilitator notes (private)</label>
                 <textarea className={inputClass + " resize-none"} rows={2} value={littleOnes.facilitator_notes || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
-              <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-white text-[#0D0B14] font-display font-bold py-3 text-xs hover:bg-white/90 transition-colors disabled:opacity-30 rounded-lg">
+              <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-white text-background font-display font-bold py-3 text-xs hover:bg-white/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Little Ones"}
               </button>
             </div>
@@ -233,7 +233,7 @@ const AdminKids = () => {
                 <label className={labelClass}>Facilitator notes (private)</label>
                 <textarea className={inputClass + " resize-none"} rows={2} value={teens.facilitator_notes || ""} onChange={(e) => setTeens((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
-              <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-white text-[#0D0B14] font-display font-bold py-3 text-xs hover:bg-white/90 transition-colors disabled:opacity-30 rounded-lg">
+              <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-white text-background font-display font-bold py-3 text-xs hover:bg-white/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Teens"}
               </button>
             </div>

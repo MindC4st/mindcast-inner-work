@@ -140,10 +140,10 @@ const KidsWorkbook = () => {
     touchStart.current = null;
   };
 
-  if (authLoading) return <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
+  if (authLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
 
   if (!session) return (
-    <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
         <p className="text-white/40 font-body text-sm mb-2">There's no active session right now.</p>
         <p className="text-white/20 font-body text-xs">Check back on session night.</p>
@@ -152,7 +152,7 @@ const KidsWorkbook = () => {
   );
 
   if (done) return (
-    <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
         <span className="text-5xl mb-4 block">🌟</span>
         <h2 className="font-display text-2xl font-bold text-white mb-2">Amazing job!</h2>
@@ -332,7 +332,7 @@ const KidsWorkbook = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0B14]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="min-h-screen bg-background" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
         <p className="font-body text-[10px] text-white/25 uppercase tracking-[0.15em] mb-1">
           MINDCAST KIDS · Week {session.session_number} / 52
@@ -372,7 +372,7 @@ const KidsWorkbook = () => {
         </AnimatePresence>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-[#0D0B14]/95 backdrop-blur border-t border-white/[0.04] flex gap-3">
+      <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-background/95 backdrop-blur border-t border-white/[0.04] flex gap-3">
         {step > 0 && (
           <button onClick={() => setStep(step - 1)} className="flex items-center gap-2 px-5 py-3 border border-white/10 text-white/40 text-xs font-body hover:border-white/20 transition-colors">
             <ArrowLeft size={14} /> Back
@@ -380,7 +380,7 @@ const KidsWorkbook = () => {
         )}
         <div className="flex-1" />
         {step < SECTIONS.length - 1 ? (
-          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-white text-[#0D0B14] text-xs font-display font-bold hover:bg-white/90 transition-colors">
+          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-white text-background text-xs font-display font-bold hover:bg-white/90 transition-colors">
             Next <ArrowRight size={14} />
           </button>
         ) : (

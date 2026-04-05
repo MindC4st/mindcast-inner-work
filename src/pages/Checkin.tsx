@@ -62,13 +62,13 @@ const Checkin = () => {
   };
 
   if (!session) return (
-    <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <p className="text-white/30 font-body text-sm text-center">There's no session running right now.</p>
     </div>
   );
 
   if (done) return (
-    <div className="min-h-screen bg-[#0D0B14] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
       <Check size={32} className="text-emerald-400/60 mb-4" />
       <h2 className="text-2xl font-display font-bold text-white mb-2">You're in.</h2>
       <p className="text-white/30 font-body text-sm mb-8">See you on screen.</p>
@@ -77,7 +77,7 @@ const Checkin = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0D0B14] flex flex-col items-center justify-center px-5 py-10">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
       <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.2em] mb-8">
         mindcast · week {session.session_number}
       </p>
@@ -129,7 +129,7 @@ const Checkin = () => {
           <span className="text-sm text-white/30 font-body">Check in without showing my name on screen</span>
         </label>
 
-        <button onClick={handleCheckin} disabled={submitting || !displayName.trim()} className="w-full bg-white text-[#0D0B14] font-display font-bold py-4 rounded-xl text-base disabled:opacity-30 hover:bg-white/90 transition-colors">
+        <button onClick={handleCheckin} disabled={submitting || !displayName.trim()} className="w-full bg-white text-background font-display font-bold py-4 rounded-xl text-base disabled:opacity-30 hover:bg-white/90 transition-colors">
           {submitting ? "Checking in..." : "Check in →"}
         </button>
       </div>

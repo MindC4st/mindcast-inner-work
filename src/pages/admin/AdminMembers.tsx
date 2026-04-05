@@ -33,7 +33,7 @@ const AdminMembers = () => {
   const inputClass = "w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white text-sm font-body placeholder-white/15 focus:outline-none focus:border-white/20";
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
           <ArrowLeft size={12} /> ADMIN
@@ -87,7 +87,7 @@ const AdminMembers = () => {
                 <input className={inputClass} value={nfcId} onChange={(e) => setNfcId(e.target.value)} placeholder="Scan or type NFC chip ID..." />
                 <p className="text-white/20 text-[10px] font-body mt-2">This ID is encoded in the NFC bracelet URL: /checkin?member=ID</p>
               </div>
-              <button onClick={saveNfc} disabled={saving} className="w-full bg-white text-[#0D0B14] font-display font-bold py-3 text-xs rounded-lg hover:bg-white/90 disabled:opacity-30 transition-colors">
+              <button onClick={saveNfc} disabled={saving} className="w-full bg-white text-background font-display font-bold py-3 text-xs rounded-lg hover:bg-white/90 disabled:opacity-30 transition-colors">
                 {saving ? "Saving..." : "Save NFC ID"}
               </button>
             </div>

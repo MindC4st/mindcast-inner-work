@@ -40,12 +40,12 @@ const GoalWall = () => {
 
   const goFullscreen = () => { document.documentElement.requestFullscreen?.(); };
 
-  if (!session) return <div className="fixed inset-0 bg-[#0A0812] flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
+  if (!session) return <div className="fixed inset-0 bg-background flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
 
   const displayed = goals.length <= 6 ? goals : goals.slice(visibleIdx, visibleIdx + 6);
 
   return (
-    <div className="fixed inset-0 bg-[#0A0812] flex flex-col">
+    <div className="fixed inset-0 bg-background flex flex-col">
       <div className="px-10 py-6 border-b border-white/[0.06] flex items-center justify-between">
         <div>
           <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.2em]">mindcast · week {session.session_number}</p>

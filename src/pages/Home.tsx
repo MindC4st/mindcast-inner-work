@@ -68,7 +68,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-white">MINDCAST</Link>
@@ -101,7 +101,7 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to={activeSession ? "/workbook" : "/sessions"}
-            className="px-8 py-3.5 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors"
+            className="px-8 py-3.5 bg-white text-background text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors"
           >
             THIS WEEK'S SESSION <ArrowRight className="inline ml-1" size={14} />
           </Link>

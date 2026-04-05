@@ -49,7 +49,7 @@ const AdminSessions = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
           <ArrowLeft size={12} /> ADMIN

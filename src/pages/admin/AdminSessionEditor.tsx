@@ -181,7 +181,7 @@ const AdminSessionEditor = () => {
   const labelClass = "block text-white/40 text-[10px] tracking-[0.12em] font-body mb-2 mt-6";
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center px-6 md:px-12 py-5">
         <Link to="/admin/sessions" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
           <ArrowLeft size={12} /> SESSIONS
@@ -203,7 +203,7 @@ const AdminSessionEditor = () => {
           </div>
           <div>
             <label className={labelClass}>AGE GROUP</label>
-            <select value={form.age_group} onChange={(e) => setForm({ ...form, age_group: e.target.value })} className={`${inputClass} bg-[#0D0B14]`}>
+            <select value={form.age_group} onChange={(e) => setForm({ ...form, age_group: e.target.value })} className={`${inputClass} bg-background`}>
               <option value="adult">Adult</option>
               <option value="teen">Teen</option>
               <option value="child">Child</option>
@@ -308,7 +308,7 @@ const AdminSessionEditor = () => {
                 <label className={labelClass}>VIDEO URL</label>
                 <input value={kidsToddler.video_url} onChange={(e) => setKidsToddler({ ...kidsToddler, video_url: e.target.value })} className={inputClass} placeholder="YouTube URL..." />
                 <label className={labelClass}>ACTIVITY TYPE</label>
-                <select value={kidsToddler.activity_type} onChange={(e) => setKidsToddler({ ...kidsToddler, activity_type: e.target.value })} className={`${inputClass} bg-[#0D0B14]`}>
+                <select value={kidsToddler.activity_type} onChange={(e) => setKidsToddler({ ...kidsToddler, activity_type: e.target.value })} className={`${inputClass} bg-background`}>
                   {["Colouring", "Drawing", "Wordsearch", "Maze", "Discussion", "Free art"].map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
                 <label className={labelClass}>ACTIVITY DESCRIPTION</label>

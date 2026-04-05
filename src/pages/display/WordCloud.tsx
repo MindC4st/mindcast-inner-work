@@ -59,10 +59,10 @@ const WordCloud = () => {
   const uniqueMembers = new Set(words).size;
   const goFullscreen = () => { document.documentElement.requestFullscreen?.(); };
 
-  if (!session) return <div className="fixed inset-0 bg-[#0A0812] flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
+  if (!session) return <div className="fixed inset-0 bg-background flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
 
   return (
-    <div className="fixed inset-0 bg-[#0A0812] flex flex-col">
+    <div className="fixed inset-0 bg-background flex flex-col">
       <button onClick={goFullscreen} className="absolute top-4 right-4 text-white/15 hover:text-white/40 transition-colors z-10" title="Fullscreen">
         <Maximize size={18} />
       </button>

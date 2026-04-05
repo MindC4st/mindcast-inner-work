@@ -52,14 +52,14 @@ const SubAppLanding = () => {
 
   if (!app) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0D0B14" }}>
+      <div className="min-h-screen flex items-center justify-center" className="bg-background">
         <p className="text-white/40 font-body">App not found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       {/* Hero */}
       <section className="px-6 md:px-12 pt-16 pb-20 max-w-2xl mx-auto text-center">
         <Link to="/" className="inline-flex items-center gap-2 text-white/20 text-[10px] tracking-[0.12em] font-body hover:text-white/40 transition-colors mb-12">

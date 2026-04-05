@@ -46,7 +46,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0D0B14" }}>
+    <div className="min-h-screen flex items-center justify-center px-4" className="bg-background">
       <div className="w-full max-w-md">
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-12">
@@ -83,7 +83,7 @@ const Onboarding = () => {
               />
               <button
                 onClick={() => setStep(2)}
-                className="mt-10 w-full py-3.5 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors"
+                className="mt-10 w-full py-3.5 bg-white text-background text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors"
               >
                 CONTINUE
               </button>
@@ -122,7 +122,7 @@ const Onboarding = () => {
               <button
                 onClick={() => setStep(3)}
                 disabled={ageGroup.length === 0}
-                className="mt-8 w-full py-3.5 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30"
+                className="mt-8 w-full py-3.5 bg-white text-background text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30"
               >
                 CONTINUE
               </button>
@@ -170,7 +170,7 @@ const Onboarding = () => {
               <button
                 onClick={finish}
                 disabled={optIn === null || saving}
-                className="mt-8 w-full py-3.5 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30"
+                className="mt-8 w-full py-3.5 bg-white text-background text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30"
               >
                 {saving ? "..." : "GET STARTED"}
               </button>

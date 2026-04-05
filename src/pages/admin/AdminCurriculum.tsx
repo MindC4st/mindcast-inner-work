@@ -163,10 +163,10 @@ const AdminCurriculum = () => {
     );
   };
 
-  if (loading) return <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading curriculum...</span></div>;
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading curriculum...</span></div>;
 
   return (
-    <div className="min-h-screen bg-[#0D0B14] text-white">
+    <div className="min-h-screen bg-background text-white">
       <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
         <button onClick={() => navigate("/admin")} className="flex items-center gap-2 text-white/30 text-xs font-body mb-4 hover:text-white/50 transition-colors">
           <ArrowLeft size={14} /> Admin

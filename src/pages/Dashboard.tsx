@@ -40,7 +40,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#0D0B14] pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <nav className="flex items-center justify-between px-5 py-4">
         <Link to="/" className="font-display text-lg font-bold tracking-[0.15em] text-white">MINDCAST</Link>
         <Link to="/portal/settings" className="text-white/20 text-xs font-body hover:text-white/40">Profile</Link>
@@ -61,7 +61,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="mt-3">
-                <Link to="/workbook" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-[#0D0B14] text-xs font-display font-bold hover:bg-white/90 transition-colors">
+                <Link to="/workbook" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-background text-xs font-display font-bold hover:bg-white/90 transition-colors">
                   {activeEntry ? "Continue" : "Start"} my workbook <ArrowRight size={14} />
                 </Link>
               </div>

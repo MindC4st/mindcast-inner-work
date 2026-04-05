@@ -50,7 +50,7 @@ const AdminLive = () => {
   };
 
   if (!session) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0D0B14" }}>
+    <div className="min-h-screen flex items-center justify-center" className="bg-background">
       <div className="text-center">
         <p className="text-white/30 font-body text-sm mb-4">No active session.</p>
         <Link to="/admin/sessions" className="text-white/20 text-xs font-body hover:text-white/40">Go to sessions →</Link>
@@ -59,7 +59,7 @@ const AdminLive = () => {
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
           <ArrowLeft size={12} /> ADMIN
