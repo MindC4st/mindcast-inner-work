@@ -17,6 +17,7 @@ import AdminLive from "./pages/admin/AdminLive";
 import AdminFramework from "./pages/admin/AdminFramework";
 import AdminKids from "./pages/admin/AdminKids";
 import AdminMembers from "./pages/admin/AdminMembers";
+import AdminCurriculum from "./pages/admin/AdminCurriculum";
 import WorkbookRouter from "./pages/WorkbookRouter";
 import Dashboard from "./pages/Dashboard";
 import Checkin from "./pages/Checkin";
@@ -64,6 +65,7 @@ const AppRoutes = () => (
     <Route path="/admin/framework" element={<AdminFramework />} />
     <Route path="/admin/kids" element={<AdminKids />} />
     <Route path="/admin/members" element={<AdminMembers />} />
+    <Route path="/admin/curriculum" element={<AdminCurriculum />} />
     <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/checkin" element={<Checkin />} />
