@@ -86,23 +86,23 @@ const AdminKids = () => {
     setAnalysingTeen(false);
   };
 
-  const inputClass = "w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white text-sm font-body placeholder-white/15 focus:outline-none focus:border-white/20";
-  const labelClass = "text-[10px] font-body text-white/30 uppercase tracking-[0.1em] block mb-2";
+  const inputClass = "w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-foreground text-sm font-body placeholder-white/15 focus:outline-none focus:border-foreground/20";
+  const labelClass = "text-[10px] font-body text-foreground/30 uppercase tracking-[0.1em] block mb-2";
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
-        <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
+        <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
           <ArrowLeft size={12} /> ADMIN
         </Link>
         {session && (
           <select
             value={session.id}
             onChange={(e) => setSession(sessions.find((s) => s.id === e.target.value))}
-            className="bg-white/5 border border-white/10 text-white text-xs font-body px-3 py-2 rounded-lg focus:outline-none"
+            className="bg-foreground/5 border border-foreground/10 text-foreground text-xs font-body px-3 py-2 rounded-lg focus:outline-none"
           >
             {sessions.map((s) => (
-              <option key={s.id} value={s.id} className="bg-[#0D0B14]">
+              <option key={s.id} value={s.id} className="bg-background">
                 Week {s.session_number} — {s.title}
               </option>
             ))}
@@ -111,26 +111,26 @@ const AdminKids = () => {
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
-        <h1 className="font-display text-2xl font-bold text-white mb-8">Kids Session Planning</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-8">Kids Session Planning</h1>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Little Ones Panel */}
-          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+          <div className="bg-foreground/[0.03] border border-foreground/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-5">
               <span className="text-2xl">✦</span>
               <div>
-                <h3 className="font-semibold text-white font-display">Little Ones</h3>
-                <p className="text-white/40 text-xs font-body">Ages 4–11</p>
+                <h3 className="font-semibold text-foreground font-display">Little Ones</h3>
+                <p className="text-foreground/40 text-xs font-body">Ages 4–11</p>
               </div>
             </div>
 
             {weekSuggestion && (
-              <div className="bg-white/5 rounded-xl p-4 mb-4">
-                <p className="text-[10px] font-body text-white/30 uppercase tracking-wide mb-1">Suggested this week</p>
-                <p className="text-sm text-white/70 font-body">{weekSuggestion.kids_title}</p>
-                <p className="text-white/40 text-xs font-body mt-1">{weekSuggestion.kids_activity}</p>
+              <div className="bg-foreground/5 rounded-xl p-4 mb-4">
+                <p className="text-[10px] font-body text-foreground/30 uppercase tracking-wide mb-1">Suggested this week</p>
+                <p className="text-sm text-foreground/70 font-body">{weekSuggestion.kids_title}</p>
+                <p className="text-foreground/40 text-xs font-body mt-1">{weekSuggestion.kids_activity}</p>
                 <button
-                  className="text-xs text-white/50 mt-2 underline font-body hover:text-white/70"
+                  className="text-xs text-foreground/50 mt-2 underline font-body hover:text-foreground/70"
                   onClick={() => setLittleOnes((p: any) => ({ ...p, lesson_theme: weekSuggestion.kids_title, activity_description: weekSuggestion.kids_activity }))}
                 >
                   Use this suggestion
@@ -171,26 +171,26 @@ const AdminKids = () => {
                 <label className={labelClass}>Facilitator notes (private)</label>
                 <textarea className={inputClass + " resize-none"} rows={2} value={littleOnes.facilitator_notes || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
-              <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-white text-[#0D0B14] font-display font-bold py-3 text-xs hover:bg-white/90 transition-colors disabled:opacity-30 rounded-lg">
+              <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-primary/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Little Ones"}
               </button>
             </div>
           </div>
 
           {/* Teens Panel */}
-          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+          <div className="bg-foreground/[0.03] border border-foreground/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-5">
               <span className="text-2xl">◎</span>
               <div>
-                <h3 className="font-semibold text-white font-display">Teens</h3>
-                <p className="text-white/40 text-xs font-body">Ages 12–24</p>
+                <h3 className="font-semibold text-foreground font-display">Teens</h3>
+                <p className="text-foreground/40 text-xs font-body">Ages 12–24</p>
               </div>
             </div>
 
             {weekSuggestion && (
-              <div className="bg-white/5 rounded-xl p-4 mb-4">
-                <p className="text-[10px] font-body text-white/30 uppercase tracking-wide mb-1">Suggested this week</p>
-                <p className="text-sm text-white/70 font-body">{weekSuggestion.teen_title}</p>
+              <div className="bg-foreground/5 rounded-xl p-4 mb-4">
+                <p className="text-[10px] font-body text-foreground/30 uppercase tracking-wide mb-1">Suggested this week</p>
+                <p className="text-sm text-foreground/70 font-body">{weekSuggestion.teen_title}</p>
               </div>
             )}
 
@@ -204,7 +204,7 @@ const AdminKids = () => {
                   </div>
                 )}
               </div>
-              <button onClick={analyseTeen} disabled={analysingTeen || !teens.video_url} className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white text-xs font-body rounded-lg hover:bg-white/15 disabled:opacity-30 transition-colors">
+              <button onClick={analyseTeen} disabled={analysingTeen || !teens.video_url} className="flex items-center gap-2 px-4 py-2 bg-foreground/10 text-foreground text-xs font-body rounded-lg hover:bg-foreground/15 disabled:opacity-30 transition-colors">
                 <Sparkles size={14} /> {analysingTeen ? "Analysing..." : "Analyse with AI — teen mode"}
               </button>
               <div>
@@ -233,7 +233,7 @@ const AdminKids = () => {
                 <label className={labelClass}>Facilitator notes (private)</label>
                 <textarea className={inputClass + " resize-none"} rows={2} value={teens.facilitator_notes || ""} onChange={(e) => setTeens((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
-              <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-white text-[#0D0B14] font-display font-bold py-3 text-xs hover:bg-white/90 transition-colors disabled:opacity-30 rounded-lg">
+              <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-primary/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Teens"}
               </button>
             </div>

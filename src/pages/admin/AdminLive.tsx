@@ -50,18 +50,18 @@ const AdminLive = () => {
   };
 
   if (!session) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "#0D0B14" }}>
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <p className="text-white/30 font-body text-sm mb-4">No active session.</p>
-        <Link to="/admin/sessions" className="text-white/20 text-xs font-body hover:text-white/40">Go to sessions →</Link>
+        <p className="text-foreground/30 font-body text-sm mb-4">No active session.</p>
+        <Link to="/admin/sessions" className="text-foreground/20 text-xs font-body hover:text-foreground/40">Go to sessions →</Link>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen bg-background text-foreground">
       <nav className="flex items-center px-6 md:px-12 py-5">
-        <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
+        <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
           <ArrowLeft size={12} /> ADMIN
         </Link>
       </nav>
@@ -69,33 +69,33 @@ const AdminLive = () => {
       <div className="max-w-4xl mx-auto px-6 pt-8">
         <div className="flex items-center gap-3 mb-8">
           <Radio size={16} className="text-emerald-400 animate-pulse" />
-          <h1 className="font-display text-2xl font-bold text-white">Live Session</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground">Live Session</h1>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Left: Stats */}
           <div className="space-y-4">
-            <div className="border border-white/[0.06] p-5">
-              <p className="text-white/30 text-[10px] tracking-[0.12em] font-body mb-1">SESSION</p>
-              <p className="text-white font-display text-lg font-bold">{session.title}</p>
-              <p className="text-white/20 text-xs font-body">Week {session.session_number}</p>
+            <div className="border border-foreground/[0.06] p-5">
+              <p className="text-foreground/30 text-[10px] tracking-[0.12em] font-body mb-1">SESSION</p>
+              <p className="text-foreground font-display text-lg font-bold">{session.title}</p>
+              <p className="text-foreground/20 text-xs font-body">Week {session.session_number}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="border border-white/[0.06] p-4 text-center">
-                <Users size={16} className="mx-auto text-white/20 mb-2" />
-                <p className="text-white text-xl font-display font-bold">{checkinCount}</p>
-                <p className="text-white/20 text-[9px] font-body">CHECK-INS</p>
+              <div className="border border-foreground/[0.06] p-4 text-center">
+                <Users size={16} className="mx-auto text-foreground/20 mb-2" />
+                <p className="text-foreground text-xl font-display font-bold">{checkinCount}</p>
+                <p className="text-foreground/20 text-[9px] font-body">CHECK-INS</p>
               </div>
-              <div className="border border-white/[0.06] p-4 text-center">
-                <BookOpen size={16} className="mx-auto text-white/20 mb-2" />
-                <p className="text-white text-xl font-display font-bold">{workbookCount}</p>
-                <p className="text-white/20 text-[9px] font-body">WORKBOOKS</p>
+              <div className="border border-foreground/[0.06] p-4 text-center">
+                <BookOpen size={16} className="mx-auto text-foreground/20 mb-2" />
+                <p className="text-foreground text-xl font-display font-bold">{workbookCount}</p>
+                <p className="text-foreground/20 text-[9px] font-body">WORKBOOKS</p>
               </div>
-              <div className="border border-white/[0.06] p-4 text-center">
-                <Clock size={16} className="mx-auto text-white/20 mb-2" />
-                <p className="text-white text-xl font-display font-bold">{elapsed || "—"}</p>
-                <p className="text-white/20 text-[9px] font-body">ELAPSED</p>
+              <div className="border border-foreground/[0.06] p-4 text-center">
+                <Clock size={16} className="mx-auto text-foreground/20 mb-2" />
+                <p className="text-foreground text-xl font-display font-bold">{elapsed || "—"}</p>
+                <p className="text-foreground/20 text-[9px] font-body">ELAPSED</p>
               </div>
             </div>
           </div>
@@ -111,23 +111,23 @@ const AdminLive = () => {
                 END SESSION
               </button>
             )}
-            <a href={`/admin/present/${session.id}`} target="_blank" className="block w-full py-3 text-center bg-white/10 text-white text-xs tracking-[0.1em] font-body font-semibold hover:bg-white/20 transition-colors">
+            <a href={`/admin/present/${session.id}`} target="_blank" className="block w-full py-3 text-center bg-foreground/10 text-foreground text-xs tracking-[0.1em] font-body font-semibold hover:bg-foreground/20 transition-colors">
               🖥 Open Presentation ↗
             </a>
-            <a href={`/display?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-white/10 text-white/40 text-xs tracking-[0.1em] font-body hover:border-white/20 transition-colors">
+            <a href={`/display?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-foreground/10 text-foreground/40 text-xs tracking-[0.1em] font-body hover:border-foreground/20 transition-colors">
               Show Check-in Wall ↗
             </a>
-            <a href={`/display/goals?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-white/10 text-white/40 text-xs tracking-[0.1em] font-body hover:border-white/20 transition-colors">
+            <a href={`/display/goals?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-foreground/10 text-foreground/40 text-xs tracking-[0.1em] font-body hover:border-foreground/20 transition-colors">
               Show Goal Wall ↗
             </a>
-            <a href={`/display/wordcloud?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-white/10 text-white/40 text-xs tracking-[0.1em] font-body hover:border-white/20 transition-colors">
+            <a href={`/display/wordcloud?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-foreground/10 text-foreground/40 text-xs tracking-[0.1em] font-body hover:border-foreground/20 transition-colors">
               Show Word Cloud ↗
             </a>
             {session.session_code && (
-              <div className="border border-white/[0.06] p-4 text-center mt-4">
-                <p className="text-white/20 text-[9px] tracking-[0.15em] font-body mb-1">SESSION CODE</p>
-                <p className="font-mono text-2xl font-bold text-white/60 tracking-widest">{session.session_code}</p>
-                <p className="text-white/15 text-[9px] font-body mt-1">mindcast.co.nz/join</p>
+              <div className="border border-foreground/[0.06] p-4 text-center mt-4">
+                <p className="text-foreground/20 text-[9px] tracking-[0.15em] font-body mb-1">SESSION CODE</p>
+                <p className="font-mono text-2xl font-bold text-foreground/60 tracking-widest">{session.session_code}</p>
+                <p className="text-foreground/15 text-[9px] font-body mt-1">mindcast.co.nz/join</p>
               </div>
             )}
           </div>
@@ -135,16 +135,16 @@ const AdminLive = () => {
 
         {/* Recent check-ins */}
         <div className="mt-10">
-          <h2 className="text-[10px] tracking-[0.15em] text-white/30 font-body mb-4">RECENT CHECK-INS</h2>
+          <h2 className="text-[10px] tracking-[0.15em] text-foreground/30 font-body mb-4">RECENT CHECK-INS</h2>
           <div className="space-y-1">
             {recentCheckins.map((ci) => (
-              <div key={ci.id} className="flex items-center gap-4 px-4 py-3 border border-white/[0.04]">
-                <span className="text-white text-sm font-body">{ci.display_name}</span>
-                <span className="text-white/20 text-xs font-body flex-1 truncate">{ci.welcome_note || ""}</span>
-                <span className="text-white/10 text-[9px] font-body">{new Date(ci.checked_in_at).toLocaleTimeString()}</span>
+              <div key={ci.id} className="flex items-center gap-4 px-4 py-3 border border-foreground/[0.04]">
+                <span className="text-foreground text-sm font-body">{ci.display_name}</span>
+                <span className="text-foreground/20 text-xs font-body flex-1 truncate">{ci.welcome_note || ""}</span>
+                <span className="text-foreground/10 text-[9px] font-body">{new Date(ci.checked_in_at).toLocaleTimeString()}</span>
               </div>
             ))}
-            {recentCheckins.length === 0 && <p className="text-white/15 text-xs font-body text-center py-4">No check-ins yet.</p>}
+            {recentCheckins.length === 0 && <p className="text-foreground/15 text-xs font-body text-center py-4">No check-ins yet.</p>}
           </div>
         </div>
       </div>

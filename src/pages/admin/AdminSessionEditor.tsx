@@ -177,19 +177,19 @@ const AdminSessionEditor = () => {
   };
 
   const videoId = extractVideoId(form.video_url);
-  const inputClass = "w-full bg-transparent border-b border-white/10 text-white font-body text-sm py-3 px-1 focus:outline-none focus:border-white/30 transition-colors placeholder:text-white/15";
-  const labelClass = "block text-white/40 text-[10px] tracking-[0.12em] font-body mb-2 mt-6";
+  const inputClass = "w-full bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-3 px-1 focus:outline-none focus:border-foreground/30 transition-colors placeholder:text-foreground/15";
+  const labelClass = "block text-foreground/40 text-[10px] tracking-[0.12em] font-body mb-2 mt-6";
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen bg-background text-foreground">
       <nav className="flex items-center px-6 md:px-12 py-5">
-        <Link to="/admin/sessions" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
+        <Link to="/admin/sessions" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
           <ArrowLeft size={12} /> SESSIONS
         </Link>
       </nav>
 
       <div className="max-w-2xl mx-auto px-6 pt-4 pb-20">
-        <h1 className="font-display text-2xl font-bold text-white mb-8">{isNew ? "New Session" : "Edit Session"}</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-8">{isNew ? "New Session" : "Edit Session"}</h1>
 
         {/* Basics */}
         <div className="grid grid-cols-3 gap-6">
@@ -203,7 +203,7 @@ const AdminSessionEditor = () => {
           </div>
           <div>
             <label className={labelClass}>AGE GROUP</label>
-            <select value={form.age_group} onChange={(e) => setForm({ ...form, age_group: e.target.value })} className={`${inputClass} bg-[#0D0B14]`}>
+            <select value={form.age_group} onChange={(e) => setForm({ ...form, age_group: e.target.value })} className={`${inputClass} bg-background`}>
               <option value="adult">Adult</option>
               <option value="teen">Teen</option>
               <option value="child">Child</option>
@@ -215,7 +215,7 @@ const AdminSessionEditor = () => {
         <label className={labelClass}>VIDEO URL</label>
         <div className="flex gap-3">
           <input type="url" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="Paste YouTube URL..." className={`flex-1 ${inputClass}`} />
-          <button onClick={analyse} disabled={analysing || !form.video_url} className="flex items-center gap-2 px-4 py-2 border border-white/10 text-white/60 text-xs font-body hover:border-white/25 transition-colors disabled:opacity-30 whitespace-nowrap">
+          <button onClick={analyse} disabled={analysing || !form.video_url} className="flex items-center gap-2 px-4 py-2 border border-foreground/10 text-foreground/60 text-xs font-body hover:border-foreground/25 transition-colors disabled:opacity-30 whitespace-nowrap">
             <Sparkles size={14} /> {analysing ? analyseStep : "Analyse with AI"}
           </button>
         </div>
@@ -227,10 +227,10 @@ const AdminSessionEditor = () => {
         )}
 
         {form.ai_questions && (
-          <div className="mt-6 border border-white/[0.08] p-6">
+          <div className="mt-6 border border-foreground/[0.08] p-6">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] tracking-[0.12em] text-white/40 font-body flex items-center gap-2"><Sparkles size={12} /> AI ANALYSIS</span>
-              <button onClick={analyse} className="text-[10px] text-white/20 hover:text-white/50 font-body flex items-center gap-1"><RefreshCw size={10} /> Regenerate</button>
+              <span className="text-[10px] tracking-[0.12em] text-foreground/40 font-body flex items-center gap-2"><Sparkles size={12} /> AI ANALYSIS</span>
+              <button onClick={analyse} className="text-[10px] text-foreground/20 hover:text-foreground/50 font-body flex items-center gap-1"><RefreshCw size={10} /> Regenerate</button>
             </div>
             <label className={labelClass}>SESSION TITLE</label>
             <input value={form.ai_questions.session_title || ""} onChange={(e) => setForm({ ...form, ai_questions: { ...form.ai_questions, session_title: e.target.value }, title: e.target.value })} className={inputClass} />
@@ -245,25 +245,25 @@ const AdminSessionEditor = () => {
 
         {/* Pause Points */}
         {videoId && (
-          <div className="mt-8 border-t border-white/[0.06] pt-6">
+          <div className="mt-8 border-t border-foreground/[0.06] pt-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[10px] tracking-[0.15em] text-white/40 font-body">PAUSE POINTS (UP TO 5)</h2>
+              <h2 className="text-[10px] tracking-[0.15em] text-foreground/40 font-body">PAUSE POINTS (UP TO 5)</h2>
               {pausePoints.length < 5 && (
-                <button onClick={addPausePoint} className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/60 font-body">
+                <button onClick={addPausePoint} className="flex items-center gap-1 text-[10px] text-foreground/30 hover:text-foreground/60 font-body">
                   <Plus size={12} /> Add pause point
                 </button>
               )}
             </div>
-            <p className="text-white/20 text-xs font-body mb-4">Pre-set moments where the video pauses for a reflection question.</p>
+            <p className="text-foreground/20 text-xs font-body mb-4">Pre-set moments where the video pauses for a reflection question.</p>
             {pausePoints.map((pp, idx) => (
-              <div key={idx} className="border border-white/[0.06] rounded-lg p-4 mb-3">
+              <div key={idx} className="border border-foreground/[0.06] rounded-lg p-4 mb-3">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-white/40 text-[10px] tracking-wider font-body">PAUSE POINT {idx + 1}</span>
-                  <button onClick={() => removePausePoint(idx)} className="text-white/20 hover:text-red-400"><Trash2 size={14} /></button>
+                  <span className="text-foreground/40 text-[10px] tracking-wider font-body">PAUSE POINT {idx + 1}</span>
+                  <button onClick={() => removePausePoint(idx)} className="text-foreground/20 hover:text-red-400"><Trash2 size={14} /></button>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div>
-                    <label className="text-white/30 text-[9px] tracking-wider font-body mb-1 block">CONTEXT STARTS AT (mm:ss)</label>
+                    <label className="text-foreground/30 text-[9px] tracking-wider font-body mb-1 block">CONTEXT STARTS AT (mm:ss)</label>
                     <input
                       value={formatTime(pp.context_start_seconds)}
                       onChange={(e) => updatePausePoint(idx, "context_start_seconds", parseTime(e.target.value))}
@@ -271,7 +271,7 @@ const AdminSessionEditor = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-white/30 text-[9px] tracking-wider font-body mb-1 block">PAUSE AT (mm:ss)</label>
+                    <label className="text-foreground/30 text-[9px] tracking-wider font-body mb-1 block">PAUSE AT (mm:ss)</label>
                     <input
                       value={formatTime(pp.timestamp_seconds)}
                       onChange={(e) => updatePausePoint(idx, "timestamp_seconds", parseTime(e.target.value))}
@@ -279,7 +279,7 @@ const AdminSessionEditor = () => {
                     />
                   </div>
                 </div>
-                <label className="text-white/30 text-[9px] tracking-wider font-body mb-1 block">QUESTION</label>
+                <label className="text-foreground/30 text-[9px] tracking-wider font-body mb-1 block">QUESTION</label>
                 <textarea
                   value={pp.question_text}
                   onChange={(e) => updatePausePoint(idx, "question_text", e.target.value)}
@@ -300,15 +300,15 @@ const AdminSessionEditor = () => {
 
         {/* Kids Sessions */}
         {!isNew && (
-          <div className="mt-10 border-t border-white/[0.06] pt-8">
-            <h2 className="font-display text-lg font-bold text-white mb-6">Kids Sessions</h2>
+          <div className="mt-10 border-t border-foreground/[0.06] pt-8">
+            <h2 className="font-display text-lg font-bold text-foreground mb-6">Kids Sessions</h2>
             <details className="mb-6">
-              <summary className="text-white/40 text-xs tracking-[0.12em] font-body cursor-pointer hover:text-white/60">LITTLE ONES (4–11)</summary>
-              <div className="mt-4 pl-4 border-l border-white/[0.06]">
+              <summary className="text-foreground/40 text-xs tracking-[0.12em] font-body cursor-pointer hover:text-foreground/60">LITTLE ONES (4–11)</summary>
+              <div className="mt-4 pl-4 border-l border-foreground/[0.06]">
                 <label className={labelClass}>VIDEO URL</label>
                 <input value={kidsToddler.video_url} onChange={(e) => setKidsToddler({ ...kidsToddler, video_url: e.target.value })} className={inputClass} placeholder="YouTube URL..." />
                 <label className={labelClass}>ACTIVITY TYPE</label>
-                <select value={kidsToddler.activity_type} onChange={(e) => setKidsToddler({ ...kidsToddler, activity_type: e.target.value })} className={`${inputClass} bg-[#0D0B14]`}>
+                <select value={kidsToddler.activity_type} onChange={(e) => setKidsToddler({ ...kidsToddler, activity_type: e.target.value })} className={`${inputClass} bg-background`}>
                   {["Colouring", "Drawing", "Wordsearch", "Maze", "Discussion", "Free art"].map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
                 <label className={labelClass}>ACTIVITY DESCRIPTION</label>
@@ -322,12 +322,12 @@ const AdminSessionEditor = () => {
               </div>
             </details>
             <details>
-              <summary className="text-white/40 text-xs tracking-[0.12em] font-body cursor-pointer hover:text-white/60">TEENS (12–24)</summary>
-              <div className="mt-4 pl-4 border-l border-white/[0.06]">
+              <summary className="text-foreground/40 text-xs tracking-[0.12em] font-body cursor-pointer hover:text-foreground/60">TEENS (12–24)</summary>
+              <div className="mt-4 pl-4 border-l border-foreground/[0.06]">
                 <label className={labelClass}>VIDEO URL</label>
                 <div className="flex gap-3">
                   <input value={kidsTeen.video_url} onChange={(e) => setKidsTeen({ ...kidsTeen, video_url: e.target.value })} className={`flex-1 ${inputClass}`} placeholder="YouTube URL..." />
-                  <button onClick={analyseTeenVideo} disabled={analysing || !kidsTeen.video_url} className="flex items-center gap-2 px-3 py-2 border border-white/10 text-white/40 text-[10px] font-body hover:border-white/20 disabled:opacity-30">
+                  <button onClick={analyseTeenVideo} disabled={analysing || !kidsTeen.video_url} className="flex items-center gap-2 px-3 py-2 border border-foreground/10 text-foreground/40 text-[10px] font-body hover:border-foreground/20 disabled:opacity-30">
                     <Sparkles size={12} /> Analyse (teen)
                   </button>
                 </div>
@@ -342,7 +342,7 @@ const AdminSessionEditor = () => {
 
         {/* Actions */}
         <div className="flex gap-3 mt-10">
-          <button onClick={() => save("draft")} disabled={saving} className="px-6 py-3 border border-white/10 text-white/60 text-xs tracking-[0.12em] font-body hover:border-white/25 transition-colors disabled:opacity-30">
+          <button onClick={() => save("draft")} disabled={saving} className="px-6 py-3 border border-foreground/10 text-foreground/60 text-xs tracking-[0.12em] font-body hover:border-foreground/25 transition-colors disabled:opacity-30">
             {saving ? "..." : "SAVE AS DRAFT"}
           </button>
           <button onClick={() => save("active")} disabled={saving} className="px-6 py-3 bg-emerald-500/20 text-emerald-400 text-xs tracking-[0.12em] font-body hover:bg-emerald-500/30 transition-colors disabled:opacity-30">

@@ -69,10 +69,10 @@ const AdminFramework = () => {
   const printRunSheet = () => { window.print(); };
 
   const totalMinutes = steps.reduce((sum, s) => sum + (s.duration || 0), 0);
-  const inputClass = "bg-transparent border-b border-white/10 text-white font-body text-sm py-2 px-1 focus:outline-none focus:border-white/25 transition-colors placeholder:text-white/15";
+  const inputClass = "bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-2 px-1 focus:outline-none focus:border-foreground/25 transition-colors placeholder:text-foreground/15";
 
   return (
-    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+    <div className="min-h-screen" className="bg-background text-foreground">
       {/* Print-only run sheet */}
       <div className="hidden print:block print:bg-white print:text-black p-8" ref={printRef}>
         <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET</h1>
@@ -107,36 +107,36 @@ const AdminFramework = () => {
       {/* Screen UI */}
       <div className="print:hidden">
         <nav className="flex items-center justify-between px-6 md:px-12 py-5">
-          <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
+          <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
             <ArrowLeft size={12} /> ADMIN
           </Link>
-          <button onClick={printRunSheet} className="flex items-center gap-2 text-white/30 text-xs font-body hover:text-white/50 transition-colors">
+          <button onClick={printRunSheet} className="flex items-center gap-2 text-foreground/30 text-xs font-body hover:text-foreground/50 transition-colors">
             <Printer size={14} /> Print run sheet
           </button>
         </nav>
 
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
-          <h1 className="font-display text-2xl font-bold text-white mb-8">Session Framework</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground mb-8">Session Framework</h1>
 
           <div className="space-y-3">
             {steps.map((step, idx) => (
-              <div key={step.id} className="border border-white/[0.06] p-4 group hover:border-white/10 transition-colors">
+              <div key={step.id} className="border border-foreground/[0.06] p-4 group hover:border-foreground/10 transition-colors">
                 <div className="flex items-start gap-3">
                   <div className="flex flex-col gap-1 pt-2">
-                    <button onClick={() => moveStep(idx, idx - 1)} className="text-white/10 hover:text-white/30 text-xs">▲</button>
-                    <GripVertical size={14} className="text-white/10" />
-                    <button onClick={() => moveStep(idx, idx + 1)} className="text-white/10 hover:text-white/30 text-xs">▼</button>
+                    <button onClick={() => moveStep(idx, idx - 1)} className="text-foreground/10 hover:text-foreground/30 text-xs">▲</button>
+                    <GripVertical size={14} className="text-foreground/10" />
+                    <button onClick={() => moveStep(idx, idx + 1)} className="text-foreground/10 hover:text-foreground/30 text-xs">▼</button>
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-white/15 text-xs font-body w-6">{idx + 1}.</span>
+                      <span className="text-foreground/15 text-xs font-body w-6">{idx + 1}.</span>
                       <input value={step.name} onChange={(e) => updateStep(idx, "name", e.target.value)} placeholder="Step name" className={`flex-1 ${inputClass}`} />
                       <input type="number" min={1} value={step.duration} onChange={(e) => updateStep(idx, "duration", +e.target.value)} className={`w-16 text-center ${inputClass}`} />
-                      <span className="text-white/15 text-[9px] font-body">min</span>
+                      <span className="text-foreground/15 text-[9px] font-body">min</span>
                     </div>
                     <textarea value={step.description} onChange={(e) => updateStep(idx, "description", e.target.value)} placeholder="Description..." className={`w-full min-h-[40px] resize-none ${inputClass} ml-9`} />
                   </div>
-                  <button onClick={() => removeStep(idx)} className="text-white/10 hover:text-red-400/50 transition-colors pt-2">
+                  <button onClick={() => removeStep(idx)} className="text-foreground/10 hover:text-red-400/50 transition-colors pt-2">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -144,13 +144,13 @@ const AdminFramework = () => {
             ))}
           </div>
 
-          <button onClick={addStep} className="mt-4 flex items-center gap-2 text-white/20 text-xs font-body hover:text-white/40 transition-colors">
+          <button onClick={addStep} className="mt-4 flex items-center gap-2 text-foreground/20 text-xs font-body hover:text-foreground/40 transition-colors">
             <Plus size={14} /> Add step
           </button>
 
           <div className="mt-8 flex items-center justify-between">
-            <p className="text-white/20 text-xs font-body">Total runtime: <span className="text-white/50">{totalMinutes} minutes</span></p>
-            <button onClick={save} disabled={saving} className="px-6 py-3 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30">
+            <p className="text-foreground/20 text-xs font-body">Total runtime: <span className="text-foreground/50">{totalMinutes} minutes</span></p>
+            <button onClick={save} disabled={saving} className="px-6 py-3 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30">
               {saving ? "..." : "SAVE FRAMEWORK"}
             </button>
           </div>

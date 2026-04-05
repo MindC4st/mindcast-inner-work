@@ -53,19 +53,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "#0D0B14" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <h1 className="font-display text-3xl font-bold text-white tracking-[0.15em] mb-2">MINDCAST</h1>
-          <p className="text-white/40 text-sm font-body">A weekly gathering for the curious</p>
+          <h1 className="font-display text-3xl font-bold text-foreground tracking-[0.15em] mb-2">MINDCAST</h1>
+          <p className="text-foreground/40 text-sm font-body">A weekly gathering for the curious</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex mb-8 border-b border-white/10">
+        <div className="flex mb-8 border-b border-foreground/10">
           <button
             onClick={() => setTab("signin")}
             className={`flex-1 pb-3 text-xs tracking-[0.15em] font-body transition-colors ${
-              tab === "signin" ? "text-white border-b-2 border-white" : "text-white/30"
+              tab === "signin" ? "text-foreground border-b-2 border-white" : "text-foreground/30"
             }`}
           >
             SIGN IN
@@ -73,7 +73,7 @@ const Auth = () => {
           <button
             onClick={() => setTab("signup")}
             className={`flex-1 pb-3 text-xs tracking-[0.15em] font-body transition-colors ${
-              tab === "signup" ? "text-white border-b-2 border-white" : "text-white/30"
+              tab === "signup" ? "text-foreground border-b-2 border-white" : "text-foreground/30"
             }`}
           >
             JOIN MINDCAST
@@ -83,7 +83,7 @@ const Auth = () => {
         <form onSubmit={tab === "signin" ? handleSignIn : handleSignUp} className="space-y-5">
           {tab === "signup" && (
             <div>
-              <label className="block text-white/50 text-[11px] tracking-[0.1em] font-body mb-2">
+              <label className="block text-foreground/50 text-[11px] tracking-[0.1em] font-body mb-2">
                 WHAT SHOULD WE CALL YOU ON SCREEN?
               </label>
               <input
@@ -91,25 +91,25 @@ const Auth = () => {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your display name"
-                className="w-full bg-transparent border-b border-white/15 text-white font-body text-sm py-3 px-1 focus:outline-none focus:border-white/40 transition-colors placeholder:text-white/20"
+                className="w-full bg-transparent border-b border-foreground/15 text-foreground font-body text-sm py-3 px-1 focus:outline-none focus:border-foreground/40 transition-colors placeholder:text-foreground/20"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-white/50 text-[11px] tracking-[0.1em] font-body mb-2">EMAIL</label>
+            <label className="block text-foreground/50 text-[11px] tracking-[0.1em] font-body mb-2">EMAIL</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-transparent border-b border-white/15 text-white font-body text-sm py-3 px-1 focus:outline-none focus:border-white/40 transition-colors placeholder:text-white/20"
+              className="w-full bg-transparent border-b border-foreground/15 text-foreground font-body text-sm py-3 px-1 focus:outline-none focus:border-foreground/40 transition-colors placeholder:text-foreground/20"
               placeholder="you@email.com"
             />
           </div>
 
           <div>
-            <label className="block text-white/50 text-[11px] tracking-[0.1em] font-body mb-2">PASSWORD</label>
+            <label className="block text-foreground/50 text-[11px] tracking-[0.1em] font-body mb-2">PASSWORD</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -117,13 +117,13 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full bg-transparent border-b border-white/15 text-white font-body text-sm py-3 px-1 pr-10 focus:outline-none focus:border-white/40 transition-colors placeholder:text-white/20"
+                className="w-full bg-transparent border-b border-foreground/15 text-foreground font-body text-sm py-3 px-1 pr-10 focus:outline-none focus:border-foreground/40 transition-colors placeholder:text-foreground/20"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
+                className="absolute right-1 top-1/2 -translate-y-1/2 text-foreground/20 hover:text-foreground/50"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -133,21 +133,21 @@ const Auth = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-50"
+            className="w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             {loading ? "..." : tab === "signin" ? "SIGN IN" : "CREATE ACCOUNT"}
           </button>
         </form>
 
         <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/20 text-[10px] tracking-[0.15em] font-body">OR</span>
-          <div className="flex-1 h-px bg-white/10" />
+          <div className="flex-1 h-px bg-foreground/10" />
+          <span className="text-foreground/20 text-[10px] tracking-[0.15em] font-body">OR</span>
+          <div className="flex-1 h-px bg-foreground/10" />
         </div>
 
         <button
           onClick={handleGoogleSignIn}
-          className="w-full py-3.5 border border-white/10 text-white/60 text-xs tracking-[0.1em] font-body hover:border-white/25 hover:text-white/80 transition-colors flex items-center justify-center gap-3"
+          className="w-full py-3.5 border border-foreground/10 text-foreground/60 text-xs tracking-[0.1em] font-body hover:border-foreground/25 hover:text-foreground/80 transition-colors flex items-center justify-center gap-3"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -158,8 +158,8 @@ const Auth = () => {
           Continue with Google
         </button>
 
-        <p className="text-center mt-8 text-white/15 text-[10px] tracking-[0.1em] font-body">
-          <a href="/" className="hover:text-white/30 transition-colors">← Back to Mindcast</a>
+        <p className="text-center mt-8 text-foreground/15 text-[10px] tracking-[0.1em] font-body">
+          <a href="/" className="hover:text-foreground/30 transition-colors">← Back to Mindcast</a>
         </p>
       </div>
     </div>
