@@ -672,6 +672,7 @@ export type Database = {
           nfc_id: string | null
           onboarding_complete: boolean | null
           opt_in_public_goals: boolean | null
+          show_attendance_on_screen: boolean | null
           updated_at: string
           user_id: string
         }
@@ -689,6 +690,7 @@ export type Database = {
           nfc_id?: string | null
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
+          show_attendance_on_screen?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -706,6 +708,7 @@ export type Database = {
           nfc_id?: string | null
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
+          show_attendance_on_screen?: boolean | null
           updated_at?: string
           user_id?: string
         }
@@ -755,8 +758,47 @@ export type Database = {
           },
         ]
       }
+      session_pause_points: {
+        Row: {
+          context_start_seconds: number
+          created_at: string | null
+          id: string
+          position: number
+          question_text: string
+          session_id: string | null
+          timestamp_seconds: number
+        }
+        Insert: {
+          context_start_seconds: number
+          created_at?: string | null
+          id?: string
+          position: number
+          question_text: string
+          session_id?: string | null
+          timestamp_seconds: number
+        }
+        Update: {
+          context_start_seconds?: number
+          created_at?: string | null
+          id?: string
+          position?: number
+          question_text?: string
+          session_id?: string | null
+          timestamp_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_pause_points_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessions: {
         Row: {
+          active_slide: number | null
           admin_notes: string | null
           age_group: string | null
           ai_questions: Json | null
@@ -767,6 +809,7 @@ export type Database = {
           podcast_guest: string | null
           podcast_title: string | null
           podcast_url: string | null
+          session_code: string | null
           session_date: string | null
           session_number: number
           status: string
@@ -779,6 +822,7 @@ export type Database = {
           youtube_id: string | null
         }
         Insert: {
+          active_slide?: number | null
           admin_notes?: string | null
           age_group?: string | null
           ai_questions?: Json | null
@@ -789,6 +833,7 @@ export type Database = {
           podcast_guest?: string | null
           podcast_title?: string | null
           podcast_url?: string | null
+          session_code?: string | null
           session_date?: string | null
           session_number: number
           status?: string
@@ -801,6 +846,7 @@ export type Database = {
           youtube_id?: string | null
         }
         Update: {
+          active_slide?: number | null
           admin_notes?: string | null
           age_group?: string | null
           ai_questions?: Json | null
@@ -811,6 +857,7 @@ export type Database = {
           podcast_guest?: string | null
           podcast_title?: string | null
           podcast_url?: string | null
+          session_code?: string | null
           session_date?: string | null
           session_number?: number
           status?: string
@@ -828,6 +875,66 @@ export type Database = {
             columns: ["cohort_id"]
             isOneToOne: false
             referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_submissions: {
+        Row: {
+          ai_flag_reason: string | null
+          ai_flagged: boolean | null
+          approved_at: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          last_week_goal: string | null
+          profile_id: string | null
+          session_id: string | null
+          show_name: boolean | null
+          status: string | null
+          success_story: string
+        }
+        Insert: {
+          ai_flag_reason?: string | null
+          ai_flagged?: boolean | null
+          approved_at?: string | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          last_week_goal?: string | null
+          profile_id?: string | null
+          session_id?: string | null
+          show_name?: boolean | null
+          status?: string | null
+          success_story: string
+        }
+        Update: {
+          ai_flag_reason?: string | null
+          ai_flagged?: boolean | null
+          approved_at?: string | null
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          last_week_goal?: string | null
+          profile_id?: string | null
+          session_id?: string | null
+          show_name?: boolean | null
+          status?: string | null
+          success_story?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_submissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "story_submissions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -940,6 +1047,45 @@ export type Database = {
         }
         Relationships: []
       }
+      word_submissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          profile_id: string | null
+          session_id: string | null
+          word: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          session_id?: string | null
+          word: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          session_id?: string | null
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "word_submissions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "word_submissions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workbook_entries: {
         Row: {
           accountability_person: string | null
@@ -963,6 +1109,7 @@ export type Database = {
           question_3_text: string | null
           session_id: string | null
           share_leaving_word: boolean | null
+          success_story: string | null
           weekly_goal: string | null
         }
         Insert: {
@@ -987,6 +1134,7 @@ export type Database = {
           question_3_text?: string | null
           session_id?: string | null
           share_leaving_word?: boolean | null
+          success_story?: string | null
           weekly_goal?: string | null
         }
         Update: {
@@ -1011,6 +1159,7 @@ export type Database = {
           question_3_text?: string | null
           session_id?: string | null
           share_leaving_word?: boolean | null
+          success_story?: string | null
           weekly_goal?: string | null
         }
         Relationships: [
