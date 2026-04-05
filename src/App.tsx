@@ -64,7 +64,7 @@ const AppRoutes = () => (
     <Route path="/admin/framework" element={<AdminFramework />} />
     <Route path="/admin/kids" element={<AdminKids />} />
     <Route path="/admin/members" element={<AdminMembers />} />
-    <Route path="/workbook" element={<ProtectedRoute><Workbook /></ProtectedRoute>} />
+    <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/checkin" element={<Checkin />} />
     <Route path="/display" element={<WelcomeWall />} />
