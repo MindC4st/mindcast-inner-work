@@ -159,7 +159,14 @@ const Auth = () => {
           Continue with Google
         </button>
 
-        <p className="text-center mt-8 text-foreground/15 text-[10px] tracking-[0.1em] font-body">
+        <p className="text-center mt-6 text-foreground/25 text-[10px] tracking-[0.1em] font-body">
+          By creating an account you agree to our{" "}
+          <a href="/terms" className="underline hover:text-foreground/50">Terms of Use</a>
+          {" "}and{" "}
+          <a href="/privacy" className="underline hover:text-foreground/50">Privacy Policy</a>.
+        </p>
+
+        <p className="text-center mt-4 text-foreground/15 text-[10px] tracking-[0.1em] font-body">
           <a href="/" className="hover:text-foreground/30 transition-colors">← Back to Mindcast</a>
         </p>
       </div>

@@ -1,0 +1,46 @@
+import { Link } from "react-router-dom";
+
+interface LegalPageProps {
+  title: string;
+  lastUpdated: string;
+  children: React.ReactNode;
+}
+
+export function LegalPage({ title, lastUpdated, children }: LegalPageProps) {
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Back nav */}
+      <div className="px-5 py-4 border-b border-border">
+        <Link to="/" className="text-muted-foreground text-sm hover:text-foreground transition-colors">
+          ← Back to Mindcast
+        </Link>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-5 py-12 pb-20">
+        {/* Header */}
+        <div className="mb-10">
+          <p className="font-display text-[10px] text-muted-foreground/50 uppercase tracking-widest mb-3">
+            Legal
+          </p>
+          <h1 className="text-3xl font-display font-black text-foreground mb-3">{title}</h1>
+          <p className="text-muted-foreground text-sm font-body">Last updated: {lastUpdated}</p>
+        </div>
+
+        {/* Content */}
+        <div className="prose prose-sm max-w-none
+          prose-headings:text-foreground prose-headings:font-display prose-headings:font-black
+          prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
+          prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3
+          prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:font-body
+          prose-li:text-muted-foreground prose-li:font-body
+          prose-a:text-foreground prose-a:underline hover:prose-a:text-foreground/70
+          prose-strong:text-foreground
+          prose-hr:border-border
+          prose-ul:text-muted-foreground
+        ">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}

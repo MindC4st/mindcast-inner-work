@@ -44,6 +44,10 @@ import PortalDownloads from "./pages/portal/PortalDownloads";
 import PortalSettings from "./pages/portal/PortalSettings";
 import PortalProgress from "./pages/portal/PortalProgress";
 import PortalAdmin from "./pages/portal/PortalAdmin";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import RefundPage from "./pages/RefundPage";
+import SafeguardingPage from "./pages/SafeguardingPage";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +103,10 @@ const AppRoutes = () => (
     <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
     <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
     <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
+    <Route path="/terms" element={<TermsPage />} />
+    <Route path="/privacy" element={<PrivacyPage />} />
+    <Route path="/refund" element={<RefundPage />} />
+    <Route path="/safeguarding" element={<SafeguardingPage />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

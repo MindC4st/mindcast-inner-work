@@ -39,9 +39,28 @@ const Footer = () => (
           </div>
         </div>
       </div>
-      <p className="text-center text-muted-foreground/40 text-xs tracking-wider">
-        © 2026 MINDCAST. All rights reserved.
-      </p>
+      {/* Legal links */}
+      <div className="border-t border-border/10 mt-8 pt-6">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center">
+          {[
+            { label: "Terms of Use", href: "/terms" },
+            { label: "Privacy Policy", href: "/privacy" },
+            { label: "Refund Policy", href: "/refund" },
+            { label: "Child Safety", href: "/safeguarding" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              to={link.href}
+              className="text-muted-foreground/40 text-xs hover:text-muted-foreground transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+        <p className="text-muted-foreground/40 text-xs text-center mt-4 tracking-wider">
+          © {new Date().getFullYear()} MINDCAST. All rights reserved. New Zealand.
+        </p>
+      </div>
     </div>
   </footer>
 );
