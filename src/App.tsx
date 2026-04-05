@@ -44,7 +44,9 @@ const AppRoutes = () => (
     <Route path="/auth" element={<Auth />} />
     <Route path="/onboarding" element={<Onboarding />} />
     <Route path="/admin" element={<AdminLanding />} />
-    <Route path="/:appSlug" element={<SubAppLanding />} />
+    <Route path="/little-minds" element={<SubAppLanding />} />
+    <Route path="/signal" element={<SubAppLanding />} />
+    <Route path="/connect" element={<SubAppLanding />} />
     <Route path="/live" element={<Live />} />
     <Route path="/resources" element={<Resources />} />
     <Route path="/membership" element={<Membership />} />
