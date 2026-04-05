@@ -98,7 +98,7 @@ const SubAppLanding = () => {
           <a
             href={app.link || "#"}
             className="px-8 py-3.5 text-xs tracking-[0.15em] font-display font-bold transition-colors"
-            style={{ background: app.color, color: "#0D0B14" }}
+            style={{ background: app.color, color: "hsl(200, 50%, 35%)" }}
           >
             DOWNLOAD ON iOS
           </a>
