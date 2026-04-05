@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import logoBrand from "@/assets/logo-brand.png";
+import logoNav from "@/assets/logo-dark-notagline.png";
 
 const navLinks = [
   { label: "LIVE", to: "/live" },
@@ -20,7 +20,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/10">
       <div className="container mx-auto flex items-center justify-between h-16 px-6">
         <Link to="/">
-          <img src={logoBrand} alt="Mindcast" className="h-8" />
+          <img src={logoNav} alt="Mindcast" className="h-8" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">
