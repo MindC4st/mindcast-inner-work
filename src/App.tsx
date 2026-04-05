@@ -48,7 +48,11 @@ const AppRoutes = () => (
     <Route path="/classic" element={<Index />} />
     <Route path="/auth" element={<Auth />} />
     <Route path="/onboarding" element={<Onboarding />} />
-    <Route path="/admin" element={<AdminLanding />} />
+    <Route path="/admin/sessions" element={<AdminSessions />} />
+    <Route path="/admin/sessions/:id" element={<AdminSessionEditor />} />
+    <Route path="/admin/history" element={<AdminHistory />} />
+    <Route path="/admin/live" element={<AdminLive />} />
+    <Route path="/admin/framework" element={<AdminFramework />} />
     <Route path="/little-minds" element={<SubAppLanding />} />
     <Route path="/signal" element={<SubAppLanding />} />
     <Route path="/connect" element={<SubAppLanding />} />
