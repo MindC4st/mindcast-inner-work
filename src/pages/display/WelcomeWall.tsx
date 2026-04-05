@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
+import { Maximize } from "lucide-react";
 
 const WelcomeWall = () => {
   const [searchParams] = useSearchParams();
@@ -34,6 +35,8 @@ const WelcomeWall = () => {
     return () => clearInterval(interval);
   }, [session]);
 
+  const goFullscreen = () => { document.documentElement.requestFullscreen?.(); };
+
   if (!session) return <div className="fixed inset-0 bg-[#0A0812] flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
 
   const visible = checkins.filter((c) => !c.is_anonymous);
@@ -46,9 +49,14 @@ const WelcomeWall = () => {
           <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.2em]">mindcast · week {session.session_number}</p>
           <h1 className="text-3xl font-display font-bold text-white mt-1">{session.title}</h1>
         </div>
-        <div className="text-right">
-          <p className="text-6xl font-display font-bold text-white">{checkins.length}</p>
-          <p className="text-white/25 text-sm font-body">with us tonight</p>
+        <div className="flex items-center gap-4">
+          <button onClick={goFullscreen} className="text-white/15 hover:text-white/40 transition-colors" title="Fullscreen">
+            <Maximize size={18} />
+          </button>
+          <div className="text-right">
+            <p className="text-6xl font-display font-bold text-white">{checkins.length}</p>
+            <p className="text-white/25 text-sm font-body">with us tonight</p>
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { Maximize } from "lucide-react";
 
 const GoalWall = () => {
   const [searchParams] = useSearchParams();
@@ -31,12 +32,13 @@ const GoalWall = () => {
     return () => clearInterval(interval);
   }, [session]);
 
-  // Cycle through goals
   useEffect(() => {
     if (goals.length <= 6) return;
     const timer = setInterval(() => setVisibleIdx((i) => (i + 1) % goals.length), 5000);
     return () => clearInterval(timer);
   }, [goals.length]);
+
+  const goFullscreen = () => { document.documentElement.requestFullscreen?.(); };
 
   if (!session) return <div className="fixed inset-0 bg-[#0A0812] flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
 
@@ -44,9 +46,14 @@ const GoalWall = () => {
 
   return (
     <div className="fixed inset-0 bg-[#0A0812] flex flex-col">
-      <div className="px-10 py-6 border-b border-white/[0.06]">
-        <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.2em]">mindcast · week {session.session_number}</p>
-        <h1 className="text-2xl font-display font-bold text-white mt-1">Looking Back</h1>
+      <div className="px-10 py-6 border-b border-white/[0.06] flex items-center justify-between">
+        <div>
+          <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.2em]">mindcast · week {session.session_number}</p>
+          <h1 className="text-2xl font-display font-bold text-white mt-1">Looking Back</h1>
+        </div>
+        <button onClick={goFullscreen} className="text-white/15 hover:text-white/40 transition-colors" title="Fullscreen">
+          <Maximize size={18} />
+        </button>
       </div>
 
       <div className="flex-1 p-8 flex items-center justify-center">
@@ -56,13 +63,7 @@ const GoalWall = () => {
           <div className="grid grid-cols-2 gap-6 max-w-4xl w-full">
             <AnimatePresence mode="popLayout">
               {displayed.map((g) => (
-                <motion.div
-                  key={g.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-6"
-                >
+                <motion.div key={g.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white/5 border border-white/10 rounded-2xl p-6">
                   <p className="font-display font-bold text-white text-base mb-3">{g.display_name}</p>
                   {g.goal_update && <p className="text-white/50 text-sm font-body leading-relaxed">{g.goal_update}</p>}
                 </motion.div>

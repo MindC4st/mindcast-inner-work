@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Wifi, WifiOff, AlertCircle } from "lucide-react";
 
 const SECTIONS = [
   { key: "arriving_word", title: "One word for how you arrived today.", type: "short" },
@@ -22,6 +22,8 @@ function extractVideoId(url: string): string | null {
   return m ? m[1] : null;
 }
 
+type SaveStatus = "idle" | "saving" | "saved" | "local" | "error";
+
 const Workbook = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -29,10 +31,14 @@ const Workbook = () => {
   const [entry, setEntry] = useState<any>({});
   const [entryId, setEntryId] = useState<string | null>(null);
   const [step, setStep] = useState(0);
-  const [saved, setSaved] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [done, setDone] = useState(false);
   const [customQ, setCustomQ] = useState<Record<string, boolean>>({});
   const saveTimer = useRef<any>(null);
+  const touchStart = useRef<number | null>(null);
+
+  // localStorage key
+  const lsKey = session ? `mindcast_wb_${session.id}_${user?.id}` : null;
 
   useEffect(() => {
     if (authLoading) return;
@@ -40,9 +46,16 @@ const Workbook = () => {
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => {
       if (data) {
         setSession(data);
-        // Load existing entry
         supabase.from("workbook_entries").select("*").eq("session_id", data.id).eq("profile_id", user.id).maybeSingle().then(({ data: e }) => {
           if (e) { setEntry(e); setEntryId(e.id); }
+          else {
+            // Try localStorage restore
+            const key = `mindcast_wb_${data.id}_${user.id}`;
+            const local = localStorage.getItem(key);
+            if (local) {
+              try { setEntry(JSON.parse(local)); } catch {}
+            }
+          }
         });
       }
     });
@@ -51,18 +64,32 @@ const Workbook = () => {
   const autoSave = useCallback((updates: any) => {
     if (!session || !user) return;
     clearTimeout(saveTimer.current);
+    setSaveStatus("saving");
+
+    // Always save to localStorage
+    if (lsKey) {
+      try { localStorage.setItem(lsKey, JSON.stringify({ ...entry, ...updates })); } catch {}
+    }
+
     saveTimer.current = setTimeout(async () => {
-      const payload = { ...updates, profile_id: user.id, session_id: session.id };
-      if (entryId) {
-        await supabase.from("workbook_entries").update(payload).eq("id", entryId);
-      } else {
-        const { data } = await supabase.from("workbook_entries").upsert(payload, { onConflict: "profile_id,session_id" }).select().single();
-        if (data) setEntryId(data.id);
+      try {
+        const payload = { ...updates, profile_id: user.id, session_id: session.id };
+        if (entryId) {
+          const { error } = await supabase.from("workbook_entries").update(payload).eq("id", entryId);
+          if (error) throw error;
+        } else {
+          const { data, error } = await supabase.from("workbook_entries").upsert(payload, { onConflict: "profile_id,session_id" }).select().single();
+          if (error) throw error;
+          if (data) setEntryId(data.id);
+        }
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2000);
+      } catch {
+        setSaveStatus("local");
+        setTimeout(() => setSaveStatus("idle"), 3000);
       }
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
     }, 1500);
-  }, [session, user, entryId]);
+  }, [session, user, entryId, entry, lsKey]);
 
   const updateField = (key: string, value: string) => {
     const updated = { ...entry, [key]: value };
@@ -74,7 +101,20 @@ const Workbook = () => {
     if (entryId) {
       await supabase.from("workbook_entries").update({ completed_at: new Date().toISOString() }).eq("id", entryId);
     }
+    if (lsKey) localStorage.removeItem(lsKey);
     setDone(true);
+  };
+
+  // Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => { touchStart.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart.current === null) return;
+    const diff = e.changedTouches[0].clientX - touchStart.current;
+    if (Math.abs(diff) > 60) {
+      if (diff < 0 && step < SECTIONS.length - 1) setStep(step + 1);
+      if (diff > 0 && step > 0) setStep(step - 1);
+    }
+    touchStart.current = null;
   };
 
   if (authLoading) return <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
@@ -106,13 +146,19 @@ const Workbook = () => {
   const videoId = session.video_url ? extractVideoId(session.video_url) : (session.youtube_id || null);
   const currentSection = SECTIONS[step];
 
+  const SaveIndicator = () => {
+    if (saveStatus === "saving") return <span className="text-white/30 text-[9px] font-body">Saving...</span>;
+    if (saveStatus === "saved") return <span className="text-emerald-400/50 text-[9px] font-body flex items-center gap-1"><Wifi size={10} /> Saved</span>;
+    if (saveStatus === "local") return <span className="text-amber-400/50 text-[9px] font-body flex items-center gap-1"><WifiOff size={10} /> Saved locally</span>;
+    if (saveStatus === "error") return <span className="text-red-400/50 text-[9px] font-body flex items-center gap-1"><AlertCircle size={10} /> Error</span>;
+    return null;
+  };
+
   const renderInput = () => {
     if (!currentSection) return null;
-
     if (currentSection.type === "short") {
       return <input value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-lg py-3 text-center focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="one word" autoFocus />;
     }
-
     if (currentSection.type === "textarea") {
       return (
         <div>
@@ -123,7 +169,6 @@ const Workbook = () => {
         </div>
       );
     }
-
     if (currentSection.type === "question") {
       const qKey = currentSection.questionKey!;
       const qtKey = currentSection.questionTextKey!;
@@ -148,7 +193,6 @@ const Workbook = () => {
         </div>
       );
     }
-
     if (currentSection.type === "goal") {
       return (
         <div className="space-y-6">
@@ -167,7 +211,6 @@ const Workbook = () => {
         </div>
       );
     }
-
     if (currentSection.type === "leaving") {
       return (
         <div className="space-y-6">
@@ -182,8 +225,7 @@ const Workbook = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0B14]">
-      {/* Header */}
+    <div className="min-h-screen bg-[#0D0B14]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
         <p className="font-body text-[10px] text-white/25 uppercase tracking-[0.15em] mb-1">
           Week {session.session_number} · {session.session_date}
@@ -192,7 +234,6 @@ const Workbook = () => {
         {session.theme && <p className="text-white/30 text-xs font-body mt-1">{session.theme}</p>}
       </div>
 
-      {/* Video — show on first step only */}
       {step === 0 && videoId && (
         <div className="px-5 py-4">
           <div className="aspect-video rounded-xl overflow-hidden">
@@ -201,7 +242,6 @@ const Workbook = () => {
         </div>
       )}
 
-      {/* Progress */}
       <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex gap-1.5">
           {SECTIONS.map((_, i) => (
@@ -209,24 +249,22 @@ const Workbook = () => {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          {saved && <span className="text-emerald-400/50 text-[9px] font-body animate-pulse">Saved</span>}
+          <SaveIndicator />
           <span className="text-white/15 text-[9px] font-body">{step + 1} of {SECTIONS.length}</span>
         </div>
       </div>
 
-      {/* Content */}
       <div className="px-5 py-8 max-w-lg mx-auto">
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.2 }}>
             <h2 className="text-white font-display text-base font-bold mb-6 text-center">
-              {currentSection.title || (currentSection.type === "question" ? "" : "")}
+              {currentSection.title || ""}
             </h2>
             {renderInput()}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Navigation */}
       <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-[#0D0B14]/95 backdrop-blur border-t border-white/[0.04] flex gap-3">
         {step > 0 && (
           <button onClick={() => setStep(step - 1)} className="flex items-center gap-2 px-5 py-3 border border-white/10 text-white/40 text-xs font-body hover:border-white/20 transition-colors">
