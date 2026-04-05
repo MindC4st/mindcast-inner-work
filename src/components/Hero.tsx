@@ -17,7 +17,7 @@ const Hero = () => (
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="heading-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl max-w-5xl mx-auto leading-[0.9] mt-6 text-foreground"
+        className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl max-w-5xl mx-auto leading-[0.95] mt-6 text-foreground tracking-wide"
       >
         A WORLD WHERE PEOPLE HEAL THEMSELVES
       </motion.h1>
