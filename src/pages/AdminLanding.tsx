@@ -31,9 +31,10 @@ const AdminLanding = () => {
   }, [user, loading]);
 
   const tiles = [
-    { label: "Session Planning", icon: Calendar, to: "/portal/admin", desc: "Plan and manage weekly sessions" },
-    { label: "Live Session", icon: Radio, to: "/portal/admin", desc: "Run the live session experience" },
-    { label: "History", icon: History, to: "/portal/admin", desc: "Review past sessions and data" },
+    { label: "Session Planning", icon: Calendar, to: "/admin/sessions", desc: "Plan and manage weekly sessions" },
+    { label: "Live Session", icon: Radio, to: "/admin/live", desc: "Run the live session experience" },
+    { label: "History", icon: History, to: "/admin/history", desc: "Review past sessions and data" },
+    { label: "Framework", icon: Calendar, to: "/admin/framework", desc: "Edit the session running order" },
   ];
 
   return (
