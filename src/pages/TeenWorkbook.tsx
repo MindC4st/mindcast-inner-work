@@ -106,13 +106,13 @@ const TeenWorkbook = () => {
     touchStart.current = null;
   };
 
-  if (authLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
+  if (authLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-foreground/20 text-xs animate-pulse font-body">Loading...</span></div>;
 
   if (!session) return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
-        <p className="text-white/40 font-body text-sm mb-2">There's no active session right now.</p>
-        <p className="text-white/20 font-body text-xs">Check back on session night.</p>
+        <p className="text-foreground/40 font-body text-sm mb-2">There's no active session right now.</p>
+        <p className="text-foreground/20 font-body text-xs">Check back on session night.</p>
       </div>
     </div>
   );
@@ -121,9 +121,9 @@ const TeenWorkbook = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
         <Check size={32} className="text-emerald-400/60 mx-auto mb-4" />
-        <h2 className="font-display text-2xl font-bold text-white mb-2">Nice work.</h2>
-        <p className="text-white/30 font-body text-sm mb-8">Your workbook is saved.</p>
-        <button onClick={() => navigate("/dashboard")} className="text-white/20 text-xs font-body hover:text-white/40 transition-colors">Back to dashboard</button>
+        <h2 className="font-display text-2xl font-bold text-foreground mb-2">Nice work.</h2>
+        <p className="text-foreground/30 font-body text-sm mb-8">Your workbook is saved.</p>
+        <button onClick={() => navigate("/dashboard")} className="text-foreground/20 text-xs font-body hover:text-foreground/40 transition-colors">Back to dashboard</button>
       </div>
     </div>
   );
@@ -133,7 +133,7 @@ const TeenWorkbook = () => {
   const currentSection = SECTIONS[step];
 
   const SaveIndicator = () => {
-    if (saveStatus === "saving") return <span className="text-white/30 text-[9px] font-body">Saving...</span>;
+    if (saveStatus === "saving") return <span className="text-foreground/30 text-[9px] font-body">Saving...</span>;
     if (saveStatus === "saved") return <span className="text-emerald-400/50 text-[9px] font-body flex items-center gap-1"><Wifi size={10} /> Saved</span>;
     if (saveStatus === "local") return <span className="text-amber-400/50 text-[9px] font-body flex items-center gap-1"><WifiOff size={10} /> Saved locally</span>;
     if (saveStatus === "error") return <span className="text-red-400/50 text-[9px] font-body flex items-center gap-1"><AlertCircle size={10} /> Error</span>;
@@ -146,8 +146,8 @@ const TeenWorkbook = () => {
     if (currentSection.type === "textarea") {
       return (
         <div>
-          {currentSection.subtitle && <p className="text-white/20 text-xs font-body italic mb-3 text-center">{currentSection.subtitle}</p>}
-          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={5} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="Write here..." autoFocus />
+          {currentSection.subtitle && <p className="text-foreground/20 text-xs font-body italic mb-3 text-center">{currentSection.subtitle}</p>}
+          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={5} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="Write here..." autoFocus />
         </div>
       );
     }
@@ -157,17 +157,17 @@ const TeenWorkbook = () => {
       const aiQuestion = ai[qField] || "";
       return (
         <div>
-          <p className="text-white/20 text-[10px] font-body tracking-wide mb-3 text-center">QUESTION FROM TODAY'S VIDEO</p>
+          <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-3 text-center">QUESTION FROM TODAY'S VIDEO</p>
           {aiQuestion && (
-            <div className="border-l-2 border-white/10 pl-4 mb-4">
-              <p className="text-white/50 font-body text-sm leading-relaxed">{aiQuestion}</p>
+            <div className="border-l-2 border-foreground/10 pl-4 mb-4">
+              <p className="text-foreground/50 font-body text-sm leading-relaxed">{aiQuestion}</p>
             </div>
           )}
           <div className="mb-4">
-            <p className="text-white/20 text-[10px] font-body tracking-wide mb-2">WRITE THE QUESTION HERE</p>
-            <input value={entry[qField] || ""} onChange={(e) => updateField(qField, e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="Copy the question..." />
+            <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-2">WRITE THE QUESTION HERE</p>
+            <input value={entry[qField] || ""} onChange={(e) => updateField(qField, e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground/60 font-body text-sm py-2 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="Copy the question..." />
           </div>
-          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={6} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My answer..." autoFocus />
+          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={6} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My answer..." autoFocus />
         </div>
       );
     }
@@ -176,14 +176,14 @@ const TeenWorkbook = () => {
       const prompt = ai.personal_reflection_prompt || "What is this making you think about in your own life?";
       return (
         <div>
-          <div className="border-l-2 border-white/10 pl-4 mb-4">
-            <p className="text-white/40 font-body text-sm italic leading-relaxed">{prompt}</p>
+          <div className="border-l-2 border-foreground/10 pl-4 mb-4">
+            <p className="text-foreground/40 font-body text-sm italic leading-relaxed">{prompt}</p>
           </div>
           <div className="mb-3">
-            <p className="text-white/20 text-[10px] font-body tracking-wide mb-2">IN YOUR OWN WORDS</p>
-            <input value={entry.personal_reflection_prompt || ""} onChange={(e) => updateField("personal_reflection_prompt", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="Rewrite the question your way..." />
+            <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-2">IN YOUR OWN WORDS</p>
+            <input value={entry.personal_reflection_prompt || ""} onChange={(e) => updateField("personal_reflection_prompt", e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground/60 font-body text-sm py-2 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="Rewrite the question your way..." />
           </div>
-          <textarea value={entry.personal_reflection || ""} onChange={(e) => updateField("personal_reflection", e.target.value)} rows={6} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My honest reflection..." autoFocus />
+          <textarea value={entry.personal_reflection || ""} onChange={(e) => updateField("personal_reflection", e.target.value)} rows={6} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My honest reflection..." autoFocus />
         </div>
       );
     }
@@ -192,10 +192,10 @@ const TeenWorkbook = () => {
       const challengePrompt = ai.challenge_prompt || "What's one thing you could try this week based on what you heard today?";
       return (
         <div>
-          <div className="border-l-2 border-white/10 pl-4 mb-4">
-            <p className="text-white/40 font-body text-sm italic leading-relaxed">{challengePrompt}</p>
+          <div className="border-l-2 border-foreground/10 pl-4 mb-4">
+            <p className="text-foreground/40 font-body text-sm italic leading-relaxed">{challengePrompt}</p>
           </div>
-          <textarea value={entry.challenge_response || ""} onChange={(e) => updateField("challenge_response", e.target.value)} rows={5} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My challenge..." autoFocus />
+          <textarea value={entry.challenge_response || ""} onChange={(e) => updateField("challenge_response", e.target.value)} rows={5} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My challenge..." autoFocus />
         </div>
       );
     }
@@ -204,12 +204,12 @@ const TeenWorkbook = () => {
       return (
         <div className="space-y-6">
           <div>
-            <p className="text-white/30 text-xs font-body mb-2">This week I will:</p>
-            <textarea value={entry.weekly_goal || ""} onChange={(e) => updateField("weekly_goal", e.target.value)} rows={3} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My goal..." />
+            <p className="text-foreground/30 text-xs font-body mb-2">This week I will:</p>
+            <textarea value={entry.weekly_goal || ""} onChange={(e) => updateField("weekly_goal", e.target.value)} rows={3} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My goal..." />
           </div>
           <div>
-            <p className="text-white/30 text-xs font-body mb-2">My first step in 24 hours:</p>
-            <input value={entry.first_step || ""} onChange={(e) => updateField("first_step", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-sm py-3 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="What will I do first?" />
+            <p className="text-foreground/30 text-xs font-body mb-2">My first step in 24 hours:</p>
+            <input value={entry.first_step || ""} onChange={(e) => updateField("first_step", e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-3 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="What will I do first?" />
           </div>
         </div>
       );
@@ -218,12 +218,12 @@ const TeenWorkbook = () => {
 
   return (
     <div className="min-h-screen bg-background" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
-        <p className="font-body text-[10px] text-white/25 uppercase tracking-[0.15em] mb-1">
+      <div className="px-5 pt-8 pb-4 border-b border-foreground/[0.06]">
+        <p className="font-body text-[10px] text-foreground/25 uppercase tracking-[0.15em] mb-1">
           MINDCAST TEENS · Week {session.session_number} / 52
         </p>
-        <h1 className="text-lg font-display font-bold text-white">{session.title}</h1>
-        {session.theme && <p className="text-white/30 text-xs font-body mt-1">{session.theme}</p>}
+        <h1 className="text-lg font-display font-bold text-foreground">{session.title}</h1>
+        {session.theme && <p className="text-foreground/30 text-xs font-body mt-1">{session.theme}</p>}
       </div>
 
       {step <= 1 && videoId && (
@@ -236,9 +236,9 @@ const TeenWorkbook = () => {
 
       {ai.big_idea && step >= 1 && step <= 4 && (
         <div className="px-5 py-2">
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3">
-            <p className="text-white/15 text-[9px] font-body tracking-wide mb-1">THE BIG IDEA</p>
-            <p className="text-white/40 text-xs font-body leading-relaxed">{ai.big_idea}</p>
+          <div className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg p-3">
+            <p className="text-foreground/15 text-[9px] font-body tracking-wide mb-1">THE BIG IDEA</p>
+            <p className="text-foreground/40 text-xs font-body leading-relaxed">{ai.big_idea}</p>
           </div>
         </div>
       )}
@@ -246,19 +246,19 @@ const TeenWorkbook = () => {
       <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex gap-1.5">
           {SECTIONS.map((_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === step ? "bg-white" : i < step ? "bg-white/25" : "bg-white/[0.06]"}`} />
+            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === step ? "bg-white" : i < step ? "bg-foreground/25" : "bg-foreground/[0.06]"}`} />
           ))}
         </div>
         <div className="flex items-center gap-2">
           <SaveIndicator />
-          <span className="text-white/15 text-[9px] font-body">{step + 1} of {SECTIONS.length}</span>
+          <span className="text-foreground/15 text-[9px] font-body">{step + 1} of {SECTIONS.length}</span>
         </div>
       </div>
 
       <div className="px-5 py-8 max-w-lg mx-auto">
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.2 }}>
-            <h2 className="text-white font-display text-base font-bold mb-6 text-center">
+            <h2 className="text-foreground font-display text-base font-bold mb-6 text-center">
               {currentSection.title || ""}
             </h2>
             {renderInput()}
@@ -266,20 +266,20 @@ const TeenWorkbook = () => {
         </AnimatePresence>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-background/95 backdrop-blur border-t border-white/[0.04] flex gap-3">
+      <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-background/95 backdrop-blur border-t border-foreground/[0.04] flex gap-3">
         {step > 0 && (
-          <button onClick={() => setStep(step - 1)} className="flex items-center gap-2 px-5 py-3 border border-white/10 text-white/40 text-xs font-body hover:border-white/20 transition-colors">
+          <button onClick={() => setStep(step - 1)} className="flex items-center gap-2 px-5 py-3 border border-foreground/10 text-foreground/40 text-xs font-body hover:border-foreground/20 transition-colors">
             <ArrowLeft size={14} /> Back
           </button>
         )}
         <div className="flex-1" />
         {step === 0 && !entry.last_week_goal_review && (
-          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-5 py-3 text-white/20 text-xs font-body hover:text-white/40 transition-colors">
+          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-5 py-3 text-foreground/20 text-xs font-body hover:text-foreground/40 transition-colors">
             Skip →
           </button>
         )}
         {step < SECTIONS.length - 1 ? (
-          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-white text-background text-xs font-display font-bold hover:bg-white/90 transition-colors">
+          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground text-xs font-display font-bold hover:bg-foreground/90 transition-colors">
             Next <ArrowRight size={14} />
           </button>
         ) : (

@@ -43,23 +43,23 @@ const AdminLanding = () => {
   return (
     <div className="min-h-screen" className="bg-background text-foreground">
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
-        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-white">MINDCAST</Link>
+        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-foreground">MINDCAST</Link>
       </nav>
 
       <div className="max-w-2xl mx-auto px-6 pt-16">
-        <h1 className="font-display text-2xl font-bold text-white mb-2">Welcome to the Mindcast admin.</h1>
-        <p className="text-white/30 text-sm font-body mb-12">Manage sessions, members, and community.</p>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-2">Welcome to the Mindcast admin.</h1>
+        <p className="text-foreground/30 text-sm font-body mb-12">Manage sessions, members, and community.</p>
 
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
           {tiles.map((t) => (
             <Link
               key={t.label}
               to={t.to}
-              className="border border-white/[0.08] p-6 hover:border-white/20 transition-all group"
+              className="border border-foreground/[0.08] p-6 hover:border-foreground/20 transition-all group"
             >
-              <t.icon size={20} className="text-white/20 mb-4 group-hover:text-white/50 transition-colors" strokeWidth={1.5} />
-              <h3 className="font-display text-sm font-bold text-white mb-1">{t.label}</h3>
-              <p className="text-white/25 text-xs font-body">{t.desc}</p>
+              <t.icon size={20} className="text-foreground/20 mb-4 group-hover:text-foreground/50 transition-colors" strokeWidth={1.5} />
+              <h3 className="font-display text-sm font-bold text-foreground mb-1">{t.label}</h3>
+              <p className="text-foreground/25 text-xs font-body">{t.desc}</p>
             </Link>
           ))}
         </div>

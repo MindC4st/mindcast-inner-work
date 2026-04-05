@@ -140,13 +140,13 @@ const KidsWorkbook = () => {
     touchStart.current = null;
   };
 
-  if (authLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading...</span></div>;
+  if (authLoading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-foreground/20 text-xs animate-pulse font-body">Loading...</span></div>;
 
   if (!session) return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
-        <p className="text-white/40 font-body text-sm mb-2">There's no active session right now.</p>
-        <p className="text-white/20 font-body text-xs">Check back on session night.</p>
+        <p className="text-foreground/40 font-body text-sm mb-2">There's no active session right now.</p>
+        <p className="text-foreground/20 font-body text-xs">Check back on session night.</p>
       </div>
     </div>
   );
@@ -155,9 +155,9 @@ const KidsWorkbook = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
         <span className="text-5xl mb-4 block">🌟</span>
-        <h2 className="font-display text-2xl font-bold text-white mb-2">Amazing job!</h2>
-        <p className="text-white/30 font-body text-sm mb-8">Your big thinking book is saved.</p>
-        <button onClick={() => navigate("/dashboard")} className="text-white/20 text-xs font-body hover:text-white/40 transition-colors">Back to home</button>
+        <h2 className="font-display text-2xl font-bold text-foreground mb-2">Amazing job!</h2>
+        <p className="text-foreground/30 font-body text-sm mb-8">Your big thinking book is saved.</p>
+        <button onClick={() => navigate("/dashboard")} className="text-foreground/20 text-xs font-body hover:text-foreground/40 transition-colors">Back to home</button>
       </div>
     </div>
   );
@@ -167,7 +167,7 @@ const KidsWorkbook = () => {
   const currentSection = SECTIONS[step];
 
   const SaveIndicator = () => {
-    if (saveStatus === "saving") return <span className="text-white/30 text-[9px] font-body">Saving...</span>;
+    if (saveStatus === "saving") return <span className="text-foreground/30 text-[9px] font-body">Saving...</span>;
     if (saveStatus === "saved") return <span className="text-emerald-400/50 text-[9px] font-body flex items-center gap-1"><Wifi size={10} /> Saved</span>;
     if (saveStatus === "local") return <span className="text-amber-400/50 text-[9px] font-body flex items-center gap-1"><WifiOff size={10} /> Saved locally</span>;
     if (saveStatus === "error") return <span className="text-red-400/50 text-[9px] font-body flex items-center gap-1"><AlertCircle size={10} /> Error</span>;
@@ -180,15 +180,15 @@ const KidsWorkbook = () => {
         onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadDrawing(f, field); }} />
       {entry[field] ? (
         <div className="relative">
-          <img src={entry[field]} alt={label} className="w-full rounded-lg border border-white/10" />
-          <button onClick={() => (field === "favorite_part_drawing_url" ? fileInputRef : drawingFileRef).current?.click()} className="absolute top-2 right-2 bg-black/50 text-white/60 text-[10px] px-2 py-1 rounded">Replace</button>
+          <img src={entry[field]} alt={label} className="w-full rounded-lg border border-foreground/10" />
+          <button onClick={() => (field === "favorite_part_drawing_url" ? fileInputRef : drawingFileRef).current?.click()} className="absolute top-2 right-2 bg-black/50 text-foreground/60 text-[10px] px-2 py-1 rounded">Replace</button>
         </div>
       ) : (
         <button onClick={() => (field === "favorite_part_drawing_url" ? fileInputRef : drawingFileRef).current?.click()}
-          className="w-full border-2 border-dashed border-white/10 rounded-xl py-8 flex flex-col items-center gap-2 hover:border-white/20 transition-colors"
+          className="w-full border-2 border-dashed border-foreground/10 rounded-xl py-8 flex flex-col items-center gap-2 hover:border-foreground/20 transition-colors"
           disabled={uploading}>
-          <Camera size={24} className="text-white/20" />
-          <span className="text-white/30 text-xs font-body">{uploading ? "Uploading..." : `Take a photo of your ${label}`}</span>
+          <Camera size={24} className="text-foreground/20" />
+          <span className="text-foreground/30 text-xs font-body">{uploading ? "Uploading..." : `Take a photo of your ${label}`}</span>
         </button>
       )}
     </div>
@@ -200,19 +200,19 @@ const KidsWorkbook = () => {
     if (currentSection.type === "mood") {
       return (
         <div>
-          <p className="text-white/30 text-sm font-body mb-6 text-center">Circle the face that shows how you feel:</p>
+          <p className="text-foreground/30 text-sm font-body mb-6 text-center">Circle the face that shows how you feel:</p>
           <div className="grid grid-cols-3 gap-3 mb-6">
             {MOOD_EMOJIS.map(({ emoji, label }) => (
               <button key={label} onClick={() => updateField("mood_emoji", label)}
-                className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${entry.mood_emoji === label ? "bg-white/10 border border-white/20 scale-105" : "border border-white/[0.04] hover:border-white/10"}`}>
+                className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${entry.mood_emoji === label ? "bg-foreground/10 border border-foreground/20 scale-105" : "border border-foreground/[0.04] hover:border-foreground/10"}`}>
                 <span className="text-3xl">{emoji}</span>
-                <span className="text-white/40 text-[10px] font-body">{label}</span>
+                <span className="text-foreground/40 text-[10px] font-body">{label}</span>
               </button>
             ))}
           </div>
           <div>
-            <p className="text-white/30 text-xs font-body mb-2 text-center">One word for today:</p>
-            <input value={entry.arriving_word || ""} onChange={(e) => updateField("arriving_word", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-lg py-3 text-center focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="one word" />
+            <p className="text-foreground/30 text-xs font-body mb-2 text-center">One word for today:</p>
+            <input value={entry.arriving_word || ""} onChange={(e) => updateField("arriving_word", e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground font-body text-lg py-3 text-center focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="one word" />
           </div>
         </div>
       );
@@ -221,11 +221,11 @@ const KidsWorkbook = () => {
     if (currentSection.type === "story") {
       return (
         <div>
-          <p className="text-white/30 text-sm font-body mb-4 text-center">Draw your favourite part of the story!</p>
+          <p className="text-foreground/30 text-sm font-body mb-4 text-center">Draw your favourite part of the story!</p>
           <DrawingUpload field="favorite_part_drawing_url" label="drawing" />
           <div className="mt-6">
-            <p className="text-white/30 text-xs font-body mb-2">What is happening in your drawing?</p>
-            <textarea value={entry.drawing_description || ""} onChange={(e) => updateField("drawing_description", e.target.value)} rows={3} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="Tell us about your drawing..." />
+            <p className="text-foreground/30 text-xs font-body mb-2">What is happening in your drawing?</p>
+            <textarea value={entry.drawing_description || ""} onChange={(e) => updateField("drawing_description", e.target.value)} rows={3} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="Tell us about your drawing..." />
           </div>
         </div>
       );
@@ -235,16 +235,16 @@ const KidsWorkbook = () => {
       return (
         <div className="space-y-5">
           <div>
-            <p className="text-white/30 text-xs font-body mb-2">The main character felt:</p>
-            <input value={entry.character_felt || ""} onChange={(e) => updateField("character_felt", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="How did they feel?" />
+            <p className="text-foreground/30 text-xs font-body mb-2">The main character felt:</p>
+            <input value={entry.character_felt || ""} onChange={(e) => updateField("character_felt", e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-2 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="How did they feel?" />
           </div>
           <div>
-            <p className="text-white/30 text-xs font-body mb-2">If I were that character I would have felt:</p>
-            <input value={entry.if_i_were_character || ""} onChange={(e) => updateField("if_i_were_character", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="I would have felt..." />
+            <p className="text-foreground/30 text-xs font-body mb-2">If I were that character I would have felt:</p>
+            <input value={entry.if_i_were_character || ""} onChange={(e) => updateField("if_i_were_character", e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-2 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="I would have felt..." />
           </div>
           <div>
-            <p className="text-white/30 text-xs font-body mb-2">Something the character did that was brave, kind, or clever:</p>
-            <textarea value={entry.character_brave_kind || ""} onChange={(e) => updateField("character_brave_kind", e.target.value)} rows={3} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="They were brave/kind/clever when..." />
+            <p className="text-foreground/30 text-xs font-body mb-2">Something the character did that was brave, kind, or clever:</p>
+            <textarea value={entry.character_brave_kind || ""} onChange={(e) => updateField("character_brave_kind", e.target.value)} rows={3} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="They were brave/kind/clever when..." />
           </div>
         </div>
       );
@@ -255,17 +255,17 @@ const KidsWorkbook = () => {
       const aiQuestion = ai[qField] || "";
       return (
         <div>
-          <p className="text-white/20 text-[10px] font-body tracking-wide mb-2 text-center">THERE ARE NO WRONG ANSWERS — JUST THINK AND WRITE OR DRAW</p>
+          <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-2 text-center">THERE ARE NO WRONG ANSWERS — JUST THINK AND WRITE OR DRAW</p>
           {aiQuestion && (
-            <div className="border-l-2 border-white/10 pl-4 mb-4">
-              <p className="text-white/50 font-body text-sm leading-relaxed">{aiQuestion}</p>
+            <div className="border-l-2 border-foreground/10 pl-4 mb-4">
+              <p className="text-foreground/50 font-body text-sm leading-relaxed">{aiQuestion}</p>
             </div>
           )}
           <div className="mb-3">
-            <p className="text-white/20 text-[10px] font-body tracking-wide mb-2">QUESTION</p>
-            <input value={entry[qField] || ""} onChange={(e) => updateField(qField, e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="Write the question here..." />
+            <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-2">QUESTION</p>
+            <input value={entry[qField] || ""} onChange={(e) => updateField(qField, e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground/60 font-body text-sm py-2 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="Write the question here..." />
           </div>
-          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={4} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My answer..." />
+          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={4} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My answer..." />
           <DrawingUpload field="question_1_drawing_url" label="answer drawing" />
         </div>
       );
@@ -274,8 +274,8 @@ const KidsWorkbook = () => {
     if (currentSection.type === "remember") {
       return (
         <div>
-          <p className="text-white/30 text-sm font-body mb-4 text-center">The most important thing from today was:</p>
-          <textarea value={entry.something_to_remember || ""} onChange={(e) => updateField("something_to_remember", e.target.value)} rows={4} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="I want to remember..." autoFocus />
+          <p className="text-foreground/30 text-sm font-body mb-4 text-center">The most important thing from today was:</p>
+          <textarea value={entry.something_to_remember || ""} onChange={(e) => updateField("something_to_remember", e.target.value)} rows={4} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="I want to remember..." autoFocus />
         </div>
       );
     }
@@ -283,10 +283,10 @@ const KidsWorkbook = () => {
     if (currentSection.type === "goal") {
       return (
         <div>
-          <p className="text-white/30 text-sm font-body mb-4 text-center">One kind or brave thing I will try to do this week:</p>
+          <p className="text-foreground/30 text-sm font-body mb-4 text-center">One kind or brave thing I will try to do this week:</p>
           <div className="flex items-start gap-2">
-            <span className="text-white/30 text-sm font-body mt-3">I will</span>
-            <textarea value={entry.weekly_goal || ""} onChange={(e) => updateField("weekly_goal", e.target.value)} rows={3} className="flex-1 bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="..." autoFocus />
+            <span className="text-foreground/30 text-sm font-body mt-3">I will</span>
+            <textarea value={entry.weekly_goal || ""} onChange={(e) => updateField("weekly_goal", e.target.value)} rows={3} className="flex-1 bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="..." autoFocus />
           </div>
         </div>
       );
@@ -295,14 +295,14 @@ const KidsWorkbook = () => {
     if (currentSection.type === "littleminds") {
       return (
         <div>
-          <div className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-5 mb-4">
+          <div className="bg-foreground/[0.03] border border-foreground/[0.08] rounded-xl p-5 mb-4">
             <p className="text-center text-lg mb-2">🌟</p>
-            <p className="text-white/40 text-sm font-body text-center leading-relaxed mb-4">A question that came to me during today's session was:</p>
-            <textarea value={entry.little_minds_question || ""} onChange={(e) => updateField("little_minds_question", e.target.value)} rows={3} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My big question..." autoFocus />
+            <p className="text-foreground/40 text-sm font-body text-center leading-relaxed mb-4">A question that came to me during today's session was:</p>
+            <textarea value={entry.little_minds_question || ""} onChange={(e) => updateField("little_minds_question", e.target.value)} rows={3} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My big question..." autoFocus />
           </div>
-          <p className="text-white/20 text-[10px] font-body text-center leading-relaxed">Ask a grown-up to help you explore this question further using the Little Minds Big Questions app. They will create a story just for you!</p>
+          <p className="text-foreground/20 text-[10px] font-body text-center leading-relaxed">Ask a grown-up to help you explore this question further using the Little Minds Big Questions app. They will create a story just for you!</p>
           <div className="mt-4">
-            <p className="text-white/20 text-xs font-body mb-2 text-center">After you read your story together, take a photo of your favourite part:</p>
+            <p className="text-foreground/20 text-xs font-body mb-2 text-center">After you read your story together, take a photo of your favourite part:</p>
             <DrawingUpload field="little_minds_drawing_url" label="story drawing" />
           </div>
         </div>
@@ -312,18 +312,18 @@ const KidsWorkbook = () => {
     if (currentSection.type === "parent") {
       return (
         <div>
-          <p className="text-white/20 text-[10px] font-body tracking-wide mb-3 text-center">THIS SECTION IS FOR YOU AND A PARENT OR CARER TO DO TOGETHER</p>
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 mb-4">
-            <p className="text-white/30 text-xs font-body italic leading-relaxed">"Have you ever felt like the character in today's story? What happened? What did you do?"</p>
+          <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-3 text-center">THIS SECTION IS FOR YOU AND A PARENT OR CARER TO DO TOGETHER</p>
+          <div className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg p-4 mb-4">
+            <p className="text-foreground/30 text-xs font-body italic leading-relaxed">"Have you ever felt like the character in today's story? What happened? What did you do?"</p>
           </div>
           <div className="space-y-4">
             <div>
-              <p className="text-white/30 text-xs font-body mb-2">Notes from your conversation:</p>
-              <textarea value={entry.parent_conversation_notes || ""} onChange={(e) => updateField("parent_conversation_notes", e.target.value)} rows={5} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="What we talked about..." />
+              <p className="text-foreground/30 text-xs font-body mb-2">Notes from your conversation:</p>
+              <textarea value={entry.parent_conversation_notes || ""} onChange={(e) => updateField("parent_conversation_notes", e.target.value)} rows={5} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="What we talked about..." />
             </div>
             <div>
-              <p className="text-white/20 text-xs font-body mb-2">Parent/carer initials:</p>
-              <input value={entry.parent_initials || ""} onChange={(e) => updateField("parent_initials", e.target.value)} className="w-24 bg-transparent border-b border-white/10 text-white font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="___" />
+              <p className="text-foreground/20 text-xs font-body mb-2">Parent/carer initials:</p>
+              <input value={entry.parent_initials || ""} onChange={(e) => updateField("parent_initials", e.target.value)} className="w-24 bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-2 focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="___" />
             </div>
           </div>
         </div>
@@ -333,12 +333,12 @@ const KidsWorkbook = () => {
 
   return (
     <div className="min-h-screen bg-background" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-      <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
-        <p className="font-body text-[10px] text-white/25 uppercase tracking-[0.15em] mb-1">
+      <div className="px-5 pt-8 pb-4 border-b border-foreground/[0.06]">
+        <p className="font-body text-[10px] text-foreground/25 uppercase tracking-[0.15em] mb-1">
           MINDCAST KIDS · Week {session.session_number} / 52
         </p>
-        <h1 className="text-lg font-display font-bold text-white">{session.title}</h1>
-        {session.theme && <p className="text-white/30 text-xs font-body mt-1">Big idea: {session.theme}</p>}
+        <h1 className="text-lg font-display font-bold text-foreground">{session.title}</h1>
+        {session.theme && <p className="text-foreground/30 text-xs font-body mt-1">Big idea: {session.theme}</p>}
       </div>
 
       {step <= 1 && videoId && (
@@ -352,19 +352,19 @@ const KidsWorkbook = () => {
       <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex gap-1.5">
           {SECTIONS.map((_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === step ? "bg-white" : i < step ? "bg-white/25" : "bg-white/[0.06]"}`} />
+            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === step ? "bg-white" : i < step ? "bg-foreground/25" : "bg-foreground/[0.06]"}`} />
           ))}
         </div>
         <div className="flex items-center gap-2">
           <SaveIndicator />
-          <span className="text-white/15 text-[9px] font-body">{step + 1} of {SECTIONS.length}</span>
+          <span className="text-foreground/15 text-[9px] font-body">{step + 1} of {SECTIONS.length}</span>
         </div>
       </div>
 
       <div className="px-5 py-6 max-w-lg mx-auto pb-24">
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.2 }}>
-            <h2 className="text-white font-display text-base font-bold mb-6 text-center">
+            <h2 className="text-foreground font-display text-base font-bold mb-6 text-center">
               {currentSection.title || ""}
             </h2>
             {renderInput()}
@@ -372,15 +372,15 @@ const KidsWorkbook = () => {
         </AnimatePresence>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-background/95 backdrop-blur border-t border-white/[0.04] flex gap-3">
+      <div className="fixed bottom-0 left-0 right-0 px-5 py-4 bg-background/95 backdrop-blur border-t border-foreground/[0.04] flex gap-3">
         {step > 0 && (
-          <button onClick={() => setStep(step - 1)} className="flex items-center gap-2 px-5 py-3 border border-white/10 text-white/40 text-xs font-body hover:border-white/20 transition-colors">
+          <button onClick={() => setStep(step - 1)} className="flex items-center gap-2 px-5 py-3 border border-foreground/10 text-foreground/40 text-xs font-body hover:border-foreground/20 transition-colors">
             <ArrowLeft size={14} /> Back
           </button>
         )}
         <div className="flex-1" />
         {step < SECTIONS.length - 1 ? (
-          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-white text-background text-xs font-display font-bold hover:bg-white/90 transition-colors">
+          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground text-xs font-display font-bold hover:bg-foreground/90 transition-colors">
             Next <ArrowRight size={14} />
           </button>
         ) : (

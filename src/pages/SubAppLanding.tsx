@@ -53,7 +53,7 @@ const SubAppLanding = () => {
   if (!app) {
     return (
       <div className="min-h-screen flex items-center justify-center" className="bg-background">
-        <p className="text-white/40 font-body">App not found</p>
+        <p className="text-foreground/40 font-body">App not found</p>
       </div>
     );
   }
@@ -62,18 +62,18 @@ const SubAppLanding = () => {
     <div className="min-h-screen" className="bg-background text-foreground">
       {/* Hero */}
       <section className="px-6 md:px-12 pt-16 pb-20 max-w-2xl mx-auto text-center">
-        <Link to="/" className="inline-flex items-center gap-2 text-white/20 text-[10px] tracking-[0.12em] font-body hover:text-white/40 transition-colors mb-12">
+        <Link to="/" className="inline-flex items-center gap-2 text-foreground/20 text-[10px] tracking-[0.12em] font-body hover:text-foreground/40 transition-colors mb-12">
           <ArrowLeft size={12} /> BACK TO MINDCAST
         </Link>
         <h1 className="font-display text-3xl md:text-4xl font-bold mb-3" style={{ color: app.color }}>
           {app.name}
         </h1>
-        <p className="text-white/60 text-lg font-body mb-3">{app.tagline}</p>
-        <p className="text-white/30 text-sm font-body max-w-md mx-auto">{app.description}</p>
+        <p className="text-foreground/60 text-lg font-body mb-3">{app.tagline}</p>
+        <p className="text-foreground/30 text-sm font-body max-w-md mx-auto">{app.description}</p>
       </section>
 
       {/* Features */}
-      <section className="px-6 md:px-12 py-16 border-t border-white/[0.06]">
+      <section className="px-6 md:px-12 py-16 border-t border-foreground/[0.06]">
         <div className="max-w-2xl mx-auto space-y-10">
           {app.features.map((f, i) => (
             <div key={i} className="flex gap-5 items-start">
@@ -84,8 +84,8 @@ const SubAppLanding = () => {
                 {i + 1}
               </span>
               <div>
-                <h3 className="font-display text-sm font-bold text-white mb-1">{f.title}</h3>
-                <p className="text-white/35 text-sm font-body">{f.desc}</p>
+                <h3 className="font-display text-sm font-bold text-foreground mb-1">{f.title}</h3>
+                <p className="text-foreground/35 text-sm font-body">{f.desc}</p>
               </div>
             </div>
           ))}
@@ -93,7 +93,7 @@ const SubAppLanding = () => {
       </section>
 
       {/* CTAs */}
-      <section className="px-6 md:px-12 py-16 border-t border-white/[0.06] text-center">
+      <section className="px-6 md:px-12 py-16 border-t border-foreground/[0.06] text-center">
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href={app.link || "#"}

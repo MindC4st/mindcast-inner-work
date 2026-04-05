@@ -37,25 +37,25 @@ const WelcomeWall = () => {
 
   const goFullscreen = () => { document.documentElement.requestFullscreen?.(); };
 
-  if (!session) return <div className="fixed inset-0 bg-background flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
+  if (!session) return <div className="fixed inset-0 bg-background flex items-center justify-center"><p className="text-foreground/20 font-body">Loading...</p></div>;
 
   const visible = checkins.filter((c) => !c.is_anonymous);
   const siteUrl = window.location.origin;
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col">
-      <div className="px-10 py-6 border-b border-white/[0.06] flex items-end justify-between">
+      <div className="px-10 py-6 border-b border-foreground/[0.06] flex items-end justify-between">
         <div>
-          <p className="font-body text-[10px] text-white/20 uppercase tracking-[0.2em]">mindcast · week {session.session_number}</p>
-          <h1 className="text-3xl font-display font-bold text-white mt-1">{session.title}</h1>
+          <p className="font-body text-[10px] text-foreground/20 uppercase tracking-[0.2em]">mindcast · week {session.session_number}</p>
+          <h1 className="text-3xl font-display font-bold text-foreground mt-1">{session.title}</h1>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={goFullscreen} className="text-white/15 hover:text-white/40 transition-colors" title="Fullscreen">
+          <button onClick={goFullscreen} className="text-foreground/15 hover:text-foreground/40 transition-colors" title="Fullscreen">
             <Maximize size={18} />
           </button>
           <div className="text-right">
-            <p className="text-6xl font-display font-bold text-white">{checkins.length}</p>
-            <p className="text-white/25 text-sm font-body">with us tonight</p>
+            <p className="text-6xl font-display font-bold text-foreground">{checkins.length}</p>
+            <p className="text-foreground/25 text-sm font-body">with us tonight</p>
           </div>
         </div>
       </div>
@@ -69,24 +69,24 @@ const WelcomeWall = () => {
                 initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4"
+                className="bg-foreground/5 border border-foreground/10 rounded-2xl p-4"
               >
-                <p className="font-display font-bold text-white text-lg">{c.display_name}</p>
-                {c.welcome_note && <p className="text-white/40 text-sm font-body mt-1 leading-snug">{c.welcome_note}</p>}
+                <p className="font-display font-bold text-foreground text-lg">{c.display_name}</p>
+                {c.welcome_note && <p className="text-foreground/40 text-sm font-body mt-1 leading-snug">{c.welcome_note}</p>}
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       </div>
 
-      <div className="px-10 py-5 border-t border-white/[0.06] flex items-center gap-6">
+      <div className="px-10 py-5 border-t border-foreground/[0.06] flex items-center gap-6">
         <QRCode value={`${siteUrl}/checkin`} size={72} bgColor="transparent" fgColor="rgba(255,255,255,0.6)" />
         <div>
-          <p className="text-white/25 text-sm font-body">Scan to check in</p>
-          <p className="text-white/10 text-xs font-body mt-0.5">mindcast.co.nz/checkin</p>
+          <p className="text-foreground/25 text-sm font-body">Scan to check in</p>
+          <p className="text-foreground/10 text-xs font-body mt-0.5">mindcast.co.nz/checkin</p>
         </div>
         <div className="ml-auto text-right">
-          <p className="text-white/15 text-xs font-body">{new Date().toLocaleTimeString("en-NZ", { hour: "2-digit", minute: "2-digit" })}</p>
+          <p className="text-foreground/15 text-xs font-body">{new Date().toLocaleTimeString("en-NZ", { hour: "2-digit", minute: "2-digit" })}</p>
         </div>
       </div>
     </div>

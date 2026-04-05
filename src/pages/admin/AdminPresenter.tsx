@@ -38,9 +38,9 @@ function FloatingNameBubble({ name, index }: { name: string; index: number }) {
         x: { repeat: Infinity, duration: 6 + (index % 4), ease: "easeInOut", delay: 1 },
       }}
       style={{ position: "absolute", left: `${x}%`, top: `${y}%` }}
-      className="bg-white/[0.06] backdrop-blur-sm border border-white/10 rounded-full px-5 py-2.5"
+      className="bg-foreground/[0.06] backdrop-blur-sm border border-foreground/10 rounded-full px-5 py-2.5"
     >
-      <p className="text-white/80 text-sm font-medium whitespace-nowrap">{name}</p>
+      <p className="text-foreground/80 text-sm font-medium whitespace-nowrap">{name}</p>
     </motion.div>
   );
 }
@@ -63,7 +63,7 @@ function CircularTimer({ seconds, total }: { seconds: number; total: number }) {
           style={{ transition: "stroke-dashoffset 1s linear, stroke 0.3s" }}
         />
       </svg>
-      <span className="text-white font-mono text-lg font-bold">
+      <span className="text-foreground font-mono text-lg font-bold">
         {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
       </span>
     </div>
@@ -79,18 +79,18 @@ function Slide1({ session, checkins }: { session: any; checkins: any[] }) {
       </div>
       <div className="absolute top-8 left-0 right-0 flex flex-col items-center z-10">
         <img src={logoWhite} alt="Mindcast" className="h-10 mb-2" />
-        <p className="font-mono text-[11px] text-white/25 uppercase tracking-widest">
+        <p className="font-mono text-[11px] text-foreground/25 uppercase tracking-widest">
           Week {session.session_number} · {session.session_date ? format(new Date(session.session_date), "d MMM yyyy") : ""}
         </p>
       </div>
       <div className="absolute bottom-24 left-8 z-10">
-        <p className="font-mono text-[10px] text-white/20 uppercase tracking-widest mb-1">Join on your phone</p>
-        <p className="font-mono text-2xl font-bold text-white/40 tracking-widest">{session.session_code}</p>
-        <p className="font-mono text-[10px] text-white/15 mt-0.5">mindcast.co.nz/join</p>
+        <p className="font-mono text-[10px] text-foreground/20 uppercase tracking-widest mb-1">Join on your phone</p>
+        <p className="font-mono text-2xl font-bold text-foreground/40 tracking-widest">{session.session_code}</p>
+        <p className="font-mono text-[10px] text-foreground/15 mt-0.5">mindcast.co.nz/join</p>
       </div>
       <div className="absolute bottom-24 right-8 text-right z-10">
-        <p className="text-5xl font-bold text-white">{checkins.length}</p>
-        <p className="font-mono text-[11px] text-white/30 uppercase tracking-wide">here tonight</p>
+        <p className="text-5xl font-bold text-foreground">{checkins.length}</p>
+        <p className="font-mono text-[11px] text-foreground/30 uppercase tracking-wide">here tonight</p>
       </div>
       <AnimatePresence>
         {checkins.filter(c => !c.is_anonymous).map((c, i) => (
@@ -110,15 +110,15 @@ function Slide2({ session, stories }: { session: any; stories: any[] }) {
       </div>
       <div className="absolute top-8 left-0 right-0 flex flex-col items-center z-10">
         <img src={logoWhite} alt="Mindcast" className="h-8 mb-3" />
-        <h2 className="text-3xl font-semibold text-white">Last Week's Wins</h2>
-        <p className="text-white/40 text-sm mt-1">What did you set out to do? How did it go?</p>
+        <h2 className="text-3xl font-semibold text-foreground">Last Week's Wins</h2>
+        <p className="text-foreground/40 text-sm mt-1">What did you set out to do? How did it go?</p>
       </div>
       <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10">
         <div className="bg-white p-3 rounded-2xl">
           <QRCode value={`https://mindcast.co.nz/join/${session.session_code}`} size={120} />
         </div>
-        <p className="font-mono text-white/40 text-xs uppercase tracking-widest">or type</p>
-        <p className="font-mono text-2xl font-bold text-white/60 tracking-widest">{session.session_code}</p>
+        <p className="font-mono text-foreground/40 text-xs uppercase tracking-widest">or type</p>
+        <p className="font-mono text-2xl font-bold text-foreground/60 tracking-widest">{session.session_code}</p>
       </div>
       <div className="absolute inset-0 right-52 top-28 bottom-20 overflow-hidden">
         <div className="grid grid-cols-3 gap-4 p-6 auto-rows-min">
@@ -129,18 +129,18 @@ function Slide2({ session, stories }: { session: any; stories: any[] }) {
                 initial={{ opacity: 0, scale: 0.8, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ type: "spring", damping: 20, stiffness: 200, delay: i * 0.05 }}
-                className="bg-white/[0.05] border border-white/10 rounded-2xl p-5"
+                className="bg-foreground/[0.05] border border-foreground/10 rounded-2xl p-5"
               >
-                {s.show_name && <p className="font-mono text-[10px] text-white/30 uppercase tracking-wide mb-2">{s.display_name}</p>}
-                {s.last_week_goal && <p className="text-white/40 text-xs italic mb-2">Goal: "{s.last_week_goal}"</p>}
-                <p className="text-white/80 text-sm leading-relaxed">"{s.success_story}"</p>
+                {s.show_name && <p className="font-mono text-[10px] text-foreground/30 uppercase tracking-wide mb-2">{s.display_name}</p>}
+                {s.last_week_goal && <p className="text-foreground/40 text-xs italic mb-2">Goal: "{s.last_week_goal}"</p>}
+                <p className="text-foreground/80 text-sm leading-relaxed">"{s.success_story}"</p>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       </div>
       <div className="absolute bottom-24 left-8 z-10">
-        <p className="font-mono text-[10px] text-white/20 uppercase tracking-widest">{stories.length} stories shared tonight</p>
+        <p className="font-mono text-[10px] text-foreground/20 uppercase tracking-widest">{stories.length} stories shared tonight</p>
       </div>
     </div>
   );
@@ -172,9 +172,9 @@ function Slide3({ session, pausePoints }: { session: any; pausePoints: any[] }) 
 
   if (state === "intro") return (
     <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: "#0a1120" }}>
-      <p className="font-mono text-[11px] text-white/30 uppercase tracking-widest mb-4">This week's source</p>
-      <h2 className="text-4xl font-semibold text-white mb-2 text-center max-w-2xl">{session.video_title || session.title}</h2>
-      <p className="text-white/40 text-sm mb-10">{pausePoints.length} reflection moments</p>
+      <p className="font-mono text-[11px] text-foreground/30 uppercase tracking-widest mb-4">This week's source</p>
+      <h2 className="text-4xl font-semibold text-foreground mb-2 text-center max-w-2xl">{session.video_title || session.title}</h2>
+      <p className="text-foreground/40 text-sm mb-10">{pausePoints.length} reflection moments</p>
       <button onClick={() => setState("playing")} className="bg-white text-black font-semibold px-8 py-4 rounded-xl text-lg">Begin →</button>
     </div>
   );
@@ -184,11 +184,11 @@ function Slide3({ session, pausePoints }: { session: any; pausePoints: any[] }) 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-96 h-96 rounded-full bg-[#9B89B4]/[0.12] blur-[80px]" />
       </div>
-      <p className="font-mono text-[10px] text-white/30 uppercase tracking-widest mb-6 z-10">Pause · Moment {pauseIdx + 1} of {pausePoints.length}</p>
-      <h2 className="text-3xl font-semibold text-white text-center max-w-2xl leading-snug mb-8 z-10">{pausePoints[pauseIdx]?.question_text}</h2>
-      <p className="text-white/30 text-sm mb-8 z-10">Open your app to respond</p>
+      <p className="font-mono text-[10px] text-foreground/30 uppercase tracking-widest mb-6 z-10">Pause · Moment {pauseIdx + 1} of {pausePoints.length}</p>
+      <h2 className="text-3xl font-semibold text-foreground text-center max-w-2xl leading-snug mb-8 z-10">{pausePoints[pauseIdx]?.question_text}</h2>
+      <p className="text-foreground/30 text-sm mb-8 z-10">Open your app to respond</p>
       <div className="z-10 mb-8"><CircularTimer seconds={timer} total={120} /></div>
-      <button onClick={resume} className="z-10 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-3 rounded-xl font-mono text-sm">Resume video →</button>
+      <button onClick={resume} className="z-10 bg-foreground/10 hover:bg-foreground/20 border border-foreground/20 text-foreground px-6 py-3 rounded-xl font-mono text-sm">Resume video →</button>
     </div>
   );
 
@@ -196,7 +196,7 @@ function Slide3({ session, pausePoints }: { session: any; pausePoints: any[] }) 
     <div className="absolute inset-0" style={{ background: "#000" }}>
       <div className="absolute top-4 left-4 z-20 flex items-center gap-2 opacity-40">
         <img src={logoWhite} alt="" className="h-5" />
-        <span className="font-mono text-[9px] text-white/60 uppercase tracking-widest">Week {session.session_number}</span>
+        <span className="font-mono text-[9px] text-foreground/60 uppercase tracking-widest">Week {session.session_number}</span>
       </div>
       {videoId && (
         <iframe
@@ -208,14 +208,14 @@ function Slide3({ session, pausePoints }: { session: any; pausePoints: any[] }) 
       )}
       {state === "playing" && pauseIdx < pausePoints.length && (
         <div className="absolute bottom-20 right-8 z-20">
-          <button onClick={triggerPause} className="bg-black/60 backdrop-blur text-white px-4 py-2.5 rounded-xl text-xs font-mono border border-white/10 hover:bg-black/80">
+          <button onClick={triggerPause} className="bg-black/60 backdrop-blur text-foreground px-4 py-2.5 rounded-xl text-xs font-mono border border-foreground/10 hover:bg-black/80">
             Pause & show Q{pauseIdx + 1} →
           </button>
         </div>
       )}
       <div className="absolute bottom-6 left-8 right-8 flex items-center gap-2 z-20">
         {pausePoints.map((_, i) => (
-          <div key={i} className={`w-2 h-2 rounded-full ${i < pauseIdx ? "bg-white/60" : i === pauseIdx ? "bg-white animate-pulse" : "bg-white/15"}`} />
+          <div key={i} className={`w-2 h-2 rounded-full ${i < pauseIdx ? "bg-foreground/60" : i === pauseIdx ? "bg-white animate-pulse" : "bg-foreground/15"}`} />
         ))}
       </div>
     </div>
@@ -234,15 +234,15 @@ function Slide4({ session }: { session: any }) {
         <div className="w-[500px] h-[500px] rounded-full bg-[#9B89B4] blur-[120px]" />
       </motion.div>
       <img src={logoWhite} alt="" className="h-12 mb-10 opacity-60 z-10" />
-      <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl font-semibold text-white text-center mb-4 z-10">Reflect.</motion.h2>
-      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-white/40 text-xl text-center mb-12 z-10">Open your workbook and take 10 minutes.</motion.p>
+      <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-5xl font-semibold text-foreground text-center mb-4 z-10">Reflect.</motion.h2>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-foreground/40 text-xl text-center mb-12 z-10">Open your workbook and take 10 minutes.</motion.p>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="flex flex-col items-center gap-3 z-10">
-        <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-4">
+        <div className="bg-foreground/[0.06] border border-foreground/10 rounded-2xl p-4">
           <QRCode value={`https://mindcast.co.nz/join/${session.session_code}`} size={100} bgColor="transparent" fgColor="rgba(255,255,255,0.5)" />
         </div>
-        <p className="font-mono text-[10px] text-white/20 uppercase tracking-widest">Open your workbook</p>
+        <p className="font-mono text-[10px] text-foreground/20 uppercase tracking-widest">Open your workbook</p>
       </motion.div>
-      <div className="absolute bottom-28 font-mono text-[10px] text-white/15 uppercase tracking-widest">
+      <div className="absolute bottom-28 font-mono text-[10px] text-foreground/15 uppercase tracking-widest">
         Week {session.session_number} · {session.title}
       </div>
     </div>
@@ -268,7 +268,7 @@ function Slide5({ session, words }: { session: any; words: any[] }) {
       </div>
       <div className="absolute top-8 left-0 right-0 flex flex-col items-center z-10">
         <img src={logoWhite} alt="" className="h-8 mb-3" />
-        <p className="font-mono text-[11px] text-white/25 uppercase tracking-widest">How we're leaving tonight</p>
+        <p className="font-mono text-[11px] text-foreground/25 uppercase tracking-widest">How we're leaving tonight</p>
       </div>
       <div className="flex-1 flex items-center justify-center relative">
         <AnimatePresence>
@@ -298,14 +298,14 @@ function Slide5({ session, words }: { session: any; words: any[] }) {
         </AnimatePresence>
       </div>
       <div className="absolute bottom-24 right-8 flex flex-col items-center gap-2 z-10">
-        <div className="bg-white/[0.06] border border-white/10 rounded-xl p-3">
+        <div className="bg-foreground/[0.06] border border-foreground/10 rounded-xl p-3">
           <QRCode value={`https://mindcast.co.nz/join/${session.session_code}`} size={80} bgColor="transparent" fgColor="rgba(255,255,255,0.5)" />
         </div>
-        <p className="font-mono text-[9px] text-white/20 uppercase tracking-widest">Add your word</p>
+        <p className="font-mono text-[9px] text-foreground/20 uppercase tracking-widest">Add your word</p>
       </div>
       <div className="absolute bottom-24 left-8 z-10">
-        <p className="text-4xl font-bold text-white/20">{words.length}</p>
-        <p className="font-mono text-[9px] text-white/15 uppercase tracking-widest">words shared</p>
+        <p className="text-4xl font-bold text-foreground/20">{words.length}</p>
+        <p className="font-mono text-[9px] text-foreground/15 uppercase tracking-widest">words shared</p>
       </div>
     </div>
   );
@@ -411,7 +411,7 @@ const AdminPresenter = () => {
 
   if (loading || !session) return (
     <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#0a1120" }}>
-      <span className="text-white/30 text-xs animate-pulse tracking-widest">LOADING...</span>
+      <span className="text-foreground/30 text-xs animate-pulse tracking-widest">LOADING...</span>
     </div>
   );
 
@@ -442,10 +442,10 @@ const AdminPresenter = () => {
       </AnimatePresence>
 
       {/* Presenter controls */}
-      <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-8 py-4 bg-black/40 backdrop-blur-xl border-t border-white/[0.06] z-50">
+      <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between px-8 py-4 bg-black/40 backdrop-blur-xl border-t border-foreground/[0.06] z-50">
         <div className="flex items-center gap-4">
           <img src={logoWhite} alt="" className="h-5 opacity-40" />
-          <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">
+          <span className="font-mono text-[10px] text-foreground/30 uppercase tracking-widest">
             Week {session.session_number} · {session.session_code}
           </span>
         </div>
@@ -455,14 +455,14 @@ const AdminPresenter = () => {
               key={i}
               onClick={() => goToSlide(i)}
               className={`rounded-full transition-all duration-300 ${
-                currentSlide === i ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/20 hover:bg-white/40"
+                currentSlide === i ? "w-6 h-2 bg-white" : "w-2 h-2 bg-foreground/20 hover:bg-foreground/40"
               }`}
             />
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={prevSlide} className="text-white/30 hover:text-white/70 transition-colors text-sm font-mono">← Prev</button>
-          <button onClick={nextSlide} className="bg-white/10 hover:bg-white/20 text-white font-mono text-sm px-5 py-2 rounded-lg transition-colors">Next →</button>
+          <button onClick={prevSlide} className="text-foreground/30 hover:text-foreground/70 transition-colors text-sm font-mono">← Prev</button>
+          <button onClick={nextSlide} className="bg-foreground/10 hover:bg-foreground/20 text-foreground font-mono text-sm px-5 py-2 rounded-lg transition-colors">Next →</button>
         </div>
       </div>
     </div>

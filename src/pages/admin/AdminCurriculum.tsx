@@ -72,23 +72,23 @@ const AdminCurriculum = () => {
   const renderWeekCard = (w: CurriculumWeek) => {
     const isExpanded = expandedWeek === w.week_number;
     return (
-      <div key={w.id} className="border border-white/[0.06] rounded-lg overflow-hidden">
+      <div key={w.id} className="border border-foreground/[0.06] rounded-lg overflow-hidden">
         <button onClick={() => setExpandedWeek(isExpanded ? null : w.week_number)}
-          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-white/[0.02] transition-colors text-left">
-          {isExpanded ? <ChevronDown size={14} className="text-white/30 flex-shrink-0" /> : <ChevronRight size={14} className="text-white/30 flex-shrink-0" />}
-          <span className="text-white/20 text-xs font-body w-8 flex-shrink-0">W{w.week_number}</span>
-          <span className="text-white font-body text-sm flex-1">{w.weekly_theme}</span>
-          <span className={`text-[9px] px-2 py-0.5 rounded border ${BLOCK_COLORS[w.block_number] || "bg-white/5 border-white/10 text-white/40"}`}>
+          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-foreground/[0.02] transition-colors text-left">
+          {isExpanded ? <ChevronDown size={14} className="text-foreground/30 flex-shrink-0" /> : <ChevronRight size={14} className="text-foreground/30 flex-shrink-0" />}
+          <span className="text-foreground/20 text-xs font-body w-8 flex-shrink-0">W{w.week_number}</span>
+          <span className="text-foreground font-body text-sm flex-1">{w.weekly_theme}</span>
+          <span className={`text-[9px] px-2 py-0.5 rounded border ${BLOCK_COLORS[w.block_number] || "bg-foreground/5 border-foreground/10 text-foreground/40"}`}>
             Block {w.block_number}
           </span>
         </button>
 
         {isExpanded && (
-          <div className="px-4 pb-4 border-t border-white/[0.04]">
+          <div className="px-4 pb-4 border-t border-foreground/[0.04]">
             <div className="flex gap-2 py-3">
               {(["adult", "teen", "kids"] as const).map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-body uppercase tracking-wide transition-colors ${activeTab === tab ? "bg-white/10 text-white" : "text-white/30 hover:text-white/50"}`}>
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-body uppercase tracking-wide transition-colors ${activeTab === tab ? "bg-foreground/10 text-foreground" : "text-foreground/30 hover:text-foreground/50"}`}>
                   {tab === "adult" && <BookOpen size={12} />}
                   {tab === "teen" && <Users size={12} />}
                   {tab === "kids" && <Baby size={12} />}
@@ -100,21 +100,21 @@ const AdminCurriculum = () => {
             {activeTab === "adult" && (
               <div className="space-y-3">
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">SOURCE</p>
-                  <p className="text-white/60 text-sm font-body">{w.adult_source}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">SOURCE</p>
+                  <p className="text-foreground/60 text-sm font-body">{w.adult_source}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">VIDEO TITLE</p>
-                  <p className="text-white font-body text-sm">{w.adult_video_title}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">VIDEO TITLE</p>
+                  <p className="text-foreground font-body text-sm">{w.adult_video_title}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">SEARCH NOTES</p>
-                  <p className="text-white/40 text-xs font-body italic">{w.adult_search_notes}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">SEARCH NOTES</p>
+                  <p className="text-foreground/40 text-xs font-body italic">{w.adult_search_notes}</p>
                 </div>
                 {w.pdf_reference && (
                   <div>
-                    <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">PDF REFERENCE</p>
-                    <p className="text-white/40 text-xs font-body">{w.pdf_reference}</p>
+                    <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">PDF REFERENCE</p>
+                    <p className="text-foreground/40 text-xs font-body">{w.pdf_reference}</p>
                   </div>
                 )}
               </div>
@@ -123,16 +123,16 @@ const AdminCurriculum = () => {
             {activeTab === "teen" && (
               <div className="space-y-3">
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">SOURCE</p>
-                  <p className="text-white/60 text-sm font-body">{w.teen_source}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">SOURCE</p>
+                  <p className="text-foreground/60 text-sm font-body">{w.teen_source}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">VIDEO TITLE</p>
-                  <p className="text-white font-body text-sm">{w.teen_video_title}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">VIDEO TITLE</p>
+                  <p className="text-foreground font-body text-sm">{w.teen_video_title}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">SEARCH NOTES</p>
-                  <p className="text-white/40 text-xs font-body italic">{w.teen_search_notes}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">SEARCH NOTES</p>
+                  <p className="text-foreground/40 text-xs font-body italic">{w.teen_search_notes}</p>
                 </div>
               </div>
             )}
@@ -140,20 +140,20 @@ const AdminCurriculum = () => {
             {activeTab === "kids" && (
               <div className="space-y-3">
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">FORMAT</p>
-                  <p className="text-white/60 text-sm font-body">{w.kids_format}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">FORMAT</p>
+                  <p className="text-foreground/60 text-sm font-body">{w.kids_format}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">TITLE</p>
-                  <p className="text-white font-body text-sm">{w.kids_title}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">TITLE</p>
+                  <p className="text-foreground font-body text-sm">{w.kids_title}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">THEME NOTES</p>
-                  <p className="text-white/40 text-xs font-body">{w.kids_theme_notes}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">THEME NOTES</p>
+                  <p className="text-foreground/40 text-xs font-body">{w.kids_theme_notes}</p>
                 </div>
                 <div>
-                  <p className="text-white/20 text-[10px] font-body tracking-wide mb-1">ACTIVITY</p>
-                  <p className="text-white/50 text-xs font-body">{w.kids_activity_type}</p>
+                  <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-1">ACTIVITY</p>
+                  <p className="text-foreground/50 text-xs font-body">{w.kids_activity_type}</p>
                 </div>
               </div>
             )}
@@ -163,23 +163,23 @@ const AdminCurriculum = () => {
     );
   };
 
-  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-white/20 text-xs animate-pulse font-body">Loading curriculum...</span></div>;
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-foreground/20 text-xs animate-pulse font-body">Loading curriculum...</span></div>;
 
   return (
-    <div className="min-h-screen bg-background text-white">
-      <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
-        <button onClick={() => navigate("/admin")} className="flex items-center gap-2 text-white/30 text-xs font-body mb-4 hover:text-white/50 transition-colors">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="px-5 pt-8 pb-4 border-b border-foreground/[0.06]">
+        <button onClick={() => navigate("/admin")} className="flex items-center gap-2 text-foreground/30 text-xs font-body mb-4 hover:text-foreground/50 transition-colors">
           <ArrowLeft size={14} /> Admin
         </button>
         <h1 className="text-xl font-display font-bold">52-Week Curriculum</h1>
-        <p className="text-white/30 text-xs font-body mt-1">13 blocks · Adults · Teens · Kids</p>
+        <p className="text-foreground/30 text-xs font-body mt-1">13 blocks · Adults · Teens · Kids</p>
       </div>
 
       <div className="px-5 py-4">
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/20" />
           <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white/[0.03] border border-white/[0.06] text-white font-body text-sm pl-9 pr-4 py-2.5 rounded-lg focus:outline-none focus:border-white/15 placeholder:text-white/15"
+            className="w-full bg-foreground/[0.03] border border-foreground/[0.06] text-foreground font-body text-sm pl-9 pr-4 py-2.5 rounded-lg focus:outline-none focus:border-foreground/15 placeholder:text-foreground/15"
             placeholder="Search themes, videos, activities..." />
         </div>
       </div>
@@ -187,14 +187,14 @@ const AdminCurriculum = () => {
       <div className="px-5 pb-20">
         {searchQuery && filteredWeeks ? (
           <div className="space-y-2">
-            <p className="text-white/20 text-[10px] font-body tracking-wide mb-3">{filteredWeeks.length} RESULTS</p>
+            <p className="text-foreground/20 text-[10px] font-body tracking-wide mb-3">{filteredWeeks.length} RESULTS</p>
             {filteredWeeks.map(renderWeekCard)}
           </div>
         ) : (
           <div className="space-y-6">
             {Object.entries(blocks).map(([blockNum, block]) => (
               <div key={blockNum}>
-                <div className={`px-3 py-2 rounded-lg border mb-3 ${BLOCK_COLORS[Number(blockNum)] || "bg-white/5 border-white/10"}`}>
+                <div className={`px-3 py-2 rounded-lg border mb-3 ${BLOCK_COLORS[Number(blockNum)] || "bg-foreground/5 border-foreground/10"}`}>
                   <p className="text-[10px] font-body tracking-wide opacity-60">BLOCK {blockNum}</p>
                   <p className="font-display font-bold text-sm">{block.theme}</p>
                   <p className="text-[10px] font-body opacity-50 mt-0.5">Weeks {block.weeks[0]?.week_number}–{block.weeks[block.weeks.length - 1]?.week_number}</p>
