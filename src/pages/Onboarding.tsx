@@ -83,7 +83,7 @@ const Onboarding = () => {
               />
               <button
                 onClick={() => setStep(2)}
-                className="mt-10 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-foreground/90 transition-colors"
+                className="mt-10 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors"
               >
                 CONTINUE
               </button>
@@ -122,7 +122,7 @@ const Onboarding = () => {
               <button
                 onClick={() => setStep(3)}
                 disabled={ageGroup.length === 0}
-                className="mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-foreground/90 transition-colors disabled:opacity-30"
+                className="mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30"
               >
                 CONTINUE
               </button>
@@ -170,7 +170,7 @@ const Onboarding = () => {
               <button
                 onClick={finish}
                 disabled={optIn === null || saving}
-                className="mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-foreground/90 transition-colors disabled:opacity-30"
+                className="mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30"
               >
                 {saving ? "..." : "GET STARTED"}
               </button>

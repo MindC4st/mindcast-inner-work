@@ -380,7 +380,7 @@ const KidsWorkbook = () => {
         )}
         <div className="flex-1" />
         {step < SECTIONS.length - 1 ? (
-          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground text-xs font-display font-bold hover:bg-foreground/90 transition-colors">
+          <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground text-xs font-display font-bold hover:bg-primary/90 transition-colors">
             Next <ArrowRight size={14} />
           </button>
         ) : (

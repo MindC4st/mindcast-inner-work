@@ -133,7 +133,7 @@ const Auth = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-foreground/90 transition-colors disabled:opacity-50"
+            className="w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             {loading ? "..." : tab === "signin" ? "SIGN IN" : "CREATE ACCOUNT"}
           </button>

@@ -171,7 +171,7 @@ const AdminKids = () => {
                 <label className={labelClass}>Facilitator notes (private)</label>
                 <textarea className={inputClass + " resize-none"} rows={2} value={littleOnes.facilitator_notes || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
-              <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-foreground/90 transition-colors disabled:opacity-30 rounded-lg">
+              <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-primary/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Little Ones"}
               </button>
             </div>
@@ -233,7 +233,7 @@ const AdminKids = () => {
                 <label className={labelClass}>Facilitator notes (private)</label>
                 <textarea className={inputClass + " resize-none"} rows={2} value={teens.facilitator_notes || ""} onChange={(e) => setTeens((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
-              <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-foreground/90 transition-colors disabled:opacity-30 rounded-lg">
+              <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-primary/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Teens"}
               </button>
             </div>

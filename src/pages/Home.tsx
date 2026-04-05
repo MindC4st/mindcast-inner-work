@@ -101,7 +101,7 @@ const Home = () => {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to={activeSession ? "/workbook" : "/sessions"}
-            className="px-8 py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-foreground/90 transition-colors"
+            className="px-8 py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors"
           >
             THIS WEEK'S SESSION <ArrowRight className="inline ml-1" size={14} />
           </Link>

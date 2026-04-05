@@ -150,7 +150,7 @@ const AdminFramework = () => {
 
           <div className="mt-8 flex items-center justify-between">
             <p className="text-foreground/20 text-xs font-body">Total runtime: <span className="text-foreground/50">{totalMinutes} minutes</span></p>
-            <button onClick={save} disabled={saving} className="px-6 py-3 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-foreground/90 transition-colors disabled:opacity-30">
+            <button onClick={save} disabled={saving} className="px-6 py-3 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30">
               {saving ? "..." : "SAVE FRAMEWORK"}
             </button>
           </div>

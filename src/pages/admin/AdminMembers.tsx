@@ -87,7 +87,7 @@ const AdminMembers = () => {
                 <input className={inputClass} value={nfcId} onChange={(e) => setNfcId(e.target.value)} placeholder="Scan or type NFC chip ID..." />
                 <p className="text-foreground/20 text-[10px] font-body mt-2">This ID is encoded in the NFC bracelet URL: /checkin?member=ID</p>
               </div>
-              <button onClick={saveNfc} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs rounded-lg hover:bg-foreground/90 disabled:opacity-30 transition-colors">
+              <button onClick={saveNfc} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs rounded-lg hover:bg-primary/90 disabled:opacity-30 transition-colors">
                 {saving ? "Saving..." : "Save NFC ID"}
               </button>
             </div>

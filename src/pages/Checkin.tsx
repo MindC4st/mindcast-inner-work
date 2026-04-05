@@ -129,7 +129,7 @@ const Checkin = () => {
           <span className="text-sm text-foreground/30 font-body">Check in without showing my name on screen</span>
         </label>
 
-        <button onClick={handleCheckin} disabled={submitting || !displayName.trim()} className="w-full bg-primary text-primary-foreground font-display font-bold py-4 rounded-xl text-base disabled:opacity-30 hover:bg-foreground/90 transition-colors">
+        <button onClick={handleCheckin} disabled={submitting || !displayName.trim()} className="w-full bg-primary text-primary-foreground font-display font-bold py-4 rounded-xl text-base disabled:opacity-30 hover:bg-primary/90 transition-colors">
           {submitting ? "Checking in..." : "Check in →"}
         </button>
       </div>
