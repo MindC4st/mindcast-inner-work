@@ -6,27 +6,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check, Wifi, WifiOff, AlertCircle } from "lucide-react";
 
 const SECTIONS = [
-  { key: "goal_update_from_last_week", title: "Before we start — how did last week's goal go?", type: "textarea", subtitle: "If this is your first session, skip this one." },
-  { key: "arriving_word", title: "One word for how you arrived today.", type: "short" },
-  { key: "first_impression", title: "What caught your attention? What made you sit up?", type: "textarea" },
-  { key: "key_idea", title: "The one idea from today that I keep thinking about.", type: "textarea", promptKey: "key_idea_prompt" },
-  { key: "question_1_response", title: "", type: "question", questionKey: "question_1", questionTextKey: "question_1_text" },
-  { key: "question_2_response", title: "", type: "question", questionKey: "question_2", questionTextKey: "question_2_text" },
-  { key: "question_3_response", title: "", type: "question", questionKey: "question_3", questionTextKey: "question_3_text" },
-  { key: "personal_application", title: "In my life this week, I could...", type: "textarea", promptKey: "application_prompt" },
-  { key: "goal", title: "This week's goal", type: "goal" },
-  { key: "leaving_word", title: "One word for how I'm leaving today.", type: "leaving" },
-  { key: "free_notes", title: "Free space", type: "freenotes" },
+  { key: "last_week_goal_review", title: "Last week's goal — how did it go?", type: "textarea", subtitle: "What I said I'd do, and how it went. Skip if this is your first session." },
+  { key: "what_caught_attention", title: "What caught my attention", type: "textarea" },
+  { key: "question_1_answer", title: "", type: "question", questionField: "question_1" },
+  { key: "question_2_answer", title: "", type: "question", questionField: "question_2" },
+  { key: "personal_reflection", title: "My honest reflection", type: "reflection" },
+  { key: "challenge_response", title: "My challenge this week", type: "challenge" },
+  { key: "goal", title: "My goal this week", type: "goal" },
 ];
+
+type SaveStatus = "idle" | "saving" | "saved" | "local" | "error";
 
 function extractVideoId(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
   return m ? m[1] : null;
 }
 
-type SaveStatus = "idle" | "saving" | "saved" | "local" | "error";
-
-const Workbook = () => {
+const TeenWorkbook = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [session, setSession] = useState<any>(null);
@@ -35,11 +31,10 @@ const Workbook = () => {
   const [step, setStep] = useState(0);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [done, setDone] = useState(false);
-  const [customQ, setCustomQ] = useState<Record<string, boolean>>({});
   const saveTimer = useRef<any>(null);
   const touchStart = useRef<number | null>(null);
 
-  const lsKey = session ? `mindcast_wb_${session.id}_${user?.id}` : null;
+  const lsKey = session ? `mindcast_teen_wb_${session.id}_${user?.id}` : null;
 
   useEffect(() => {
     if (authLoading) return;
@@ -47,10 +42,10 @@ const Workbook = () => {
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => {
       if (data) {
         setSession(data);
-        supabase.from("workbook_entries").select("*").eq("session_id", data.id).eq("profile_id", user.id).maybeSingle().then(({ data: e }) => {
+        supabase.from("teen_workbook_entries").select("*").eq("session_id", data.id).eq("profile_id", user.id).maybeSingle().then(({ data: e }) => {
           if (e) { setEntry(e); setEntryId(e.id); }
           else {
-            const key = `mindcast_wb_${data.id}_${user.id}`;
+            const key = `mindcast_teen_wb_${data.id}_${user.id}`;
             const local = localStorage.getItem(key);
             if (local) { try { setEntry(JSON.parse(local)); } catch {} }
           }
@@ -70,10 +65,10 @@ const Workbook = () => {
       try {
         const payload = { ...updates, profile_id: user.id, session_id: session.id };
         if (entryId) {
-          const { error } = await supabase.from("workbook_entries").update(payload).eq("id", entryId);
+          const { error } = await supabase.from("teen_workbook_entries").update(payload).eq("id", entryId);
           if (error) throw error;
         } else {
-          const { data, error } = await supabase.from("workbook_entries").upsert(payload, { onConflict: "profile_id,session_id" }).select().single();
+          const { data, error } = await supabase.from("teen_workbook_entries").upsert(payload, { onConflict: "profile_id,session_id" }).select().single();
           if (error) throw error;
           if (data) setEntryId(data.id);
         }
@@ -94,7 +89,7 @@ const Workbook = () => {
 
   const finish = async () => {
     if (entryId) {
-      await supabase.from("workbook_entries").update({ completed_at: new Date().toISOString() }).eq("id", entryId);
+      await supabase.from("teen_workbook_entries").update({ completed_at: new Date().toISOString() }).eq("id", entryId);
     }
     if (lsKey) localStorage.removeItem(lsKey);
     setDone(true);
@@ -126,12 +121,9 @@ const Workbook = () => {
     <div className="min-h-screen bg-[#0D0B14] flex items-center justify-center px-6">
       <div className="text-center">
         <Check size={32} className="text-emerald-400/60 mx-auto mb-4" />
-        <h2 className="font-display text-2xl font-bold text-white mb-2">You're done.</h2>
+        <h2 className="font-display text-2xl font-bold text-white mb-2">Nice work.</h2>
         <p className="text-white/30 font-body text-sm mb-8">Your workbook is saved.</p>
-        <div className="flex flex-col gap-3">
-          <a href={`/display/wordcloud?session=${session.id}`} className="text-white/30 text-xs font-body hover:text-white/50 transition-colors">View this week's word cloud →</a>
-          <button onClick={() => navigate("/dashboard")} className="text-white/20 text-xs font-body hover:text-white/40 transition-colors">Back to dashboard</button>
-        </div>
+        <button onClick={() => navigate("/dashboard")} className="text-white/20 text-xs font-body hover:text-white/40 transition-colors">Back to dashboard</button>
       </div>
     </div>
   );
@@ -151,46 +143,59 @@ const Workbook = () => {
   const renderInput = () => {
     if (!currentSection) return null;
 
-    if (currentSection.type === "short") {
-      return <input value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-lg py-3 text-center focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="one word" autoFocus />;
-    }
-
     if (currentSection.type === "textarea") {
       return (
         <div>
-          {currentSection.subtitle && (
-            <p className="text-white/20 text-xs font-body italic mb-3 text-center">{currentSection.subtitle}</p>
-          )}
-          {currentSection.promptKey && ai[currentSection.promptKey] && (
-            <p className="text-white/30 text-sm font-body italic mb-4 text-center">{ai[currentSection.promptKey]}</p>
-          )}
+          {currentSection.subtitle && <p className="text-white/20 text-xs font-body italic mb-3 text-center">{currentSection.subtitle}</p>}
           <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={5} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="Write here..." autoFocus />
         </div>
       );
     }
 
     if (currentSection.type === "question") {
-      const qKey = currentSection.questionKey!;
-      const qtKey = currentSection.questionTextKey!;
-      const aiQuestion = ai[qKey] || "";
-      const isCustom = customQ[qKey];
+      const qField = currentSection.questionField!;
+      const aiQuestion = ai[qField] || "";
       return (
         <div>
-          <p className="text-white/20 text-[10px] font-body tracking-wide mb-3 text-center">WRITE THE QUESTION FROM THE SCREEN, THEN ANSWER</p>
-          {!isCustom ? (
+          <p className="text-white/20 text-[10px] font-body tracking-wide mb-3 text-center">QUESTION FROM TODAY'S VIDEO</p>
+          {aiQuestion && (
             <div className="border-l-2 border-white/10 pl-4 mb-4">
               <p className="text-white/50 font-body text-sm leading-relaxed">{aiQuestion}</p>
             </div>
-          ) : (
-            <div className="mb-4">
-              <p className="text-white/20 text-[10px] font-body tracking-wide mb-2">YOUR QUESTION</p>
-              <input value={entry[qtKey] || ""} onChange={(e) => updateField(qtKey, e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="Write your own question..." />
-            </div>
           )}
-          <button onClick={() => setCustomQ((p) => ({ ...p, [qKey]: !p[qKey] }))} className="text-white/15 text-[10px] font-body hover:text-white/30 transition-colors mb-4">
-            {isCustom ? "← Use the AI question" : "Write a different question →"}
-          </button>
-          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={6} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="Your answer..." autoFocus />
+          <div className="mb-4">
+            <p className="text-white/20 text-[10px] font-body tracking-wide mb-2">WRITE THE QUESTION HERE</p>
+            <input value={entry[qField] || ""} onChange={(e) => updateField(qField, e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="Copy the question..." />
+          </div>
+          <textarea value={entry[currentSection.key] || ""} onChange={(e) => updateField(currentSection.key, e.target.value)} rows={6} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My answer..." autoFocus />
+        </div>
+      );
+    }
+
+    if (currentSection.type === "reflection") {
+      const prompt = ai.personal_reflection_prompt || "What is this making you think about in your own life?";
+      return (
+        <div>
+          <div className="border-l-2 border-white/10 pl-4 mb-4">
+            <p className="text-white/40 font-body text-sm italic leading-relaxed">{prompt}</p>
+          </div>
+          <div className="mb-3">
+            <p className="text-white/20 text-[10px] font-body tracking-wide mb-2">IN YOUR OWN WORDS</p>
+            <input value={entry.personal_reflection_prompt || ""} onChange={(e) => updateField("personal_reflection_prompt", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-2 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="Rewrite the question your way..." />
+          </div>
+          <textarea value={entry.personal_reflection || ""} onChange={(e) => updateField("personal_reflection", e.target.value)} rows={6} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My honest reflection..." autoFocus />
+        </div>
+      );
+    }
+
+    if (currentSection.type === "challenge") {
+      const challengePrompt = ai.challenge_prompt || "What's one thing you could try this week based on what you heard today?";
+      return (
+        <div>
+          <div className="border-l-2 border-white/10 pl-4 mb-4">
+            <p className="text-white/40 font-body text-sm italic leading-relaxed">{challengePrompt}</p>
+          </div>
+          <textarea value={entry.challenge_response || ""} onChange={(e) => updateField("challenge_response", e.target.value)} rows={5} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My challenge..." autoFocus />
         </div>
       );
     }
@@ -198,41 +203,14 @@ const Workbook = () => {
     if (currentSection.type === "goal") {
       return (
         <div className="space-y-6">
-          <p className="text-white/20 text-xs font-body text-center italic">One specific thing I will do before next session</p>
           <div>
             <p className="text-white/30 text-xs font-body mb-2">This week I will:</p>
             <textarea value={entry.weekly_goal || ""} onChange={(e) => updateField("weekly_goal", e.target.value)} rows={3} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="My goal..." />
           </div>
           <div>
-            <p className="text-white/30 text-xs font-body mb-2">The one thing I'll do in the next 24 hours:</p>
-            <input value={entry.action_step || ""} onChange={(e) => updateField("action_step", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-sm py-3 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="My first step..." />
+            <p className="text-white/30 text-xs font-body mb-2">My first step in 24 hours:</p>
+            <input value={entry.first_step || ""} onChange={(e) => updateField("first_step", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-sm py-3 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="What will I do first?" />
           </div>
-          <div>
-            <p className="text-white/20 text-xs font-body mb-2">Who could I tell about this goal? (optional)</p>
-            <input value={entry.accountability_person || ""} onChange={(e) => updateField("accountability_person", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white/60 font-body text-sm py-3 focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="A name..." />
-          </div>
-        </div>
-      );
-    }
-
-    if (currentSection.type === "leaving") {
-      return (
-        <div className="space-y-6">
-          <input value={entry.leaving_word || ""} onChange={(e) => updateField("leaving_word", e.target.value)} className="w-full bg-transparent border-b border-white/10 text-white font-body text-lg py-3 text-center focus:outline-none focus:border-white/25 placeholder:text-white/10" placeholder="one word" autoFocus />
-          <p className="text-white/20 text-[10px] font-body text-center">Submit this to the word cloud on your phone before you leave</p>
-          <label className="flex items-center justify-center gap-3 cursor-pointer">
-            <input type="checkbox" checked={entry.share_leaving_word !== false} onChange={(e) => updateField("share_leaving_word", e.target.checked ? "true" : "false")} className="accent-white" />
-            <span className="text-white/30 text-xs font-body">Add to tonight's group word cloud</span>
-          </label>
-        </div>
-      );
-    }
-
-    if (currentSection.type === "freenotes") {
-      return (
-        <div>
-          <p className="text-white/20 text-xs font-body italic mb-4 text-center">Notes, sketches, ideas, things I want to remember</p>
-          <textarea value={entry.free_notes || ""} onChange={(e) => updateField("free_notes", e.target.value)} rows={10} className="w-full bg-transparent border border-white/[0.06] text-white font-body text-sm p-4 focus:outline-none focus:border-white/15 resize-none placeholder:text-white/10 rounded-lg" placeholder="Anything you want to capture..." autoFocus />
         </div>
       );
     }
@@ -242,17 +220,25 @@ const Workbook = () => {
     <div className="min-h-screen bg-[#0D0B14]" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="px-5 pt-8 pb-4 border-b border-white/[0.06]">
         <p className="font-body text-[10px] text-white/25 uppercase tracking-[0.15em] mb-1">
-          Week {session.session_number} · {session.session_date}
+          MINDCAST TEENS · Week {session.session_number} / 52
         </p>
         <h1 className="text-lg font-display font-bold text-white">{session.title}</h1>
         {session.theme && <p className="text-white/30 text-xs font-body mt-1">{session.theme}</p>}
-        {session.podcast_guest && <p className="text-white/20 text-[10px] font-body mt-1">{session.podcast_guest}</p>}
       </div>
 
-      {step <= 2 && videoId && (
+      {step <= 1 && videoId && (
         <div className="px-5 py-4">
           <div className="aspect-video rounded-xl overflow-hidden">
             <iframe src={`https://www.youtube.com/embed/${videoId}`} className="w-full h-full" allowFullScreen />
+          </div>
+        </div>
+      )}
+
+      {ai.big_idea && step >= 1 && step <= 4 && (
+        <div className="px-5 py-2">
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3">
+            <p className="text-white/15 text-[9px] font-body tracking-wide mb-1">THE BIG IDEA</p>
+            <p className="text-white/40 text-xs font-body leading-relaxed">{ai.big_idea}</p>
           </div>
         </div>
       )}
@@ -287,7 +273,7 @@ const Workbook = () => {
           </button>
         )}
         <div className="flex-1" />
-        {step === 0 && !entry.goal_update_from_last_week && (
+        {step === 0 && !entry.last_week_goal_review && (
           <button onClick={() => setStep(step + 1)} className="flex items-center gap-2 px-5 py-3 text-white/20 text-xs font-body hover:text-white/40 transition-colors">
             Skip →
           </button>
@@ -306,4 +292,4 @@ const Workbook = () => {
   );
 };
 
-export default Workbook;
+export default TeenWorkbook;

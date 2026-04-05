@@ -498,6 +498,102 @@ export type Database = {
           },
         ]
       }
+      kids_workbook_entries: {
+        Row: {
+          arriving_word: string | null
+          character_brave_kind: string | null
+          character_felt: string | null
+          completed_at: string | null
+          created_at: string
+          drawing_description: string | null
+          favorite_part_drawing_url: string | null
+          id: string
+          if_i_were_character: string | null
+          little_minds_drawing_url: string | null
+          little_minds_question: string | null
+          mood_emoji: string | null
+          parent_conversation_notes: string | null
+          parent_initials: string | null
+          profile_id: string | null
+          question_1: string | null
+          question_1_answer: string | null
+          question_1_drawing_url: string | null
+          question_2: string | null
+          question_2_answer: string | null
+          session_id: string | null
+          something_to_remember: string | null
+          updated_at: string
+          weekly_goal: string | null
+        }
+        Insert: {
+          arriving_word?: string | null
+          character_brave_kind?: string | null
+          character_felt?: string | null
+          completed_at?: string | null
+          created_at?: string
+          drawing_description?: string | null
+          favorite_part_drawing_url?: string | null
+          id?: string
+          if_i_were_character?: string | null
+          little_minds_drawing_url?: string | null
+          little_minds_question?: string | null
+          mood_emoji?: string | null
+          parent_conversation_notes?: string | null
+          parent_initials?: string | null
+          profile_id?: string | null
+          question_1?: string | null
+          question_1_answer?: string | null
+          question_1_drawing_url?: string | null
+          question_2?: string | null
+          question_2_answer?: string | null
+          session_id?: string | null
+          something_to_remember?: string | null
+          updated_at?: string
+          weekly_goal?: string | null
+        }
+        Update: {
+          arriving_word?: string | null
+          character_brave_kind?: string | null
+          character_felt?: string | null
+          completed_at?: string | null
+          created_at?: string
+          drawing_description?: string | null
+          favorite_part_drawing_url?: string | null
+          id?: string
+          if_i_were_character?: string | null
+          little_minds_drawing_url?: string | null
+          little_minds_question?: string | null
+          mood_emoji?: string | null
+          parent_conversation_notes?: string | null
+          parent_initials?: string | null
+          profile_id?: string | null
+          question_1?: string | null
+          question_1_answer?: string | null
+          question_1_drawing_url?: string | null
+          question_2?: string | null
+          question_2_answer?: string | null
+          session_id?: string | null
+          something_to_remember?: string | null
+          updated_at?: string
+          weekly_goal?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kids_workbook_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kids_workbook_entries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age_group: string | null
@@ -673,6 +769,96 @@ export type Database = {
           },
         ]
       }
+      teen_workbook_entries: {
+        Row: {
+          big_idea_text: string | null
+          block_name: string | null
+          challenge_prompt: string | null
+          challenge_response: string | null
+          completed_at: string | null
+          created_at: string
+          first_step: string | null
+          id: string
+          last_week_goal_review: string | null
+          personal_reflection: string | null
+          personal_reflection_prompt: string | null
+          profile_id: string | null
+          question_1: string | null
+          question_1_answer: string | null
+          question_2: string | null
+          question_2_answer: string | null
+          session_id: string | null
+          updated_at: string
+          video_title: string | null
+          week_theme: string | null
+          weekly_goal: string | null
+          what_caught_attention: string | null
+        }
+        Insert: {
+          big_idea_text?: string | null
+          block_name?: string | null
+          challenge_prompt?: string | null
+          challenge_response?: string | null
+          completed_at?: string | null
+          created_at?: string
+          first_step?: string | null
+          id?: string
+          last_week_goal_review?: string | null
+          personal_reflection?: string | null
+          personal_reflection_prompt?: string | null
+          profile_id?: string | null
+          question_1?: string | null
+          question_1_answer?: string | null
+          question_2?: string | null
+          question_2_answer?: string | null
+          session_id?: string | null
+          updated_at?: string
+          video_title?: string | null
+          week_theme?: string | null
+          weekly_goal?: string | null
+          what_caught_attention?: string | null
+        }
+        Update: {
+          big_idea_text?: string | null
+          block_name?: string | null
+          challenge_prompt?: string | null
+          challenge_response?: string | null
+          completed_at?: string | null
+          created_at?: string
+          first_step?: string | null
+          id?: string
+          last_week_goal_review?: string | null
+          personal_reflection?: string | null
+          personal_reflection_prompt?: string | null
+          profile_id?: string | null
+          question_1?: string | null
+          question_1_answer?: string | null
+          question_2?: string | null
+          question_2_answer?: string | null
+          session_id?: string | null
+          updated_at?: string
+          video_title?: string | null
+          week_theme?: string | null
+          weekly_goal?: string | null
+          what_caught_attention?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teen_workbook_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teen_workbook_entries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -699,6 +885,7 @@ export type Database = {
           completed_at: string | null
           created_at: string | null
           first_impression: string | null
+          free_notes: string | null
           goal_update_from_last_week: string | null
           id: string
           key_idea: string | null
@@ -722,6 +909,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           first_impression?: string | null
+          free_notes?: string | null
           goal_update_from_last_week?: string | null
           id?: string
           key_idea?: string | null
@@ -745,6 +933,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           first_impression?: string | null
+          free_notes?: string | null
           goal_update_from_last_week?: string | null
           id?: string
           key_idea?: string | null
