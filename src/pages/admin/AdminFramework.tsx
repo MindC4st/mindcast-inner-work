@@ -72,7 +72,7 @@ const AdminFramework = () => {
   const inputClass = "bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-2 px-1 focus:outline-none focus:border-foreground/25 transition-colors placeholder:text-foreground/15";
 
   return (
-    <div className="min-h-screen" className="bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Print-only run sheet */}
       <div className="hidden print:block print:bg-white print:text-black p-8" ref={printRef}>
         <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET</h1>

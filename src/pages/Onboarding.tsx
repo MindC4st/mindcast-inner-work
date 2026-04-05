@@ -46,7 +46,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" className="bg-background">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-12">
