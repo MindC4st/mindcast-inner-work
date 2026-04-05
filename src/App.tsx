@@ -5,6 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import Home from "./pages/Home";
+import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
+import SubAppLanding from "./pages/SubAppLanding";
+import AdminLanding from "./pages/AdminLanding";
 import Live from "./pages/Live";
 import Resources from "./pages/Resources";
 import Membership from "./pages/Membership";
@@ -34,12 +39,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<Index />} />
+    <Route path="/" element={<Home />} />
+    <Route path="/classic" element={<Index />} />
+    <Route path="/auth" element={<Auth />} />
+    <Route path="/onboarding" element={<Onboarding />} />
+    <Route path="/admin" element={<AdminLanding />} />
+    <Route path="/little-minds" element={<SubAppLanding />} />
+    <Route path="/signal" element={<SubAppLanding />} />
+    <Route path="/connect" element={<SubAppLanding />} />
     <Route path="/live" element={<Live />} />
     <Route path="/resources" element={<Resources />} />
     <Route path="/membership" element={<Membership />} />
     <Route path="/about" element={<About />} />
     <Route path="/ecosystem" element={<EcosystemPage />} />
+    <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
+    <Route path="/dashboard" element={<Navigate to="/portal/dashboard" replace />} />
     <Route path="/session/:sessionId" element={<Session />} />
     <Route path="/portal/login" element={<PortalLogin />} />
     <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />

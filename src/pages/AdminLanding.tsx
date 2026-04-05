@@ -1,0 +1,73 @@
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Calendar, Radio, History } from "lucide-react";
+
+const AdminLanding = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      navigate("/");
+      return;
+    }
+    // Check is_admin on profiles
+    supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data?.is_admin) {
+          toast({ title: "Access denied", description: "You don't have access to that page.", variant: "destructive" });
+          navigate("/");
+        }
+      });
+  }, [user, loading]);
+
+  const tiles = [
+    { label: "Session Planning", icon: Calendar, to: "/portal/admin", desc: "Plan and manage weekly sessions" },
+    { label: "Live Session", icon: Radio, to: "/portal/admin", desc: "Run the live session experience" },
+    { label: "History", icon: History, to: "/portal/admin", desc: "Review past sessions and data" },
+  ];
+
+  return (
+    <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
+      <nav className="flex items-center justify-between px-6 md:px-12 py-5">
+        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-white">MINDCAST</Link>
+      </nav>
+
+      <div className="max-w-2xl mx-auto px-6 pt-16">
+        <h1 className="font-display text-2xl font-bold text-white mb-2">Welcome to the Mindcast admin.</h1>
+        <p className="text-white/30 text-sm font-body mb-12">Manage sessions, members, and community.</p>
+
+        <div className="grid sm:grid-cols-3 gap-4">
+          {tiles.map((t) => (
+            <Link
+              key={t.label}
+              to={t.to}
+              className="border border-white/[0.08] p-6 hover:border-white/20 transition-all group"
+            >
+              <t.icon size={20} className="text-white/20 mb-4 group-hover:text-white/50 transition-colors" strokeWidth={1.5} />
+              <h3 className="font-display text-sm font-bold text-white mb-1">{t.label}</h3>
+              <p className="text-white/25 text-xs font-body">{t.desc}</p>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-8 p-4 border border-white/[0.06] text-center">
+          <p className="text-white/15 text-[10px] tracking-[0.12em] font-body">
+            More admin features coming in Stage 2 & 3
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminLanding;
