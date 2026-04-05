@@ -18,6 +18,7 @@ import AdminFramework from "./pages/admin/AdminFramework";
 import AdminKids from "./pages/admin/AdminKids";
 import AdminMembers from "./pages/admin/AdminMembers";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
+import AdminPresenter from "./pages/admin/AdminPresenter";
 import WorkbookRouter from "./pages/WorkbookRouter";
 import Dashboard from "./pages/Dashboard";
 import Checkin from "./pages/Checkin";
@@ -31,6 +32,8 @@ import About from "./pages/About";
 import EcosystemPage from "./pages/EcosystemPage";
 import Session from "./pages/Session";
 import NotFound from "./pages/NotFound";
+import JoinEntry from "./pages/JoinEntry";
+import JoinSession from "./pages/JoinSession";
 import PortalLogin from "./pages/portal/PortalLogin";
 import PortalDashboard from "./pages/portal/PortalDashboard";
 import PortalWeek from "./pages/portal/PortalWeek";
@@ -46,7 +49,7 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
-  if (loading) return <div className="min-h-screen bg-primary flex items-center justify-center"><span className="text-secondary text-xs tracking-widest animate-pulse">LOADING...</span></div>;
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-muted-foreground text-xs tracking-widest animate-pulse">LOADING...</span></div>;
   if (!session) return <Navigate to="/portal/login" replace />;
   return <>{children}</>;
 };
@@ -57,6 +60,8 @@ const AppRoutes = () => (
     <Route path="/classic" element={<Index />} />
     <Route path="/auth" element={<Auth />} />
     <Route path="/onboarding" element={<Onboarding />} />
+    <Route path="/join" element={<JoinEntry />} />
+    <Route path="/join/:code" element={<JoinSession />} />
     <Route path="/admin" element={<AdminLanding />} />
     <Route path="/admin/sessions" element={<AdminSessions />} />
     <Route path="/admin/sessions/:id" element={<AdminSessionEditor />} />
@@ -66,6 +71,7 @@ const AppRoutes = () => (
     <Route path="/admin/kids" element={<AdminKids />} />
     <Route path="/admin/members" element={<AdminMembers />} />
     <Route path="/admin/curriculum" element={<AdminCurriculum />} />
+    <Route path="/admin/present/:id" element={<AdminPresenter />} />
     <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/checkin" element={<Checkin />} />
