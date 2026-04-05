@@ -6,56 +6,56 @@
 
 @layer base {
   :root {
-    --background: 218 60% 8%;
-    --foreground: 0 0% 100%;
+    --background: 30 100% 98%;
+    --foreground: 200 50% 35%;
 
-    --card: 218 50% 12%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 200 50% 35%;
 
-    --popover: 218 50% 12%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 50% 35%;
 
-    --primary: 0 0% 100%;
-    --primary-foreground: 218 60% 8%;
+    --primary: 200 50% 38%;
+    --primary-foreground: 30 100% 98%;
 
-    --secondary: 220 5% 57%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 200 50% 35%;
 
-    --muted: 218 40% 14%;
-    --muted-foreground: 220 5% 57%;
+    --muted: 210 20% 95%;
+    --muted-foreground: 200 15% 55%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 200 50% 38%;
+    --accent-foreground: 30 100% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 214 32% 91%;
-    --input: 218 40% 18%;
-    --ring: 217 91% 60%;
+    --input: 214 32% 91%;
+    --ring: 200 50% 38%;
 
     --radius: 0.75rem;
 
-    --navy: 218 60% 8%;
-    --silver: 220 5% 57%;
+    --navy: 200 50% 35%;
+    --silver: 200 15% 55%;
     --white: 0 0% 100%;
-    --ivory: 218 50% 12%;
+    --ivory: 0 0% 100%;
     --warm-border: 214 32% 91%;
     --bronze: 28 46% 60%;
-    --electric: 217 91% 60%;
+    --electric: 200 50% 38%;
 
     --font-display: 'Montserrat', sans-serif;
     --font-body: 'Montserrat', sans-serif;
     --font-serif: 'Cormorant Garamond', serif;
 
-    --sidebar-background: 218 60% 6%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 218 60% 8%;
-    --sidebar-accent: 218 50% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 218 40% 20%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 30 100% 97%;
+    --sidebar-foreground: 200 50% 35%;
+    --sidebar-primary: 200 50% 38%;
+    --sidebar-primary-foreground: 30 100% 98%;
+    --sidebar-accent: 210 20% 93%;
+    --sidebar-accent-foreground: 200 50% 35%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 200 50% 38%;
   }
 }
 
@@ -76,16 +76,16 @@
 
 @layer components {
   .btn-filled {
-    @apply bg-white text-background px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-white transition-all duration-200;
+    @apply bg-primary text-primary-foreground px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-primary transition-all duration-200;
   }
   .btn-filled:hover {
-    @apply bg-transparent text-white;
+    @apply bg-transparent text-primary;
   }
   .btn-outlined {
-    @apply bg-transparent text-white px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-white/30 transition-all duration-200;
+    @apply bg-transparent text-primary px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-primary/30 transition-all duration-200;
   }
   .btn-outlined:hover {
-    @apply bg-white text-background;
+    @apply bg-primary text-primary-foreground;
   }
   .btn-navy {
     @apply bg-accent text-accent-foreground px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-accent transition-all duration-200 rounded-lg;
