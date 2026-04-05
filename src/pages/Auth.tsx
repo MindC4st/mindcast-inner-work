@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+import logoDark from "@/assets/logo-dark-tagline.png";
 
 const Auth = () => {
   const [tab, setTab] = useState<"signin" | "signup">("signin");
@@ -56,7 +57,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <img src="/icon-192.png" alt="Mindcast" className="h-16 mx-auto mb-2" />
+          <img src={logoDark} alt="Mindcast" className="h-12 mx-auto mb-2" />
           <p className="text-foreground/40 text-sm font-body">A weekly gathering for the curious</p>
         </div>
 
