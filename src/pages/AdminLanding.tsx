@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Radio, History } from "lucide-react";
+import { Calendar, Radio, History, Users, Baby } from "lucide-react";
 
 const AdminLanding = () => {
   const { user, loading } = useAuth();
@@ -35,6 +35,8 @@ const AdminLanding = () => {
     { label: "Live Session", icon: Radio, to: "/admin/live", desc: "Run the live session experience" },
     { label: "History", icon: History, to: "/admin/history", desc: "Review past sessions and data" },
     { label: "Framework", icon: Calendar, to: "/admin/framework", desc: "Edit the session running order" },
+    { label: "Kids Planning", icon: Baby, to: "/admin/kids", desc: "Plan children's programme" },
+    { label: "Members", icon: Users, to: "/admin/members", desc: "Manage members and NFC IDs" },
   ];
 
   return (
@@ -47,7 +49,7 @@ const AdminLanding = () => {
         <h1 className="font-display text-2xl font-bold text-white mb-2">Welcome to the Mindcast admin.</h1>
         <p className="text-white/30 text-sm font-body mb-12">Manage sessions, members, and community.</p>
 
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-3 gap-4 mb-8">
           {tiles.map((t) => (
             <Link
               key={t.label}
@@ -59,12 +61,6 @@ const AdminLanding = () => {
               <p className="text-white/25 text-xs font-body">{t.desc}</p>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-8 p-4 border border-white/[0.06] text-center">
-          <p className="text-white/15 text-[10px] tracking-[0.12em] font-body">
-            More admin features coming in Stage 2 & 3
-          </p>
         </div>
       </div>
     </div>
