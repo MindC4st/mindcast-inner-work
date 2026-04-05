@@ -39,12 +39,19 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<Index />} />
+    <Route path="/" element={<Home />} />
+    <Route path="/classic" element={<Index />} />
+    <Route path="/auth" element={<Auth />} />
+    <Route path="/onboarding" element={<Onboarding />} />
+    <Route path="/admin" element={<AdminLanding />} />
+    <Route path="/:appSlug" element={<SubAppLanding />} />
     <Route path="/live" element={<Live />} />
     <Route path="/resources" element={<Resources />} />
     <Route path="/membership" element={<Membership />} />
     <Route path="/about" element={<About />} />
     <Route path="/ecosystem" element={<EcosystemPage />} />
+    <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
+    <Route path="/dashboard" element={<Navigate to="/portal/dashboard" replace />} />
     <Route path="/session/:sessionId" element={<Session />} />
     <Route path="/portal/login" element={<PortalLogin />} />
     <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
