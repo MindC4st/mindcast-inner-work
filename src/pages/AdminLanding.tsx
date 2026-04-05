@@ -41,7 +41,7 @@ const AdminLanding = () => {
   ];
 
   return (
-    <div className="min-h-screen" className="bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-foreground">MINDCAST</Link>
       </nav>

@@ -33,7 +33,7 @@ const AdminMembers = () => {
   const inputClass = "w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-foreground text-sm font-body placeholder-white/15 focus:outline-none focus:border-foreground/20";
 
   return (
-    <div className="min-h-screen" className="bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <nav className="flex items-center px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
           <ArrowLeft size={12} /> ADMIN

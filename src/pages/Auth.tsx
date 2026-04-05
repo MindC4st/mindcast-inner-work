@@ -53,7 +53,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" className="bg-background">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <h1 className="font-display text-3xl font-bold text-foreground tracking-[0.15em] mb-2">MINDCAST</h1>
