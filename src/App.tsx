@@ -60,6 +60,12 @@ const AppRoutes = () => (
     <Route path="/admin/history" element={<AdminHistory />} />
     <Route path="/admin/live" element={<AdminLive />} />
     <Route path="/admin/framework" element={<AdminFramework />} />
+    <Route path="/workbook" element={<ProtectedRoute><Workbook /></ProtectedRoute>} />
+    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+    <Route path="/checkin" element={<Checkin />} />
+    <Route path="/display" element={<WelcomeWall />} />
+    <Route path="/display/goals" element={<GoalWall />} />
+    <Route path="/display/wordcloud" element={<WordCloud />} />
     <Route path="/little-minds" element={<SubAppLanding />} />
     <Route path="/signal" element={<SubAppLanding />} />
     <Route path="/connect" element={<SubAppLanding />} />
@@ -69,7 +75,6 @@ const AppRoutes = () => (
     <Route path="/about" element={<About />} />
     <Route path="/ecosystem" element={<EcosystemPage />} />
     <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
-    <Route path="/dashboard" element={<Navigate to="/portal/dashboard" replace />} />
     <Route path="/session/:sessionId" element={<Session />} />
     <Route path="/portal/login" element={<PortalLogin />} />
     <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
