@@ -227,6 +227,69 @@ export type Database = {
           },
         ]
       }
+      curriculum_weeks: {
+        Row: {
+          adult_search_notes: string | null
+          adult_source: string | null
+          adult_video_title: string | null
+          block_number: number
+          block_theme: string
+          created_at: string
+          id: string
+          kids_activity_type: string | null
+          kids_format: string | null
+          kids_theme_notes: string | null
+          kids_title: string | null
+          pdf_reference: string | null
+          teen_search_notes: string | null
+          teen_source: string | null
+          teen_video_title: string | null
+          updated_at: string
+          week_number: number
+          weekly_theme: string
+        }
+        Insert: {
+          adult_search_notes?: string | null
+          adult_source?: string | null
+          adult_video_title?: string | null
+          block_number: number
+          block_theme?: string
+          created_at?: string
+          id?: string
+          kids_activity_type?: string | null
+          kids_format?: string | null
+          kids_theme_notes?: string | null
+          kids_title?: string | null
+          pdf_reference?: string | null
+          teen_search_notes?: string | null
+          teen_source?: string | null
+          teen_video_title?: string | null
+          updated_at?: string
+          week_number: number
+          weekly_theme?: string
+        }
+        Update: {
+          adult_search_notes?: string | null
+          adult_source?: string | null
+          adult_video_title?: string | null
+          block_number?: number
+          block_theme?: string
+          created_at?: string
+          id?: string
+          kids_activity_type?: string | null
+          kids_format?: string | null
+          kids_theme_notes?: string | null
+          kids_title?: string | null
+          pdf_reference?: string | null
+          teen_search_notes?: string | null
+          teen_source?: string | null
+          teen_video_title?: string | null
+          updated_at?: string
+          week_number?: number
+          weekly_theme?: string
+        }
+        Relationships: []
+      }
       domain_scores: {
         Row: {
           cohort_id: string
