@@ -318,6 +318,36 @@ export type Database = {
           },
         ]
       }
+      framework_steps: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration: number
+          id: string
+          name: string
+          step_order: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number
+          id?: string
+          name?: string
+          step_order: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration?: number
+          id?: string
+          name?: string
+          step_order?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       implementation_checkins: {
         Row: {
           cohort_id: string
