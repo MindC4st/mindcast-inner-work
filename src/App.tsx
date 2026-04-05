@@ -99,6 +99,10 @@ const AppRoutes = () => (
     <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
     <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
     <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
+    <Route path="/terms" element={<TermsPage />} />
+    <Route path="/privacy" element={<PrivacyPage />} />
+    <Route path="/refund" element={<RefundPage />} />
+    <Route path="/safeguarding" element={<SafeguardingPage />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
