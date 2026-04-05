@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoBrand from "@/assets/logo-brand.png";
+import logoTagline from "@/assets/logo-dark-tagline.png";
 
 const links = [
   { label: "LIVE", to: "/live" },
@@ -15,7 +15,7 @@ const Footer = () => (
     <div className="container mx-auto px-6">
       <div className="grid md:grid-cols-3 gap-12 mb-12">
         <div>
-          <img src={logoBrand} alt="Mindcast" className="h-8 mb-3" />
+          <img src={logoTagline} alt="Mindcast — Tune Into Your Inner Self" className="h-10 mb-3" />
           <p className="text-muted-foreground text-xs tracking-wider leading-relaxed">
             Not therapy. Not religion.<br />A structured life practice.
           </p>
