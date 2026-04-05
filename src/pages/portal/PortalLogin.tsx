@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
+import logoLight from "@/assets/logo-light-tagline.png";
 
 const PortalLogin = () => {
   const [email, setEmail] = useState("");
@@ -42,7 +43,7 @@ const PortalLogin = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           {/* Brand mark */}
           <div className="text-center mb-16">
-            <img src="/icon-192.png" alt="Mindcast" className="h-16 mx-auto" />
+            <img src={logoLight} alt="Mindcast" className="h-12 mx-auto" />
             <div className="w-8 h-px bg-primary-foreground/20 mx-auto mt-4" />
           </div>
 

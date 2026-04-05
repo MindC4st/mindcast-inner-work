@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User } from "lucide-react";
+import logoLight from "@/assets/logo-light-tagline.png";
 
 const NAV_ITEMS = [
   { label: "Dashboard", to: "/portal/dashboard", icon: LayoutDashboard },
@@ -42,7 +43,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       {/* Desktop sidebar — hidden on mobile */}
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-primary text-primary-foreground flex-col transition-transform duration-300 hidden lg:flex`}>
         <div className="p-8 pb-6">
-          <Link to="/" className="font-display text-2xl tracking-[0.15em] text-primary-foreground">MINDCAST</Link>
+          <Link to="/"><img src={logoLight} alt="Mindcast" className="h-8" /></Link>
           <p className="text-primary-foreground/25 text-[10px] tracking-[0.25em] mt-1.5 font-body">MEMBER PORTAL</p>
         </div>
 
@@ -123,7 +124,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       <main className="flex-1 min-h-screen pb-20 lg:pb-0">
         {/* Mobile header — simplified */}
         <div className="lg:hidden flex items-center justify-between px-5 py-4 bg-primary text-primary-foreground sticky top-0 z-30">
-          <Link to="/" className="font-display text-lg tracking-[0.15em]">MINDCAST</Link>
+          <Link to="/"><img src={logoLight} alt="Mindcast" className="h-6" /></Link>
           <button onClick={handleSignOut} className="text-primary-foreground/30 hover:text-primary-foreground/60 transition-colors">
             <LogOut size={18} strokeWidth={1.5} />
           </button>
