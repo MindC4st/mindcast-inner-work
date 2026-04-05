@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
@@ -11,24 +12,14 @@ const Dashboard = () => {
   const [entries, setEntries] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [activeEntry, setActiveEntry] = useState<any>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate("/auth"); return; }
-
-    // Fetch active session
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => setActiveSession(data));
-    // Fetch all sessions
     supabase.from("sessions").select("*").order("session_number").then(({ data }) => setSessions(data || []));
-    // Fetch all user entries
-    supabase.from("workbook_entries").select("*").eq("profile_id", user.id).then(({ data }) => {
-      setEntries(data || []);
-      // Check if active session has an entry
-      if (activeSession) {
-        const e = (data || []).find((e: any) => e.session_id === activeSession.id);
-        setActiveEntry(e);
-      }
-    });
+    supabase.from("workbook_entries").select("*").eq("profile_id", user.id).then(({ data }) => setEntries(data || []));
   }, [user, authLoading]);
 
   useEffect(() => {
@@ -38,11 +29,9 @@ const Dashboard = () => {
   }, [activeSession, entries]);
 
   const entryBySession = new Map(entries.map((e) => [e.session_id, e]));
-  const completedCount = entries.filter((e) => e.completed_at).length;
   const leavingWords = entries.filter((e) => e.leaving_word).map((e) => e.leaving_word);
   const recentGoals = entries.filter((e) => e.weekly_goal).slice(-5).reverse();
 
-  // 52-week grid
   const weekGrid = Array.from({ length: 52 }, (_, i) => {
     const s = sessions.find((s: any) => s.session_number === i + 1);
     const hasEntry = s ? entryBySession.has(s.id) : false;
@@ -58,7 +47,6 @@ const Dashboard = () => {
       </nav>
 
       <div className="max-w-lg mx-auto px-5 pt-6">
-        {/* This week */}
         {activeSession && (
           <div className="border border-white/[0.08] p-5 mb-8">
             <p className="text-white/20 text-[9px] tracking-[0.15em] font-body mb-2">
@@ -73,7 +61,6 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="mt-3">
-                {activeEntry && <p className="text-white/20 text-[9px] font-body mb-2">{Object.values(activeEntry).filter(Boolean).length - 4}/9 sections</p>}
                 <Link to="/workbook" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-[#0D0B14] text-xs font-display font-bold hover:bg-white/90 transition-colors">
                   {activeEntry ? "Continue" : "Start"} my workbook <ArrowRight size={14} />
                 </Link>
@@ -91,13 +78,7 @@ const Dashboard = () => {
                 key={w.week}
                 title={w.session?.title || `Week ${w.week}`}
                 className={`aspect-square rounded-sm transition-colors cursor-default ${
-                  w.isActive
-                    ? "bg-white animate-pulse"
-                    : w.hasEntry
-                    ? "bg-white/20"
-                    : w.session
-                    ? "bg-white/[0.04]"
-                    : "bg-white/[0.02]"
+                  w.isActive ? "bg-white animate-pulse" : w.hasEntry ? "bg-white/20" : w.session ? "bg-white/[0.04]" : "bg-white/[0.02]"
                 }`}
               />
             ))}
@@ -134,18 +115,74 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Sessions list */}
+        {/* Sessions list — expandable */}
         <div>
           <p className="text-white/20 text-[9px] tracking-[0.15em] font-body mb-4">ALL SESSIONS</p>
           <div className="space-y-1">
             {sessions.filter((s: any) => s.status !== "draft").map((s: any) => {
               const e = entryBySession.get(s.id);
+              const isExpanded = expandedId === s.id;
               return (
-                <Link key={s.id} to={`/portal/week/${s.session_number}`} className="flex items-center gap-3 px-4 py-3 border border-white/[0.04] hover:border-white/10 transition-colors">
-                  <span className="text-white/20 text-xs font-body w-8">W{s.session_number}</span>
-                  <span className="text-white text-sm font-body flex-1 truncate">{s.title}</span>
-                  {e?.completed_at && <Check size={12} className="text-emerald-400/40" />}
-                </Link>
+                <div key={s.id}>
+                  <button
+                    onClick={() => setExpandedId(isExpanded ? null : s.id)}
+                    className="w-full flex items-center gap-3 px-4 py-3 border border-white/[0.04] hover:border-white/10 transition-colors text-left"
+                  >
+                    <span className="text-white/20 text-xs font-body w-8">W{s.session_number}</span>
+                    <span className="text-white text-sm font-body flex-1 truncate">{s.title}</span>
+                    {e?.completed_at && <Check size={12} className="text-emerald-400/40" />}
+                    {e && (isExpanded ? <ChevronUp size={14} className="text-white/20" /> : <ChevronDown size={14} className="text-white/20" />)}
+                  </button>
+                  <AnimatePresence>
+                    {isExpanded && e && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="bg-white/[0.02] border border-white/[0.04] border-t-0 px-5 py-4 space-y-3">
+                          {e.arriving_word && (
+                            <div>
+                              <p className="text-white/20 text-[9px] tracking-wide font-body mb-1">ARRIVING WORD</p>
+                              <p className="text-white/50 text-sm font-body">{e.arriving_word}</p>
+                            </div>
+                          )}
+                          {e.key_idea && (
+                            <div>
+                              <p className="text-white/20 text-[9px] tracking-wide font-body mb-1">KEY IDEA</p>
+                              <p className="text-white/50 text-sm font-body">{e.key_idea}</p>
+                            </div>
+                          )}
+                          {[1, 2, 3].map((n) => e[`question_${n}_response`] && (
+                            <div key={n}>
+                              <p className="text-white/20 text-[9px] tracking-wide font-body mb-1">
+                                {e[`question_${n}_text`] || `QUESTION ${n}`}
+                              </p>
+                              <p className="text-white/50 text-sm font-body">{e[`question_${n}_response`]}</p>
+                            </div>
+                          ))}
+                          {e.weekly_goal && (
+                            <div>
+                              <p className="text-white/20 text-[9px] tracking-wide font-body mb-1">GOAL</p>
+                              <p className="text-white/50 text-sm font-body">{e.weekly_goal}</p>
+                              {e.action_step && <p className="text-white/30 text-xs font-body mt-1">First step: {e.action_step}</p>}
+                            </div>
+                          )}
+                          {e.leaving_word && (
+                            <div>
+                              <p className="text-white/20 text-[9px] tracking-wide font-body mb-1">LEAVING WORD</p>
+                              <p className="text-white/50 text-sm font-body">{e.leaving_word}</p>
+                            </div>
+                          )}
+                          {e.completed_at && (
+                            <p className="text-white/15 text-[9px] font-body mt-2">Completed {new Date(e.completed_at).toLocaleDateString()}</p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               );
             })}
           </div>

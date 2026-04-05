@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { Maximize } from "lucide-react";
 
 const COLORS = ["#F5F0EB", "#C9A8B0", "#A3B5A0", "#B8A9CC", "#D4C5A9", "#E8D5C4"];
 
@@ -44,7 +45,6 @@ const WordCloud = () => {
   const counted = useMemo(() => countWords(words), [words]);
   const maxCount = Math.max(...counted.map((w) => w.count), 1);
 
-  // Generate stable positions
   const positioned = useMemo(() => {
     return counted.map((w, i) => {
       const seed = w.word.charCodeAt(0) + i;
@@ -57,11 +57,15 @@ const WordCloud = () => {
   }, [counted, maxCount]);
 
   const uniqueMembers = new Set(words).size;
+  const goFullscreen = () => { document.documentElement.requestFullscreen?.(); };
 
   if (!session) return <div className="fixed inset-0 bg-[#0A0812] flex items-center justify-center"><p className="text-white/20 font-body">Loading...</p></div>;
 
   return (
     <div className="fixed inset-0 bg-[#0A0812] flex flex-col">
+      <button onClick={goFullscreen} className="absolute top-4 right-4 text-white/15 hover:text-white/40 transition-colors z-10" title="Fullscreen">
+        <Maximize size={18} />
+      </button>
       <div className="flex-1 relative overflow-hidden">
         <AnimatePresence>
           {positioned.map((w) => (
@@ -70,13 +74,7 @@ const WordCloud = () => {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               className="absolute font-display font-bold select-none"
-              style={{
-                left: `${w.x}%`,
-                top: `${w.y}%`,
-                fontSize: `${w.size}px`,
-                color: w.color,
-                transform: "translate(-50%, -50%)",
-              }}
+              style={{ left: `${w.x}%`, top: `${w.y}%`, fontSize: `${w.size}px`, color: w.color, transform: "translate(-50%, -50%)" }}
             >
               {w.word}
             </motion.span>
@@ -88,7 +86,6 @@ const WordCloud = () => {
           </div>
         )}
       </div>
-
       <div className="px-10 py-4 text-right">
         <p className="text-white/15 text-xs font-body">{words.length} words · {uniqueMembers} members</p>
       </div>

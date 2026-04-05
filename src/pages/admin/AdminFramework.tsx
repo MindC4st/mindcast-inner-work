@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, GripVertical, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, GripVertical, Trash2, Plus, Printer } from "lucide-react";
 
 const DEFAULT_FRAMEWORK = [
   { name: "The Landing", duration: 10, description: "Welcome wall live on screen. QR code visible. Members scan to check in and add a welcome note. No formal start — this is arrival time." },
@@ -16,14 +16,24 @@ const DEFAULT_FRAMEWORK = [
 const AdminFramework = () => {
   const [steps, setSteps] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
+  const [activeSession, setActiveSession] = useState<any>(null);
+  const [kidsLO, setKidsLO] = useState<any>(null);
+  const [kidsTeen, setKidsTeen] = useState<any>(null);
   const { toast } = useToast();
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase.from("framework_steps").select("*").order("step_order").then(({ data }) => {
-      if (data && data.length > 0) {
-        setSteps(data);
-      } else {
-        setSteps(DEFAULT_FRAMEWORK.map((s, i) => ({ ...s, step_order: i + 1, id: `new-${i}` })));
+      if (data && data.length > 0) setSteps(data);
+      else setSteps(DEFAULT_FRAMEWORK.map((s, i) => ({ ...s, step_order: i + 1, id: `new-${i}` })));
+    });
+    supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => {
+      setActiveSession(data);
+      if (data) {
+        supabase.from("kids_sessions").select("*").eq("parent_session_id", data.id).then(({ data: kids }) => {
+          setKidsLO((kids || []).find((k: any) => k.age_group === "little_ones"));
+          setKidsTeen((kids || []).find((k: any) => k.age_group === "teens"));
+        });
       }
     });
   }, []);
@@ -31,15 +41,12 @@ const AdminFramework = () => {
   const updateStep = (idx: number, field: string, value: any) => {
     setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s)));
   };
-
   const removeStep = (idx: number) => {
     setSteps((prev) => prev.filter((_, i) => i !== idx).map((s, i) => ({ ...s, step_order: i + 1 })));
   };
-
   const addStep = () => {
     setSteps((prev) => [...prev, { id: `new-${Date.now()}`, step_order: prev.length + 1, name: "", duration: 5, description: "" }]);
   };
-
   const moveStep = (from: number, to: number) => {
     if (to < 0 || to >= steps.length) return;
     const arr = [...steps];
@@ -50,7 +57,6 @@ const AdminFramework = () => {
 
   const save = async () => {
     setSaving(true);
-    // Delete all existing, then insert
     await supabase.from("framework_steps").delete().gte("step_order", 0);
     const { error } = await supabase.from("framework_steps").insert(
       steps.map((s, i) => ({ step_order: i + 1, name: s.name, duration: s.duration, description: s.description }))
@@ -60,55 +66,94 @@ const AdminFramework = () => {
     else toast({ title: "Framework saved" });
   };
 
+  const printRunSheet = () => { window.print(); };
+
   const totalMinutes = steps.reduce((sum, s) => sum + (s.duration || 0), 0);
   const inputClass = "bg-transparent border-b border-white/10 text-white font-body text-sm py-2 px-1 focus:outline-none focus:border-white/25 transition-colors placeholder:text-white/15";
 
   return (
     <div className="min-h-screen" style={{ background: "#0D0B14", color: "#fff" }}>
-      <nav className="flex items-center px-6 md:px-12 py-5">
-        <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
-          <ArrowLeft size={12} /> ADMIN
-        </Link>
-      </nav>
-
-      <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
-        <h1 className="font-display text-2xl font-bold text-white mb-8">Session Framework</h1>
-
-        <div className="space-y-3">
-          {steps.map((step, idx) => (
-            <div key={step.id} className="border border-white/[0.06] p-4 group hover:border-white/10 transition-colors">
-              <div className="flex items-start gap-3">
-                <div className="flex flex-col gap-1 pt-2">
-                  <button onClick={() => moveStep(idx, idx - 1)} className="text-white/10 hover:text-white/30 text-xs">▲</button>
-                  <GripVertical size={14} className="text-white/10" />
-                  <button onClick={() => moveStep(idx, idx + 1)} className="text-white/10 hover:text-white/30 text-xs">▼</button>
+      {/* Print-only run sheet */}
+      <div className="hidden print:block print:bg-white print:text-black p-8" ref={printRef}>
+        <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET</h1>
+        {activeSession && (
+          <p className="text-sm text-gray-600 mb-6">
+            Week {activeSession.session_number} · {activeSession.session_date} · {activeSession.title}
+          </p>
+        )}
+        <div className="border-t-2 border-black pt-4 space-y-4">
+          {steps.map((s, i) => (
+            <div key={i} className="flex gap-4">
+              <span className="font-bold w-6 text-right">{i + 1}.</span>
+              <div className="flex-1">
+                <div className="flex justify-between">
+                  <span className="font-bold uppercase">{s.name}</span>
+                  <span className="text-gray-500">{s.duration} min</span>
                 </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-white/15 text-xs font-body w-6">{idx + 1}.</span>
-                    <input value={step.name} onChange={(e) => updateStep(idx, "name", e.target.value)} placeholder="Step name" className={`flex-1 ${inputClass}`} />
-                    <input type="number" min={1} value={step.duration} onChange={(e) => updateStep(idx, "duration", +e.target.value)} className={`w-16 text-center ${inputClass}`} />
-                    <span className="text-white/15 text-[9px] font-body">min</span>
-                  </div>
-                  <textarea value={step.description} onChange={(e) => updateStep(idx, "description", e.target.value)} placeholder="Description..." className={`w-full min-h-[40px] resize-none ${inputClass} ml-9`} />
-                </div>
-                <button onClick={() => removeStep(idx)} className="text-white/10 hover:text-red-400/50 transition-colors pt-2">
-                  <Trash2 size={14} />
-                </button>
+                <p className="text-sm text-gray-600 mt-1">{s.description}</p>
               </div>
             </div>
           ))}
         </div>
+        <div className="border-t-2 border-black mt-6 pt-4">
+          <p className="font-bold">Total runtime: {totalMinutes} minutes</p>
+          {activeSession?.video_title && <p className="text-sm mt-2">Video: {activeSession.video_title}</p>}
+          {activeSession?.video_url && <p className="text-sm text-gray-500">URL: {activeSession.video_url}</p>}
+          {kidsLO && <p className="text-sm mt-2">Kids (Little Ones): {kidsLO.lesson_theme} — {kidsLO.activity_type}</p>}
+          {kidsTeen && <p className="text-sm">Kids (Teens): {kidsTeen.lesson_theme}</p>}
+        </div>
+      </div>
 
-        <button onClick={addStep} className="mt-4 flex items-center gap-2 text-white/20 text-xs font-body hover:text-white/40 transition-colors">
-          <Plus size={14} /> Add step
-        </button>
-
-        <div className="mt-8 flex items-center justify-between">
-          <p className="text-white/20 text-xs font-body">Total runtime: <span className="text-white/50">{totalMinutes} minutes</span></p>
-          <button onClick={save} disabled={saving} className="px-6 py-3 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30">
-            {saving ? "..." : "SAVE FRAMEWORK"}
+      {/* Screen UI */}
+      <div className="print:hidden">
+        <nav className="flex items-center justify-between px-6 md:px-12 py-5">
+          <Link to="/admin" className="flex items-center gap-2 text-white/30 text-[10px] tracking-[0.12em] font-body hover:text-white/50">
+            <ArrowLeft size={12} /> ADMIN
+          </Link>
+          <button onClick={printRunSheet} className="flex items-center gap-2 text-white/30 text-xs font-body hover:text-white/50 transition-colors">
+            <Printer size={14} /> Print run sheet
           </button>
+        </nav>
+
+        <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
+          <h1 className="font-display text-2xl font-bold text-white mb-8">Session Framework</h1>
+
+          <div className="space-y-3">
+            {steps.map((step, idx) => (
+              <div key={step.id} className="border border-white/[0.06] p-4 group hover:border-white/10 transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col gap-1 pt-2">
+                    <button onClick={() => moveStep(idx, idx - 1)} className="text-white/10 hover:text-white/30 text-xs">▲</button>
+                    <GripVertical size={14} className="text-white/10" />
+                    <button onClick={() => moveStep(idx, idx + 1)} className="text-white/10 hover:text-white/30 text-xs">▼</button>
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-white/15 text-xs font-body w-6">{idx + 1}.</span>
+                      <input value={step.name} onChange={(e) => updateStep(idx, "name", e.target.value)} placeholder="Step name" className={`flex-1 ${inputClass}`} />
+                      <input type="number" min={1} value={step.duration} onChange={(e) => updateStep(idx, "duration", +e.target.value)} className={`w-16 text-center ${inputClass}`} />
+                      <span className="text-white/15 text-[9px] font-body">min</span>
+                    </div>
+                    <textarea value={step.description} onChange={(e) => updateStep(idx, "description", e.target.value)} placeholder="Description..." className={`w-full min-h-[40px] resize-none ${inputClass} ml-9`} />
+                  </div>
+                  <button onClick={() => removeStep(idx)} className="text-white/10 hover:text-red-400/50 transition-colors pt-2">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button onClick={addStep} className="mt-4 flex items-center gap-2 text-white/20 text-xs font-body hover:text-white/40 transition-colors">
+            <Plus size={14} /> Add step
+          </button>
+
+          <div className="mt-8 flex items-center justify-between">
+            <p className="text-white/20 text-xs font-body">Total runtime: <span className="text-white/50">{totalMinutes} minutes</span></p>
+            <button onClick={save} disabled={saving} className="px-6 py-3 bg-white text-[#0D0B14] text-xs tracking-[0.15em] font-display font-bold hover:bg-white/90 transition-colors disabled:opacity-30">
+              {saving ? "..." : "SAVE FRAMEWORK"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
