@@ -111,6 +111,9 @@ const AdminLive = () => {
                 END SESSION
               </button>
             )}
+            <a href={`/admin/present/${session.id}`} target="_blank" className="block w-full py-3 text-center bg-white/10 text-white text-xs tracking-[0.1em] font-body font-semibold hover:bg-white/20 transition-colors">
+              🖥 Open Presentation ↗
+            </a>
             <a href={`/display?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-white/10 text-white/40 text-xs tracking-[0.1em] font-body hover:border-white/20 transition-colors">
               Show Check-in Wall ↗
             </a>
@@ -120,6 +123,13 @@ const AdminLive = () => {
             <a href={`/display/wordcloud?session=${session.id}`} target="_blank" className="block w-full py-3 text-center border border-white/10 text-white/40 text-xs tracking-[0.1em] font-body hover:border-white/20 transition-colors">
               Show Word Cloud ↗
             </a>
+            {session.session_code && (
+              <div className="border border-white/[0.06] p-4 text-center mt-4">
+                <p className="text-white/20 text-[9px] tracking-[0.15em] font-body mb-1">SESSION CODE</p>
+                <p className="font-mono text-2xl font-bold text-white/60 tracking-widest">{session.session_code}</p>
+                <p className="text-white/15 text-[9px] font-body mt-1">mindcast.co.nz/join</p>
+              </div>
+            )}
           </div>
         </div>
 
