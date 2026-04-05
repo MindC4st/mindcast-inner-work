@@ -42,7 +42,7 @@ const PortalLogin = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           {/* Brand mark */}
           <div className="text-center mb-16">
-            <h1 className="font-display text-4xl tracking-[0.2em] text-primary-foreground">MINDCAST</h1>
+            <img src="/icon-192.png" alt="Mindcast" className="h-16 mx-auto" />
             <div className="w-8 h-px bg-primary-foreground/20 mx-auto mt-4" />
           </div>
 

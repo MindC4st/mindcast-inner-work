@@ -56,7 +56,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <h1 className="font-display text-3xl font-bold text-foreground tracking-[0.15em] mb-2">MINDCAST</h1>
+          <img src="/icon-192.png" alt="Mindcast" className="h-16 mx-auto mb-2" />
           <p className="text-foreground/40 text-sm font-body">A weekly gathering for the curious</p>
         </div>
 
