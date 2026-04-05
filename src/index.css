@@ -6,41 +6,41 @@
 
 @layer base {
   :root {
-    --background: 30 33% 96%;
-    --foreground: 215 30% 15%;
+    --background: 218 60% 8%;
+    --foreground: 0 0% 100%;
 
-    --card: 30 25% 98%;
-    --card-foreground: 215 30% 15%;
+    --card: 218 50% 12%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 30 25% 98%;
-    --popover-foreground: 215 30% 15%;
+    --popover: 218 50% 12%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 215 30% 15%;
-    --primary-foreground: 30 33% 96%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 218 60% 8%;
 
-    --secondary: 210 14% 83%;
-    --secondary-foreground: 215 30% 15%;
+    --secondary: 220 5% 57%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 15% 92%;
-    --muted-foreground: 215 10% 45%;
+    --muted: 218 40% 14%;
+    --muted-foreground: 220 5% 57%;
 
     --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 15% 85%;
-    --input: 215 15% 85%;
+    --border: 214 32% 91%;
+    --input: 218 40% 18%;
     --ring: 217 91% 60%;
 
     --radius: 0.75rem;
 
-    --navy: 215 30% 15%;
-    --silver: 210 14% 83%;
+    --navy: 218 60% 8%;
+    --silver: 220 5% 57%;
     --white: 0 0% 100%;
-    --ivory: 30 33% 96%;
-    --warm-border: 215 15% 88%;
+    --ivory: 218 50% 12%;
+    --warm-border: 214 32% 91%;
     --bronze: 28 46% 60%;
     --electric: 217 91% 60%;
 
@@ -48,13 +48,13 @@
     --font-body: 'Montserrat', sans-serif;
     --font-serif: 'Cormorant Garamond', serif;
 
-    --sidebar-background: 215 30% 15%;
-    --sidebar-foreground: 30 33% 96%;
-    --sidebar-primary: 30 33% 96%;
-    --sidebar-primary-foreground: 215 30% 15%;
-    --sidebar-accent: 215 30% 22%;
-    --sidebar-accent-foreground: 30 33% 96%;
-    --sidebar-border: 215 30% 25%;
+    --sidebar-background: 218 60% 6%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 218 60% 8%;
+    --sidebar-accent: 218 50% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 218 40% 20%;
     --sidebar-ring: 217 91% 60%;
   }
 }
@@ -76,28 +76,28 @@
 
 @layer components {
   .btn-filled {
-    @apply bg-secondary text-primary px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-secondary transition-all duration-200;
+    @apply bg-white text-background px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-white transition-all duration-200;
   }
   .btn-filled:hover {
-    @apply bg-transparent text-secondary;
+    @apply bg-transparent text-white;
   }
   .btn-outlined {
-    @apply bg-transparent text-secondary px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-secondary transition-all duration-200;
+    @apply bg-transparent text-white px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-white/30 transition-all duration-200;
   }
   .btn-outlined:hover {
-    @apply bg-secondary text-primary;
+    @apply bg-white text-background;
   }
   .btn-navy {
-    @apply bg-primary text-primary-foreground px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-primary transition-all duration-200 rounded-lg;
+    @apply bg-accent text-accent-foreground px-8 py-4 text-sm font-semibold uppercase tracking-widest border-2 border-accent transition-all duration-200 rounded-lg;
   }
   .btn-navy:hover {
-    @apply bg-transparent text-primary border-primary;
+    @apply bg-transparent text-accent border-accent;
   }
   .section-navy {
-    @apply bg-primary text-primary-foreground;
+    @apply bg-background text-foreground;
   }
   .section-white {
-    @apply bg-background text-primary;
+    @apply bg-card text-foreground;
   }
   .heading-display {
     font-family: var(--font-display);
@@ -109,7 +109,7 @@
     background-color: hsl(var(--ivory));
   }
   .portal-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-foreground/[0.06];
+    @apply bg-card backdrop-blur-sm rounded-xl shadow-sm border border-foreground/[0.06];
   }
   .portal-heading {
     font-family: var(--font-display);
@@ -136,7 +136,7 @@
   /* Immersive player */
   .player-dark {
     background: hsl(var(--navy));
-    color: hsl(var(--ivory));
+    color: hsl(var(--white));
   }
 
   /* Underline input */

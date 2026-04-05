@@ -2,13 +2,13 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const Hero = () => (
-  <section className="section-navy min-h-screen flex items-center justify-center pt-16">
+  <section className="bg-background min-h-screen flex items-center justify-center pt-16">
     <div className="container mx-auto px-6 text-center">
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="text-silver/40 text-xs tracking-[0.3em] font-medium"
+        className="text-muted-foreground text-xs tracking-[0.3em] font-medium"
       >
         INNER WORK FOR REAL LIFE
       </motion.span>
@@ -17,7 +17,7 @@ const Hero = () => (
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="heading-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl max-w-5xl mx-auto leading-[0.9] mt-6"
+        className="heading-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl max-w-5xl mx-auto leading-[0.9] mt-6 text-foreground"
       >
         A WORLD WHERE PEOPLE HEAL THEMSELVES
       </motion.h1>
@@ -26,7 +26,7 @@ const Hero = () => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="mt-8 text-silver/70 font-body text-base md:text-lg max-w-2xl mx-auto leading-relaxed"
+        className="mt-8 text-muted-foreground font-body text-base md:text-lg max-w-2xl mx-auto leading-relaxed"
       >
         MINDCAST is a community, a platform, and a weekly practice built around one idea — that healing is a skill anyone can learn.
       </motion.p>
@@ -48,7 +48,7 @@ const Hero = () => (
         className="mt-16 flex flex-wrap justify-center gap-8 md:gap-16"
       >
         {["WEEKLY LIVE EVENTS", "4 DIGITAL TOOLS", "FOUNDING COMMUNITY OPEN"].map((stat) => (
-          <span key={stat} className="text-silver/30 text-xs tracking-[0.2em] font-medium">{stat}</span>
+          <span key={stat} className="text-muted-foreground/50 text-xs tracking-[0.2em] font-medium">{stat}</span>
         ))}
       </motion.div>
     </div>
