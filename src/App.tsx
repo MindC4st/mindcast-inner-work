@@ -44,6 +44,10 @@ import PortalDownloads from "./pages/portal/PortalDownloads";
 import PortalSettings from "./pages/portal/PortalSettings";
 import PortalProgress from "./pages/portal/PortalProgress";
 import PortalAdmin from "./pages/portal/PortalAdmin";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import RefundPage from "./pages/RefundPage";
+import SafeguardingPage from "./pages/SafeguardingPage";
 
 const queryClient = new QueryClient();
 
