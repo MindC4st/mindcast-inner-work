@@ -48,6 +48,7 @@ const AppRoutes = () => (
     <Route path="/classic" element={<Index />} />
     <Route path="/auth" element={<Auth />} />
     <Route path="/onboarding" element={<Onboarding />} />
+    <Route path="/admin" element={<AdminLanding />} />
     <Route path="/admin/sessions" element={<AdminSessions />} />
     <Route path="/admin/sessions/:id" element={<AdminSessionEditor />} />
     <Route path="/admin/history" element={<AdminHistory />} />
