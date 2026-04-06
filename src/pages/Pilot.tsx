@@ -41,7 +41,7 @@ const faqs = [
   { q: "What happens after the 10 weeks?", a: "Pilot members will have first access to the full MINDCAST membership when it launches. Your founding member pricing will be locked in." },
 ];
 
-const AGE_OPTIONS = ["Under 25", "25–34", "35–44", "45–54", "55–64", "65+"];
+const AGE_OPTIONS = ["30–35", "35–40"];
 
 const TextareaWithCount = ({ label, required, placeholder, maxLength, value, onChange, rows = 3 }: {
   label: string; required?: boolean; placeholder: string; maxLength: number; value: string; onChange: (v: string) => void; rows?: number;
@@ -545,7 +545,7 @@ const Pilot = () => {
                       </p>
 
                       <div>
-                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">HOW OLD ARE YOU? *</label>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">WHAT AGE RANGE ARE YOU IN? *</label>
                         <select
                           required
                           value={formData.ageRange}
@@ -557,6 +557,9 @@ const Pilot = () => {
                             <option key={o} value={o} className="bg-[hsl(var(--navy))]">{o}</option>
                           ))}
                         </select>
+                        <p className="text-cream/30 text-[11px] font-body mt-2 leading-relaxed">
+                          Our pilot programme is designed for people aged 30–40. This helps us create a group with shared life-stage context, which strengthens the experience for everyone. As Mindcast grows, we'll be opening groups for other age ranges — this is just where we're starting.
+                        </p>
                       </div>
 
                       <TextareaWithCount
