@@ -5,11 +5,8 @@ import { Link, useLocation } from "react-router-dom";
 import logoNavLight from "@/assets/logo-cream.png";
 
 const navLinks = [
-  { label: "LIVE", to: "/live" },
-  { label: "RESOURCES", to: "/resources" },
-  { label: "MEMBERSHIP", to: "/membership" },
-  { label: "ECOSYSTEM", to: "/ecosystem" },
   { label: "ABOUT", to: "/about" },
+  { label: "JOIN THE PILOT", to: "/pilot" },
 ];
 
 const Navbar = () => {
@@ -38,8 +35,8 @@ const Navbar = () => {
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
-          <Link to="/auth" className="text-xs font-body font-extrabold tracking-widest text-cream/50 hover:text-cream transition-colors py-2 px-6 border border-cream/20 hover:border-cream/40">MEMBER LOGIN</Link>
-          <Link to="/membership" className="text-xs font-body font-extrabold tracking-widest text-navy bg-cream hover:bg-cream/90 transition-colors py-2 px-6" style={{ color: "hsl(210,56%,14%)" }}>JOIN NOW</Link>
+          <Link to="/portal/login" className="text-xs font-body font-extrabold tracking-widest text-cream/50 hover:text-cream transition-colors py-2 px-6 border border-cream/20 hover:border-cream/40">MEMBER LOGIN</Link>
+          <Link to="/pilot" className="text-xs font-body font-extrabold tracking-widest text-navy bg-cream hover:bg-cream/90 transition-colors py-2 px-6" style={{ color: "hsl(210,56%,14%)" }}>RESERVE YOUR SPOT</Link>
         </div>
 
         <button
@@ -70,8 +67,8 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="flex gap-3 mt-4">
-            <Link to="/auth" className="text-xs font-body font-extrabold tracking-widest text-cream/50 border border-cream/20 py-2 px-6" onClick={() => setMobileOpen(false)}>MEMBER LOGIN</Link>
-            <Link to="/membership" className="text-xs font-body font-extrabold tracking-widest bg-cream py-2 px-6" style={{ color: "hsl(210,56%,14%)" }} onClick={() => setMobileOpen(false)}>JOIN NOW</Link>
+            <Link to="/portal/login" className="text-xs font-body font-extrabold tracking-widest text-cream/50 border border-cream/20 py-2 px-6" onClick={() => setMobileOpen(false)}>MEMBER LOGIN</Link>
+            <Link to="/pilot" className="text-xs font-body font-extrabold tracking-widest bg-cream py-2 px-6" style={{ color: "hsl(210,56%,14%)" }} onClick={() => setMobileOpen(false)}>RESERVE YOUR SPOT</Link>
           </div>
         </motion.div>
       )}

@@ -30,6 +30,8 @@ import Resources from "./pages/Resources";
 import Membership from "./pages/Membership";
 import About from "./pages/About";
 import EcosystemPage from "./pages/EcosystemPage";
+import Pilot from "./pages/Pilot";
+import ComingSoon from "./pages/ComingSoon";
 import Session from "./pages/Session";
 import NotFound from "./pages/NotFound";
 import JoinEntry from "./pages/JoinEntry";
@@ -82,14 +84,15 @@ const AppRoutes = () => (
     <Route path="/display" element={<WelcomeWall />} />
     <Route path="/display/goals" element={<GoalWall />} />
     <Route path="/display/wordcloud" element={<WordCloud />} />
-    <Route path="/little-minds" element={<SubAppLanding />} />
-    <Route path="/signal" element={<SubAppLanding />} />
-    <Route path="/connect" element={<SubAppLanding />} />
-    <Route path="/live" element={<Live />} />
-    <Route path="/resources" element={<Resources />} />
-    <Route path="/membership" element={<Membership />} />
+    <Route path="/little-minds" element={<Navigate to="/" replace />} />
+    <Route path="/signal" element={<Navigate to="/" replace />} />
+    <Route path="/connect" element={<Navigate to="/" replace />} />
+    <Route path="/live" element={<ComingSoon />} />
+    <Route path="/resources" element={<ComingSoon />} />
+    <Route path="/membership" element={<Navigate to="/pilot" replace />} />
     <Route path="/about" element={<About />} />
-    <Route path="/ecosystem" element={<EcosystemPage />} />
+    <Route path="/ecosystem" element={<ComingSoon />} />
+    <Route path="/pilot" element={<Pilot />} />
     <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
     <Route path="/session/:sessionId" element={<Session />} />
     <Route path="/portal/login" element={<PortalLogin />} />
