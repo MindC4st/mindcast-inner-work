@@ -3,11 +3,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
 
-const team = [
-  { name: "JORDAN COLE", role: "Founder & Vision", bio: "Former tech founder. Lifelong student of human psychology." },
-  { name: "PRIYA NAIR", role: "Head of Community", bio: "Community builder. Facilitator. Deep listener." },
-  { name: "MIKE TRAN", role: "Product & Design", bio: "Building tools that make inner work accessible." },
-];
 
 const values = [
   { title: "CONSENT BEFORE EVERYTHING", desc: "You decide what you share, what you explore, and how far you go. Always." },
@@ -78,19 +73,27 @@ const About = () => (
       </div>
     </section>
 
-    {/* The Team */}
+    {/* The Founder */}
     <section className="section-white py-24">
       <div className="container mx-auto px-6">
-        <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">THE TEAM</h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {team.map((t, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-[3px] border-primary p-6 text-center">
-              <ImagePlaceholder label="Team portrait" className="w-full h-48 mb-6" />
-              <h3 className="font-display text-xl tracking-wider text-primary mb-1">{t.name}</h3>
-              <p className="text-xs tracking-widest text-primary/40 mb-3">{t.role}</p>
-              <p className="text-sm text-muted-foreground font-body">{t.bio}</p>
-            </motion.div>
-          ))}
+        <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">THE FOUNDER</h2>
+        <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <ImagePlaceholder label="Ashleigh Grant" className="w-full h-[28rem]" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
+            <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH GRANT</h3>
+            <p className="text-xs tracking-[0.3em] text-primary/40 mb-6">FOUNDER & FACILITATOR</p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              Ashleigh is the founder of Mindcast and the person who runs the room every week. She built this because she needed it and couldn't find it — a structured, honest, community-based space for people who are done with passive self-help and ready to actually do the work.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              After years of running businesses, building communities, and quietly asking "why doesn't this kind of space exist?", she decided to build it herself. Mindcast is the result: part live community, part structured practice, part tool for anyone who wants to do the inner work and actually have something to show for it.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed">
+              Based in Taupo, New Zealand. She is not a therapist, not a guru, and not here to tell you what to think. She is here to hold a space where you can figure that out for yourself.
+            </p>
+          </motion.div>
         </div>
       </div>
     </section>
