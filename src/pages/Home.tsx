@@ -620,7 +620,7 @@ const StickyTimeline = () => {
       num: "04",
       title: "YOUR VOICE SHAPES THE ROOM",
       body: "Once a month you nominate the podcast. Your recommendation, your topic, your night to lead. And as a founding member, your feedback shapes what Mindcast becomes.",
-      image: heroPortrait,
+      image: "/images/speaker_group.png",
       badge: true,
     },
   ];
