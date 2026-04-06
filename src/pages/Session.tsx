@@ -263,26 +263,26 @@ const Session = () => {
   return (
     <>
       {/* Top bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-primary border-b-2 border-silver/10">
+      <div className="fixed top-0 left-0 right-0 z-50 border-b-2 border-cream/10" style={{ background: "hsl(210,56%,14%)" }}>
         <div className="container mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="font-display text-lg tracking-widest text-silver">MINDCAST</Link>
+          <Link to="/" className="font-display text-lg tracking-widest text-cream">MINDCAST</Link>
           <div className="hidden md:block text-center">
-            <span className="text-silver/40 text-[10px] tracking-widest">
+            <span className="text-cream/40 text-[10px] tracking-widest">
               SECTION {currentSection + 1} OF {session.sections.length} — {sect.header}
             </span>
           </div>
-          <button onClick={() => setShowProgress(true)} className="btn-outlined text-[10px] py-1 px-3 flex items-center gap-1">
+          <button onClick={() => setShowProgress(true)} className="text-[10px] py-1 px-3 flex items-center gap-1 border border-cream/20 text-cream/60 hover:text-cream transition-colors tracking-widest">
             <List size={12} /> PROGRESS
           </button>
         </div>
       </div>
 
       {/* Section progress bar */}
-      <div className="fixed top-14 left-0 right-0 z-40 bg-primary/95 border-b border-silver/5 px-4 py-2">
+      <div className="fixed top-14 left-0 right-0 z-40 border-b border-cream/5 px-4 py-2" style={{ background: "hsla(210,56%,14%,0.95)" }}>
         <div className="container mx-auto flex gap-2 overflow-x-auto">
           {session.sections.map((s, i) => (
             <button key={s.id} onClick={() => setCurrentSection(i)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-[10px] tracking-widest whitespace-nowrap border transition-colors ${i === currentSection ? "border-silver bg-silver/10 text-silver" : i < currentSection ? "border-silver/20 text-silver/40" : "border-silver/10 text-silver/20"}`}>
+              className={`flex items-center gap-2 px-3 py-1.5 text-[10px] tracking-widest whitespace-nowrap border transition-colors ${i === currentSection ? "border-cream bg-cream/10 text-cream" : i < currentSection ? "border-cream/20 text-cream/40" : "border-cream/10 text-cream/20"}`}>
               {i < currentSection && <Check size={10} />}
               {s.header.length > 15 ? s.header.slice(0, 15) + "…" : s.header}
             </button>
@@ -294,7 +294,7 @@ const Session = () => {
       <AnimatePresence>
         {showWelcomeBack && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="fixed top-28 left-1/2 -translate-x-1/2 z-50 bg-silver text-primary px-6 py-3 text-xs tracking-widest">
+            className="fixed top-28 left-1/2 -translate-x-1/2 z-50 bg-cream text-navy px-6 py-3 text-xs tracking-widest">
             WELCOME BACK — YOUR PROGRESS IS SAVED
           </motion.div>
         )}
