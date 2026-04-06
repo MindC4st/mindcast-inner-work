@@ -260,7 +260,7 @@ const Workbook = () => {
       <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex gap-1.5">
           {SECTIONS.map((_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === step ? "bg-white" : i < step ? "bg-foreground/25" : "bg-foreground/[0.06]"}`} />
+            <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === step ? "bg-primary" : i < step ? "bg-foreground/25" : "bg-foreground/[0.06]"}`} />
           ))}
         </div>
         <div className="flex items-center gap-2">
