@@ -369,7 +369,7 @@ const HorizontalPanels = () => {
       title: "THE PROBLEM",
       headline: "YOU'VE TRIED THE GYM CULT.",
       body: "You've done book clubs. Online courses. Morning routines. None of it stuck — because consuming ideas without structure, reflection, or community doesn't change how you actually live.",
-      image: heroCouple,
+      video: "/videos/women_with_notepad.mp4",
     },
     {
       num: "02",
@@ -387,7 +387,7 @@ const HorizontalPanels = () => {
       title: "THE SPACE",
       headline: "TAUPO'S MOST INTENTIONAL TUESDAY NIGHT.",
       body: null,
-      image: heroPortrait,
+      video: "/videos/talking_by_pool.mp4",
       overlay: true,
       details: "Tuesdays 5:30\u20137:30pm \u00b7 111 Jarden Mile, Taupo",
     },
@@ -396,7 +396,7 @@ const HorizontalPanels = () => {
       title: "THE VISION",
       headline: "THIS IS THE PILOT.",
       body: "Mindcast is building something bigger — a platform for the ideas that shape how you live. The pilot group is where it starts. Founding members shape what it becomes.",
-      image: flatlayRoadmap,
+      video: "/videos/group_laughing.mp4",
       cta: true,
     },
   ];
@@ -467,14 +467,11 @@ const HorizontalPanels = () => {
                 )}
               </div>
 
-              {p.image && (
+              {p.video && (
                 <div className={`relative overflow-hidden ${p.overlay ? "h-[500px]" : "h-[400px]"}`}>
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                  <video autoPlay muted loop playsInline className="w-full h-full object-cover">
+                    <source src={p.video} type="video/mp4" />
+                  </video>
                   {p.overlay && (
                     <div className="absolute inset-0" style={{ background: "rgba(53,133,175,0.15)" }} />
                   )}
