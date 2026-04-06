@@ -31,6 +31,7 @@ import Membership from "./pages/Membership";
 import About from "./pages/About";
 import EcosystemPage from "./pages/EcosystemPage";
 import Pilot from "./pages/Pilot";
+import PilotSuccess from "./pages/PilotSuccess";
 import ComingSoon from "./pages/ComingSoon";
 import Session from "./pages/Session";
 import NotFound from "./pages/NotFound";
@@ -93,6 +94,7 @@ const AppRoutes = () => (
     <Route path="/about" element={<About />} />
     <Route path="/ecosystem" element={<ComingSoon />} />
     <Route path="/pilot" element={<Pilot />} />
+    <Route path="/pilot/success" element={<PilotSuccess />} />
     <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
     <Route path="/session/:sessionId" element={<Session />} />
     <Route path="/portal/login" element={<PortalLogin />} />
