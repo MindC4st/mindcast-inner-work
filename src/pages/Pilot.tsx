@@ -38,6 +38,8 @@ const Pilot = () => {
     canAttend: false,
     agreeTerms: false,
   });
+  const [waitlistData, setWaitlistData] = useState({ firstName: "", lastName: "", email: "" });
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
