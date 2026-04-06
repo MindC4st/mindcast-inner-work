@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Radio, History, Users, Baby, BookOpen } from "lucide-react";
+import { Calendar, Radio, History, Users, Baby, BookOpen, Clapperboard } from "lucide-react";
 
 const AdminLanding = () => {
   const { user, loading } = useAuth();
@@ -38,6 +38,7 @@ const AdminLanding = () => {
     { label: "Kids Planning", icon: Baby, to: "/admin/kids", desc: "Plan children's programme" },
     { label: "Members", icon: Users, to: "/admin/members", desc: "Manage members and NFC IDs" },
     { label: "Curriculum", icon: BookOpen, to: "/admin/curriculum", desc: "52-week programme overview" },
+    { label: "Session Runner", icon: Clapperboard, to: "/admin/session-runner", desc: "Run live sessions on TV" },
   ];
 
   return (
