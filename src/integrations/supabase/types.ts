@@ -657,6 +657,69 @@ export type Database = {
           },
         ]
       }
+      pilot_applications: {
+        Row: {
+          age_range: string | null
+          agreed_terms: boolean | null
+          application_status: string
+          cohort: string | null
+          confirmed_attendance: boolean | null
+          created_at: string
+          current_obstacles: string | null
+          current_work: string | null
+          email: string
+          full_name: string
+          hoped_outcome: string | null
+          id: string
+          paid_at: string | null
+          past_achievement: string | null
+          phone: string | null
+          stripe_customer_id: string | null
+          stripe_session_id: string | null
+          what_led_you_here: string | null
+        }
+        Insert: {
+          age_range?: string | null
+          agreed_terms?: boolean | null
+          application_status?: string
+          cohort?: string | null
+          confirmed_attendance?: boolean | null
+          created_at?: string
+          current_obstacles?: string | null
+          current_work?: string | null
+          email: string
+          full_name: string
+          hoped_outcome?: string | null
+          id?: string
+          paid_at?: string | null
+          past_achievement?: string | null
+          phone?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          what_led_you_here?: string | null
+        }
+        Update: {
+          age_range?: string | null
+          agreed_terms?: boolean | null
+          application_status?: string
+          cohort?: string | null
+          confirmed_attendance?: boolean | null
+          created_at?: string
+          current_obstacles?: string | null
+          current_work?: string | null
+          email?: string
+          full_name?: string
+          hoped_outcome?: string | null
+          id?: string
+          paid_at?: string | null
+          past_achievement?: string | null
+          phone?: string | null
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          what_led_you_here?: string | null
+        }
+        Relationships: []
+      }
       pilot_registrations: {
         Row: {
           can_attend_tuesdays: boolean
