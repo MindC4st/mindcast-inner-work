@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Wifi, WifiOff, AlertCircle, Camera } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Wifi, WifiOff, AlertCircle, Camera, Smile, Frown, Angry, Zap, Moon, ShieldAlert, Heart, HelpCircle, Sun, Star } from "lucide-react";
 
-const MOOD_EMOJIS = [
-  { emoji: "😊", label: "happy" },
-  { emoji: "😔", label: "sad" },
-  { emoji: "😤", label: "annoyed" },
-  { emoji: "😮", label: "excited" },
-  { emoji: "😴", label: "tired" },
-  { emoji: "😨", label: "worried" },
-  { emoji: "😌", label: "calm" },
-  { emoji: "🤔", label: "curious" },
-  { emoji: "☺️", label: "grateful" },
+const MOOD_ICONS: { icon: React.ElementType; label: string }[] = [
+  { icon: Smile, label: "happy" },
+  { icon: Frown, label: "sad" },
+  { icon: Angry, label: "annoyed" },
+  { icon: Zap, label: "excited" },
+  { icon: Moon, label: "tired" },
+  { icon: ShieldAlert, label: "worried" },
+  { icon: Heart, label: "calm" },
+  { icon: HelpCircle, label: "curious" },
+  { icon: Sun, label: "grateful" },
 ];
 
 const SECTIONS = [
@@ -154,7 +154,7 @@ const KidsWorkbook = () => {
   if (done) return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="text-center">
-        <span className="text-5xl mb-4 block">🌟</span>
+        <Star className="w-12 h-12 text-foreground/60 mx-auto mb-4" />
         <h2 className="font-display text-2xl font-bold text-foreground mb-2">Amazing job!</h2>
         <p className="text-foreground/30 font-body text-sm mb-8">Your big thinking book is saved.</p>
         <button onClick={() => navigate("/dashboard")} className="text-foreground/20 text-xs font-body hover:text-foreground/40 transition-colors">Back to home</button>
@@ -202,10 +202,10 @@ const KidsWorkbook = () => {
         <div>
           <p className="text-foreground/30 text-sm font-body mb-6 text-center">Circle the face that shows how you feel:</p>
           <div className="grid grid-cols-3 gap-3 mb-6">
-            {MOOD_EMOJIS.map(({ emoji, label }) => (
+            {MOOD_ICONS.map(({ icon: Icon, label }) => (
               <button key={label} onClick={() => updateField("mood_emoji", label)}
                 className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${entry.mood_emoji === label ? "bg-foreground/10 border border-foreground/20 scale-105" : "border border-foreground/[0.04] hover:border-foreground/10"}`}>
-                <span className="text-3xl">{emoji}</span>
+                <Icon className="w-8 h-8 text-foreground/60" />
                 <span className="text-foreground/40 text-[10px] font-body">{label}</span>
               </button>
             ))}
@@ -296,7 +296,7 @@ const KidsWorkbook = () => {
       return (
         <div>
           <div className="bg-foreground/[0.03] border border-foreground/[0.08] rounded-xl p-5 mb-4">
-            <p className="text-center text-lg mb-2">🌟</p>
+            <div className="flex justify-center mb-2"><Star className="w-5 h-5 text-foreground/40" /></div>
             <p className="text-foreground/40 text-sm font-body text-center leading-relaxed mb-4">A question that came to me during today's session was:</p>
             <textarea value={entry.little_minds_question || ""} onChange={(e) => updateField("little_minds_question", e.target.value)} rows={3} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My big question..." autoFocus />
           </div>
@@ -385,7 +385,7 @@ const KidsWorkbook = () => {
           </button>
         ) : (
           <button onClick={finish} className="flex items-center gap-2 px-6 py-3 bg-emerald-500/20 text-emerald-400 text-xs font-display font-bold hover:bg-emerald-500/30 transition-colors">
-            Done! 🌟 <Check size={14} />
+            Done! <Check size={14} />
           </button>
         )}
       </div>
