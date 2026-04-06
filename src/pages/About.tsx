@@ -31,25 +31,25 @@ const About = () => (
     <section className="section-white py-24">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <div className="w-full h-96 overflow-hidden rounded-sm">
+          <div className="w-full h-[32rem] overflow-hidden rounded-sm">
             <video src="/videos/women_with_notepad.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" />
           </div>
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              I started Mindcast with a question I couldn't stop asking: what if there was a place — like church, like a good AA meeting, like the best therapy group you never found — where you could show up every week, work on yourself, and leave with something real?
+              I tried the gym. I tried book clubs. Neither could give me what I was looking for.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              Not a course. Not a guru. Not a highlight reel.
+              The gym culture was encouraging, but I was only there out of necessity for my physical wellbeing. The external motivators kept me going — moving up the leaderboard, chasing the highest status level for the dopamine hit — but I never actually wanted to be there. And I only read non-fiction, so joining a book club wasn't going to work either. I'd heard some people go to book club and don't even read the books.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              A structured practice. Built on evidence, consent, and the kind of honest community that actually changes people.
+              Through my own self-discovery journey, I figured out that I love structure and I love mental stimulation — and I thought surely there must be others out there who feel the same way. I've read so many self-help books and I listen to podcasts all the time, but I just can't retain the information. I know I'm extrinsically motivated. I need to be held accountable to something in order to achieve it.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              I couldn't find it. So I built it.
+              That's where the idea came from. I wanted to create a book club — but for podcasts. For people who actually want to implement what they learn.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
-              Mindcast exists for anyone who believes that healing is a skill — not a luxury, not a mystery, not something that happens to you. Something you learn. Something you practise. One week at a time.
+              So I built Mindcast.
             </p>
           </div>
         </div>
@@ -89,14 +89,21 @@ const About = () => (
             <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH GRANT</h3>
             <p className="text-xs tracking-[0.3em] text-primary/40 mb-6">FOUNDER & FACILITATOR</p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              Ashleigh is the founder of Mindcast and the person who runs the room every week. She built this because she needed it and couldn't find it — a structured, honest, community-based space for people who are done with passive self-help and ready to actually do the work.
+              I'm looking for people on a self-development journey — between the ages of 30 and 40ish, male and female — to take part in my 10-week test group. I am in no way "the expert" and I certainly won't be telling you what to think or do.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              After years of running businesses, building communities, and quietly asking "why doesn't this kind of space exist?", she decided to build it herself. Mindcast is the result: part live community, part structured practice, part tool for anyone who wants to do the inner work and actually have something to show for it.
+              My intention with these sessions is to use AI to prompt us with the guiding questions we need to ask ourselves to solve our own issues. I believe the more we learn about ourselves — recognising our patterns and uncovering why we do things the way we do — the closer we get to finding the answers we need.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              I'm running these sessions to hold myself accountable, and to test whether this is something worth offering in our town. The fee you pay is to hold yourselves accountable too, and to help cover the resources and venue costs.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              I hope we form the best founding group for this project — and that you're joining for your own enjoyment and learning, not just to support me. I hope this group can go on to shape the next phase of Mindcast in a way that benefits the wider community.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
-              Based in Taupo, New Zealand. She is not a therapist, not a guru, and not here to tell you what to think. She is here to hold a space where you can figure that out for yourself.
+              In a world of technology and lost connection, I truly believe face-to-face interactions and groups like this need to be rebuilt. That's why we kickstart this pilot with Johann Hari and Steven Bartlett talking about just that.
             </p>
+            <p className="text-xs tracking-[0.2em] text-primary/40 mt-6">BASED IN TAUPO, NEW ZEALAND</p>
           </motion.div>
         </div>
       </div>
