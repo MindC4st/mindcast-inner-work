@@ -602,7 +602,7 @@ const StickyTimeline = () => {
       num: "01",
       title: "LISTEN BEFORE YOU ARRIVE",
       body: "Each week I curate one self-development podcast episode for the group. You listen in your own time — on your commute, at the gym, cooking dinner.",
-      image: flatlayRoadmap,
+      image: "/images/headphones_man.png",
     },
     {
       num: "02",
