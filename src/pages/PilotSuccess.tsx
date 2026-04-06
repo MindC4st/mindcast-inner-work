@@ -43,7 +43,7 @@ const PilotSuccess = () => (
               <MapPin className="w-5 h-5 text-cream/60 mt-0.5 shrink-0" />
               <div>
                 <p className="font-display text-sm tracking-wider text-cream/90">LOCATION</p>
-                <p className="font-body text-sm text-cream/60">111 Jarden Mile, Taupo</p>
+                <p className="font-body text-sm text-cream/60">111 Jarden Mile, Taupō</p>
               </div>
             </div>
             <div className="flex items-start gap-4">

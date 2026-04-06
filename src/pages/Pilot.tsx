@@ -121,7 +121,7 @@ const Pilot = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.canAttend) {
-      toast.error("Please confirm you can attend Tuesday evenings in Taupo");
+      toast.error("Please confirm you can attend Tuesday evenings in Taupō");
       return;
     }
     if (!formData.agreeTerms) {
@@ -187,7 +187,7 @@ const Pilot = () => {
                 Welcome to the founding pilot. You'll receive a confirmation email shortly with everything you need to know before Session 1.
               </p>
               <p className="text-cream/40 font-body text-sm mb-12">
-                First session: Tuesday 21 April 2026, 5:30pm — 111 Jarden Mile, Taupo
+                First session: Tuesday 21 April 2026, 5:30pm — 111 Jarden Mile, Taupō
               </p>
               <Link to="/portal/login" className="inline-block text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-3 px-10 hover:bg-cream/90 transition-colors" style={{ color: "hsl(210,56%,14%)" }}>
                 GO TO YOUR PORTAL
@@ -218,7 +218,7 @@ const Pilot = () => {
         <div className="absolute inset-0 bg-[hsl(var(--primary))]/70" />
         <div className="container mx-auto px-6 text-center py-24 max-w-4xl relative z-10">
           <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-cream/40 text-xs tracking-[0.3em] mb-6 block">
-            FOUNDING PILOT — TAUPO, NZ
+            FOUNDING PILOT — TAUPŌ, NZ
           </motion.span>
 
           <motion.h1
@@ -245,7 +245,7 @@ const Pilot = () => {
             transition={{ delay: 0.55 }}
             className="text-cream/45 font-body text-sm md:text-base leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            Mindcast is launching its first live cohort in Taupo, New Zealand. Every Tuesday evening for 10 weeks, a small group of 15 will gather to listen deeply, reflect honestly, and commit to one meaningful change each week. This is not a course. It is a practice.
+            Mindcast is launching its first live cohort in Taupō, New Zealand. Every Tuesday evening for 10 weeks, a small group of 15 will gather to listen deeply, reflect honestly, and commit to one meaningful change each week. This is not a course. It is a practice.
           </motion.p>
 
           {/* Spots Badge */}
@@ -288,7 +288,7 @@ const Pilot = () => {
               {[
                 { icon: Calendar, label: "10 Tuesdays starting 21 April 2026" },
                 { icon: Clock, label: "5:30pm – 7:30pm" },
-                { icon: MapPin, label: "111 Jarden Mile, Taupo" },
+                { icon: MapPin, label: "111 Jarden Mile, Taupō" },
                 { icon: Users, label: "15 founding members only" },
               ].map((d, i) => (
                 <div key={i} className="flex items-center gap-4">
@@ -375,7 +375,7 @@ const Pilot = () => {
               {/* SOLD OUT BANNER */}
               <div className="border-2 border-cream/20 p-6 mb-10 text-center">
                 <span className="text-cream/70 text-xs tracking-[0.3em] font-display font-bold">
-                  THE TAUPO PILOT IS FULL — 15/15 SPOTS TAKEN
+                  THE TAUPŌ PILOT IS FULL — 15/15 SPOTS TAKEN
                 </span>
               </div>
 
@@ -619,7 +619,7 @@ const Pilot = () => {
                           className="mt-0.5 w-4 h-4 accent-cream"
                         />
                         <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
-                          I confirm I can attend Tuesday evenings in Taupo from 21 April 2026
+                          I confirm I can attend Tuesday evenings in Taupō from 21 April 2026
                         </span>
                       </label>
 

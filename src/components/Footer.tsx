@@ -9,7 +9,7 @@ const Footer = () => (
         <div>
           <img src={logoLight} alt="Mindcast" className="h-10 mb-3" />
           <p className="text-cream/40 text-xs font-body leading-relaxed mt-2">
-            Taupo, New Zealand<br />mindcast.co.nz
+            Taupō, New Zealand<br />mindcast.co.nz
           </p>
         </div>
 

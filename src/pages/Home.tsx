@@ -385,11 +385,11 @@ const HorizontalPanels = () => {
     {
       num: "03",
       title: "THE SPACE",
-      headline: "TAUPO'S MOST INTENTIONAL TUESDAY NIGHT.",
+      headline: "TAUPŌ'S MOST INTENTIONAL TUESDAY NIGHT.",
       body: null,
       image: heroPortrait,
       overlay: true,
-      details: "Tuesdays 5:30\u20137:30pm \u00b7 111 Jarden Mile, Taupo",
+      details: "Tuesdays 5:30\u20137:30pm \u00b7 111 Jarden Mile, Taupō",
     },
     {
       num: "04",
@@ -453,7 +453,7 @@ const HorizontalPanels = () => {
                 {p.details && (
                   <div className="mt-6 flex items-center gap-4 flex-wrap" style={{ color: "#c5e3f3" }}>
                     <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><CalendarDays className="w-4 h-4" /> Tuesdays 5:30–7:30pm</span>
-                    <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><MapPin className="w-4 h-4" /> 111 Jarden Mile, Taupo</span>
+                    <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><MapPin className="w-4 h-4" /> 111 Jarden Mile, Taupō</span>
                   </div>
                 )}
                 {p.cta && (
@@ -538,7 +538,7 @@ const PilotGroupSection = () => {
               className="text-[12px] tracking-[0.2em] mb-4 block"
               style={{ fontFamily: "var(--font-display)", color: "#3585af" }}
             >
-              PILOT GROUP · TAUPO · 2025
+              PILOT GROUP · TAUPŌ · 2025
             </span>
             <h2 className="font-body font-black text-[40px] md:text-[56px] leading-[1.05] tracking-[-0.02em] mb-6" style={{ color: "#0f1e35" }}>
               15 SEATS.<br />FOUNDING MEMBERS ONLY.
@@ -559,7 +559,7 @@ const PilotGroupSection = () => {
 
             <div className="flex flex-wrap gap-6 text-[13px] mb-8" style={{ fontFamily: "var(--font-display)", color: "#0f1e35cc" }}>
               <span>📅 Tuesdays 5:30–7:30pm</span>
-              <span>📍 111 Jarden Mile, Taupo</span>
+              <span>📍 111 Jarden Mile, Taupō</span>
               <span>💳 $150 / 10-week term</span>
             </div>
 

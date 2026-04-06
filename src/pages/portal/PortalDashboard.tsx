@@ -51,7 +51,7 @@ const PortalDashboard = () => {
           Welcome back, {firstName}
         </h1>
         <p className="text-sm text-muted-foreground mt-2 font-body font-light">
-          Term 1 — Taupo Pilot
+          Term 1 — Taupō Pilot
         </p>
       </motion.div>
 
