@@ -202,10 +202,10 @@ const KidsWorkbook = () => {
         <div>
           <p className="text-foreground/30 text-sm font-body mb-6 text-center">Circle the face that shows how you feel:</p>
           <div className="grid grid-cols-3 gap-3 mb-6">
-            {MOOD_EMOJIS.map(({ emoji, label }) => (
+            {MOOD_ICONS.map(({ icon: Icon, label }) => (
               <button key={label} onClick={() => updateField("mood_emoji", label)}
                 className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all ${entry.mood_emoji === label ? "bg-foreground/10 border border-foreground/20 scale-105" : "border border-foreground/[0.04] hover:border-foreground/10"}`}>
-                <span className="text-3xl">{emoji}</span>
+                <Icon className="w-8 h-8 text-foreground/60" />
                 <span className="text-foreground/40 text-[10px] font-body">{label}</span>
               </button>
             ))}
