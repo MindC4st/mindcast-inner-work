@@ -20,6 +20,7 @@ import AdminMembers from "./pages/admin/AdminMembers";
 import AdminCurriculum from "./pages/admin/AdminCurriculum";
 import AdminPresenter from "./pages/admin/AdminPresenter";
 import AdminSessionRunner from "./pages/admin/AdminSessionRunner";
+import AdminApplicationsPage from "./pages/admin/AdminApplicationsPage";
 import WorkbookRouter from "./pages/WorkbookRouter";
 import Dashboard from "./pages/Dashboard";
 import Checkin from "./pages/Checkin";
