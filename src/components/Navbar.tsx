@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import logoNavLight from "@/assets/logo-light.png";
+import logoNavLight from "@/assets/logo-cream.png";
 
 const navLinks = [
   { label: "LIVE", to: "/live" },

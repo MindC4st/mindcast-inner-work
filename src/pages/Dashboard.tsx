@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoNavLight from "@/assets/logo-light.png";
+import logoNavLight from "@/assets/logo-cream.png";
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();

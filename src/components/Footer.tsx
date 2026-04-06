@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoLight from "@/assets/logo-light-tagline.png";
+import logoLight from "@/assets/logo-cream.png";
 
 const Footer = () => (
   <footer className="section-navy relative" style={{ borderTop: "1px solid rgba(53,133,175,0.2)" }}>
