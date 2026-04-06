@@ -53,6 +53,9 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import RefundPage from "./pages/RefundPage";
 import SafeguardingPage from "./pages/SafeguardingPage";
+import SignalLanding from "./pages/SignalLanding";
+import LittleMindsLanding from "./pages/LittleMindsLanding";
+import ConnectLanding from "./pages/ConnectLanding";
 
 const queryClient = new QueryClient();
 
@@ -89,9 +92,9 @@ const AppRoutes = () => (
     <Route path="/display" element={<WelcomeWall />} />
     <Route path="/display/goals" element={<GoalWall />} />
     <Route path="/display/wordcloud" element={<WordCloud />} />
-    <Route path="/little-minds" element={<Navigate to="/" replace />} />
-    <Route path="/signal" element={<Navigate to="/" replace />} />
-    <Route path="/connect" element={<Navigate to="/" replace />} />
+    <Route path="/little-minds" element={<LittleMindsLanding />} />
+    <Route path="/signal" element={<SignalLanding />} />
+    <Route path="/connect" element={<ConnectLanding />} />
     <Route path="/live" element={<ComingSoon />} />
     <Route path="/resources" element={<ComingSoon />} />
     <Route path="/membership" element={<Navigate to="/pilot" replace />} />
