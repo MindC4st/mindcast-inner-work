@@ -283,11 +283,11 @@ const Pilot = () => {
           <div className="border-2 border-cream/15 p-8 md:p-10">
             <div className="flex flex-col md:flex-row gap-8 items-start">
               {/* Podcast card thumbnail */}
-              <div className="w-full md:w-48 h-48 md:h-48 flex-shrink-0 overflow-hidden">
+              <div className="w-full md:w-56 flex-shrink-0 overflow-hidden rounded-sm">
                 <img
                   src="/images/johann_hari_podcast.jpg"
                   alt="Johann Hari on Diary of a CEO"
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto object-contain"
                 />
               </div>
 
