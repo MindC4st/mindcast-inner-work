@@ -40,6 +40,7 @@ import Session from "./pages/Session";
 import NotFound from "./pages/NotFound";
 import JoinEntry from "./pages/JoinEntry";
 import JoinSession from "./pages/JoinSession";
+import ResetPassword from "./pages/ResetPassword";
 import PortalLogin from "./pages/portal/PortalLogin";
 import PortalDashboard from "./pages/portal/PortalDashboard";
 import PortalWeek from "./pages/portal/PortalWeek";
@@ -67,6 +68,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, role, loading } = useAuth();
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><span className="text-muted-foreground text-xs tracking-widest animate-pulse">LOADING...</span></div>;
+  if (!session) return <Navigate to="/portal/login" replace />;
+  if (role !== "facilitator") return <Navigate to="/portal/dashboard" replace />;
+  return <>{children}</>;
+};
+
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Home />} />
@@ -75,19 +84,19 @@ const AppRoutes = () => (
     <Route path="/onboarding" element={<Onboarding />} />
     <Route path="/join" element={<JoinEntry />} />
     <Route path="/join/:code" element={<JoinSession />} />
-    <Route path="/admin" element={<AdminLanding />} />
-    <Route path="/admin/sessions" element={<AdminSessions />} />
-    <Route path="/admin/sessions/:id" element={<AdminSessionEditor />} />
-    <Route path="/admin/history" element={<AdminHistory />} />
-    <Route path="/admin/live" element={<AdminLive />} />
-    <Route path="/admin/framework" element={<AdminFramework />} />
-    <Route path="/admin/kids" element={<AdminKids />} />
-    <Route path="/admin/members" element={<AdminMembers />} />
-    <Route path="/admin/curriculum" element={<AdminCurriculum />} />
-    <Route path="/admin/present/:id" element={<AdminPresenter />} />
-    <Route path="/admin/session-runner" element={<AdminSessionRunner />} />
-    <Route path="/admin/applications" element={<AdminApplicationsPage />} />
-    <Route path="/admin/emails" element={<AdminEmailReminders />} />
+    <Route path="/admin" element={<AdminRoute><AdminLanding /></AdminRoute>} />
+    <Route path="/admin/sessions" element={<AdminRoute><AdminSessions /></AdminRoute>} />
+    <Route path="/admin/sessions/:id" element={<AdminRoute><AdminSessionEditor /></AdminRoute>} />
+    <Route path="/admin/history" element={<AdminRoute><AdminHistory /></AdminRoute>} />
+    <Route path="/admin/live" element={<AdminRoute><AdminLive /></AdminRoute>} />
+    <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
+    <Route path="/admin/kids" element={<AdminRoute><AdminKids /></AdminRoute>} />
+    <Route path="/admin/members" element={<AdminRoute><AdminMembers /></AdminRoute>} />
+    <Route path="/admin/curriculum" element={<AdminRoute><AdminCurriculum /></AdminRoute>} />
+    <Route path="/admin/present/:id" element={<AdminRoute><AdminPresenter /></AdminRoute>} />
+    <Route path="/admin/session-runner" element={<AdminRoute><AdminSessionRunner /></AdminRoute>} />
+    <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
+    <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
     <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/checkin" element={<Checkin />} />
@@ -107,6 +116,7 @@ const AppRoutes = () => (
     <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
     <Route path="/session/:sessionId" element={<Session />} />
     <Route path="/portal/login" element={<PortalLogin />} />
+    <Route path="/reset-password" element={<ResetPassword />} />
     <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
     <Route path="/portal/dashboard" element={<ProtectedRoute><PortalDashboard /></ProtectedRoute>} />
     <Route path="/portal/week/:weekNumber" element={<ProtectedRoute><PortalWeek /></ProtectedRoute>} />
