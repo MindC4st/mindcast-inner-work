@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Check, MapPin, Calendar, Clock, Users, Zap, Headphones, BookOpen, BarChart3, Share2, Lock } from "lucide-react";
+import { Check, MapPin, Calendar, Clock, Users, Zap, Headphones, BookOpen, BarChart3, Share2, Lock, DollarSign } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -232,7 +232,7 @@ const Pilot = () => {
                 </div>
               ))}
               <div className="flex items-center gap-4 sm:col-span-2">
-                <span className="text-lg flex-shrink-0">💰</span>
+                <DollarSign className="w-5 h-5 text-primary flex-shrink-0" />
                 <span className="font-body text-sm text-foreground">$150 for the full 10-week term (one payment)</span>
               </div>
             </div>

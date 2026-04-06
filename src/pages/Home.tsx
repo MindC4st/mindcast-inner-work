@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Headphones, ClipboardList, MessageCircle, CalendarDays, MapPin } from "lucide-react";
 import heroCouple from "@/assets/hero-couple.jpg";
 import heroPortrait from "@/assets/hero-portrait.jpg";
 import founderPortrait from "@/assets/founder-portrait.jpg";
@@ -88,10 +88,10 @@ const CinematicNav = () => {
             </Link>
           ) : (
             <Link
-              to="/membership"
+              to="/pilot"
               className="px-5 py-2 border border-cream/30 text-cream text-[11px] font-bold tracking-[0.12em] font-body hover:bg-cream hover:text-[#0f1e35] transition-all"
             >
-              JOIN WAITLIST
+              JOIN THE PILOT
             </Link>
           )}
         </div>
@@ -377,9 +377,9 @@ const HorizontalPanels = () => {
       headline: "INNER WORK HAS A STRUCTURE.",
       body: null,
       cards: [
-        { icon: "🎧", title: "LISTEN", desc: "A curated podcast episode each week" },
-        { icon: "📋", title: "REFLECT", desc: "Your worksheet. Your insights. Before you arrive." },
-        { icon: "💬", title: "DISCUSS", desc: "Real conversation. Real depth. Every Tuesday." },
+        { icon: "headphones", title: "LISTEN", desc: "A curated podcast episode each week" },
+        { icon: "clipboard", title: "REFLECT", desc: "Your worksheet. Your insights. Before you arrive." },
+        { icon: "message", title: "DISCUSS", desc: "Real conversation. Real depth. Every Tuesday." },
       ],
     },
     {
@@ -389,7 +389,7 @@ const HorizontalPanels = () => {
       body: null,
       image: heroPortrait,
       overlay: true,
-      details: "📅 Tuesdays 5:30–7:30pm · 📍 111 Jarden Mile, Taupo",
+      details: "Tuesdays 5:30\u20137:30pm \u00b7 111 Jarden Mile, Taupo",
     },
     {
       num: "04",
@@ -454,11 +454,11 @@ const HorizontalPanels = () => {
                 )}
                 {p.cta && (
                   <Link
-                    to="/membership"
+                    to="/pilot"
                     className="inline-block mt-8 px-8 py-4 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase transition-all hover:brightness-110"
                     style={{ background: "#3585af" }}
                   >
-                    BECOME A FOUNDING MEMBER →
+                    BECOME A FOUNDING MEMBER
                   </Link>
                 )}
               </div>
