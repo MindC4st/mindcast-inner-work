@@ -19,10 +19,10 @@ const Portal = () => {
         <section className="section-navy min-h-screen flex items-center pt-16">
           <div className="container mx-auto px-6 max-w-md text-center">
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="heading-display text-5xl mb-4">MEMBER PORTAL</motion.h1>
-            <p className="text-silver/50 text-sm mb-12">Use your membership email.</p>
+            <p className="text-cream/50 text-sm mb-12">Use your membership email.</p>
             <form onSubmit={(e) => { e.preventDefault(); if (email && password) { localStorage.setItem("mindcast-auth", "true"); setLoggedIn(true); }}} className="space-y-4">
-              <input type="email" placeholder="EMAIL" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full bg-transparent border-2 border-silver/30 text-silver px-6 py-4 text-sm tracking-widest placeholder:text-silver/30 focus:border-silver focus:outline-none" />
-              <input type="password" placeholder="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full bg-transparent border-2 border-silver/30 text-silver px-6 py-4 text-sm tracking-widest placeholder:text-silver/30 focus:border-silver focus:outline-none" />
+              <input type="email" placeholder="EMAIL" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full bg-transparent border-2 border-cream/30 text-cream px-6 py-4 text-sm tracking-widest placeholder:text-cream/30 focus:border-cream focus:outline-none" />
+              <input type="password" placeholder="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full bg-transparent border-2 border-cream/30 text-cream px-6 py-4 text-sm tracking-widest placeholder:text-cream/30 focus:border-cream focus:outline-none" />
               <button type="submit" className="btn-filled w-full text-xs">ENTER YOUR PORTAL</button>
             </form>
           </div>
@@ -71,7 +71,7 @@ const Portal = () => {
         <div className="container mx-auto px-6 flex items-center justify-between">
           <div>
             <h1 className="heading-display text-4xl md:text-5xl">WELCOME BACK, {userName}</h1>
-            <span className="inline-block mt-3 border-2 border-silver/30 text-silver/60 text-[10px] tracking-widest px-4 py-1">MEMBER — $25/MO</span>
+            <span className="inline-block mt-3 border-2 border-cream/30 text-cream/60 text-[10px] tracking-widest px-4 py-1">MEMBER — $25/MO</span>
           </div>
           <button onClick={() => { localStorage.removeItem("mindcast-auth"); setLoggedIn(false); }} className="btn-outlined text-xs py-2 px-4 flex items-center gap-2"><LogOut size={14} /> LOG OUT</button>
         </div>
@@ -82,9 +82,9 @@ const Portal = () => {
         <div className="container mx-auto px-6">
           <div className="max-w-5xl mx-auto space-y-4">
             <Link to="/session/communication-reset" className="block border-[3px] border-primary bg-primary p-8 hover:bg-primary/90 transition-colors">
-              <span className="text-silver/40 text-[10px] tracking-widest">TONIGHT'S SESSION</span>
-              <h2 className="font-display text-2xl tracking-widest text-silver mt-1">COMMUNICATION RESET</h2>
-              <span className="text-silver/50 text-xs tracking-widest mt-2 inline-flex items-center gap-2">OPEN MODULE →</span>
+              <span className="text-cream/40 text-[10px] tracking-widest">TONIGHT'S SESSION</span>
+              <h2 className="font-display text-2xl tracking-widest text-cream mt-1">COMMUNICATION RESET</h2>
+              <span className="text-cream/50 text-xs tracking-widest mt-2 inline-flex items-center gap-2">OPEN MODULE →</span>
             </Link>
 
             {/* Trust Series */}
@@ -95,7 +95,7 @@ const Portal = () => {
                   const allDone = ["trust-1", "trust-2", "trust-3"].every((id) => {
                     try { const s = localStorage.getItem(`mindcast_session_${id}_progress`); return s && Object.values(JSON.parse(s)).some((v: any) => v?.locked || v?.sealed); } catch { return false; }
                   });
-                  return allDone ? <span className="bg-primary text-silver text-[10px] tracking-widest px-3 py-1">🛡 COMPLETE</span> : null;
+                  return allDone ? <span className="bg-primary text-cream text-[10px] tracking-widest px-3 py-1">🛡 COMPLETE</span> : null;
                 })()}
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -149,7 +149,7 @@ const Portal = () => {
                 {recordings.map((r, i) => (
                   <div key={i} className="relative">
                     <ImagePlaceholderDark label="Recording thumbnail" className="w-full h-24 mb-2" />
-                    {r.locked && <span className="absolute top-2 right-2 bg-silver text-primary text-[9px] tracking-widest px-2 py-0.5">UPGRADE</span>}
+                    {r.locked && <span className="absolute top-2 right-2 bg-cream text-primary text-[9px] tracking-widest px-2 py-0.5">UPGRADE</span>}
                     <p className="text-xs text-primary font-body">{r.title}</p>
                   </div>
                 ))}

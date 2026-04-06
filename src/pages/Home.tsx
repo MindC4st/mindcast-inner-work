@@ -65,7 +65,7 @@ const CinematicNav = () => {
               <a
                 key={l.label}
                 href={l.href}
-                className="text-[11px] font-bold tracking-[0.12em] text-white/60 hover:text-white transition-colors font-body"
+                className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body"
               >
                 {l.label}
               </a>
@@ -73,7 +73,7 @@ const CinematicNav = () => {
               <Link
                 key={l.label}
                 to={l.href}
-                className="text-[11px] font-bold tracking-[0.12em] text-white/60 hover:text-white transition-colors font-body"
+                className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body"
               >
                 {l.label}
               </Link>
@@ -83,13 +83,13 @@ const CinematicNav = () => {
 
         <div className="hidden lg:flex items-center gap-4">
           {session ? (
-            <Link to="/portal/dashboard" className="text-[11px] font-bold tracking-[0.12em] text-white/60 hover:text-white transition-colors font-body">
+            <Link to="/portal/dashboard" className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body">
               DASHBOARD
             </Link>
           ) : (
             <Link
               to="/membership"
-              className="px-5 py-2 border border-white/30 text-white text-[11px] font-bold tracking-[0.12em] font-body hover:bg-white hover:text-[#0f1e35] transition-all"
+              className="px-5 py-2 border border-cream/30 text-cream text-[11px] font-bold tracking-[0.12em] font-body hover:bg-cream hover:text-[#0f1e35] transition-all"
             >
               JOIN WAITLIST
             </Link>
@@ -97,7 +97,7 @@ const CinematicNav = () => {
         </div>
 
         <button
-          className="lg:hidden text-white"
+          className="lg:hidden text-cream"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           {mobileOpen ? (
@@ -127,7 +127,7 @@ const CinematicNav = () => {
                   <a
                     href={l.href}
                     onClick={() => setMobileOpen(false)}
-                    className="text-white text-2xl font-display tracking-widest"
+                    className="text-cream text-2xl font-display tracking-widest"
                   >
                     {l.label}
                   </a>
@@ -135,7 +135,7 @@ const CinematicNav = () => {
                   <Link
                     to={l.href}
                     onClick={() => setMobileOpen(false)}
-                    className="text-white text-2xl font-display tracking-widest"
+                    className="text-cream text-2xl font-display tracking-widest"
                   >
                     {l.label}
                   </Link>
@@ -150,7 +150,7 @@ const CinematicNav = () => {
               <Link
                 to="/membership"
                 onClick={() => setMobileOpen(false)}
-                className="mt-4 px-8 py-3 border border-white/40 text-white text-sm tracking-widest font-body"
+                className="mt-4 px-8 py-3 border border-cream/40 text-cream text-sm tracking-widest font-body"
               >
                 JOIN WAITLIST
               </Link>
@@ -221,7 +221,7 @@ const HeroSection = () => {
           TUNE INTO YOUR INNER SELF
         </motion.span>
 
-        <h1 className="font-body font-black text-white text-[52px] sm:text-[72px] md:text-[96px] lg:text-[120px] uppercase leading-[0.95] tracking-[-0.03em]">
+        <h1 className="font-body font-black text-cream text-[52px] sm:text-[72px] md:text-[96px] lg:text-[120px] uppercase leading-[0.95] tracking-[-0.03em]">
           {"INNER WORK".split(" ").map((w, i) => (
             <span key={i} className="hero-word inline-block mr-[0.25em]">{w}</span>
           ))}
@@ -238,13 +238,13 @@ const HeroSection = () => {
         <div className="hero-cta mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/membership"
-            className="px-8 py-4 bg-white text-[#0f1e35] text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-[#3585af] hover:text-white transition-all"
+            className="px-8 py-4 bg-cream text-[#0f1e35] text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-[#3585af] hover:text-cream transition-all"
           >
             JOIN THE FOUNDING COMMUNITY →
           </Link>
           <a
             href="#practice"
-            className="px-8 py-4 border border-white/40 text-white text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:border-white hover:bg-white/[0.08] transition-all"
+            className="px-8 py-4 border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:border-cream hover:bg-cream/[0.08] transition-all"
           >
             EXPLORE THE PRACTICE
           </a>
@@ -258,14 +258,14 @@ const HeroSection = () => {
         animate={{ opacity: showScroll ? 1 : 0 }}
         transition={{ duration: 0.4 }}
       >
-        <span className="text-[10px] tracking-[0.2em] text-white/50" style={{ fontFamily: "var(--font-display)" }}>
+        <span className="text-[10px] tracking-[0.2em] text-cream/50" style={{ fontFamily: "var(--font-display)" }}>
           SCROLL
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
         >
-          <ChevronDown size={16} className="text-white/50" />
+          <ChevronDown size={16} className="text-cream/50" />
         </motion.div>
       </motion.div>
     </section>
@@ -426,7 +426,7 @@ const HorizontalPanels = () => {
                 <span className="text-[11px] tracking-[0.15em] font-body font-bold mb-3 block" style={{ color: "#3585af" }}>
                   {p.title}
                 </span>
-                <h3 className="font-body font-black text-white text-[36px] md:text-[48px] leading-[1.05] tracking-[-0.02em] mb-6">
+                <h3 className="font-body font-black text-cream text-[36px] md:text-[48px] leading-[1.05] tracking-[-0.02em] mb-6">
                   {p.headline}
                 </h3>
                 {p.body && (
@@ -437,11 +437,11 @@ const HorizontalPanels = () => {
                 {p.cards && (
                   <div className="grid gap-4 mt-4">
                     {p.cards.map((c) => (
-                      <div key={c.title} className="flex items-start gap-4 p-4 border border-white/10">
+                      <div key={c.title} className="flex items-start gap-4 p-4 border border-cream/10">
                         <span className="text-2xl">{c.icon}</span>
                         <div>
-                          <h4 className="font-body font-bold text-white text-sm tracking-wider">{c.title}</h4>
-                          <p className="text-white/60 text-sm font-body">{c.desc}</p>
+                          <h4 className="font-body font-bold text-cream text-sm tracking-wider">{c.title}</h4>
+                          <p className="text-cream/60 text-sm font-body">{c.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -455,7 +455,7 @@ const HorizontalPanels = () => {
                 {p.cta && (
                   <Link
                     to="/membership"
-                    className="inline-block mt-8 px-8 py-4 text-white text-[12px] font-body font-bold tracking-[0.1em] uppercase transition-all hover:brightness-110"
+                    className="inline-block mt-8 px-8 py-4 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase transition-all hover:brightness-110"
                     style={{ background: "#3585af" }}
                   >
                     BECOME A FOUNDING MEMBER →
@@ -561,7 +561,7 @@ const PilotGroupSection = () => {
 
             <Link
               to="/membership"
-              className="block text-center px-8 py-4 text-white text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:shadow-lg transition-all"
+              className="block text-center px-8 py-4 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:shadow-lg transition-all"
               style={{ background: "#3585af" }}
             >
               SECURE MY SPOT →
@@ -634,7 +634,7 @@ const StickyTimeline = () => {
               {String(activeStep).padStart(2, "0")}
             </span>
             <span
-              className="block text-[11px] tracking-[0.2em] mt-4 text-white/20 rotate-[-90deg] origin-center font-display"
+              className="block text-[11px] tracking-[0.2em] mt-4 text-cream/20 rotate-[-90deg] origin-center font-display"
             >
               THE PRACTICE
             </span>
@@ -647,8 +647,8 @@ const StickyTimeline = () => {
             <div key={i} className="timeline-step min-h-screen flex items-center py-20 px-8 md:px-16">
               <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl">
                 <div className="border-l-2 pl-8" style={{ borderColor: "#3585af" }}>
-                  <span className="text-white/20 font-body font-black text-5xl md:hidden mb-4 block">{s.num}</span>
-                  <h3 className="font-body font-bold text-white text-[24px] md:text-[32px] leading-tight mb-4">
+                  <span className="text-cream/20 font-body font-black text-5xl md:hidden mb-4 block">{s.num}</span>
+                  <h3 className="font-body font-bold text-cream text-[24px] md:text-[32px] leading-tight mb-4">
                     {s.title}
                   </h3>
                   <p className="font-body text-[16px] leading-relaxed" style={{ color: "rgba(197,227,243,0.75)" }}>
@@ -704,7 +704,7 @@ const SignalTeaser = () => {
         </span>
         <h2
           ref={headlineRef}
-          className="font-body font-black text-white text-[80px] md:text-[120px] tracking-[-0.03em] leading-none mb-6"
+          className="font-body font-black text-cream text-[80px] md:text-[120px] tracking-[-0.03em] leading-none mb-6"
         >
           SIGNAL.
         </h2>
@@ -714,11 +714,11 @@ const SignalTeaser = () => {
         </p>
         <Link
           to="/signal"
-          className="inline-block mt-10 px-8 py-4 border border-white/40 text-white text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-white hover:text-[#0f1e35] transition-all"
+          className="inline-block mt-10 px-8 py-4 border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-cream hover:text-[#0f1e35] transition-all"
         >
           JOIN THE WAITLIST
         </Link>
-        <p className="mt-6 text-white/30 text-[11px] tracking-[0.1em] font-body">
+        <p className="mt-6 text-cream/30 text-[11px] tracking-[0.1em] font-body">
           Part of the Mindcast ecosystem
         </p>
       </div>
@@ -800,7 +800,7 @@ const ImageGallery = () => {
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                 <span
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-[13px] tracking-[0.2em]"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-cream text-[13px] tracking-[0.2em]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
                   {img.label}
@@ -844,7 +844,7 @@ const FinalCTA = () => {
           whileInView={{ scale: 1, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="font-body font-black text-white text-[64px] md:text-[96px] tracking-[-0.03em] leading-none mb-4"
+          className="font-body font-black text-cream text-[64px] md:text-[96px] tracking-[-0.03em] leading-none mb-4"
         >
           READY?
         </motion.h2>
@@ -857,13 +857,13 @@ const FinalCTA = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/membership"
-            className="px-8 py-4 bg-white text-[#0f1e35] text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-[#3585af] hover:text-white transition-all"
+            className="px-8 py-4 bg-cream text-[#0f1e35] text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-[#3585af] hover:text-cream transition-all"
           >
             REGISTER FOR PILOT GROUP →
           </Link>
           <Link
             to="/signal"
-            className="px-8 py-4 border border-white/40 text-white text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-white/10 transition-all"
+            className="px-8 py-4 border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-cream/10 transition-all"
           >
             JOIN THE SIGNAL WAITLIST
           </Link>

@@ -13,7 +13,7 @@ const Framework = () => (
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        className="block text-center text-silver/40 text-xs tracking-[0.3em] mb-4"
+        className="block text-center text-cream/40 text-xs tracking-[0.3em] mb-4"
       >
         HOW IT WORKS
       </motion.span>
@@ -35,10 +35,10 @@ const Framework = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.15 }}
-            className="border-2 border-silver/20 p-8 text-center"
+            className="border-2 border-cream/20 p-8 text-center"
           >
             <h3 className="heading-display text-3xl md:text-4xl mb-4">{step.title}</h3>
-            <p className="text-silver/60 font-body text-sm leading-relaxed">{step.desc}</p>
+            <p className="text-cream/60 font-body text-sm leading-relaxed">{step.desc}</p>
           </motion.div>
         ))}
       </div>

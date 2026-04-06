@@ -48,13 +48,13 @@ const Live = () => {
       <Navbar />
       <section className="section-navy min-h-[60vh] flex items-center pt-16">
         <div className="container mx-auto px-6 text-center py-24">
-          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-silver/40 text-xs tracking-[0.3em]">
+          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-cream/40 text-xs tracking-[0.3em]">
             AUCKLAND, NZ — SUNDAYS
           </motion.span>
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="heading-display text-5xl sm:text-6xl md:text-8xl max-w-5xl mx-auto leading-[0.9] mt-6">
             THE WEEKLY GATHERING FOR PEOPLE DOING THE INNER WORK
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-8 text-silver/60 font-body text-base max-w-xl mx-auto">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto">
             Every week. One talk. One practice. One community that shows up.
           </motion.p>
         </div>
@@ -76,9 +76,9 @@ const Live = () => {
                 <div className="flex flex-col gap-3">
                   <div className="flex gap-3">
                     <button className="btn-navy text-xs py-3 flex-1">RESERVE MY SPOT</button>
-                    <button className="btn-outlined text-xs py-3 flex-1 border-primary text-primary hover:bg-primary hover:text-silver">LEARN MORE</button>
+                    <button className="btn-outlined text-xs py-3 flex-1 border-primary text-primary hover:bg-primary hover:text-cream">LEARN MORE</button>
                   </div>
-                  {i === 0 && <Link to="/session/communication-reset" className="btn-navy text-xs py-3 text-center bg-silver/10 border-primary/30">OPEN COMPANION MODULE</Link>}
+                  {i === 0 && <Link to="/session/communication-reset" className="btn-navy text-xs py-3 text-center bg-cream/10 border-primary/30">OPEN COMPANION MODULE</Link>}
                 </div>
               </motion.div>
             ))}
@@ -94,7 +94,7 @@ const Live = () => {
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {pastSessions.map((s, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-primary/20 p-6 relative">
-                <span className="absolute top-4 right-4 bg-primary text-silver text-[10px] tracking-widest px-3 py-1">MEMBER ONLY</span>
+                <span className="absolute top-4 right-4 bg-primary text-cream text-[10px] tracking-widest px-3 py-1">MEMBER ONLY</span>
                 <ImagePlaceholder label="Session photo" className="w-full h-36 mb-4" />
                 <p className="text-xs tracking-widest text-primary/40 mb-2">{s.date}</p>
                 <h3 className="font-display text-lg tracking-wider text-primary mb-4">{s.topic}</h3>
@@ -111,9 +111,9 @@ const Live = () => {
           <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE FORMAT</h2>
           <div className="space-y-6">
             {formatSteps.map((step, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="flex gap-6 items-start border-b border-silver/10 pb-6">
-                <span className="font-display text-3xl text-silver/20">{String(i + 1).padStart(2, "0")}</span>
-                <p className="text-silver/70 font-body text-sm pt-2">{step}</p>
+              <motion.div key={i} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="flex gap-6 items-start border-b border-cream/10 pb-6">
+                <span className="font-display text-3xl text-cream/20">{String(i + 1).padStart(2, "0")}</span>
+                <p className="text-cream/70 font-body text-sm pt-2">{step}</p>
               </motion.div>
             ))}
           </div>
@@ -125,7 +125,7 @@ const Live = () => {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 max-w-5xl mx-auto">
             <div className="bg-primary p-12 flex items-center">
-              <h2 className="heading-display text-4xl md:text-5xl text-silver">LITTLE MINDS RUNS ALONGSIDE</h2>
+              <h2 className="heading-display text-4xl md:text-5xl text-cream">LITTLE MINDS RUNS ALONGSIDE</h2>
             </div>
             <div className="bg-background border-[3px] border-primary border-l-0 p-12 flex flex-col justify-center">
               <p className="text-muted-foreground font-body text-sm leading-relaxed mb-6">
@@ -143,11 +143,11 @@ const Live = () => {
           <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">VOICES WE LEARN FROM</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             {speakers.map((s, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-silver/20 p-6 text-center">
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-6 text-center">
                 <ImagePlaceholderDark label="Speaker portrait" className="w-full h-48 mb-4" />
                 <h3 className="font-display text-lg tracking-wider mb-1">{s.name}</h3>
-                <p className="text-silver/50 text-xs mb-2">{s.specialty}</p>
-                <span className="text-silver/30 text-[10px] tracking-widest border border-silver/20 px-3 py-1">{s.tag}</span>
+                <p className="text-cream/50 text-xs mb-2">{s.specialty}</p>
+                <span className="text-cream/30 text-[10px] tracking-widest border border-cream/20 px-3 py-1">{s.tag}</span>
               </motion.div>
             ))}
           </div>

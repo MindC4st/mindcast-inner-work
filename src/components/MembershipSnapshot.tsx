@@ -52,12 +52,12 @@ const MembershipSnapshot = () => (
             transition={{ duration: 0.5, delay: i * 0.1 }}
             className={`border-[3px] p-8 flex flex-col relative ${
               tier.highlighted
-                ? "border-primary bg-primary text-silver"
+                ? "border-primary bg-primary text-cream"
                 : "border-primary bg-background text-primary"
             }`}
           >
             {tier.badge && (
-              <span className="absolute -top-4 left-8 bg-silver text-primary text-xs tracking-widest px-4 py-1 font-medium">
+              <span className="absolute -top-4 left-8 bg-cream text-primary text-xs tracking-widest px-4 py-1 font-medium">
                 {tier.badge}
               </span>
             )}
@@ -65,7 +65,7 @@ const MembershipSnapshot = () => (
             <div className="mb-6">
               <span className="font-display text-5xl">{tier.price}</span>
               {tier.period && (
-                <span className={`text-sm ml-1 ${tier.highlighted ? "text-silver/60" : "text-muted-foreground"}`}>
+                <span className={`text-sm ml-1 ${tier.highlighted ? "text-cream/60" : "text-muted-foreground"}`}>
                   {tier.period}
                 </span>
               )}
@@ -73,8 +73,8 @@ const MembershipSnapshot = () => (
             <ul className="space-y-3 flex-1 mb-8">
               {tier.features.map((f) => (
                 <li key={f} className="flex items-start gap-3 text-sm font-body">
-                  <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${tier.highlighted ? "text-silver/70" : "text-primary/50"}`} />
-                  <span className={tier.highlighted ? "text-silver/80" : "text-muted-foreground"}>{f}</span>
+                  <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${tier.highlighted ? "text-cream/70" : "text-primary/50"}`} />
+                  <span className={tier.highlighted ? "text-cream/80" : "text-muted-foreground"}>{f}</span>
                 </li>
               ))}
             </ul>

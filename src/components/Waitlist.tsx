@@ -29,7 +29,7 @@ const Waitlist = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-silver/50 text-sm mb-12 tracking-wide"
+          className="text-cream/50 text-sm mb-12 tracking-wide"
         >
           The first 100 members shape the community, the format, and the culture.
         </motion.p>
@@ -38,10 +38,10 @@ const Waitlist = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-silver"
+            className="text-cream"
           >
             <p className="font-display text-3xl mb-2">YOU'RE IN.</p>
-            <p className="text-silver/60 text-sm">We'll be in touch soon.</p>
+            <p className="text-cream/60 text-sm">We'll be in touch soon.</p>
           </motion.div>
         ) : (
           <motion.form
@@ -58,7 +58,7 @@ const Waitlist = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full bg-transparent border-2 border-silver/30 text-silver px-6 py-4 text-sm tracking-widest placeholder:text-silver/30 focus:border-silver focus:outline-none transition-colors"
+              className="w-full bg-transparent border-2 border-cream/30 text-cream px-6 py-4 text-sm tracking-widest placeholder:text-cream/30 focus:border-cream focus:outline-none transition-colors"
             />
             <input
               type="email"
@@ -66,12 +66,12 @@ const Waitlist = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-transparent border-2 border-silver/30 text-silver px-6 py-4 text-sm tracking-widest placeholder:text-silver/30 focus:border-silver focus:outline-none transition-colors"
+              className="w-full bg-transparent border-2 border-cream/30 text-cream px-6 py-4 text-sm tracking-widest placeholder:text-cream/30 focus:border-cream focus:outline-none transition-colors"
             />
             <button type="submit" className="btn-filled w-full text-xs">
               JOIN THE FOUNDING COMMUNITY
             </button>
-            <p className="text-silver/30 text-xs tracking-wide">No spam. Just MINDCAST.</p>
+            <p className="text-cream/30 text-xs tracking-wide">No spam. Just MINDCAST.</p>
           </motion.form>
         )}
       </div>

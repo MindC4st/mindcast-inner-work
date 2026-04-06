@@ -41,7 +41,7 @@ const Membership = () => (
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-5xl sm:text-6xl md:text-8xl max-w-4xl mx-auto leading-[0.9]">
           CHOOSE YOUR PRACTICE
         </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-silver/60 font-body text-base max-w-xl mx-auto">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto">
           Every tier gives you access to the MINDCAST ecosystem. Choose what fits your life right now.
         </motion.p>
       </div>
@@ -60,7 +60,7 @@ const Membership = () => (
                   <span className="font-display text-3xl text-primary">FREE</span>
                 </th>
                 <th className="py-6 px-4 text-center bg-primary/5">
-                  <span className="text-[10px] tracking-widest text-silver bg-primary px-3 py-1 mb-2 inline-block">RECOMMENDED</span>
+                  <span className="text-[10px] tracking-widest text-cream bg-primary px-3 py-1 mb-2 inline-block">RECOMMENDED</span>
                   <span className="font-display text-xl tracking-widest text-primary block">MEMBER</span>
                   <span className="font-display text-3xl text-primary">$25<span className="text-sm text-muted-foreground">/mo</span></span>
                 </th>
@@ -99,9 +99,9 @@ const Membership = () => (
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">FREQUENTLY ASKED</h2>
         <Accordion type="single" collapsible>
           {faqs.map((faq, i) => (
-            <AccordionItem key={i} value={`faq-${i}`} className="border-silver/10">
-              <AccordionTrigger className="text-silver/80 text-sm tracking-wider hover:no-underline">{faq.q}</AccordionTrigger>
-              <AccordionContent className="text-silver/50 text-sm font-body leading-relaxed">{faq.a}</AccordionContent>
+            <AccordionItem key={i} value={`faq-${i}`} className="border-cream/10">
+              <AccordionTrigger className="text-cream/80 text-sm tracking-wider hover:no-underline">{faq.q}</AccordionTrigger>
+              <AccordionContent className="text-cream/50 text-sm font-body leading-relaxed">{faq.a}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

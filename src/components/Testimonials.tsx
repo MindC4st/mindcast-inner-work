@@ -37,12 +37,12 @@ const Testimonials = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="border-2 border-silver/20 p-8"
+            className="border-2 border-cream/20 p-8"
           >
-            <p className="text-silver/70 font-body text-sm leading-relaxed mb-8 italic">"{t.quote}"</p>
+            <p className="text-cream/70 font-body text-sm leading-relaxed mb-8 italic">"{t.quote}"</p>
             <div className="flex items-center gap-4">
               <ImagePlaceholderDark label="Portrait" className="w-12 h-12 flex-shrink-0" />
-              <span className="text-silver/40 text-xs tracking-widest">{t.name}</span>
+              <span className="text-cream/40 text-xs tracking-widest">{t.name}</span>
             </div>
           </motion.div>
         ))}

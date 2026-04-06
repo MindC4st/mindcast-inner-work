@@ -17,10 +17,10 @@ const ImagePlaceholder = ({ label, className = "", aspectRatio }: ImagePlacehold
 
 export const ImagePlaceholderDark = ({ label, className = "", aspectRatio }: ImagePlaceholderProps) => (
   <div
-    className={`bg-silver/10 border-2 border-silver/20 flex items-center justify-center text-center p-4 ${className}`}
+    className={`bg-cream/10 border-2 border-cream/20 flex items-center justify-center text-center p-4 ${className}`}
     style={aspectRatio ? { aspectRatio } : undefined}
   >
-    <span className="text-xs tracking-widest text-silver/40 font-medium uppercase">
+    <span className="text-xs tracking-widest text-cream/40 font-medium uppercase">
       [IMAGE: {label}]
     </span>
   </div>

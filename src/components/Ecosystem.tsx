@@ -54,14 +54,14 @@ const Ecosystem = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="border-[3px] border-primary p-8 group hover:bg-primary hover:text-silver transition-colors duration-300 cursor-pointer"
+            className="border-[3px] border-primary p-8 group hover:bg-primary hover:text-cream transition-colors duration-300 cursor-pointer"
           >
-            <p.icon className="w-8 h-8 mb-6 text-primary group-hover:text-silver transition-colors" />
+            <p.icon className="w-8 h-8 mb-6 text-primary group-hover:text-cream transition-colors" />
             <h3 className="font-display text-2xl tracking-wider mb-3">{p.title}</h3>
-            <p className="font-body text-sm text-muted-foreground group-hover:text-silver/70 transition-colors leading-relaxed mb-6">
+            <p className="font-body text-sm text-muted-foreground group-hover:text-cream/70 transition-colors leading-relaxed mb-6">
               {p.desc}
             </p>
-            <ArrowRight className="w-5 h-5 text-primary group-hover:text-silver transition-all group-hover:translate-x-2" />
+            <ArrowRight className="w-5 h-5 text-primary group-hover:text-cream transition-all group-hover:translate-x-2" />
           </motion.div>
         ))}
       </div>

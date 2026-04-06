@@ -34,7 +34,7 @@ const MultipleChoiceReflection = ({ question, options, multiSelect = false, stor
 
   return (
     <div className="mb-4">
-      <p className="text-silver/70 text-xs tracking-[0.2em] mb-6 uppercase">{question}</p>
+      <p className="text-cream/70 text-xs tracking-[0.2em] mb-6 uppercase">{question}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {options.map((opt) => {
           const isActive = selected.includes(opt);
@@ -44,8 +44,8 @@ const MultipleChoiceReflection = ({ question, options, multiSelect = false, stor
               onClick={() => toggle(opt)}
               className={`text-left px-6 py-4 text-xs tracking-widest border-2 transition-all flex items-center justify-between ${
                 isActive
-                  ? "bg-silver text-primary border-silver"
-                  : "border-silver/20 text-silver/70 hover:border-silver/40"
+                  ? "bg-cream text-primary border-cream"
+                  : "border-cream/20 text-cream/70 hover:border-cream/40"
               }`}
             >
               {opt}
@@ -57,7 +57,7 @@ const MultipleChoiceReflection = ({ question, options, multiSelect = false, stor
 
       {showReason && (
         <div className="mt-4">
-          <label className="text-silver/40 text-[10px] tracking-widest block mb-2">WHY I CHOSE THIS (OPTIONAL)</label>
+          <label className="text-cream/40 text-[10px] tracking-widest block mb-2">WHY I CHOSE THIS (OPTIONAL)</label>
           <textarea
             value={reason}
             onChange={(e) => handleReason(e.target.value)}

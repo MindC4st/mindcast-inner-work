@@ -58,15 +58,15 @@ const Resources = () => {
           <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-5xl sm:text-6xl md:text-8xl max-w-4xl mx-auto leading-[0.9]">
             TOOLS YOU KEEP WORKING WITH
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-silver/60 font-body text-base max-w-xl mx-auto">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto">
             Every resource is a standalone inner work practice — designed to be used once a week, for life.
           </motion.p>
         </div>
       </section>
 
       {/* Member discount banner */}
-      <div className="bg-primary border-y-[3px] border-silver/20 py-4">
-        <p className="text-center text-silver/70 text-xs tracking-[0.2em]">MEMBERS SAVE 20% ON EVERYTHING — AUTOMATICALLY APPLIED AT CHECKOUT</p>
+      <div className="bg-primary border-y-[3px] border-cream/20 py-4">
+        <p className="text-center text-cream/70 text-xs tracking-[0.2em]">MEMBERS SAVE 20% ON EVERYTHING — AUTOMATICALLY APPLIED AT CHECKOUT</p>
       </div>
 
       {/* Filter bar */}
@@ -75,14 +75,14 @@ const Resources = () => {
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap gap-3">
               {categories.map((cat) => (
-                <button key={cat} onClick={() => setFilter(cat)} className={`text-xs tracking-widest px-4 py-2 border-2 transition-colors ${filter === cat ? "border-primary bg-primary text-silver" : "border-primary/20 text-primary/50 hover:border-primary"}`}>
+                <button key={cat} onClick={() => setFilter(cat)} className={`text-xs tracking-widest px-4 py-2 border-2 transition-colors ${filter === cat ? "border-primary bg-primary text-cream" : "border-primary/20 text-primary/50 hover:border-primary"}`}>
                   {cat}
                 </button>
               ))}
             </div>
             <button onClick={() => setCartOpen(true)} className="relative btn-navy text-xs py-2 px-4 flex items-center gap-2">
               <ShoppingCart size={14} /> CART
-              {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-silver text-primary text-[10px] w-5 h-5 flex items-center justify-center">{cartCount}</span>}
+              {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-cream text-primary text-[10px] w-5 h-5 flex items-center justify-center">{cartCount}</span>}
             </button>
           </div>
         </div>
@@ -94,7 +94,7 @@ const Resources = () => {
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {filtered.map((p, i) => (
               <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-[3px] border-primary p-6 relative flex flex-col">
-                {p.badge && <span className="absolute top-4 right-4 bg-primary text-silver text-[10px] tracking-widest px-3 py-1">{p.badge}</span>}
+                {p.badge && <span className="absolute top-4 right-4 bg-primary text-cream text-[10px] tracking-widest px-3 py-1">{p.badge}</span>}
                 <ImagePlaceholder label="Worksheet/workbook mockup A4" className="w-full h-48 mb-4" />
                 <span className="text-[10px] tracking-widest text-primary/40 mb-2">{p.category}</span>
                 <h3 className="font-display text-lg tracking-wider text-primary mb-2">{p.title}</h3>

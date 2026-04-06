@@ -9,7 +9,7 @@ const LivePreview = () => (
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        className="block text-silver/40 text-xs tracking-[0.3em] mb-4"
+        className="block text-cream/40 text-xs tracking-[0.3em] mb-4"
       >
         EVERY WEEK
       </motion.span>
@@ -39,12 +39,12 @@ const LivePreview = () => (
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <p className="text-silver/70 font-body text-base leading-relaxed mb-8">
+          <p className="text-cream/70 font-body text-base leading-relaxed mb-8">
             A weekly in-person event in Auckland. One talk. One practice. One community. Doors open Sunday evenings.
           </p>
           <div className="flex flex-wrap gap-3 mb-8">
             {["20-MIN TALK", "GUIDED REFLECTION", "COMMUNITY CONNECT"].map((pill) => (
-              <span key={pill} className="border-2 border-silver/20 text-silver/60 text-xs tracking-widest px-4 py-2">
+              <span key={pill} className="border-2 border-cream/20 text-cream/60 text-xs tracking-widest px-4 py-2">
                 {pill}
               </span>
             ))}

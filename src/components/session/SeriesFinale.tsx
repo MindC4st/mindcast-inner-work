@@ -53,8 +53,8 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <Shield size={40} className="mx-auto mb-6 text-silver/30" />
-              <span className="text-silver/30 text-[10px] tracking-[0.4em] block mb-8">TRUST SERIES COMPLETE</span>
+              <Shield size={40} className="mx-auto mb-6 text-cream/30" />
+              <span className="text-cream/30 text-[10px] tracking-[0.4em] block mb-8">TRUST SERIES COMPLETE</span>
             </motion.div>
 
             <div className="space-y-6 mb-10">
@@ -65,8 +65,8 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 + i * 0.3 }}
                 >
-                  <p className="text-silver/40 text-xs tracking-widest mb-1">{line}</p>
-                  <p className="font-display text-2xl md:text-3xl text-silver tracking-wider">"{values[i]}"</p>
+                  <p className="text-cream/40 text-xs tracking-widest mb-1">{line}</p>
+                  <p className="font-display text-2xl md:text-3xl text-cream tracking-wider">"{values[i]}"</p>
                 </motion.div>
               ))}
             </div>
@@ -76,12 +76,12 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
               animate={{ opacity: 1 }}
               transition={{ delay: 2.2 }}
             >
-              <p className="text-silver/30 text-xs tracking-widest mb-1">— {name}</p>
-              <p className="text-silver/20 text-[10px] tracking-widest mt-4">
+              <p className="text-cream/30 text-xs tracking-widest mb-1">— {name}</p>
+              <p className="text-cream/20 text-[10px] tracking-widest mt-4">
                 {new Date().toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric" })}
               </p>
               <div className="mt-2 mb-8">
-                <span className="font-display text-lg tracking-widest text-silver/20">MINDCAST</span>
+                <span className="font-display text-lg tracking-widest text-cream/20">MINDCAST</span>
               </div>
             </motion.div>
 
@@ -107,7 +107,7 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
   if (sealed) {
     return (
       <div className="mb-4">
-        <div className="bg-silver text-primary p-8 md:p-12 text-center">
+        <div className="bg-cream text-primary p-8 md:p-12 text-center">
           <Shield size={32} className="mx-auto mb-4 text-primary/30" />
           <span className="text-primary/40 text-[10px] tracking-[0.3em] block mb-6">YOUR TRUST DECLARATION</span>
           {lines.map((line, i) => (
@@ -129,14 +129,14 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
   }
 
   return (
-    <div className="bg-primary border-2 border-silver/20 p-8 md:p-12 mb-4">
-      <Shield size={32} className="mx-auto mb-4 text-silver/20" />
-      <p className="text-silver/40 text-[10px] tracking-[0.3em] text-center mb-8">YOUR TRUST DECLARATION</p>
+    <div className="bg-primary border-2 border-cream/20 p-8 md:p-12 mb-4">
+      <Shield size={32} className="mx-auto mb-4 text-cream/20" />
+      <p className="text-cream/40 text-[10px] tracking-[0.3em] text-center mb-8">YOUR TRUST DECLARATION</p>
 
       <div className="space-y-6">
         {lines.map((line, i) => (
           <div key={i}>
-            <p className="text-silver/50 text-xs tracking-widest mb-2">{line}</p>
+            <p className="text-cream/50 text-xs tracking-widest mb-2">{line}</p>
             <input
               type="text"
               value={values[i]}
@@ -146,7 +146,7 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
                 setValues(updated);
                 onSave({ values: updated, name, sealed: false });
               }}
-              className="w-full bg-transparent border-2 border-silver/20 text-silver px-4 py-3 text-sm tracking-widest placeholder:text-silver/20 focus:border-silver focus:outline-none"
+              className="w-full bg-transparent border-2 border-cream/20 text-cream px-4 py-3 text-sm tracking-widest placeholder:text-cream/20 focus:border-cream focus:outline-none"
               placeholder="..."
             />
           </div>
@@ -157,7 +157,7 @@ const SeriesFinale = ({ lines, storageKey, onSave, initialValue }: SeriesFinaleP
         type="text"
         value={name}
         onChange={(e) => { setName(e.target.value); onSave({ values, name: e.target.value, sealed: false }); }}
-        className="w-full bg-transparent border-2 border-silver/20 text-silver px-4 py-3 text-sm tracking-widest placeholder:text-silver/20 focus:border-silver focus:outline-none mt-6"
+        className="w-full bg-transparent border-2 border-cream/20 text-cream px-4 py-3 text-sm tracking-widest placeholder:text-cream/20 focus:border-cream focus:outline-none mt-6"
         placeholder="YOUR NAME"
       />
 

@@ -30,7 +30,7 @@ const ReflectionTextBox = ({ prompt, storageKey, onSave, initialValue = "" }: Re
 
   return (
     <div className="bg-primary p-6 md:p-8 mb-4">
-      <label className="block text-silver/70 text-xs tracking-[0.2em] mb-4 uppercase">{prompt}</label>
+      <label className="block text-cream/70 text-xs tracking-[0.2em] mb-4 uppercase">{prompt}</label>
       <textarea
         value={value}
         onChange={(e) => handleChange(e.target.value)}
@@ -40,9 +40,9 @@ const ReflectionTextBox = ({ prompt, storageKey, onSave, initialValue = "" }: Re
         placeholder="Type your response here..."
       />
       <div className="flex justify-between items-center mt-2">
-        <span className="text-silver/30 text-xs">{value.length} characters</span>
+        <span className="text-cream/30 text-xs">{value.length} characters</span>
         {saved && (
-          <span className="text-silver/50 text-xs flex items-center gap-1 animate-fade-in">
+          <span className="text-cream/50 text-xs flex items-center gap-1 animate-fade-in">
             <Check size={12} /> SAVED
           </span>
         )}

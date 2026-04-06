@@ -7,22 +7,22 @@
 @layer base {
   :root {
     --background: 30 100% 98%;
-    --foreground: 200 50% 35%;
+    --foreground: 210 56% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 200 50% 35%;
+    --card-foreground: 210 56% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 200 50% 35%;
+    --popover-foreground: 210 56% 14%;
 
     --primary: 200 50% 38%;
     --primary-foreground: 30 100% 98%;
 
     --secondary: 214 32% 91%;
-    --secondary-foreground: 200 50% 35%;
+    --secondary-foreground: 210 56% 14%;
 
     --muted: 210 20% 95%;
-    --muted-foreground: 200 15% 55%;
+    --muted-foreground: 207 53% 23%;
 
     --accent: 200 50% 38%;
     --accent-foreground: 30 100% 98%;
@@ -46,17 +46,18 @@
     --warm-border: 214 32% 91%;
     --bronze: 36 62% 48%;
     --cream: 30 100% 98%;
+    --electric: 200 50% 38%;
 
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Montserrat', sans-serif;
     --font-serif: 'Cormorant Garamond', serif;
 
     --sidebar-background: 30 100% 97%;
-    --sidebar-foreground: 200 50% 35%;
+    --sidebar-foreground: 210 56% 14%;
     --sidebar-primary: 200 50% 38%;
     --sidebar-primary-foreground: 30 100% 98%;
     --sidebar-accent: 210 20% 93%;
-    --sidebar-accent-foreground: 200 50% 35%;
+    --sidebar-accent-foreground: 210 56% 14%;
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 200 50% 38%;
   }
@@ -115,7 +116,7 @@
   }
   .section-navy {
     background: hsl(var(--navy));
-    color: hsl(var(--white));
+    color: hsl(var(--cream));
   }
   .section-cream {
     background: hsl(var(--cream));
@@ -161,7 +162,7 @@
   /* Immersive player */
   .player-dark {
     background: hsl(var(--navy));
-    color: hsl(var(--white));
+    color: hsl(var(--cream));
   }
 
   /* Underline input */
