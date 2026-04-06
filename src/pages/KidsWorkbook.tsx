@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Wifi, WifiOff, AlertCircle, Camera } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Wifi, WifiOff, AlertCircle, Camera, Smile, Frown, Angry, Zap, Moon, ShieldAlert, Heart, HelpCircle, Sun, Star } from "lucide-react";
 
-const MOOD_EMOJIS = [
-  { emoji: "😊", label: "happy" },
-  { emoji: "😔", label: "sad" },
-  { emoji: "😤", label: "annoyed" },
-  { emoji: "😮", label: "excited" },
-  { emoji: "😴", label: "tired" },
-  { emoji: "😨", label: "worried" },
-  { emoji: "😌", label: "calm" },
-  { emoji: "🤔", label: "curious" },
-  { emoji: "☺️", label: "grateful" },
+const MOOD_ICONS: { icon: React.ElementType; label: string }[] = [
+  { icon: Smile, label: "happy" },
+  { icon: Frown, label: "sad" },
+  { icon: Angry, label: "annoyed" },
+  { icon: Zap, label: "excited" },
+  { icon: Moon, label: "tired" },
+  { icon: ShieldAlert, label: "worried" },
+  { icon: Heart, label: "calm" },
+  { icon: HelpCircle, label: "curious" },
+  { icon: Sun, label: "grateful" },
 ];
 
 const SECTIONS = [
