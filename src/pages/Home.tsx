@@ -777,10 +777,10 @@ const VisionQuote = () => {
 /* ─── IMAGE GALLERY (Masonry) ─── */
 const ImageGallery = () => {
   const images = [
-    { src: heroCouple, label: "THE PRACTICE", aspect: "landscape" },
-    { src: heroPortrait, label: "THE SPACE", aspect: "portrait" },
-    { src: founderPortrait, label: "THE FOUNDER", aspect: "portrait" },
-    { src: flatlayRoadmap, label: "THE VISION", aspect: "square" },
+    { src: "/images/gallery_5.png", label: "THE CONVERSATION" },
+    { src: "/images/gallery_6.png", label: "THE SPACE" },
+    { src: "/images/gallery_7.png", label: "THE PRACTICE" },
+    { src: "/images/gallery_8.png", label: "THE COMMUNITY" },
   ];
 
   return (
