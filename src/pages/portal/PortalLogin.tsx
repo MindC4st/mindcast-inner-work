@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
 import logoLight from "@/assets/logo-cream.png";
@@ -37,8 +38,25 @@ const PortalLogin = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ title: "Enter your email", description: "Type your email address above, then click forgot password.", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Check your email", description: "We've sent a password reset link to your inbox." });
+    }
+  };
+
   return (
-    <section className="bg-primary min-h-screen flex items-center justify-center">
+    <section className="bg-navy min-h-screen flex items-center justify-center">
       <div className="w-full max-w-sm px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           {/* Brand mark */}
@@ -87,7 +105,7 @@ const PortalLogin = () => {
 
           {/* Forgot password */}
           <div className="text-center mt-4">
-            <button className="text-[10px] tracking-[0.15em] text-primary-foreground/25 hover:text-primary-foreground/50 font-body transition-colors">
+            <button type="button" onClick={handleForgotPassword} className="text-[10px] tracking-[0.15em] text-cream/30 hover:text-cream/60 font-body transition-colors">
               Forgot password?
             </button>
           </div>
