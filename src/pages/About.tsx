@@ -31,7 +31,7 @@ const About = () => (
     <section className="section-white py-24">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <ImagePlaceholder label="Founder portrait" className="w-full h-96" />
+          <img src="/images/headphones_window.jpg" alt="Listening with intention" className="w-full h-96 object-cover" />
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
@@ -55,8 +55,18 @@ const About = () => (
     </section>
 
     {/* The Mission */}
-    <section className="section-navy py-24">
-      <div className="container mx-auto px-6">
+    <section className="section-navy py-24 relative overflow-hidden">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-20"
+      >
+        <source src="/videos/waves_pulsating.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-[hsl(var(--primary))]/80" />
+      <div className="container mx-auto px-6 relative z-10">
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {[
@@ -64,7 +74,7 @@ const About = () => (
             { title: "PRACTICE", body: "Three steps. Notice what's happening inside you. Name it out loud. Rewire one thing at a time. Evidence-based. Quietly radical." },
             { title: "TOOLS", body: "Four products (Mindcast Journal, Mindcast Connect, Signal by Mindcast, Little Minds Big Questions) designed to make inner work tangible — something you can hold, track, and carry into the rest of your week." },
           ].map((pillar, i) => (
-            <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
+            <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center backdrop-blur-sm">
               <h3 className="font-display text-3xl tracking-widest mb-4">{pillar.title}</h3>
               <p className="text-cream/50 text-sm font-body leading-relaxed">{pillar.body}</p>
             </motion.div>
@@ -78,8 +88,10 @@ const About = () => (
       <div className="container mx-auto px-6">
         <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">THE FOUNDER</h2>
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <ImagePlaceholder label="Ashleigh Grant" className="w-full h-[28rem]" />
+          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative overflow-hidden w-full h-[28rem]">
+            <video autoPlay muted loop playsInline className="w-full h-full object-cover">
+              <source src="/videos/founder_on_couch.mp4" type="video/mp4" />
+            </video>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
             <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH GRANT</h3>
