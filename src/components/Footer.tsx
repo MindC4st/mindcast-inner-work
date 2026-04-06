@@ -17,9 +17,10 @@ const Footer = () => (
         <div>
           <h4 className="text-cream/60 text-[11px] tracking-[0.15em] font-body font-bold mb-4">PRODUCTS</h4>
           <div className="flex flex-col gap-2">
-            <span className="text-cream/30 text-xs font-body">Signal <span className="text-cream/15">(coming soon)</span></span>
-            <Link to="/membership" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Pilot Group</Link>
-            <span className="text-cream/30 text-xs font-body">Little Minds</span>
+            <Link to="/signal" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Signal</Link>
+            <Link to="/little-minds" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Little Minds</Link>
+            <Link to="/connect" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Mindcast Connect</Link>
+            <Link to="/pilot" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Pilot Group</Link>
           </div>
         </div>
 
@@ -27,8 +28,7 @@ const Footer = () => (
         <div>
           <h4 className="text-cream/60 text-[11px] tracking-[0.15em] font-body font-bold mb-4">CONNECT</h4>
           <div className="flex flex-col gap-2">
-            <a href="https://instagram.com/signalbymindcast" target="_blank" rel="noopener noreferrer" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Instagram</a>
-            <a href="#" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Facebook</a>
+            <a href="https://www.instagram.com/mindcastnz/" target="_blank" rel="noopener noreferrer" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Instagram</a>
             <a href="mailto:hello@mindcast.co.nz" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Contact</a>
           </div>
         </div>
