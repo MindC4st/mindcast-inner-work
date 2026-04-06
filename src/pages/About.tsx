@@ -31,7 +31,9 @@ const About = () => (
     <section className="section-white py-24">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <ImagePlaceholder label="Founder portrait" className="w-full h-96" />
+          <div className="w-full h-96 overflow-hidden rounded-sm">
+            <video src="/videos/women_with_notepad.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" />
+          </div>
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
@@ -79,7 +81,9 @@ const About = () => (
         <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">THE FOUNDER</h2>
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <ImagePlaceholder label="Ashleigh Grant" className="w-full h-[28rem]" />
+            <div className="w-full h-[28rem] overflow-hidden rounded-sm">
+              <video src="/videos/founder_on_couch.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
             <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH GRANT</h3>
