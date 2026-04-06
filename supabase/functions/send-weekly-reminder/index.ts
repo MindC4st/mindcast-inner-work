@@ -12,6 +12,30 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const body = await req.json().catch(() => ({}));
+    const testEmail = body?.test_email;
+
+    // Test mode: send a sample email to a specific address
+    if (testEmail) {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: FROM_EMAIL,
+          to: testEmail,
+          subject: "Week 1 reminder — Mindcast Pilot session is Tuesday",
+          html: buildEmailHtml(1, { name: "Taupō Pilot", theme: "Lost Connections" }),
+        }),
+      });
+      const resBody = await res.text();
+      return new Response(JSON.stringify({ ok: res.ok, test: true, status: res.status, detail: resBody }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Get all cohorts with a start_date
