@@ -55,14 +55,14 @@ const About = () => (
       <div className="container mx-auto px-6">
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {["COMMUNITY", "PRACTICE", "TOOLS"].map((pillar, i) => (
-            <motion.div key={pillar} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
-              <h3 className="font-display text-3xl tracking-widest mb-4">{pillar}</h3>
-              <p className="text-cream/50 text-sm font-body leading-relaxed">
-                {pillar === "COMMUNITY" && "A weekly gathering. People who show up for each other."}
-                {pillar === "PRACTICE" && "Frameworks you can use every day. Notice. Name. Rewire."}
-                {pillar === "TOOLS" && "Four products that make inner work tangible and accessible."}
-              </p>
+        {[
+            { title: "COMMUNITY", body: "A weekly gathering of people who show up for each other. Not followers. Not fans. A real group doing real work together." },
+            { title: "PRACTICE", body: "Three steps. Notice what's happening inside you. Name it out loud. Rewire one thing at a time. Evidence-based. Quietly radical." },
+            { title: "TOOLS", body: "Four products (Mindcast Journal, Mindcast Connect, Signal by Mindcast, Little Minds Big Questions) designed to make inner work tangible — something you can hold, track, and carry into the rest of your week." },
+          ].map((pillar, i) => (
+            <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
+              <h3 className="font-display text-3xl tracking-widest mb-4">{pillar.title}</h3>
+              <p className="text-cream/50 text-sm font-body leading-relaxed">{pillar.body}</p>
             </motion.div>
           ))}
         </div>
