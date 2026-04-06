@@ -451,9 +451,10 @@ const HorizontalPanels = () => {
                   </div>
                 )}
                 {p.details && (
-                  <p className="mt-6 text-[14px] tracking-wide" style={{ fontFamily: "var(--font-display)", color: "#c5e3f3" }}>
-                    {p.details}
-                  </p>
+                  <div className="mt-6 flex items-center gap-4 flex-wrap" style={{ color: "#c5e3f3" }}>
+                    <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><CalendarDays className="w-4 h-4" /> Tuesdays 5:30–7:30pm</span>
+                    <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><MapPin className="w-4 h-4" /> 111 Jarden Mile, Taupo</span>
+                  </div>
                 )}
                 {p.cta && (
                   <Link
