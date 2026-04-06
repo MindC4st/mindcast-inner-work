@@ -17,9 +17,9 @@ const Footer = () => (
         <div>
           <h4 className="text-cream/60 text-[11px] tracking-[0.15em] font-body font-bold mb-4">PRODUCTS</h4>
           <div className="flex flex-col gap-2">
-            <Link to="/signal" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Signal</Link>
-            <Link to="/little-minds" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Little Minds</Link>
-            <Link to="/connect" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Mindcast Connect</Link>
+            <Link to="/signal" className="text-xs font-body hover:opacity-80 transition-opacity" style={{ color: "#9974A1" }}>Signal</Link>
+            <Link to="/little-minds" className="text-xs font-body hover:opacity-80 transition-opacity" style={{ color: "#E8927C" }}>Little Minds</Link>
+            <Link to="/connect" className="text-xs font-body hover:opacity-80 transition-opacity" style={{ color: "#A78DBF" }}>Mindcast Connect</Link>
             <Link to="/pilot" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Pilot Group</Link>
           </div>
         </div>

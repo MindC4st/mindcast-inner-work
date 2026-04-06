@@ -4,6 +4,21 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import signalLogo from "@/assets/signal-logo.png";
 import signalSquare from "@/assets/signal-square.png";
+import signalBodyscan from "@/assets/signal-bodyscan.png";
+import signalMeditation from "@/assets/signal-meditation.png";
+import signalRecipe from "@/assets/signal-recipe.png";
+
+/* Signal brand palette */
+const SIG = {
+  bg: "#FDFCFB",
+  card: "#EBE1DA",
+  primary: "#7F5B87",
+  primarySoft: "#9974A1",
+  glow: "#AF92B6",
+  text: "#4A2F52",
+  muted: "#D9C6B9",
+  sand: "#F5EDE6",
+};
 
 const FEATURES = [
   {
@@ -36,33 +51,33 @@ const PHASES = [
 ];
 
 const SignalLanding = () => (
-  <div className="min-h-screen bg-background">
+  <div className="min-h-screen" style={{ background: SIG.bg }}>
     <Navbar />
 
     {/* Hero */}
-    <section className="section-navy pt-32 pb-20 px-6">
+    <section className="pt-32 pb-20 px-6" style={{ background: `linear-gradient(180deg, ${SIG.card} 0%, ${SIG.bg} 100%)` }}>
       <div className="container max-w-5xl mx-auto">
-        <Link to="/" className="inline-flex items-center gap-2 text-cream/30 text-[10px] tracking-[0.12em] font-body hover:text-cream/60 transition-colors mb-12">
+        <Link to="/" className="inline-flex items-center gap-2 text-[10px] tracking-[0.12em] hover:opacity-70 transition-opacity mb-12" style={{ color: SIG.primarySoft, fontFamily: "var(--font-body)" }}>
           <ArrowLeft size={12} /> BACK TO MINDCAST
         </Link>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <img src={signalLogo} alt="Signal by Mindcast" className="h-12 mb-6" />
-            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-cream mb-4" style={{ lineHeight: 1.2 }}>
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ color: SIG.text, lineHeight: 1.2 }}>
               A wellness companion for your cycle.
             </h1>
-            <p className="text-cream/50 font-body text-base leading-relaxed mb-8">
+            <p className="font-body text-base leading-relaxed mb-8" style={{ color: `${SIG.text}99` }}>
               Track your cycle, understand your body, and align your energy with your natural rhythms. Signal delivers phase-specific guidance for movement, nutrition, and nervous system care.
             </p>
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-cream/10 text-cream/40 text-xs font-body tracking-wider">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-wider" style={{ border: `1px solid ${SIG.primarySoft}30`, color: SIG.primarySoft, fontFamily: "var(--font-body)" }}>
               COMING SOON
             </div>
           </div>
 
           <div className="flex justify-center">
             <div className="relative w-64 h-64 md:w-80 md:h-80">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#C4526E]/20 to-[#4A236E]/20 blur-2xl" />
+              <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: `linear-gradient(135deg, ${SIG.primary}25, ${SIG.glow}20)` }} />
               <img src={signalSquare} alt="Signal app" className="relative z-10 w-full h-full object-contain rounded-2xl" />
             </div>
           </div>
@@ -71,19 +86,43 @@ const SignalLanding = () => (
     </section>
 
     {/* Features */}
-    <section className="section-navy py-20 px-6" style={{ borderTop: "1px solid rgba(53,133,175,0.1)" }}>
+    <section className="py-20 px-6" style={{ background: SIG.bg, borderTop: `1px solid ${SIG.muted}60` }}>
       <div className="container max-w-5xl mx-auto">
-        <p className="text-cream/40 text-[11px] tracking-[0.2em] font-body text-center mb-3">WHAT SIGNAL DOES</p>
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-cream text-center mb-14">
+        <p className="text-[11px] tracking-[0.2em] font-body text-center mb-3" style={{ color: SIG.primarySoft }}>WHAT SIGNAL DOES</p>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-14" style={{ color: SIG.text }}>
           Your body already knows. Signal helps you listen.
         </h2>
 
         <div className="grid sm:grid-cols-2 gap-8">
           {FEATURES.map((f, i) => (
-            <div key={i} className="p-6 rounded-xl border border-cream/[0.06] bg-cream/[0.02]">
-              <f.icon size={24} className="text-[#C4526E] mb-4" />
-              <h3 className="font-display text-lg font-bold text-cream mb-2">{f.title}</h3>
-              <p className="text-cream/40 font-body text-sm leading-relaxed">{f.desc}</p>
+            <div key={i} className="p-6 rounded-2xl" style={{ background: SIG.card, border: `1px solid ${SIG.muted}40` }}>
+              <f.icon size={24} className="mb-4" style={{ color: SIG.primary }} />
+              <h3 className="font-display text-lg font-bold mb-2" style={{ color: SIG.text }}>{f.title}</h3>
+              <p className="font-body text-sm leading-relaxed" style={{ color: `${SIG.text}80` }}>{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* App Preview Images */}
+    <section className="py-20 px-6" style={{ background: SIG.sand, borderTop: `1px solid ${SIG.muted}40` }}>
+      <div className="container max-w-5xl mx-auto">
+        <p className="text-[11px] tracking-[0.2em] font-body text-center mb-3" style={{ color: SIG.primarySoft }}>INSIDE SIGNAL</p>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-14" style={{ color: SIG.text }}>
+          Tools for every phase.
+        </h2>
+        <div className="grid grid-cols-3 gap-6">
+          {[
+            { src: signalBodyscan, label: "Somatic Practices" },
+            { src: signalRecipe, label: "Phase Nutrition" },
+            { src: signalMeditation, label: "Guided Meditations" },
+          ].map((item) => (
+            <div key={item.label} className="text-center">
+              <div className="rounded-2xl overflow-hidden mb-3 aspect-square" style={{ background: SIG.card }}>
+                <img src={item.src} alt={item.label} className="w-full h-full object-cover" />
+              </div>
+              <p className="font-body text-xs" style={{ color: SIG.primarySoft }}>{item.label}</p>
             </div>
           ))}
         </div>
@@ -91,21 +130,21 @@ const SignalLanding = () => (
     </section>
 
     {/* Phases */}
-    <section className="section-navy py-20 px-6" style={{ borderTop: "1px solid rgba(53,133,175,0.1)" }}>
+    <section className="py-20 px-6" style={{ background: SIG.bg, borderTop: `1px solid ${SIG.muted}40` }}>
       <div className="container max-w-5xl mx-auto">
-        <p className="text-cream/40 text-[11px] tracking-[0.2em] font-body text-center mb-3">THE FOUR PHASES</p>
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-cream text-center mb-14">
+        <p className="text-[11px] tracking-[0.2em] font-body text-center mb-3" style={{ color: SIG.primarySoft }}>THE FOUR PHASES</p>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-14" style={{ color: SIG.text }}>
           Different phases, different needs.
         </h2>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {PHASES.map((p) => (
-            <div key={p.name} className="p-5 rounded-xl border border-cream/[0.06] bg-cream/[0.02] text-center">
-              <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${p.color}25` }}>
+            <div key={p.name} className="p-5 rounded-2xl text-center" style={{ background: SIG.card, border: `1px solid ${SIG.muted}30` }}>
+              <div className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: `${p.color}18` }}>
                 <div className="w-4 h-4 rounded-full" style={{ backgroundColor: p.color }} />
               </div>
-              <h3 className="font-display text-sm font-bold text-cream mb-2">{p.name}</h3>
-              <p className="text-cream/35 font-body text-xs leading-relaxed">{p.desc}</p>
+              <h3 className="font-display text-sm font-bold mb-2" style={{ color: SIG.text }}>{p.name}</h3>
+              <p className="font-body text-xs leading-relaxed" style={{ color: `${SIG.text}70` }}>{p.desc}</p>
             </div>
           ))}
         </div>
