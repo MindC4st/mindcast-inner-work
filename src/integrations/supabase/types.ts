@@ -331,6 +331,41 @@ export type Database = {
           },
         ]
       }
+      email_reminders: {
+        Row: {
+          cohort_id: string | null
+          id: string
+          recipient_count: number | null
+          sent_at: string | null
+          status: string | null
+          week_number: number
+        }
+        Insert: {
+          cohort_id?: string | null
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string | null
+          status?: string | null
+          week_number: number
+        }
+        Update: {
+          cohort_id?: string | null
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string | null
+          status?: string | null
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_reminders_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entries: {
         Row: {
           answer_text: string | null
