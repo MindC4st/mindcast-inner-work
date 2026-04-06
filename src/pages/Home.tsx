@@ -436,15 +436,18 @@ const HorizontalPanels = () => {
                 )}
                 {p.cards && (
                   <div className="grid gap-4 mt-4">
-                    {p.cards.map((c) => (
+                    {p.cards.map((c) => {
+                      const IconComp = c.icon === "headphones" ? Headphones : c.icon === "clipboard" ? ClipboardList : MessageCircle;
+                      return (
                       <div key={c.title} className="flex items-start gap-4 p-4 border border-cream/10">
-                        <span className="text-2xl">{c.icon}</span>
+                        <IconComp className="w-6 h-6 text-cream/70 flex-shrink-0 mt-0.5" />
                         <div>
                           <h4 className="font-body font-bold text-cream text-sm tracking-wider">{c.title}</h4>
                           <p className="text-cream/60 text-sm font-body">{c.desc}</p>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
                 {p.details && (
