@@ -116,7 +116,7 @@
   }
   .section-navy {
     background: hsl(var(--navy));
-    color: hsl(var(--white));
+    color: hsl(var(--cream));
   }
   .section-cream {
     background: hsl(var(--cream));
@@ -162,7 +162,7 @@
   /* Immersive player */
   .player-dark {
     background: hsl(var(--navy));
-    color: hsl(var(--white));
+    color: hsl(var(--cream));
   }
 
   /* Underline input */
