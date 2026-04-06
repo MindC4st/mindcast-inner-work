@@ -369,7 +369,7 @@ const HorizontalPanels = () => {
       title: "THE PROBLEM",
       headline: "YOU'VE TRIED THE GYM CULT.",
       body: "You've done book clubs. Online courses. Morning routines. None of it stuck — because consuming ideas without structure, reflection, or community doesn't change how you actually live.",
-      video: "/videos/women_with_notepad.mp4",
+      image: heroCouple,
     },
     {
       num: "02",
@@ -387,7 +387,7 @@ const HorizontalPanels = () => {
       title: "THE SPACE",
       headline: "TAUPO'S MOST INTENTIONAL TUESDAY NIGHT.",
       body: null,
-      video: "/videos/talking_by_pool.mp4",
+      image: heroPortrait,
       overlay: true,
       details: "Tuesdays 5:30\u20137:30pm \u00b7 111 Jarden Mile, Taupo",
     },
@@ -396,7 +396,7 @@ const HorizontalPanels = () => {
       title: "THE VISION",
       headline: "THIS IS THE PILOT.",
       body: "Mindcast is building something bigger — a platform for the ideas that shape how you live. The pilot group is where it starts. Founding members shape what it becomes.",
-      video: "/videos/group_laughing.mp4",
+      image: flatlayRoadmap,
       cta: true,
     },
   ];
@@ -467,11 +467,14 @@ const HorizontalPanels = () => {
                 )}
               </div>
 
-              {p.video && (
+              {p.image && (
                 <div className={`relative overflow-hidden ${p.overlay ? "h-[500px]" : "h-[400px]"}`}>
-                  <video autoPlay muted loop playsInline className="w-full h-full object-cover">
-                    <source src={p.video} type="video/mp4" />
-                  </video>
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
                   {p.overlay && (
                     <div className="absolute inset-0" style={{ background: "rgba(53,133,175,0.15)" }} />
                   )}
@@ -522,9 +525,11 @@ const PilotGroupSection = () => {
       <div className="grid md:grid-cols-2 min-h-screen">
         {/* Left — Image */}
         <div className="pilot-image relative overflow-hidden h-[400px] md:h-auto">
-          <video autoPlay muted loop playsInline className="w-full h-full object-cover animate-kenburns">
-            <source src="/videos/group_laughing.mp4" type="video/mp4" />
-          </video>
+          <img
+            src={founderPortrait}
+            alt="Mindcast founder"
+            className="w-full h-full object-cover animate-kenburns"
+          />
         </div>
         {/* Right — Content */}
         <div className="pilot-content flex items-center p-10 md:p-20">
@@ -597,25 +602,25 @@ const StickyTimeline = () => {
       num: "01",
       title: "LISTEN BEFORE YOU ARRIVE",
       body: "Each week I curate one self-development podcast episode for the group. You listen in your own time — on your commute, at the gym, cooking dinner.",
-      video: "/videos/podcast_tv.mp4",
+      image: flatlayRoadmap,
     },
     {
       num: "02",
       title: "WORK THROUGH THE WORKSHEET",
       body: "Before Tuesday, you complete a structured reflection. What landed? What challenged you? What do you want to explore further? You arrive prepared.",
-      video: "/videos/handwriting.mp4",
+      image: founderPortrait,
     },
     {
       num: "03",
       title: "DISCUSS WITH DEPTH",
       body: "Tuesday night is where the magic happens. A small group of curious adults — no surface level, no small talk. Real ideas, real application, real conversation.",
-      video: "/videos/talking_outside.mp4",
+      image: heroCouple,
     },
     {
       num: "04",
       title: "YOUR VOICE SHAPES THE ROOM",
       body: "Once a month you nominate the podcast. Your recommendation, your topic, your night to lead. And as a founding member, your feedback shapes what Mindcast becomes.",
-      video: "/videos/talking_by_pool.mp4",
+      image: heroPortrait,
       badge: true,
     },
   ];
@@ -663,9 +668,7 @@ const StickyTimeline = () => {
                   )}
                 </div>
                 <div className="overflow-hidden h-[300px] md:h-[400px]">
-                  <video autoPlay muted loop playsInline className="w-full h-full object-cover">
-                    <source src={s.video} type="video/mp4" />
-                  </video>
+                  <img src={s.image} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               </div>
             </div>
@@ -761,7 +764,7 @@ const VisionQuote = () => {
           ))}
         </p>
         <div className="mt-12 flex items-center justify-center gap-4">
-          <img src="/images/headphones_window.jpg" alt="Ashleigh" className="w-16 h-16 rounded-full object-cover" />
+          <img src={founderPortrait} alt="Ashleigh" className="w-16 h-16 rounded-full object-cover" />
           <span className="font-body text-[15px]" style={{ color: "#3585af" }}>
             — Ashleigh, Founder of Mindcast
           </span>
@@ -773,18 +776,18 @@ const VisionQuote = () => {
 
 /* ─── IMAGE GALLERY (Masonry) ─── */
 const ImageGallery = () => {
-  const galleryItems = [
-    { video: "/videos/group_laughing.mp4", label: "THE COMMUNITY" },
-    { image: "/images/headphones_window.jpg", label: "THE PRACTICE" },
-    { video: "/videos/women_with_notepad.mp4", label: "THE TOOLS" },
-    { video: "/videos/talking_outside.mp4", label: "THE SPACE" },
+  const images = [
+    { src: heroCouple, label: "THE PRACTICE", aspect: "landscape" },
+    { src: heroPortrait, label: "THE SPACE", aspect: "portrait" },
+    { src: founderPortrait, label: "THE FOUNDER", aspect: "portrait" },
+    { src: flatlayRoadmap, label: "THE VISION", aspect: "square" },
   ];
 
   return (
     <section className="section-navy py-24">
       <div className="container mx-auto px-6">
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-          {galleryItems.map((item, i) => (
+          {images.map((img, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 40 }}
@@ -793,19 +796,18 @@ const ImageGallery = () => {
               transition={{ delay: i * 0.1, duration: 0.6 }}
               className="relative group overflow-hidden break-inside-avoid"
             >
-              {item.video ? (
-                <video autoPlay muted loop playsInline className="w-full object-cover">
-                  <source src={item.video} type="video/mp4" />
-                </video>
-              ) : (
-                <img src={item.image} alt={item.label} className="w-full object-cover" loading="lazy" />
-              )}
+              <img
+                src={img.src}
+                alt={img.label}
+                className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                loading="lazy"
+              />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                 <span
                   className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-cream text-[13px] tracking-[0.2em]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  {item.label}
+                  {img.label}
                 </span>
               </div>
             </motion.div>
