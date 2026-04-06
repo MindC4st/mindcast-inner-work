@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Radio, History, Users, Baby, BookOpen, Clapperboard, ClipboardList } from "lucide-react";
+import { Calendar, Radio, History, Users, Baby, BookOpen, Clapperboard, ClipboardList, Mail } from "lucide-react";
 
 const AdminLanding = () => {
   const { user, loading } = useAuth();
@@ -40,6 +40,7 @@ const AdminLanding = () => {
     { label: "Curriculum", icon: BookOpen, to: "/admin/curriculum", desc: "52-week programme overview" },
     { label: "Session Runner", icon: Clapperboard, to: "/admin/session-runner", desc: "Run live sessions on TV" },
     { label: "Pilot Applications", icon: ClipboardList, to: "/admin/applications", desc: "Review pilot intake answers" },
+    { label: "Email Reminders", icon: Mail, to: "/admin/emails", desc: "View and send weekly reminders" },
   ];
 
   return (
