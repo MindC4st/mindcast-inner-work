@@ -525,11 +525,9 @@ const PilotGroupSection = () => {
       <div className="grid md:grid-cols-2 min-h-screen">
         {/* Left — Image */}
         <div className="pilot-image relative overflow-hidden h-[400px] md:h-auto">
-          <img
-            src={founderPortrait}
-            alt="Mindcast founder"
-            className="w-full h-full object-cover animate-kenburns"
-          />
+          <video autoPlay muted loop playsInline className="w-full h-full object-cover animate-kenburns">
+            <source src="/videos/group_laughing.mp4" type="video/mp4" />
+          </video>
         </div>
         {/* Right — Content */}
         <div className="pilot-content flex items-center p-10 md:p-20">
@@ -602,25 +600,25 @@ const StickyTimeline = () => {
       num: "01",
       title: "LISTEN BEFORE YOU ARRIVE",
       body: "Each week I curate one self-development podcast episode for the group. You listen in your own time — on your commute, at the gym, cooking dinner.",
-      image: flatlayRoadmap,
+      video: "/videos/podcast_tv.mp4",
     },
     {
       num: "02",
       title: "WORK THROUGH THE WORKSHEET",
       body: "Before Tuesday, you complete a structured reflection. What landed? What challenged you? What do you want to explore further? You arrive prepared.",
-      image: founderPortrait,
+      video: "/videos/handwriting.mp4",
     },
     {
       num: "03",
       title: "DISCUSS WITH DEPTH",
       body: "Tuesday night is where the magic happens. A small group of curious adults — no surface level, no small talk. Real ideas, real application, real conversation.",
-      image: heroCouple,
+      video: "/videos/talking_outside.mp4",
     },
     {
       num: "04",
       title: "YOUR VOICE SHAPES THE ROOM",
       body: "Once a month you nominate the podcast. Your recommendation, your topic, your night to lead. And as a founding member, your feedback shapes what Mindcast becomes.",
-      image: heroPortrait,
+      video: "/videos/talking_by_pool.mp4",
       badge: true,
     },
   ];
@@ -668,7 +666,9 @@ const StickyTimeline = () => {
                   )}
                 </div>
                 <div className="overflow-hidden h-[300px] md:h-[400px]">
-                  <img src={s.image} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                  <video autoPlay muted loop playsInline className="w-full h-full object-cover">
+                    <source src={s.video} type="video/mp4" />
+                  </video>
                 </div>
               </div>
             </div>
