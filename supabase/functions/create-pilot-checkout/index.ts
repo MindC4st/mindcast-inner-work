@@ -13,42 +13,56 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
+  const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
 
   try {
-    const { firstName, lastName, email, phone, canAttendTuesdays } = await req.json();
+    const body = await req.json();
+    const {
+      fullName, email, phone,
+      ageRange, currentWork, whatLedYouHere,
+      hopedOutcome, pastAchievement, currentObstacles,
+      confirmedAttendance, agreedTerms,
+    } = body;
 
-    if (!firstName || !lastName || !email) {
-      throw new Error("First name, last name, and email are required");
+    if (!fullName || !email) {
+      throw new Error("Full name and email are required");
     }
 
     // Check remaining spots
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
     const { count } = await supabaseAdmin
-      .from("pilot_registrations")
+      .from("pilot_applications")
       .select("*", { count: "exact", head: true })
-      .eq("payment_status", "paid");
+      .eq("application_status", "paid");
 
     const spotsRemaining = 15 - (count || 0);
     if (spotsRemaining <= 0) {
       throw new Error("All pilot spots have been filled");
     }
 
-    // Get user if authenticated
-    let userId = null;
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data } = await supabaseClient.auth.getUser(token);
-      userId = data.user?.id || null;
-    }
+    // Save application to pilot_applications
+    const { data: application, error: appError } = await supabaseAdmin
+      .from("pilot_applications")
+      .insert({
+        full_name: fullName,
+        email,
+        phone: phone || null,
+        age_range: ageRange || null,
+        current_work: currentWork || null,
+        what_led_you_here: whatLedYouHere || null,
+        hoped_outcome: hopedOutcome || null,
+        past_achievement: pastAchievement || null,
+        current_obstacles: currentObstacles || null,
+        confirmed_attendance: confirmedAttendance || false,
+        agreed_terms: agreedTerms || false,
+        application_status: "pending_payment",
+      })
+      .select()
+      .single();
+
+    if (appError) throw new Error(appError.message);
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -60,23 +74,6 @@ serve(async (req) => {
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     }
-
-    // Create registration record
-    const { data: registration, error: regError } = await supabaseAdmin
-      .from("pilot_registrations")
-      .insert({
-        user_id: userId,
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone: phone || null,
-        can_attend_tuesdays: canAttendTuesdays,
-        payment_status: "pending",
-      })
-      .select()
-      .single();
-
-    if (regError) throw new Error(regError.message);
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -92,16 +89,16 @@ serve(async (req) => {
       success_url: `${req.headers.get("origin")}/pilot?success=true`,
       cancel_url: `${req.headers.get("origin")}/pilot?canceled=true`,
       metadata: {
-        registration_id: registration.id,
+        application_id: application.id,
         pilot: "founding",
       },
     });
 
-    // Update registration with stripe session id
+    // Update application with stripe session id
     await supabaseAdmin
-      .from("pilot_registrations")
+      .from("pilot_applications")
       .update({ stripe_session_id: session.id })
-      .eq("id", registration.id);
+      .eq("id", application.id);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

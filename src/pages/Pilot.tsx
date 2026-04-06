@@ -41,16 +41,41 @@ const faqs = [
   { q: "What happens after the 10 weeks?", a: "Pilot members will have first access to the full MINDCAST membership when it launches. Your founding member pricing will be locked in." },
 ];
 
+const AGE_OPTIONS = ["Under 25", "25–34", "35–44", "45–54", "55–64", "65+"];
+
+const TextareaWithCount = ({ label, required, placeholder, maxLength, value, onChange, rows = 3 }: {
+  label: string; required?: boolean; placeholder: string; maxLength: number; value: string; onChange: (v: string) => void; rows?: number;
+}) => (
+  <div>
+    <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">{label}{required && " *"}</label>
+    <textarea
+      required={required}
+      rows={rows}
+      maxLength={maxLength}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors resize-vertical"
+      placeholder={placeholder}
+    />
+    <span className="text-cream/20 text-[10px] font-body float-right mt-1">{value.length} / {maxLength}</span>
+  </div>
+);
+
 const Pilot = () => {
   const [searchParams] = useSearchParams();
   const [spotsRemaining, setSpotsRemaining] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     phone: "",
+    ageRange: "",
+    currentWork: "",
+    whatLedYouHere: "",
+    hopedOutcome: "",
+    pastAchievement: "",
+    currentObstacles: "",
     canAttend: false,
     agreeTerms: false,
   });
@@ -80,9 +105,9 @@ const Pilot = () => {
 
   const fetchSpots = async () => {
     const { count } = await supabase
-      .from("pilot_registrations")
+      .from("pilot_applications")
       .select("*", { count: "exact", head: true })
-      .eq("payment_status", "paid");
+      .eq("application_status", "paid");
     setSpotsRemaining(15 - (count || 0));
   };
 
@@ -112,11 +137,17 @@ const Pilot = () => {
     try {
       const { data, error } = await supabase.functions.invoke("create-pilot-checkout", {
         body: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          fullName: formData.fullName,
           email: formData.email,
           phone: formData.phone,
-          canAttendTuesdays: formData.canAttend,
+          ageRange: formData.ageRange,
+          currentWork: formData.currentWork,
+          whatLedYouHere: formData.whatLedYouHere,
+          hopedOutcome: formData.hopedOutcome,
+          pastAchievement: formData.pastAchievement,
+          currentObstacles: formData.currentObstacles,
+          confirmedAttendance: formData.canAttend,
+          agreedTerms: formData.agreeTerms,
         },
       });
 
@@ -236,7 +267,7 @@ const Pilot = () => {
               className="inline-block text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
               style={{ color: "hsl(210,56%,14%)" }}
             >
-              {isSoldOut ? "JOIN THE WAITLIST" : "RESERVE YOUR SPOT — $150"}
+              {isSoldOut ? "JOIN THE WAITLIST" : "APPLY FOR YOUR SPOT"}
             </button>
           </motion.div>
         </div>
@@ -437,12 +468,11 @@ const Pilot = () => {
             </>
           ) : (
             <>
-              <h2 className="heading-display text-4xl md:text-5xl text-center mb-4">SECURE YOUR PLACE</h2>
+              <h2 className="heading-display text-4xl md:text-5xl text-center mb-4">APPLY FOR YOUR SPOT</h2>
               <p className="text-cream/40 text-sm font-body text-center mb-8">
                 Only {spotsRemaining ?? "..."} of 15 spots remaining.
               </p>
 
-              {/* Click to expand registration form */}
               {!formOpen ? (
                 <motion.button
                   initial={{ opacity: 0, y: 10 }}
@@ -451,7 +481,7 @@ const Pilot = () => {
                   className="w-full border-2 border-cream/20 hover:border-cream/40 py-5 px-8 transition-colors group"
                 >
                   <span className="text-sm font-display font-extrabold tracking-[0.2em] text-cream/70 group-hover:text-cream transition-colors">
-                    REGISTER NOW — CLICK TO EXPAND
+                    APPLY NOW — CLICK TO EXPAND
                   </span>
                 </motion.button>
               ) : (
@@ -461,57 +491,123 @@ const Pilot = () => {
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     onSubmit={handleSubmit}
-                    className="space-y-5 overflow-hidden"
+                    className="space-y-6 overflow-hidden"
                   >
-                    <div className="grid sm:grid-cols-2 gap-5">
+                    {/* SECTION A — About You */}
+                    <div className="space-y-5">
+                      <h3 className="text-cream/60 text-xs tracking-[0.3em] font-display font-bold">ABOUT YOU</h3>
+
                       <div>
-                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FIRST NAME *</label>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FULL NAME *</label>
                         <input
                           type="text"
                           required
-                          value={formData.firstName}
-                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          value={formData.fullName}
+                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                           className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                          placeholder="First name"
+                          placeholder="Your full name"
                         />
                       </div>
+
                       <div>
-                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">LAST NAME *</label>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
                         <input
-                          type="text"
+                          type="email"
                           required
-                          value={formData.lastName}
-                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                           className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                          placeholder="Last name"
+                          placeholder="your@email.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">PHONE NUMBER (OPTIONAL)</label>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                          placeholder="+64..."
                         />
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
-                      <input
-                        type="email"
+                    {/* Divider */}
+                    <div className="border-t border-cream/10 my-4" />
+
+                    {/* SECTION B — Intake */}
+                    <div className="space-y-5 bg-[hsl(var(--ivory))]/[0.03] p-6 -mx-6 md:mx-0 md:p-6 md:rounded-sm">
+                      <h3 className="text-cream/60 text-xs tracking-[0.3em] font-display font-bold">A LITTLE ABOUT WHERE YOU'RE AT</h3>
+                      <p className="text-cream/40 text-xs font-body leading-relaxed">
+                        Before you join, we'd love to know a little about you.<br />
+                        Ashleigh reads every application personally. Your answers help her make the most of your time together.
+                      </p>
+
+                      <div>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">HOW OLD ARE YOU? *</label>
+                        <select
+                          required
+                          value={formData.ageRange}
+                          onChange={(e) => setFormData({ ...formData, ageRange: e.target.value })}
+                          className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body focus:outline-none focus:border-cream/40 transition-colors appearance-none"
+                        >
+                          <option value="" className="bg-[hsl(var(--navy))]">Select age range</option>
+                          {AGE_OPTIONS.map((o) => (
+                            <option key={o} value={o} className="bg-[hsl(var(--navy))]">{o}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <TextareaWithCount
+                        label="WHAT DO YOU CURRENTLY DO FOR WORK?"
                         required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                        placeholder="your@email.com"
+                        placeholder="Job title, industry, or a short description — whatever feels most relevant."
+                        maxLength={300}
+                        rows={2}
+                        value={formData.currentWork}
+                        onChange={(v) => setFormData({ ...formData, currentWork: v })}
+                      />
+
+                      <TextareaWithCount
+                        label="WHAT LED YOU TO MINDCAST?"
+                        required
+                        placeholder="How did you find out about us, and what made you want to apply?"
+                        maxLength={500}
+                        value={formData.whatLedYouHere}
+                        onChange={(v) => setFormData({ ...formData, whatLedYouHere: v })}
+                      />
+
+                      <TextareaWithCount
+                        label="WHAT DO YOU HOPE TO GET OUT OF THE NEXT 10 WEEKS?"
+                        required
+                        placeholder="What would make this feel like time and money well spent?"
+                        maxLength={500}
+                        value={formData.hopedOutcome}
+                        onChange={(v) => setFormData({ ...formData, hopedOutcome: v })}
+                      />
+
+                      <TextareaWithCount
+                        label="TELL US ABOUT A PERSONAL ACHIEVEMENT YOU'RE PROUD OF"
+                        required
+                        placeholder="This doesn't have to be dramatic — it could be building a habit, changing how you communicate, something you overcame. What have you done that you're proud of?"
+                        maxLength={600}
+                        value={formData.pastAchievement}
+                        onChange={(v) => setFormData({ ...formData, pastAchievement: v })}
+                      />
+
+                      <TextareaWithCount
+                        label="WHAT DO YOU THINK MIGHT BE GETTING IN YOUR WAY RIGHT NOW?"
+                        required
+                        placeholder="Be honest — what patterns, habits, or circumstances feel like they're holding you back?"
+                        maxLength={600}
+                        value={formData.currentObstacles}
+                        onChange={(v) => setFormData({ ...formData, currentObstacles: v })}
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">PHONE NUMBER (OPTIONAL)</label>
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                        placeholder="+64..."
-                      />
-                    </div>
-
-                    <div className="space-y-4 pt-4">
+                    {/* Checkboxes */}
+                    <div className="space-y-4 pt-2">
                       <label className="flex items-start gap-3 cursor-pointer group">
                         <input
                           type="checkbox"
@@ -543,14 +639,14 @@ const Pilot = () => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
+                      className="w-full text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-4"
                       style={{ color: "hsl(210,56%,14%)" }}
                     >
-                      {loading ? "PROCESSING..." : "PAY $150 & JOIN THE PILOT"}
+                      {loading ? "SUBMITTING..." : "SUBMIT MY APPLICATION →"}
                     </button>
 
-                    <p className="text-cream/25 text-xs font-body text-center pt-2">
-                      Secure payment via Stripe. One-time payment for the full 10-week term.{" "}
+                    <p className="text-cream/25 text-xs font-body text-center pt-1 leading-relaxed">
+                      After submitting, you'll be taken to our secure payment page to complete your $150 registration. Your spot is only confirmed once payment is complete.{" "}
                       <Link to="/refund" className="underline hover:text-cream/40">Refund policy</Link> applies.
                     </p>
                   </motion.form>
@@ -588,7 +684,7 @@ const Pilot = () => {
             className="inline-block text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
             style={{ color: "hsl(210,56%,14%)" }}
           >
-            {isSoldOut ? "JOIN THE WAITLIST" : "RESERVE YOUR SPOT — $150"}
+            {isSoldOut ? "JOIN THE WAITLIST" : "APPLY FOR YOUR SPOT"}
           </button>
         </div>
       </section>
