@@ -267,7 +267,7 @@ const Pilot = () => {
               className="inline-block text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
               style={{ color: "hsl(210,56%,14%)" }}
             >
-              {isSoldOut ? "JOIN THE WAITLIST" : "RESERVE YOUR SPOT — $150"}
+              {isSoldOut ? "JOIN THE WAITLIST" : "APPLY FOR YOUR SPOT"}
             </button>
           </motion.div>
         </div>
