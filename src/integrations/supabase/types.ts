@@ -657,6 +657,48 @@ export type Database = {
           },
         ]
       }
+      pilot_registrations: {
+        Row: {
+          can_attend_tuesdays: boolean
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          payment_status: string
+          phone: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          can_attend_tuesdays?: boolean
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          payment_status?: string
+          phone?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          can_attend_tuesdays?: boolean
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          payment_status?: string
+          phone?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_group: string | null
