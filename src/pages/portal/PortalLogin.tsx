@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
@@ -42,9 +42,11 @@ const PortalLogin = () => {
       <div className="w-full max-w-sm px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           {/* Brand mark */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <img src={logoLight} alt="Mindcast" className="h-12 mx-auto" />
             <div className="w-8 h-px bg-primary-foreground/20 mx-auto mt-4" />
+            <h1 className="font-display text-lg tracking-[0.3em] text-primary-foreground/80 mt-5">MEMBER PORTAL</h1>
+            <p className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body mt-1.5">PILOT — TERM 1 2026</p>
           </div>
 
           {/* Form */}
@@ -78,10 +80,17 @@ const PortalLogin = () => {
                 disabled={loading}
                 className="w-full bg-primary-foreground/10 text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary-foreground/15 transition-colors disabled:opacity-40"
               >
-                {loading ? "Signing in..." : "Enter"}
+                {loading ? "SIGNING IN..." : "SIGN IN"}
               </button>
             </div>
           </form>
+
+          {/* Forgot password */}
+          <div className="text-center mt-4">
+            <button className="text-[10px] tracking-[0.15em] text-primary-foreground/25 hover:text-primary-foreground/50 font-body transition-colors">
+              Forgot password?
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-8">
@@ -105,9 +114,15 @@ const PortalLogin = () => {
             {googleLoading ? "Connecting..." : "Continue with Google"}
           </button>
 
-          <p className="text-primary-foreground/20 text-[11px] mt-10 text-center font-body font-light leading-relaxed">
-            First time? Your facilitator will send you an invite.
-          </p>
+          {/* Access note */}
+          <div className="mt-10 text-center">
+            <p className="text-primary-foreground/20 text-[10px] font-body font-light leading-relaxed">
+              Portal access is available to registered pilot members only.
+            </p>
+            <Link to="/pilot" className="text-[10px] tracking-[0.1em] text-primary-foreground/35 hover:text-primary-foreground/60 font-body transition-colors mt-1 inline-block">
+              To join the pilot, visit mindcast.co.nz/pilot →
+            </Link>
+          </div>
         </motion.div>
       </div>
     </section>
