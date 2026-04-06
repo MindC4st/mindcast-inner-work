@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { Check, MapPin, Calendar, Clock, Users, Zap, Headphones, BookOpen, BarChart3, Share2, Lock, DollarSign } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, MapPin, Calendar, Clock, Users, Headphones, BookOpen, BarChart3, Share2, Lock } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,9 +8,24 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+/* Custom SVG icons to replace emoji */
+const SparkIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+  </svg>
+);
+
+const CoinIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5s-2 .5-2 1.5c0 1.5 4 1 4 3 0 1-.5 1.5-2 1.5s-2.5-.5-2.5-1.5" />
+    <path d="M12 7v1M12 15v1" />
+  </svg>
+);
+
 const whatYouGet = [
   { icon: Headphones, text: "Access to the Mindcast member portal for 10 weeks" },
-  { icon: Headphones, text: "All 10 podcast episodes curated and ad-free in your portal" },
+  { icon: Headphones, text: "All 10 podcast episodes curated in your portal" },
   { icon: BookOpen, text: "Reflection questions at key moments to guide your thinking" },
   { icon: Lock, text: "A personal record of all your reflections and commitments" },
   { icon: BarChart3, text: "Implementation tracking — see your progress across the full term" },
@@ -30,6 +45,7 @@ const Pilot = () => {
   const [searchParams] = useSearchParams();
   const [spotsRemaining, setSpotsRemaining] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -54,10 +70,10 @@ const Pilot = () => {
         }).then(() => fetchSpots());
       }
     }
-    // Scroll to hash anchor after page loads
     if (window.location.hash === "#reserve") {
       setTimeout(() => {
         formRef.current?.scrollIntoView({ behavior: "smooth" });
+        setFormOpen(true);
       }, 500);
     }
   }, [searchParams]);
@@ -71,13 +87,16 @@ const Pilot = () => {
   };
 
   const scrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
+    setFormOpen(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.canAttend) {
-      toast.error("Please confirm you can attend Tuesday evenings in Taupō");
+      toast.error("Please confirm you can attend Tuesday evenings in Taupo");
       return;
     }
     if (!formData.agreeTerms) {
@@ -103,7 +122,7 @@ const Pilot = () => {
 
       if (error) throw error;
       if (data?.url) {
-        window.location.href = data.url;
+        window.open(data.url, "_blank");
       } else {
         throw new Error("No checkout URL returned");
       }
@@ -137,7 +156,7 @@ const Pilot = () => {
                 Welcome to the founding pilot. You'll receive a confirmation email shortly with everything you need to know before Session 1.
               </p>
               <p className="text-cream/40 font-body text-sm mb-12">
-                First session: Tuesday 21 April 2026, 5:30pm — 111 Jarden Mile, Taupō
+                First session: Tuesday 21 April 2026, 5:30pm — 111 Jarden Mile, Taupo
               </p>
               <Link to="/portal/login" className="inline-block text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-3 px-10 hover:bg-cream/90 transition-colors" style={{ color: "hsl(210,56%,14%)" }}>
                 GO TO YOUR PORTAL
@@ -154,11 +173,21 @@ const Pilot = () => {
     <>
       <Navbar />
 
-      {/* ── HERO ── */}
-      <section className="section-navy min-h-[80vh] flex items-center pt-16">
-        <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
+      {/* HERO with video background */}
+      <section className="section-navy min-h-[80vh] flex items-center pt-16 relative overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-15"
+        >
+          <source src="/videos/podcast_tv.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[hsl(var(--primary))]/70" />
+        <div className="container mx-auto px-6 text-center py-24 max-w-4xl relative z-10">
           <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-cream/40 text-xs tracking-[0.3em] mb-6 block">
-            FOUNDING PILOT — TAUPŌ, NZ
+            FOUNDING PILOT — TAUPO, NZ
           </motion.span>
 
           <motion.h1
@@ -185,7 +214,7 @@ const Pilot = () => {
             transition={{ delay: 0.55 }}
             className="text-cream/45 font-body text-sm md:text-base leading-relaxed max-w-2xl mx-auto mb-10"
           >
-            Mindcast is launching its first live cohort in Taupō, New Zealand. Every Tuesday evening for 10 weeks, a small group of 15 will gather to listen deeply, reflect honestly, and commit to one meaningful change each week. This is not a course. It is a practice.
+            Mindcast is launching its first live cohort in Taupo, New Zealand. Every Tuesday evening for 10 weeks, a small group of 15 will gather to listen deeply, reflect honestly, and commit to one meaningful change each week. This is not a course. It is a practice.
           </motion.p>
 
           {/* Spots Badge */}
@@ -193,10 +222,10 @@ const Pilot = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="inline-flex items-center gap-2 border border-cream/20 px-5 py-2.5 mb-10"
+            className="inline-flex items-center gap-2 border border-cream/20 px-6 py-3 mb-10"
           >
-            <Zap size={14} className="text-cream/60" />
-            <span className="text-xs tracking-[0.2em] text-cream/70 font-display font-bold">
+            <SparkIcon className="w-4 h-4 text-cream/60" />
+            <span className="text-sm tracking-[0.2em] text-cream/70 font-display font-bold">
               15 SPOTS ONLY — {spotsText.toUpperCase()}
             </span>
           </motion.div>
@@ -204,7 +233,7 @@ const Pilot = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.85 }} className="block">
             <button
               onClick={scrollToForm}
-              className="inline-block text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
+              className="inline-block text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
               style={{ color: "hsl(210,56%,14%)" }}
             >
               {isSoldOut ? "JOIN THE WAITLIST" : "RESERVE YOUR SPOT — $150"}
@@ -213,7 +242,7 @@ const Pilot = () => {
         </div>
       </section>
 
-      {/* ── WHAT IS MINDCAST PILOT ── */}
+      {/* WHAT IS MINDCAST PILOT */}
       <section className="section-white py-24">
         <div className="container mx-auto px-6 max-w-3xl">
           <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-6">WHAT IS THE PILOT?</h2>
@@ -228,24 +257,24 @@ const Pilot = () => {
               {[
                 { icon: Calendar, label: "10 Tuesdays starting 21 April 2026" },
                 { icon: Clock, label: "5:30pm – 7:30pm" },
-                { icon: MapPin, label: "111 Jarden Mile, Taupō" },
+                { icon: MapPin, label: "111 Jarden Mile, Taupo" },
                 { icon: Users, label: "15 founding members only" },
               ].map((d, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <d.icon className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="font-body text-sm text-foreground">{d.label}</span>
+                  <span className="font-body text-[24px] text-foreground">{d.label}</span>
                 </div>
               ))}
               <div className="flex items-center gap-4 sm:col-span-2">
-                <DollarSign className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="font-body text-sm text-foreground">$150 for the full 10-week term (one payment)</span>
+                <CoinIcon className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="font-body text-[24px] text-foreground">$150 for the full 10-week term (one payment)</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── FIRST EPISODE ── */}
+      {/* FIRST EPISODE */}
       <section className="section-navy py-24">
         <div className="container mx-auto px-6 max-w-3xl">
           <span className="block text-cream/40 text-xs tracking-[0.3em] mb-4 text-center">SESSION 1 — YOUR FIRST EPISODE</span>
@@ -254,11 +283,12 @@ const Pilot = () => {
           <div className="border-2 border-cream/15 p-8 md:p-10">
             <div className="flex flex-col md:flex-row gap-8 items-start">
               {/* Podcast card thumbnail */}
-              <div className="w-full md:w-48 h-48 md:h-48 bg-cream/5 border border-cream/10 flex items-center justify-center flex-shrink-0">
-                <div className="text-center px-4">
-                  <span className="text-cream/30 text-[10px] tracking-widest block mb-2">DIARY OF A CEO</span>
-                  <span className="text-cream/20 text-[9px] tracking-wider block">WITH STEVEN BARTLETT</span>
-                </div>
+              <div className="w-full md:w-48 h-48 md:h-48 flex-shrink-0 overflow-hidden">
+                <img
+                  src="/images/johann_hari_podcast.jpg"
+                  alt="Johann Hari on Diary of a CEO"
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               <div>
@@ -281,7 +311,7 @@ const Pilot = () => {
         </div>
       </section>
 
-      {/* ── WHAT YOU GET ── */}
+      {/* WHAT YOU GET */}
       <section className="section-white py-24">
         <div className="container mx-auto px-6 max-w-3xl">
           <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-4">WHAT YOU GET</h2>
@@ -306,7 +336,7 @@ const Pilot = () => {
         </div>
       </section>
 
-      {/* ── REGISTRATION / CHECKOUT ── */}
+      {/* REGISTRATION / CHECKOUT */}
       <section className="section-navy py-24" ref={formRef} id="reserve">
         <div className="container mx-auto px-6 max-w-xl">
           {isSoldOut ? (
@@ -314,7 +344,7 @@ const Pilot = () => {
               {/* SOLD OUT BANNER */}
               <div className="border-2 border-cream/20 p-6 mb-10 text-center">
                 <span className="text-cream/70 text-xs tracking-[0.3em] font-display font-bold">
-                  THE TAUPŌ PILOT IS FULL — 15/15 SPOTS TAKEN
+                  THE TAUPO PILOT IS FULL — 15/15 SPOTS TAKEN
                 </span>
               </div>
 
@@ -397,7 +427,7 @@ const Pilot = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
+                    className="w-full text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
                     style={{ color: "hsl(210,56%,14%)" }}
                   >
                     {loading ? "SUBMITTING..." : "JOIN THE WAITLIST"}
@@ -408,108 +438,130 @@ const Pilot = () => {
           ) : (
             <>
               <h2 className="heading-display text-4xl md:text-5xl text-center mb-4">SECURE YOUR PLACE</h2>
-              <p className="text-cream/40 text-sm font-body text-center mb-12">
+              <p className="text-cream/40 text-sm font-body text-center mb-8">
                 Only {spotsRemaining ?? "..."} of 15 spots remaining.
               </p>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FIRST NAME *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                      placeholder="First name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">LAST NAME *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.lastName}
-                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                      placeholder="Last name"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                    placeholder="your@email.com"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">PHONE NUMBER (OPTIONAL)</label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                    placeholder="+64..."
-                  />
-                </div>
-
-                <div className="space-y-4 pt-4">
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={formData.canAttend}
-                      onChange={(e) => setFormData({ ...formData, canAttend: e.target.checked })}
-                      className="mt-0.5 w-4 h-4 accent-cream"
-                    />
-                    <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
-                      I confirm I can attend Tuesday evenings in Taupō from 21 April 2026
-                    </span>
-                  </label>
-
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={formData.agreeTerms}
-                      onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
-                      className="mt-0.5 w-4 h-4 accent-cream"
-                    />
-                    <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
-                      I agree to the{" "}
-                      <Link to="/terms" className="underline text-cream/60 hover:text-cream">Terms & Conditions</Link>
-                      {" "}and{" "}
-                      <Link to="/privacy" className="underline text-cream/60 hover:text-cream">Privacy Policy</Link>
-                    </span>
-                  </label>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
-                  style={{ color: "hsl(210,56%,14%)" }}
+              {/* Click to expand registration form */}
+              {!formOpen ? (
+                <motion.button
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => setFormOpen(true)}
+                  className="w-full border-2 border-cream/20 hover:border-cream/40 py-5 px-8 transition-colors group"
                 >
-                  {loading ? "PROCESSING..." : "PAY $150 & JOIN THE PILOT"}
-                </button>
+                  <span className="text-sm font-display font-extrabold tracking-[0.2em] text-cream/70 group-hover:text-cream transition-colors">
+                    REGISTER NOW — CLICK TO EXPAND
+                  </span>
+                </motion.button>
+              ) : (
+                <AnimatePresence>
+                  <motion.form
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    onSubmit={handleSubmit}
+                    className="space-y-5 overflow-hidden"
+                  >
+                    <div className="grid sm:grid-cols-2 gap-5">
+                      <div>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FIRST NAME *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.firstName}
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                          placeholder="First name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">LAST NAME *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.lastName}
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                          placeholder="Last name"
+                        />
+                      </div>
+                    </div>
 
-                <p className="text-cream/25 text-xs font-body text-center pt-2">
-                  Secure payment via Stripe. One-time payment for the full 10-week term.{" "}
-                  <Link to="/refund" className="underline hover:text-cream/40">Refund policy</Link> applies.
-                </p>
-              </form>
+                    <div>
+                      <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">PHONE NUMBER (OPTIONAL)</label>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                        placeholder="+64..."
+                      />
+                    </div>
+
+                    <div className="space-y-4 pt-4">
+                      <label className="flex items-start gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={formData.canAttend}
+                          onChange={(e) => setFormData({ ...formData, canAttend: e.target.checked })}
+                          className="mt-0.5 w-4 h-4 accent-cream"
+                        />
+                        <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
+                          I confirm I can attend Tuesday evenings in Taupo from 21 April 2026
+                        </span>
+                      </label>
+
+                      <label className="flex items-start gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={formData.agreeTerms}
+                          onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
+                          className="mt-0.5 w-4 h-4 accent-cream"
+                        />
+                        <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
+                          I agree to the{" "}
+                          <Link to="/terms" className="underline text-cream/60 hover:text-cream">Terms & Conditions</Link>
+                          {" "}and{" "}
+                          <Link to="/privacy" className="underline text-cream/60 hover:text-cream">Privacy Policy</Link>
+                        </span>
+                      </label>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
+                      style={{ color: "hsl(210,56%,14%)" }}
+                    >
+                      {loading ? "PROCESSING..." : "PAY $150 & JOIN THE PILOT"}
+                    </button>
+
+                    <p className="text-cream/25 text-xs font-body text-center pt-2">
+                      Secure payment via Stripe. One-time payment for the full 10-week term.{" "}
+                      <Link to="/refund" className="underline hover:text-cream/40">Refund policy</Link> applies.
+                    </p>
+                  </motion.form>
+                </AnimatePresence>
+              )}
             </>
           )}
         </div>
       </section>
 
-      {/* ── FAQ ── */}
+      {/* FAQ */}
       <section className="section-white py-24">
         <div className="container mx-auto px-6 max-w-3xl">
           <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">FREQUENTLY ASKED</h2>
@@ -524,7 +576,7 @@ const Pilot = () => {
         </div>
       </section>
 
-      {/* ── FINAL CTA ── */}
+      {/* FINAL CTA */}
       <section className="section-navy py-24">
         <div className="container mx-auto px-6 max-w-xl text-center">
           <h2 className="heading-display text-4xl md:text-5xl mb-6">THIS IS WHERE IT STARTS.</h2>
@@ -533,7 +585,7 @@ const Pilot = () => {
           </p>
           <button
             onClick={scrollToForm}
-            className="inline-block text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
+            className="inline-block text-sm font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors"
             style={{ color: "hsl(210,56%,14%)" }}
           >
             {isSoldOut ? "JOIN THE WAITLIST" : "RESERVE YOUR SPOT — $150"}
