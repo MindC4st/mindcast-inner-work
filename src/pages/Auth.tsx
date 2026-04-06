@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-import logoLight from "@/assets/logo-light-tagline.png";
+import logoLight from "@/assets/logo-cream.png";
 
 const Auth = () => {
   const [tab, setTab] = useState<"signin" | "signup">("signin");
