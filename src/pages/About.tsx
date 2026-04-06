@@ -155,7 +155,7 @@ const About = () => (
             Mindcast exists because of AI. Not in spite of it.
           </p>
           <p>
-            Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or a background in tech. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely.
+            Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or ample free time. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely.
           </p>
           <p>
             Our resources are evidence-based because AI lets us stand on the shoulders of the researchers, scientists, and authors who have spent decades studying human behaviour, healing, and connection. We don't make things up. We find the best thinking that exists, translate it into something you can actually use, and bring it into the room with us every week.
