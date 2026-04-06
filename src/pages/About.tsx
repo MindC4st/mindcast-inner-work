@@ -113,6 +113,70 @@ const About = () => (
       </div>
     </section>
 
+    {/* Our Relationship With AI */}
+    <section className="section-navy py-24 relative overflow-hidden">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-15"
+      >
+        <source src="/videos/waves_pulsating.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute inset-0 bg-[hsl(var(--primary))]/85" />
+      <div className="container mx-auto px-6 relative z-10 max-w-3xl">
+        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-3xl sm:text-4xl md:text-5xl text-center mb-4 leading-[1.1]">
+          WE USE AI. HERE'S WHY WE'RE PROUD OF THAT.
+        </motion.h2>
+        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-center text-cream/50 font-body text-sm tracking-wide mb-12">
+          A note on how Mindcast was built — and what we believe about the tools we use.
+        </motion.p>
+
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-5 text-cream/70 font-body text-sm leading-relaxed">
+          <p>
+            The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone.
+          </p>
+          <p>
+            We believe AI should make us more human, not less. It should free up the hours we waste on things that don't require a human touch — so we can spend more time in rooms with real people, having conversations that actually matter.
+          </p>
+          <p>
+            Mindcast exists because of AI. Not in spite of it.
+          </p>
+          <p>
+            Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or a background in tech. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely.
+          </p>
+          <p>
+            Our resources are evidence-based because AI lets us stand on the shoulders of the researchers, scientists, and authors who have spent decades studying human behaviour, healing, and connection. We don't make things up. We find the best thinking that exists, translate it into something you can actually use, and bring it into the room with us every week.
+          </p>
+          <p>
+            That's the version of AI we're interested in: the one that makes human experience richer, more accessible, and more honest.
+          </p>
+        </motion.div>
+
+        <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-16 text-center">
+          <p className="font-display text-2xl sm:text-3xl md:text-4xl tracking-wider text-cream leading-snug">
+            "AI didn't replace the human work. It made the human work possible."
+          </p>
+        </motion.blockquote>
+      </div>
+    </section>
+
+    {/* Closing CTA */}
+    <section className="section-white py-24">
+      <div className="container mx-auto px-6 text-center max-w-3xl">
+        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-4xl md:text-6xl text-primary mb-6">
+          READY TO START?
+        </motion.h2>
+        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
+          The Taupo Pilot is running now — 15 founding members, 10 weeks, every Tuesday evening. This is where Mindcast begins.
+        </motion.p>
+        <motion.a href="/pilot" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+          RESERVE YOUR SPOT &rarr;
+        </motion.a>
+      </div>
+    </section>
+
     <Footer />
   </>
 );
