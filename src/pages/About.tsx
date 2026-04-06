@@ -40,10 +40,19 @@ const About = () => (
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              MINDCAST started with a question: what if there was a place — like church — where you could go every week to work on yourself, connect with others, and leave with real tools? No dogma. No guru. Just a structured practice built on evidence, consent, and community.
+              I started Mindcast with a question I couldn't stop asking: what if there was a place — like church, like a good AA meeting, like the best therapy group you never found — where you could show up every week, work on yourself, and leave with something real?
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              Not a course. Not a guru. Not a highlight reel.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              A structured practice. Built on evidence, consent, and the kind of honest community that actually changes people.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              I couldn't find it. So I built it.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
-              We couldn't find it, so we built it. MINDCAST is for anyone who believes that healing is a skill — not a luxury, not a mystery, but something you can learn and practice every single week.
+              Mindcast exists for anyone who believes that healing is a skill — not a luxury, not a mystery, not something that happens to you. Something you learn. Something you practise. One week at a time.
             </p>
           </div>
         </div>
