@@ -614,7 +614,7 @@ const StickyTimeline = () => {
       num: "03",
       title: "DISCUSS WITH DEPTH",
       body: "Tuesday night is where the magic happens. A small group of curious adults — no surface level, no small talk. Real ideas, real application, real conversation.",
-      image: heroCouple,
+      image: "/images/pool_group.png",
     },
     {
       num: "04",
