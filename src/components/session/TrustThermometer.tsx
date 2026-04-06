@@ -52,22 +52,22 @@ const SingleThermometer = ({
           value={data.nameValue || ""}
           onChange={(e) => onChange({ ...data, nameValue: e.target.value, label: e.target.value || defaultLabel })}
           placeholder={defaultLabel}
-          className="bg-transparent border-b border-silver/20 text-silver text-xs tracking-widest text-center py-1 w-full max-w-[160px] focus:border-silver focus:outline-none placeholder:text-silver/20"
+          className="bg-transparent border-b border-cream/20 text-cream text-xs tracking-widest text-center py-1 w-full max-w-[160px] focus:border-cream focus:outline-none placeholder:text-cream/20"
         />
       ) : (
-        <span className="text-silver/50 text-[10px] tracking-widest text-center">{data.label || defaultLabel}</span>
+        <span className="text-cream/50 text-[10px] tracking-widest text-center">{data.label || defaultLabel}</span>
       )}
 
       {/* Value display */}
       <div className="text-center">
-        <span className="font-display text-4xl text-silver block">{data.value}</span>
+        <span className="font-display text-4xl text-cream block">{data.value}</span>
         <span className="text-[10px] tracking-widest" style={{ color }}>{label}</span>
       </div>
 
       {/* Thermometer body */}
       <div className="relative w-10 h-52 flex flex-col items-center">
         {/* Tube */}
-        <div className="relative w-6 h-44 border-2 border-silver/20 overflow-hidden bg-primary">
+        <div className="relative w-6 h-44 border-2 border-cream/20 overflow-hidden bg-primary">
           {/* Fill */}
           <div
             className="absolute bottom-0 left-0 right-0 transition-all duration-300"
@@ -83,7 +83,7 @@ const SingleThermometer = ({
           {[25, 50, 75].map((mark) => (
             <div
               key={mark}
-              className="absolute left-0 right-0 border-t border-silver/10"
+              className="absolute left-0 right-0 border-t border-cream/10"
               style={{ bottom: `${mark}%` }}
             />
           ))}
@@ -91,7 +91,7 @@ const SingleThermometer = ({
 
         {/* Bulb */}
         <div
-          className="w-10 h-10 rounded-full border-2 border-silver/20 -mt-1 transition-colors duration-300"
+          className="w-10 h-10 rounded-full border-2 border-cream/20 -mt-1 transition-colors duration-300"
           style={{ backgroundColor: color }}
         />
       </div>
@@ -103,7 +103,7 @@ const SingleThermometer = ({
         max={100}
         value={data.value}
         onChange={(e) => onChange({ ...data, value: Number(e.target.value) })}
-        className="w-full max-w-[120px] h-1 appearance-none cursor-pointer bg-silver/20 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-silver [&::-webkit-slider-thumb]:border-0 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-silver [&::-moz-range-thumb]:border-0"
+        className="w-full max-w-[120px] h-1 appearance-none cursor-pointer bg-cream/20 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-cream [&::-webkit-slider-thumb]:border-0 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-cream [&::-moz-range-thumb]:border-0"
       />
     </div>
   );
@@ -126,7 +126,7 @@ const TrustThermometer = ({ title, thermometers, storageKey, onSave, initialValu
 
   return (
     <div className="bg-primary p-6 md:p-8 mb-4">
-      {title && <p className="text-silver/70 text-xs tracking-[0.2em] mb-8 uppercase text-center">{title}</p>}
+      {title && <p className="text-cream/70 text-xs tracking-[0.2em] mb-8 uppercase text-center">{title}</p>}
       <div className="flex justify-center gap-8 md:gap-12">
         {thermometers.map((t) => (
           <SingleThermometer

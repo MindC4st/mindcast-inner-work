@@ -87,7 +87,7 @@ const ConnectPairs = ({ instruction, leftItems, rightItems, correctPairs, storag
 
   return (
     <div className="mb-4">
-      <p className="text-silver/70 text-xs tracking-[0.2em] mb-6 uppercase">{instruction}</p>
+      <p className="text-cream/70 text-xs tracking-[0.2em] mb-6 uppercase">{instruction}</p>
 
       <div ref={containerRef} className="relative">
         <svg className="absolute inset-0 w-full h-full pointer-events-none z-10">
@@ -117,8 +117,8 @@ const ConnectPairs = ({ instruction, leftItems, rightItems, correctPairs, storag
                   isMatched(item)
                     ? "border-green-500/50 bg-green-900/20 text-green-300"
                     : selected === item
-                    ? "border-silver bg-silver/10 text-silver"
-                    : "border-silver/20 text-silver/70 hover:border-silver/40"
+                    ? "border-cream bg-cream/10 text-cream"
+                    : "border-cream/20 text-cream/70 hover:border-cream/40"
                 }`}
                 disabled={isMatched(item)}
               >
@@ -138,8 +138,8 @@ const ConnectPairs = ({ instruction, leftItems, rightItems, correctPairs, storag
                   isMatched(item)
                     ? "border-green-500/50 bg-green-900/20 text-green-300"
                     : selected === item
-                    ? "border-silver bg-silver/10 text-silver"
-                    : "border-silver/20 text-silver/70 hover:border-silver/40"
+                    ? "border-cream bg-cream/10 text-cream"
+                    : "border-cream/20 text-cream/70 hover:border-cream/40"
                 }`}
                 disabled={isMatched(item)}
               >

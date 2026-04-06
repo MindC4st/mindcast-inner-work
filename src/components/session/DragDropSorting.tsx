@@ -88,24 +88,24 @@ const DragDropSorting = ({ instruction, cards, columns, storageKey, onSave, init
 
   return (
     <div className="mb-4">
-      <p className="text-silver/70 text-xs tracking-[0.2em] mb-6 uppercase">{instruction}</p>
+      <p className="text-cream/70 text-xs tracking-[0.2em] mb-6 uppercase">{instruction}</p>
 
       <DragDropContext onDragEnd={handleDragEnd}>
         {/* Card pool */}
         <Droppable droppableId="pool" direction="horizontal">
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-wrap gap-3 mb-8 min-h-[50px] p-4 border-2 border-dashed border-silver/20">
+            <div ref={provided.innerRef} {...provided.droppableProps} className="flex flex-wrap gap-3 mb-8 min-h-[50px] p-4 border-2 border-dashed border-cream/20">
               {pool.map((card, i) => (
                 <Draggable key={card} draggableId={card} index={i}>
                   {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={`bg-primary border-2 border-silver/30 px-4 py-2 text-xs tracking-widest text-silver cursor-grab ${snapshot.isDragging ? "opacity-80 rotate-2" : ""}`}>
+                    <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={`bg-primary border-2 border-cream/30 px-4 py-2 text-xs tracking-widest text-cream cursor-grab ${snapshot.isDragging ? "opacity-80 rotate-2" : ""}`}>
                       {card}
                     </div>
                   )}
                 </Draggable>
               ))}
               {provided.placeholder}
-              {pool.length === 0 && <span className="text-silver/20 text-xs">All cards placed</span>}
+              {pool.length === 0 && <span className="text-cream/20 text-xs">All cards placed</span>}
             </div>
           )}
         </Droppable>
@@ -115,8 +115,8 @@ const DragDropSorting = ({ instruction, cards, columns, storageKey, onSave, init
           {columns.map((col) => (
             <Droppable key={col.id} droppableId={col.id}>
               {(provided, snapshot) => (
-                <div ref={provided.innerRef} {...provided.droppableProps} className={`border-2 p-4 min-h-[150px] transition-colors ${snapshot.isDraggingOver ? "border-silver bg-silver/10" : "border-silver/20"}`}>
-                  <h4 className="font-display text-lg tracking-widest text-silver text-center mb-4 pb-3 border-b border-silver/10">{col.label}</h4>
+                <div ref={provided.innerRef} {...provided.droppableProps} className={`border-2 p-4 min-h-[150px] transition-colors ${snapshot.isDraggingOver ? "border-cream bg-cream/10" : "border-cream/20"}`}>
+                  <h4 className="font-display text-lg tracking-widest text-cream text-center mb-4 pb-3 border-b border-cream/10">{col.label}</h4>
                   <div className="space-y-2">
                     {zones[col.id].map((card, i) => (
                       <Draggable key={card} draggableId={card} index={i}>
@@ -132,7 +132,7 @@ const DragDropSorting = ({ instruction, cards, columns, storageKey, onSave, init
                                 ? results[card]
                                   ? "bg-green-900/30 border-2 border-green-500/50 text-green-300"
                                   : "bg-red-900/30 border-2 border-red-500/50 text-red-300"
-                                : "bg-silver/10 border-2 border-silver/20 text-silver"
+                                : "bg-cream/10 border-2 border-cream/20 text-cream"
                             }`}
                           >
                             {card}

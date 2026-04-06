@@ -30,7 +30,7 @@ const WordPhraseBuilder = ({ template, storageKey, onSave, initialValue }: Phras
 
   return (
     <div className="bg-primary p-6 md:p-8 mb-4">
-      <div className="font-body text-silver/80 text-sm md:text-base leading-loose">
+      <div className="font-body text-cream/80 text-sm md:text-base leading-loose">
         {parts.map((part, i) => (
           <span key={i}>
             {part}
@@ -39,7 +39,7 @@ const WordPhraseBuilder = ({ template, storageKey, onSave, initialValue }: Phras
                 type="text"
                 value={values[i]}
                 onChange={(e) => handleChange(i, e.target.value)}
-                className="inline-block bg-transparent border-b-2 border-silver/40 text-silver px-2 py-1 text-sm md:text-base font-body min-w-[120px] md:min-w-[180px] focus:border-silver focus:outline-none mx-1"
+                className="inline-block bg-transparent border-b-2 border-cream/40 text-cream px-2 py-1 text-sm md:text-base font-body min-w-[120px] md:min-w-[180px] focus:border-cream focus:outline-none mx-1"
                 placeholder="..."
               />
             )}
@@ -47,7 +47,7 @@ const WordPhraseBuilder = ({ template, storageKey, onSave, initialValue }: Phras
         ))}
       </div>
       {saved && (
-        <span className="text-silver/50 text-xs flex items-center gap-1 mt-3 animate-fade-in">
+        <span className="text-cream/50 text-xs flex items-center gap-1 mt-3 animate-fade-in">
           <Check size={12} /> SAVED
         </span>
       )}

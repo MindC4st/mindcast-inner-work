@@ -38,7 +38,7 @@ const CommitmentCard = ({ stem, storageKey, onSave, initialValue }: CommitmentCa
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-silver text-primary p-8 md:p-12 text-center"
+          className="bg-cream text-primary p-8 md:p-12 text-center"
         >
           <Lock size={32} className="mx-auto mb-4 text-primary/30" />
           <p className="text-xs tracking-[0.3em] text-primary/50 mb-4">YOUR COMMITMENT IS LOCKED IN</p>
@@ -54,9 +54,9 @@ const CommitmentCard = ({ stem, storageKey, onSave, initialValue }: CommitmentCa
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-primary border-2 border-silver/20 p-6 text-center mt-4"
+          className="bg-primary border-2 border-cream/20 p-6 text-center mt-4"
         >
-          <p className="font-display text-xl tracking-widest text-silver mb-4">SEE YOU NEXT WEEK.</p>
+          <p className="font-display text-xl tracking-widest text-cream mb-4">SEE YOU NEXT WEEK.</p>
           <button onClick={shareCommitment} className="btn-outlined text-xs py-3 px-6 flex items-center gap-2 mx-auto">
             <Share2 size={12} /> {shared ? "COPIED!" : "SHARE THIS"}
           </button>
@@ -66,21 +66,21 @@ const CommitmentCard = ({ stem, storageKey, onSave, initialValue }: CommitmentCa
   }
 
   return (
-    <div className="bg-primary border-2 border-silver/20 p-8 md:p-12 mb-4">
-      <p className="text-silver/50 text-xs tracking-[0.2em] mb-6">YOUR COMMITMENT</p>
-      <p className="font-display text-2xl md:text-3xl tracking-wider text-silver mb-6">{stem}</p>
+    <div className="bg-primary border-2 border-cream/20 p-8 md:p-12 mb-4">
+      <p className="text-cream/50 text-xs tracking-[0.2em] mb-6">YOUR COMMITMENT</p>
+      <p className="font-display text-2xl md:text-3xl tracking-wider text-cream mb-6">{stem}</p>
       <textarea
         value={commitment}
         onChange={(e) => { setCommitment(e.target.value); onSave({ commitment: e.target.value, name, locked: false }); }}
         rows={2}
-        className="w-full bg-transparent border-2 border-silver/30 text-silver p-4 text-sm font-body focus:border-silver focus:outline-none resize-none mb-4"
+        className="w-full bg-transparent border-2 border-cream/30 text-cream p-4 text-sm font-body focus:border-cream focus:outline-none resize-none mb-4"
         placeholder="Type your commitment..."
       />
       <input
         type="text"
         value={name}
         onChange={(e) => { setName(e.target.value); onSave({ commitment, name: e.target.value, locked: false }); }}
-        className="w-full bg-transparent border-2 border-silver/30 text-silver p-4 text-sm tracking-widest placeholder:text-silver/30 focus:border-silver focus:outline-none mb-6"
+        className="w-full bg-transparent border-2 border-cream/30 text-cream p-4 text-sm tracking-widest placeholder:text-cream/30 focus:border-cream focus:outline-none mb-6"
         placeholder="YOUR NAME"
       />
       <button onClick={lockIn} disabled={!commitment || !name} className="btn-filled text-xs w-full py-4 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2">
