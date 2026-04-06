@@ -10,12 +10,12 @@ const team = [
 ];
 
 const values = [
-  "CONSENT BEFORE EVERYTHING",
-  "EVIDENCE WHERE POSSIBLE, HONESTY ABOUT THE REST",
-  "INNER WORK IS FOR EVERYONE",
-  "COMMUNITY OVER CONTENT",
-  "SAFETY IS NON-NEGOTIABLE",
-  "ONE STEP AT A TIME",
+  { title: "CONSENT BEFORE EVERYTHING", desc: "You decide what you share, what you explore, and how far you go. Always." },
+  { title: "EVIDENCE WHERE POSSIBLE, HONESTY ABOUT THE REST", desc: "We use what the research says. Where it's silent, we say so. No false certainty. No magic." },
+  { title: "INNER WORK IS FOR EVERYONE", desc: "Not just the wealthy. Not just the already-well. Not just those with time. This is for the rest of us." },
+  { title: "COMMUNITY OVER CONTENT", desc: "The most powerful thing we offer isn't a podcast or a framework. It's the room you walk into each week." },
+  { title: "SAFETY IS NON-NEGOTIABLE", desc: "Physically, emotionally, psychologically. We build spaces where people can be honest without being harmed." },
+  { title: "ONE STEP AT A TIME", desc: "We don't ask you to transform. We ask you to notice one thing, name one thing, change one thing. Then come back next week." },
 ];
 
 const About = () => (
@@ -99,10 +99,11 @@ const About = () => (
     <section className="section-navy py-24">
       <div className="container mx-auto px-6">
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR VALUES</h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {values.map((v, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-cream/20 p-6">
-              <p className="font-display text-lg tracking-wider text-cream leading-snug">{v}</p>
+              <h3 className="font-display text-lg tracking-wider text-cream leading-snug mb-3">{v.title}</h3>
+              <p className="text-cream/50 text-sm font-body leading-relaxed">{v.desc}</p>
             </motion.div>
           ))}
         </div>
