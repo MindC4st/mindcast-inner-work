@@ -764,7 +764,7 @@ const VisionQuote = () => {
           ))}
         </p>
         <div className="mt-12 flex items-center justify-center gap-4">
-          <img src={founderPortrait} alt="Ashleigh" className="w-16 h-16 rounded-full object-cover" />
+          <img src="/images/headphones_window.jpg" alt="Ashleigh" className="w-16 h-16 rounded-full object-cover" />
           <span className="font-body text-[15px]" style={{ color: "#3585af" }}>
             — Ashleigh, Founder of Mindcast
           </span>
@@ -776,18 +776,18 @@ const VisionQuote = () => {
 
 /* ─── IMAGE GALLERY (Masonry) ─── */
 const ImageGallery = () => {
-  const images = [
-    { src: heroCouple, label: "THE PRACTICE", aspect: "landscape" },
-    { src: heroPortrait, label: "THE SPACE", aspect: "portrait" },
-    { src: founderPortrait, label: "THE FOUNDER", aspect: "portrait" },
-    { src: flatlayRoadmap, label: "THE VISION", aspect: "square" },
+  const galleryItems = [
+    { video: "/videos/group_laughing.mp4", label: "THE COMMUNITY" },
+    { image: "/images/headphones_window.jpg", label: "THE PRACTICE" },
+    { video: "/videos/women_with_notepad.mp4", label: "THE TOOLS" },
+    { video: "/videos/talking_outside.mp4", label: "THE SPACE" },
   ];
 
   return (
     <section className="section-navy py-24">
       <div className="container mx-auto px-6">
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-          {images.map((img, i) => (
+          {galleryItems.map((item, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 40 }}
@@ -796,18 +796,19 @@ const ImageGallery = () => {
               transition={{ delay: i * 0.1, duration: 0.6 }}
               className="relative group overflow-hidden break-inside-avoid"
             >
-              <img
-                src={img.src}
-                alt={img.label}
-                className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                loading="lazy"
-              />
+              {item.video ? (
+                <video autoPlay muted loop playsInline className="w-full object-cover">
+                  <source src={item.video} type="video/mp4" />
+                </video>
+              ) : (
+                <img src={item.image} alt={item.label} className="w-full object-cover" loading="lazy" />
+              )}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                 <span
                   className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-cream text-[13px] tracking-[0.2em]"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  {img.label}
+                  {item.label}
                 </span>
               </div>
             </motion.div>
