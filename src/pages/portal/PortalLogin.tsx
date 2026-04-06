@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
-import logoLight from "@/assets/logo-light-tagline.png";
+import logoLight from "@/assets/logo-cream.png";
 
 const PortalLogin = () => {
   const [email, setEmail] = useState("");
