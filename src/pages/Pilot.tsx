@@ -304,105 +304,203 @@ const Pilot = () => {
       {/* ── REGISTRATION / CHECKOUT ── */}
       <section className="section-navy py-24" ref={formRef} id="reserve">
         <div className="container mx-auto px-6 max-w-xl">
-          <h2 className="heading-display text-4xl md:text-5xl text-center mb-4">SECURE YOUR PLACE</h2>
-          <p className="text-cream/40 text-sm font-body text-center mb-12">
-            {isSoldOut
-              ? "All 15 spots have been filled. Join the waitlist to be first in line for Term 2."
-              : `Only ${spotsRemaining ?? "..."} of 15 spots remaining.`}
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FIRST NAME *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                  placeholder="First name"
-                />
-              </div>
-              <div>
-                <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">LAST NAME *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                  placeholder="Last name"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                placeholder="your@email.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">PHONE NUMBER (OPTIONAL)</label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
-                placeholder="+64..."
-              />
-            </div>
-
-            <div className="space-y-4 pt-4">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={formData.canAttend}
-                  onChange={(e) => setFormData({ ...formData, canAttend: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 accent-cream"
-                />
-                <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
-                  I confirm I can attend Tuesday evenings in Taupō from 21 April 2026
+          {isSoldOut ? (
+            <>
+              {/* SOLD OUT BANNER */}
+              <div className="border-2 border-cream/20 p-6 mb-10 text-center">
+                <span className="text-cream/70 text-xs tracking-[0.3em] font-display font-bold">
+                  THE TAUPŌ PILOT IS FULL — 15/15 SPOTS TAKEN
                 </span>
-              </label>
+              </div>
 
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={formData.agreeTerms}
-                  onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 accent-cream"
-                />
-                <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
-                  I agree to the{" "}
-                  <Link to="/terms" className="underline text-cream/60 hover:text-cream">Terms & Conditions</Link>
-                  {" "}and{" "}
-                  <Link to="/privacy" className="underline text-cream/60 hover:text-cream">Privacy Policy</Link>
-                </span>
-              </label>
-            </div>
+              <h2 className="heading-display text-4xl md:text-5xl text-center mb-4">JOIN THE WAITLIST</h2>
+              <p className="text-cream/40 text-sm font-body text-center mb-12">
+                Be first in line if a spot opens or when Term 2 is announced.
+              </p>
 
-            <button
-              type="submit"
-              disabled={loading || isSoldOut}
-              className="w-full text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
-              style={{ color: "hsl(210,56%,14%)" }}
-            >
-              {loading ? "PROCESSING..." : isSoldOut ? "JOIN WAITLIST" : "PAY $150 & JOIN THE PILOT"}
-            </button>
+              {waitlistSubmitted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-8"
+                >
+                  <div className="w-16 h-16 border-2 border-cream/30 flex items-center justify-center mx-auto mb-6">
+                    <Check className="w-8 h-8 text-cream" />
+                  </div>
+                  <p className="font-display text-2xl tracking-wider text-cream mb-3">YOU'RE ON THE WAITLIST.</p>
+                  <p className="text-cream/50 text-sm font-body max-w-sm mx-auto">
+                    We'll be in touch if a spot opens or when Term 2 is announced.
+                  </p>
+                </motion.div>
+              ) : (
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setLoading(true);
+                    try {
+                      const { error } = await supabase.from("pilot_waitlist").insert({
+                        first_name: waitlistData.firstName,
+                        last_name: waitlistData.lastName,
+                        email: waitlistData.email,
+                      });
+                      if (error) throw error;
+                      setWaitlistSubmitted(true);
+                      toast.success("You're on the waitlist!");
+                    } catch (err: any) {
+                      toast.error(err.message || "Something went wrong. Please try again.");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="space-y-5"
+                >
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FIRST NAME *</label>
+                      <input
+                        type="text"
+                        required
+                        value={waitlistData.firstName}
+                        onChange={(e) => setWaitlistData({ ...waitlistData, firstName: e.target.value })}
+                        className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                        placeholder="First name"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">LAST NAME *</label>
+                      <input
+                        type="text"
+                        required
+                        value={waitlistData.lastName}
+                        onChange={(e) => setWaitlistData({ ...waitlistData, lastName: e.target.value })}
+                        className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                        placeholder="Last name"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
+                    <input
+                      type="email"
+                      required
+                      value={waitlistData.email}
+                      onChange={(e) => setWaitlistData({ ...waitlistData, email: e.target.value })}
+                      className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
+                    style={{ color: "hsl(210,56%,14%)" }}
+                  >
+                    {loading ? "SUBMITTING..." : "JOIN THE WAITLIST"}
+                  </button>
+                </form>
+              )}
+            </>
+          ) : (
+            <>
+              <h2 className="heading-display text-4xl md:text-5xl text-center mb-4">SECURE YOUR PLACE</h2>
+              <p className="text-cream/40 text-sm font-body text-center mb-12">
+                Only {spotsRemaining ?? "..."} of 15 spots remaining.
+              </p>
 
-            <p className="text-cream/25 text-xs font-body text-center pt-2">
-              Secure payment via Stripe. One-time payment for the full 10-week term.{" "}
-              <Link to="/refund" className="underline hover:text-cream/40">Refund policy</Link> applies.
-            </p>
-          </form>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">FIRST NAME *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                      placeholder="First name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">LAST NAME *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                      placeholder="Last name"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">EMAIL ADDRESS *</label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                    placeholder="your@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-cream/40 text-[10px] tracking-[0.2em] mb-2">PHONE NUMBER (OPTIONAL)</label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full bg-transparent border-2 border-cream/15 text-cream px-4 py-3 text-sm font-body placeholder:text-cream/20 focus:outline-none focus:border-cream/40 transition-colors"
+                    placeholder="+64..."
+                  />
+                </div>
+
+                <div className="space-y-4 pt-4">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={formData.canAttend}
+                      onChange={(e) => setFormData({ ...formData, canAttend: e.target.checked })}
+                      className="mt-0.5 w-4 h-4 accent-cream"
+                    />
+                    <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
+                      I confirm I can attend Tuesday evenings in Taupō from 21 April 2026
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={formData.agreeTerms}
+                      onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
+                      className="mt-0.5 w-4 h-4 accent-cream"
+                    />
+                    <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
+                      I agree to the{" "}
+                      <Link to="/terms" className="underline text-cream/60 hover:text-cream">Terms & Conditions</Link>
+                      {" "}and{" "}
+                      <Link to="/privacy" className="underline text-cream/60 hover:text-cream">Privacy Policy</Link>
+                    </span>
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full text-xs font-display font-extrabold tracking-[0.2em] bg-cream py-4 px-12 hover:bg-cream/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-6"
+                  style={{ color: "hsl(210,56%,14%)" }}
+                >
+                  {loading ? "PROCESSING..." : "PAY $150 & JOIN THE PILOT"}
+                </button>
+
+                <p className="text-cream/25 text-xs font-body text-center pt-2">
+                  Secure payment via Stripe. One-time payment for the full 10-week term.{" "}
+                  <Link to="/refund" className="underline hover:text-cream/40">Refund policy</Link> applies.
+                </p>
+              </form>
+            </>
+          )}
         </div>
       </section>
 
