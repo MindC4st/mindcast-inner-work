@@ -157,7 +157,7 @@ const Session = () => {
         <Navbar />
         <div className="section-navy min-h-screen flex items-center justify-center pt-16">
           <div className="text-center">
-            <h1 className="heading-display text-5xl text-silver mb-4">SESSION NOT FOUND</h1>
+            <h1 className="heading-display text-5xl text-cream mb-4">SESSION NOT FOUND</h1>
             <Link to="/" className="btn-outlined text-xs">RETURN HOME</Link>
           </div>
         </div>
@@ -197,23 +197,23 @@ const Session = () => {
           <div className="container mx-auto px-6 max-w-2xl">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
               <h1 className="heading-display text-4xl md:text-6xl mb-4">YOU'VE COMPLETED TONIGHT'S SESSION</h1>
-              <p className="text-silver/50 text-sm">{session.title} — {session.subtitle}</p>
+              <p className="text-cream/50 text-sm">{session.title} — {session.subtitle}</p>
             </motion.div>
 
             <div className="space-y-4 mb-12">
               {session.sections.map((section) => (
-                <div key={section.id} className="border-2 border-silver/10 p-6">
-                  <h3 className="font-display text-lg tracking-widest text-silver mb-4">{section.header}</h3>
+                <div key={section.id} className="border-2 border-cream/10 p-6">
+                  <h3 className="font-display text-lg tracking-widest text-cream mb-4">{section.header}</h3>
                   {section.activities.map((activity) => {
                     const val = progress[activity.key];
                     if (!val) return null;
                     return (
-                      <div key={activity.key} className="mb-3 text-silver/50 text-sm font-body">
-                        {activity.type === "reflection" && <><p className="text-silver/30 text-xs mb-1">{activity.prompt}</p><p>"{val}"</p></>}
-                        {activity.type === "scale" && <><p className="text-silver/30 text-xs mb-1">{activity.statement}</p><p>{val}/10</p></>}
-                        {activity.type === "multipleChoice" && <><p className="text-silver/30 text-xs mb-1">{activity.question}</p><p>{val.selected?.join(", ")}</p></>}
-                        {activity.type === "commitment" && val.locked && <p className="text-silver font-display text-lg">"{val.commitment}" — {val.name}</p>}
-                        {activity.type === "seriesFinale" && val.sealed && <p className="text-silver font-display text-lg">Declaration sealed ✓</p>}
+                      <div key={activity.key} className="mb-3 text-cream/50 text-sm font-body">
+                        {activity.type === "reflection" && <><p className="text-cream/30 text-xs mb-1">{activity.prompt}</p><p>"{val}"</p></>}
+                        {activity.type === "scale" && <><p className="text-cream/30 text-xs mb-1">{activity.statement}</p><p>{val}/10</p></>}
+                        {activity.type === "multipleChoice" && <><p className="text-cream/30 text-xs mb-1">{activity.question}</p><p>{val.selected?.join(", ")}</p></>}
+                        {activity.type === "commitment" && val.locked && <p className="text-cream font-display text-lg">"{val.commitment}" — {val.name}</p>}
+                        {activity.type === "seriesFinale" && val.sealed && <p className="text-cream font-display text-lg">Declaration sealed ✓</p>}
                       </div>
                     );
                   })}
@@ -235,13 +235,13 @@ const Session = () => {
               {session.id === "trust-3" && (
                 <>
                   {trustSeriesComplete && (
-                    <div className="border-2 border-silver/20 bg-silver/5 p-6 text-center">
-                      <span className="text-silver/50 text-[10px] tracking-[0.3em]">🛡 TRUST SERIES COMPLETE</span>
+                    <div className="border-2 border-cream/20 bg-cream/5 p-6 text-center">
+                      <span className="text-cream/50 text-[10px] tracking-[0.3em]">🛡 TRUST SERIES COMPLETE</span>
                     </div>
                   )}
                   <Link to="/portal" className="btn-outlined text-xs w-full py-4 text-center">RETURN TO PORTAL</Link>
-                  <div className="border border-silver/10 p-6 text-center">
-                    <span className="text-silver/30 text-[10px] tracking-[0.3em]">NEXT SERIES: BOUNDARIES — COMING SOON</span>
+                  <div className="border border-cream/10 p-6 text-center">
+                    <span className="text-cream/30 text-[10px] tracking-[0.3em]">NEXT SERIES: BOUNDARIES — COMING SOON</span>
                   </div>
                 </>
               )}
@@ -251,7 +251,7 @@ const Session = () => {
               )}
             </div>
 
-            <p className="text-center text-silver/30 text-xs tracking-widest mt-12">
+            <p className="text-center text-cream/30 text-xs tracking-widest mt-12">
               {session.id === "trust-3" ? "SERIES COMPLETE — EXPLORE WHAT'S NEXT" : "SEE YOU NEXT SUNDAY"}
             </p>
           </div>
@@ -311,9 +311,9 @@ const Session = () => {
           {/* Session info on first section */}
           {currentSection === 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-12">
-              <span className="text-silver/30 text-[10px] tracking-widest">{session.sessionNumber} — {session.duration}</span>
+              <span className="text-cream/30 text-[10px] tracking-widest">{session.sessionNumber} — {session.duration}</span>
               <h1 className="heading-display text-4xl md:text-6xl mt-2 mb-2">{session.title}</h1>
-              <p className="text-silver/40 text-xs tracking-widest">{session.subtitle}</p>
+              <p className="text-cream/40 text-xs tracking-widest">{session.subtitle}</p>
             </motion.div>
           )}
 
@@ -323,9 +323,9 @@ const Session = () => {
               <div className="mb-8">
                 <div className="flex items-center gap-4 mb-2">
                   <h2 className="heading-display text-3xl md:text-5xl">{sect.header}</h2>
-                  {sect.duration && <span className="text-silver/20 text-[10px] tracking-widest border border-silver/10 px-2 py-1">{sect.duration}</span>}
+                  {sect.duration && <span className="text-cream/20 text-[10px] tracking-widest border border-cream/10 px-2 py-1">{sect.duration}</span>}
                 </div>
-                {sect.sub && <p className="text-silver/50 text-sm font-body">{sect.sub}</p>}
+                {sect.sub && <p className="text-cream/50 text-sm font-body">{sect.sub}</p>}
               </div>
 
               <div className="space-y-6">
@@ -333,7 +333,7 @@ const Session = () => {
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-12 pt-6 border-t border-silver/10">
+              <div className="flex justify-between mt-12 pt-6 border-t border-cream/10">
                 <button onClick={() => setCurrentSection((p) => Math.max(0, p - 1))} disabled={currentSection === 0}
                   className="btn-outlined text-xs py-3 px-6 flex items-center gap-2 disabled:opacity-20 disabled:cursor-not-allowed">
                   <ArrowLeft size={14} /> BACK
@@ -358,19 +358,19 @@ const Session = () => {
       {showProgress && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-primary/60" onClick={() => setShowProgress(false)} />
-          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} className="relative w-full max-w-md bg-primary border-l-2 border-silver/20 h-full overflow-y-auto p-8">
+          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} className="relative w-full max-w-md bg-primary border-l-2 border-cream/20 h-full overflow-y-auto p-8">
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-display text-2xl tracking-widest">MY PROGRESS</h2>
-              <button onClick={() => setShowProgress(false)}><X size={24} className="text-silver" /></button>
+              <button onClick={() => setShowProgress(false)}><X size={24} className="text-cream" /></button>
             </div>
             {session.sections.map((section) => (
               <div key={section.id} className="mb-6">
-                <h3 className="font-display text-sm tracking-widest text-silver/40 mb-3">{section.header}</h3>
+                <h3 className="font-display text-sm tracking-widest text-cream/40 mb-3">{section.header}</h3>
                 {section.activities.map((activity) => {
                   const val = progress[activity.key];
-                  if (!val || activity.type === "previousCommitment") return <p key={activity.key} className="text-silver/20 text-xs mb-2">—</p>;
+                  if (!val || activity.type === "previousCommitment") return <p key={activity.key} className="text-cream/20 text-xs mb-2">—</p>;
                   return (
-                    <div key={activity.key} className="text-silver/60 text-xs font-body mb-2 pl-3 border-l border-silver/10">
+                    <div key={activity.key} className="text-cream/60 text-xs font-body mb-2 pl-3 border-l border-cream/10">
                       {activity.type === "reflection" && <p>"{String(val).slice(0, 80)}{String(val).length > 80 ? "..." : ""}"</p>}
                       {activity.type === "scale" && <p>{val}/10</p>}
                       {activity.type === "multipleChoice" && <p>{val.selected?.join(", ")}</p>}

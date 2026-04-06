@@ -51,7 +51,7 @@ const EcosystemPage = () => (
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-5xl sm:text-6xl md:text-8xl max-w-4xl mx-auto leading-[0.9]">
           FOUR TOOLS. ONE PRACTICE.
         </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-silver/60 font-body text-base max-w-xl mx-auto">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto">
           Each product works standalone. Together, they form a complete inner work system.
         </motion.p>
       </div>
@@ -69,20 +69,20 @@ const EcosystemPage = () => (
               )}
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className={i % 2 !== 0 ? "md:order-1" : ""}>
-              <p.icon className={`w-10 h-10 mb-4 ${i % 2 === 0 ? "text-primary" : "text-silver"}`} />
+              <p.icon className={`w-10 h-10 mb-4 ${i % 2 === 0 ? "text-primary" : "text-cream"}`} />
               <h2 className={`heading-display text-4xl md:text-5xl mb-3 ${i % 2 === 0 ? "text-primary" : ""}`}>{p.name}</h2>
-              <p className={`font-body text-base mb-4 ${i % 2 === 0 ? "text-muted-foreground" : "text-silver/60"}`}>{p.tagline}</p>
-              <p className={`font-body text-sm mb-6 ${i % 2 === 0 ? "text-muted-foreground" : "text-silver/50"}`}>{p.who}</p>
+              <p className={`font-body text-base mb-4 ${i % 2 === 0 ? "text-muted-foreground" : "text-cream/60"}`}>{p.tagline}</p>
+              <p className={`font-body text-sm mb-6 ${i % 2 === 0 ? "text-muted-foreground" : "text-cream/50"}`}>{p.who}</p>
               <ul className="space-y-3 mb-8">
                 {p.features.map((f) => (
-                  <li key={f} className={`text-sm font-body flex items-start gap-3 ${i % 2 === 0 ? "text-primary/70" : "text-silver/70"}`}>
+                  <li key={f} className={`text-sm font-body flex items-start gap-3 ${i % 2 === 0 ? "text-primary/70" : "text-cream/70"}`}>
                     <span className="mt-1.5 w-1.5 h-1.5 bg-current flex-shrink-0" />
                     {f}
                   </li>
                 ))}
               </ul>
               {p.link === "#" ? (
-                <span className={`text-xs tracking-widest ${i % 2 === 0 ? "text-primary/30" : "text-silver/30"}`}>{p.cta}</span>
+                <span className={`text-xs tracking-widest ${i % 2 === 0 ? "text-primary/30" : "text-cream/30"}`}>{p.cta}</span>
               ) : (
                 <a href={p.link} className={i % 2 === 0 ? "btn-navy text-xs" : "btn-outlined text-xs"}>{p.cta}</a>
               )}

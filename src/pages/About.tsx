@@ -26,7 +26,7 @@ const About = () => (
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
           WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION
         </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-silver/60 font-body text-base max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto leading-relaxed">
           A place to go each week. A community that holds you. Frameworks for the hard stuff. Tools you carry into real life.
         </motion.p>
       </div>
@@ -56,9 +56,9 @@ const About = () => (
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {["COMMUNITY", "PRACTICE", "TOOLS"].map((pillar, i) => (
-            <motion.div key={pillar} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-silver/20 p-8 text-center">
+            <motion.div key={pillar} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
               <h3 className="font-display text-3xl tracking-widest mb-4">{pillar}</h3>
-              <p className="text-silver/50 text-sm font-body leading-relaxed">
+              <p className="text-cream/50 text-sm font-body leading-relaxed">
                 {pillar === "COMMUNITY" && "A weekly gathering. People who show up for each other."}
                 {pillar === "PRACTICE" && "Frameworks you can use every day. Notice. Name. Rewire."}
                 {pillar === "TOOLS" && "Four products that make inner work tangible and accessible."}
@@ -92,8 +92,8 @@ const About = () => (
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR VALUES</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {values.map((v, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-silver/20 p-6">
-              <p className="font-display text-lg tracking-wider text-silver leading-snug">{v}</p>
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-cream/20 p-6">
+              <p className="font-display text-lg tracking-wider text-cream leading-snug">{v}</p>
             </motion.div>
           ))}
         </div>
