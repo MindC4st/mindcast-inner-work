@@ -47,13 +47,18 @@ const Pilot = () => {
     fetchSpots();
     if (searchParams.get("success") === "true") {
       setPaymentSuccess(true);
-      // Verify payment by checking the session
       const sessionId = searchParams.get("session_id");
       if (sessionId) {
         supabase.functions.invoke("verify-pilot-payment", {
           body: { sessionId },
         }).then(() => fetchSpots());
       }
+    }
+    // Scroll to hash anchor after page loads
+    if (window.location.hash === "#reserve") {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 500);
     }
   }, [searchParams]);
 
