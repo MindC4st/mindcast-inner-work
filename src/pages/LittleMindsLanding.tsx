@@ -4,73 +4,93 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import littleMindsLogo from "@/assets/littleminds-logo.png";
 import littleMindsHero from "@/assets/littleminds-hero.png";
+import littleMindsGarden from "@/assets/littleminds-garden.png";
+import littleMindsElephant from "@/assets/littleminds-elephant.png";
+import littleMindsBalloon from "@/assets/littleminds-balloon.png";
+import littleMindsButterfly from "@/assets/littleminds-butterfly.png";
+
+/* Little Minds brand palette — warm storybook tones */
+const LM = {
+  bg: "#F2E4D0",         /* warm parchment */
+  card: "#F7EFE5",        /* lighter cream card */
+  primary: "#9DC3E6",     /* sky blue */
+  secondary: "#E8927C",   /* coral */
+  accent: "#E8B84B",      /* golden */
+  sage: "#A8C49A",        /* sage green */
+  peach: "#D4956B",       /* peach */
+  text: "#3B2F28",        /* dark brown */
+  muted: "#8B7968",       /* warm gray-brown */
+};
 
 const STEPS = [
   {
     number: "01",
     title: "A child asks a question",
     desc: "Children often ask difficult questions about life, death, feelings, or the world. Type or record their question in their own voice.",
+    image: littleMindsElephant,
   },
   {
     number: "02",
     title: "We turn it into a story",
     desc: "AI creates a gentle, metaphor-based answer suited to their age — every story is unique, warm, and thoughtful.",
+    image: littleMindsBalloon,
   },
   {
     number: "03",
     title: "Share and explore",
     desc: "Responses can be saved and searched so other families can use them too. Build a library of gentle answers.",
+    image: littleMindsButterfly,
   },
 ];
 
 const THEMES = [
-  { name: "Feelings & Emotions", color: "#E8927C" },
+  { name: "Feelings & Emotions", color: LM.secondary },
   { name: "Death & Dying", color: "#9B8FA6" },
-  { name: "Family Change", color: "#5B8DB8" },
-  { name: "Friendship", color: "#F4A63A" },
-  { name: "Bodies & Growing Up", color: "#C4526E" },
-  { name: "Worry & Anxiety", color: "#4A236E" },
-  { name: "Kindness", color: "#6B9FD4" },
-  { name: "Identity", color: "#3585af" },
+  { name: "Family Change", color: LM.primary },
+  { name: "Friendship", color: LM.accent },
+  { name: "Bodies & Growing Up", color: LM.peach },
+  { name: "Worry & Anxiety", color: "#7F5B87" },
+  { name: "Kindness", color: LM.sage },
+  { name: "Identity", color: "#5B8DB8" },
 ];
 
 const LittleMindsLanding = () => (
-  <div className="min-h-screen bg-background">
+  <div className="min-h-screen" style={{ background: LM.bg }}>
     <Navbar />
 
     {/* Hero */}
-    <section className="section-navy pt-32 pb-20 px-6">
+    <section className="pt-32 pb-20 px-6" style={{ background: `linear-gradient(180deg, ${LM.card} 0%, ${LM.bg} 100%)` }}>
       <div className="container max-w-5xl mx-auto">
-        <Link to="/" className="inline-flex items-center gap-2 text-cream/30 text-[10px] tracking-[0.12em] font-body hover:text-cream/60 transition-colors mb-12">
+        <Link to="/" className="inline-flex items-center gap-2 text-[10px] tracking-[0.12em] hover:opacity-70 transition-opacity mb-12" style={{ color: LM.muted, fontFamily: "var(--font-body)" }}>
           <ArrowLeft size={12} /> BACK TO MINDCAST
         </Link>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <img src={littleMindsLogo} alt="Little Minds Big Questions" className="h-20 mb-6" />
-            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-cream mb-4" style={{ lineHeight: 1.2 }}>
+            <img src={littleMindsLogo} alt="Little Minds Big Questions" className="h-24 mb-6" />
+            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ color: LM.text, lineHeight: 1.2 }}>
               Gentle answers to children's biggest questions.
             </h1>
-            <p className="text-cream/50 font-body text-base leading-relaxed mb-8">
+            <p className="font-body text-base leading-relaxed mb-8" style={{ color: LM.muted }}>
               AI-powered metaphor stories for parents navigating the hard questions — death, fairness, love, and more. Every story is unique, age-appropriate, and answered with warmth.
             </p>
             <div className="flex flex-wrap gap-3">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cream/10 text-cream/50 text-xs font-body">
-                <BookOpen size={14} /> Browse Questions
-              </span>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cream/10 text-cream/50 text-xs font-body">
-                <Mic size={14} /> Voice Recording
-              </span>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cream/10 text-cream/50 text-xs font-body">
-                <Search size={14} /> Story Library
-              </span>
+              {[
+                { icon: BookOpen, label: "Browse Questions" },
+                { icon: Mic, label: "Voice Recording" },
+                { icon: Search, label: "Story Library" },
+              ].map((item) => (
+                <span key={item.label} className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-body" style={{ border: `1px solid ${LM.secondary}40`, color: LM.secondary }}>
+                  <item.icon size={14} /> {item.label}
+                </span>
+              ))}
             </div>
           </div>
 
           <div className="flex justify-center">
             <div className="relative">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#E8927C]/15 to-[#6B9FD4]/15 blur-2xl" />
-              <img src={littleMindsHero} alt="Little Minds illustration" className="relative z-10 w-64 md:w-80 h-auto object-contain" />
+              <div className="absolute inset-0 rounded-3xl blur-3xl" style={{ background: `linear-gradient(135deg, ${LM.primary}30, ${LM.accent}20, ${LM.secondary}15)` }} />
+              <img src={littleMindsHero} alt="Little Minds illustration" className="relative z-10 w-64 md:w-80 h-auto object-contain drop-shadow-lg" />
             </div>
           </div>
         </div>
@@ -78,32 +98,42 @@ const LittleMindsLanding = () => (
     </section>
 
     {/* How It Works */}
-    <section className="section-navy py-20 px-6" style={{ borderTop: "1px solid rgba(53,133,175,0.1)" }}>
-      <div className="container max-w-4xl mx-auto">
-        <p className="text-cream/40 text-[11px] tracking-[0.2em] font-body text-center mb-3">HOW IT WORKS</p>
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-cream text-center mb-14">
+    <section className="py-20 px-6" style={{ background: LM.card, borderTop: `1px solid ${LM.peach}20` }}>
+      <div className="container max-w-5xl mx-auto">
+        <p className="text-[11px] tracking-[0.2em] font-body text-center mb-3" style={{ color: LM.secondary }}>HOW IT WORKS</p>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-14" style={{ color: LM.text }}>
           From big question to bedtime story.
         </h2>
 
-        <div className="space-y-0">
+        <div className="grid md:grid-cols-3 gap-10">
           {STEPS.map((s) => (
-            <div key={s.number} className="flex gap-6 lg:gap-10 py-8 border-b border-cream/[0.06] last:border-0">
-              <span className="font-body font-light text-4xl lg:text-5xl text-[#6B9FD4]/30 flex-shrink-0 w-16">{s.number}</span>
-              <div>
-                <h3 className="font-display text-lg font-bold text-cream mb-2">{s.title}</h3>
-                <p className="text-cream/40 font-body text-sm leading-relaxed">{s.desc}</p>
+            <div key={s.number} className="text-center">
+              <div className="w-32 h-32 mx-auto mb-5 flex items-center justify-center">
+                <img src={s.image} alt={s.title} className="w-full h-full object-contain drop-shadow-sm" />
               </div>
+              <span className="font-body text-xs font-bold mb-2 block" style={{ color: LM.primary }}>{s.number}</span>
+              <h3 className="font-display text-lg font-bold mb-2" style={{ color: LM.text }}>{s.title}</h3>
+              <p className="font-body text-sm leading-relaxed" style={{ color: LM.muted }}>{s.desc}</p>
             </div>
           ))}
         </div>
       </div>
     </section>
 
-    {/* Themes */}
-    <section className="section-navy py-20 px-6" style={{ borderTop: "1px solid rgba(53,133,175,0.1)" }}>
+    {/* Garden illustration */}
+    <section className="py-16 px-6" style={{ background: LM.bg }}>
       <div className="container max-w-4xl mx-auto">
-        <p className="text-cream/40 text-[11px] tracking-[0.2em] font-body text-center mb-3">QUESTION THEMES</p>
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-cream text-center mb-14">
+        <div className="rounded-2xl overflow-hidden shadow-md">
+          <img src={littleMindsGarden} alt="A magical garden — Little Minds" className="w-full h-64 md:h-80 object-cover" />
+        </div>
+      </div>
+    </section>
+
+    {/* Themes */}
+    <section className="py-20 px-6" style={{ background: LM.card, borderTop: `1px solid ${LM.peach}20` }}>
+      <div className="container max-w-4xl mx-auto">
+        <p className="text-[11px] tracking-[0.2em] font-body text-center mb-3" style={{ color: LM.secondary }}>QUESTION THEMES</p>
+        <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-14" style={{ color: LM.text }}>
           Topics children wonder about most.
         </h2>
 
@@ -111,8 +141,8 @@ const LittleMindsLanding = () => (
           {THEMES.map((t) => (
             <span
               key={t.name}
-              className="px-4 py-2 rounded-full text-xs font-body border"
-              style={{ borderColor: `${t.color}30`, color: t.color }}
+              className="px-5 py-2.5 rounded-full text-xs font-body font-medium"
+              style={{ border: `1.5px solid ${t.color}40`, color: t.color, background: `${t.color}08` }}
             >
               {t.name}
             </span>
