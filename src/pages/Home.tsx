@@ -777,6 +777,10 @@ const VisionQuote = () => {
 /* ─── IMAGE GALLERY (Masonry) ─── */
 const ImageGallery = () => {
   const images = [
+    { src: "/images/gallery_1.png", label: "THE ARRIVAL" },
+    { src: "/images/gallery_2.png", label: "THE GATHERING" },
+    { src: "/images/gallery_3.png", label: "THE SESSION" },
+    { src: "/images/gallery_4.png", label: "THE WORK" },
     { src: "/images/gallery_5.png", label: "THE CONVERSATION" },
     { src: "/images/gallery_6.png", label: "THE SPACE" },
     { src: "/images/gallery_7.png", label: "THE PRACTICE" },
@@ -784,22 +788,22 @@ const ImageGallery = () => {
   ];
 
   return (
-    <section className="section-navy py-24">
+    <section className="section-navy py-16 md:py-24">
       <div className="container mx-auto px-6">
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {images.map((img, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="relative group overflow-hidden break-inside-avoid"
+              transition={{ delay: i * 0.08, duration: 0.6 }}
+              className="relative group overflow-hidden aspect-[4/3]"
             >
               <img
                 src={img.src}
                 alt={img.label}
-                className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
