@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logoNav from "@/assets/logo-dark-notagline.png";
 
 interface LegalPageProps {
   title: string;
@@ -11,8 +12,9 @@ export function LegalPage({ title, lastUpdated, children }: LegalPageProps) {
     <div className="min-h-screen bg-background">
       {/* Back nav */}
       <div className="px-5 py-4 border-b border-border">
-        <Link to="/" className="text-muted-foreground text-sm hover:text-foreground transition-colors">
-          ← Back to Mindcast
+        <Link to="/" className="inline-flex items-center gap-3">
+          <img src={logoNav} alt="Mindcast" className="h-6" />
+          <span className="text-muted-foreground text-sm hover:text-foreground transition-colors">← Back</span>
         </Link>
       </div>
 
@@ -33,7 +35,7 @@ export function LegalPage({ title, lastUpdated, children }: LegalPageProps) {
           prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3
           prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:font-body
           prose-li:text-muted-foreground prose-li:font-body
-          prose-a:text-foreground prose-a:underline hover:prose-a:text-foreground/70
+          prose-a:text-primary prose-a:underline hover:prose-a:text-primary/70
           prose-strong:text-foreground
           prose-hr:border-border
           prose-ul:text-muted-foreground

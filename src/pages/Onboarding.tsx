@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 
-const STEPS = 3;
-
 const AGE_OPTIONS = [
   { value: "adult", label: "Adult sessions (18+)" },
   { value: "teen", label: "Teen sessions (13–24)" },
@@ -46,7 +44,7 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-4 section-navy">
       <div className="w-full max-w-md">
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-12">
@@ -54,7 +52,7 @@ const Onboarding = () => {
             <div
               key={s}
               className={`w-2 h-2 rounded-full transition-colors ${
-                s === step ? "bg-white" : s < step ? "bg-foreground/40" : "bg-foreground/10"
+                s === step ? "bg-cream" : s < step ? "bg-cream/40" : "bg-cream/10"
               }`}
             />
           ))}
@@ -69,8 +67,8 @@ const Onboarding = () => {
               exit={{ opacity: 0, y: -20 }}
               className="text-center"
             >
-              <h2 className="font-display text-2xl font-bold text-foreground mb-2">Welcome to Mindcast.</h2>
-              <p className="text-foreground/40 text-sm font-body mb-10">
+              <h2 className="font-display text-2xl font-bold text-cream mb-2">Welcome to Mindcast.</h2>
+              <p className="text-cream/40 text-sm font-body mb-10">
                 What should we call you on screen at check-in?
               </p>
               <input
@@ -78,12 +76,12 @@ const Onboarding = () => {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your display name"
-                className="w-full bg-transparent border-b border-foreground/15 text-foreground font-body text-sm py-3 px-1 text-center focus:outline-none focus:border-foreground/40 transition-colors placeholder:text-foreground/20"
+                className="w-full bg-transparent border-b border-cream/15 text-cream font-body text-sm py-3 px-1 text-center focus:outline-none focus:border-cream/40 transition-colors placeholder:text-cream/20"
                 autoFocus
               />
               <button
                 onClick={() => setStep(2)}
-                className="mt-10 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors"
+                className="mt-10 w-full py-3.5 bg-cream text-navy text-xs tracking-[0.15em] font-display font-bold hover:bg-cream/90 transition-colors"
               >
                 CONTINUE
               </button>
@@ -98,10 +96,10 @@ const Onboarding = () => {
               exit={{ opacity: 0, y: -20 }}
               className="text-center"
             >
-              <h2 className="font-display text-xl font-bold text-foreground mb-2">
+              <h2 className="font-display text-xl font-bold text-cream mb-2">
                 Which sessions will you be attending?
               </h2>
-              <p className="text-foreground/30 text-xs font-body mb-8">Tap to select — you can choose more than one</p>
+              <p className="text-cream/30 text-xs font-body mb-8">Tap to select — you can choose more than one</p>
 
               <div className="space-y-3">
                 {AGE_OPTIONS.map((opt) => (
@@ -110,8 +108,8 @@ const Onboarding = () => {
                     onClick={() => toggleAge(opt.value)}
                     className={`w-full py-4 px-5 text-left text-sm font-body border transition-all ${
                       ageGroup.includes(opt.value)
-                        ? "border-foreground/40 text-foreground bg-foreground/5"
-                        : "border-foreground/10 text-foreground/40 hover:border-foreground/20"
+                        ? "border-cream/40 text-cream bg-cream/5"
+                        : "border-cream/10 text-cream/40 hover:border-cream/20"
                     }`}
                   >
                     {opt.label}
@@ -122,7 +120,7 @@ const Onboarding = () => {
               <button
                 onClick={() => setStep(3)}
                 disabled={ageGroup.length === 0}
-                className="mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30"
+                className="mt-8 w-full py-3.5 bg-cream text-navy text-xs tracking-[0.15em] font-display font-bold hover:bg-cream/90 transition-colors disabled:opacity-30"
               >
                 CONTINUE
               </button>
@@ -137,10 +135,10 @@ const Onboarding = () => {
               exit={{ opacity: 0, y: -20 }}
               className="text-center"
             >
-              <h2 className="font-display text-xl font-bold text-foreground mb-3">
+              <h2 className="font-display text-xl font-bold text-cream mb-3">
                 When you set a goal each week, would you like to share how it went with the group?
               </h2>
-              <p className="text-foreground/30 text-xs font-body mb-8">
+              <p className="text-cream/30 text-xs font-body mb-8">
                 Completely optional — you can change this anytime.
               </p>
 
@@ -149,8 +147,8 @@ const Onboarding = () => {
                   onClick={() => setOptIn(true)}
                   className={`w-full py-4 px-5 text-left text-sm font-body border transition-all ${
                     optIn === true
-                      ? "border-foreground/40 text-foreground bg-foreground/5"
-                      : "border-foreground/10 text-foreground/40 hover:border-foreground/20"
+                      ? "border-cream/40 text-cream bg-cream/5"
+                      : "border-cream/10 text-cream/40 hover:border-cream/20"
                   }`}
                 >
                   Yes — I'm happy to share
@@ -159,8 +157,8 @@ const Onboarding = () => {
                   onClick={() => setOptIn(false)}
                   className={`w-full py-4 px-5 text-left text-sm font-body border transition-all ${
                     optIn === false
-                      ? "border-foreground/40 text-foreground bg-foreground/5"
-                      : "border-foreground/10 text-foreground/40 hover:border-foreground/20"
+                      ? "border-cream/40 text-cream bg-cream/5"
+                      : "border-cream/10 text-cream/40 hover:border-cream/20"
                   }`}
                 >
                   No — I prefer to keep my progress private
@@ -170,7 +168,7 @@ const Onboarding = () => {
               <button
                 onClick={finish}
                 disabled={optIn === null || saving}
-                className="mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30"
+                className="mt-8 w-full py-3.5 bg-cream text-navy text-xs tracking-[0.15em] font-display font-bold hover:bg-cream/90 transition-colors disabled:opacity-30"
               >
                 {saving ? "..." : "GET STARTED"}
               </button>

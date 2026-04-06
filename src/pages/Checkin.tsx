@@ -23,7 +23,6 @@ const Checkin = () => {
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => setSession(data));
   }, []);
 
-  // NFC auto-fill
   useEffect(() => {
     if (nfcMemberId) {
       supabase.from("profiles").select("display_name, opt_in_public_goals").eq("nfc_id", nfcMemberId).maybeSingle().then(({ data }) => {
@@ -63,70 +62,70 @@ const Checkin = () => {
 
   if (!session) return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
-      <p className="text-foreground/30 font-body text-sm text-center">There's no session running right now.</p>
+      <p className="text-muted-foreground font-body text-sm text-center">There's no session running right now.</p>
     </div>
   );
 
   if (done) return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-      <Check size={32} className="text-emerald-400/60 mb-4" />
+      <Check size={32} className="text-emerald-500/60 mb-4" />
       <h2 className="text-2xl font-display font-bold text-foreground mb-2">You're in.</h2>
-      <p className="text-foreground/30 font-body text-sm mb-8">See you on screen.</p>
-      {user && <Link to="/workbook" className="text-foreground/30 text-xs font-body hover:text-foreground/50 transition-colors">Open my workbook →</Link>}
+      <p className="text-muted-foreground font-body text-sm mb-8">See you on screen.</p>
+      {user && <Link to="/workbook" className="text-primary text-xs font-body hover:text-primary/70 transition-colors">Open my workbook →</Link>}
     </div>
   );
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-10">
-      <p className="font-body text-[10px] text-foreground/20 uppercase tracking-[0.2em] mb-8">
+      <p className="font-body text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-8">
         mindcast · week {session.session_number}
       </p>
 
       {nfcVerified && (
         <div className="flex items-center gap-2 mb-6 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl">
-          <Check size={14} className="text-emerald-400" />
-          <span className="text-emerald-400 text-sm font-body">Welcome back, {displayName} ✓</span>
+          <Check size={14} className="text-emerald-500" />
+          <span className="text-emerald-500 text-sm font-body">Welcome back, {displayName} ✓</span>
         </div>
       )}
 
       <h1 className="text-2xl font-display font-bold text-foreground text-center mb-2">Welcome. You made it.</h1>
-      <p className="text-foreground/30 text-sm font-body text-center mb-10 max-w-xs">
+      <p className="text-muted-foreground text-sm font-body text-center mb-10 max-w-xs">
         This takes 30 seconds. Everything here is optional.
       </p>
 
       <div className="w-full max-w-sm space-y-5">
         <div>
-          <label className="text-[10px] font-body text-foreground/25 uppercase tracking-[0.1em] block mb-2">Your name (shown on screen)</label>
+          <label className="text-[10px] font-body text-muted-foreground uppercase tracking-[0.1em] block mb-2">Your name (shown on screen)</label>
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="First name or nickname"
             autoCapitalize="words"
             autoComplete="given-name"
-            className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground text-base font-body placeholder-white/15 focus:outline-none focus:border-foreground/20"
+            className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-foreground text-base font-body placeholder-muted-foreground/40 focus:outline-none focus:border-primary/30"
           />
         </div>
 
         <div>
-          <label className="text-[10px] font-body text-foreground/25 uppercase tracking-[0.1em] block mb-2">A welcome note (optional — shown on screen)</label>
-          <input value={welcomeNote} onChange={(e) => setWelcomeNote(e.target.value)} placeholder="e.g. First time here, glad to be back..." className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-3 text-foreground text-base font-body placeholder-white/15 focus:outline-none focus:border-foreground/20" />
+          <label className="text-[10px] font-body text-muted-foreground uppercase tracking-[0.1em] block mb-2">A welcome note (optional — shown on screen)</label>
+          <input value={welcomeNote} onChange={(e) => setWelcomeNote(e.target.value)} placeholder="e.g. First time here, glad to be back..." className="w-full bg-muted/30 border border-border rounded-xl px-4 py-3 text-foreground text-base font-body placeholder-muted-foreground/40 focus:outline-none focus:border-primary/30" />
         </div>
 
         {previousGoal && (
-          <div className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-4 space-y-3">
-            <p className="text-[10px] font-body text-foreground/25 uppercase tracking-[0.1em]">Last week you wrote...</p>
-            <p className="text-sm text-foreground/50 italic font-body">"{previousGoal}"</p>
-            <textarea value={goalUpdate} onChange={(e) => setGoalUpdate(e.target.value)} placeholder="How did it go? (optional)" rows={3} className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-3 py-2 text-foreground text-sm font-body resize-none placeholder-white/15 focus:outline-none focus:border-foreground/20" />
+          <div className="bg-muted/30 border border-border rounded-xl p-4 space-y-3">
+            <p className="text-[10px] font-body text-muted-foreground uppercase tracking-[0.1em]">Last week you wrote...</p>
+            <p className="text-sm text-foreground/60 italic font-body">"{previousGoal}"</p>
+            <textarea value={goalUpdate} onChange={(e) => setGoalUpdate(e.target.value)} placeholder="How did it go? (optional)" rows={3} className="w-full bg-muted/20 border border-border rounded-lg px-3 py-2 text-foreground text-sm font-body resize-none placeholder-muted-foreground/40 focus:outline-none focus:border-primary/30" />
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={shareGoal} onChange={(e) => setShareGoal(e.target.checked)} className="accent-white" />
-              <span className="text-xs text-foreground/30 font-body">Share this with the group tonight</span>
+              <input type="checkbox" checked={shareGoal} onChange={(e) => setShareGoal(e.target.checked)} className="accent-primary" />
+              <span className="text-xs text-muted-foreground font-body">Share this with the group tonight</span>
             </label>
           </div>
         )}
 
         <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="accent-white" />
-          <span className="text-sm text-foreground/30 font-body">Check in without showing my name on screen</span>
+          <input type="checkbox" checked={isAnonymous} onChange={(e) => setIsAnonymous(e.target.checked)} className="accent-primary" />
+          <span className="text-sm text-muted-foreground font-body">Check in without showing my name on screen</span>
         </label>
 
         <button onClick={handleCheckin} disabled={submitting || !displayName.trim()} className="w-full bg-primary text-primary-foreground font-display font-bold py-4 rounded-xl text-base disabled:opacity-30 hover:bg-primary/90 transition-colors">
