@@ -71,9 +71,9 @@ const ConnectLanding = () => (
         <p className="font-body text-base leading-relaxed max-w-2xl mx-auto mb-8" style={{ color: MC.muted }}>
           A consent-first relationship platform that helps you reflect privately, share intentionally, and work toward better conversations.
         </p>
-        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-wider" style={{ border: `1px solid ${MC.lilacAccent}30`, color: MC.lilacAccent, fontFamily: "var(--font-body)" }}>
-          COMING SOON
-        </div>
+        <a href="https://connect.mindcast.co.nz/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-wider hover:opacity-80 transition-opacity" style={{ border: `1px solid ${MC.lilacAccent}30`, color: MC.lilacAccent, fontFamily: "var(--font-body)" }}>
+          VISIT WEBSITE ↗
+        </a>
       </div>
     </section>
 

@@ -70,9 +70,9 @@ const SignalLanding = () => (
             <p className="font-body text-base leading-relaxed mb-8" style={{ color: `${SIG.text}99` }}>
               Track your cycle, understand your body, and align your energy with your natural rhythms. Signal delivers phase-specific guidance for movement, nutrition, and nervous system care.
             </p>
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-wider" style={{ border: `1px solid ${SIG.primarySoft}30`, color: SIG.primarySoft, fontFamily: "var(--font-body)" }}>
-              COMING SOON
-            </div>
+            <a href="https://signalnz.lovable.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-wider hover:opacity-80 transition-opacity" style={{ border: `1px solid ${SIG.primarySoft}30`, color: SIG.primarySoft, fontFamily: "var(--font-body)" }}>
+              VISIT WEBSITE ↗
+            </a>
           </div>
 
           <div className="flex justify-center">
