@@ -608,7 +608,7 @@ const StickyTimeline = () => {
       num: "02",
       title: "WORK THROUGH THE WORKSHEET",
       body: "Before Tuesday, you complete a structured reflection. What landed? What challenged you? What do you want to explore further? You arrive prepared.",
-      image: founderPortrait,
+      image: "/images/worksheet_man.png",
     },
     {
       num: "03",
