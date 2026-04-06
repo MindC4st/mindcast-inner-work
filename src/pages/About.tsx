@@ -62,9 +62,9 @@ const About = () => (
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {[
-            { title: "COMMUNITY", body: "A weekly gathering of people who show up for each other. Not followers. Not fans. A real group doing real work together." },
-            { title: "PRACTICE", body: "Three steps. Notice what's happening inside you. Name it out loud. Rewire one thing at a time. Evidence-based. Quietly radical." },
-            { title: "TOOLS", body: "Four products (Mindcast Journal, Mindcast Connect, Signal by Mindcast, Little Minds Big Questions) designed to make inner work tangible — something you can hold, track, and carry into the rest of your week." },
+            { title: "COMMUNITY", body: "A weekly gathering of people who show up for each other. Not followers. Not fans. A real group doing real work together — in person, face to face." },
+            { title: "PRACTICE", body: "A structured four-step cycle that runs every week: listen to a curated podcast, complete a guided worksheet, discuss it together in the room, then leave with one thing to implement before next time." },
+            { title: "TOOLS", body: "Curated podcast episodes, guided reflection worksheets, online question submissions, and live discussion prompts — designed to make the inner work tangible and trackable, week after week." },
           ].map((pillar, i) => (
             <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
               <h3 className="font-display text-3xl tracking-widest mb-4">{pillar.title}</h3>
@@ -86,7 +86,7 @@ const About = () => (
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
-            <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH GRANT</h3>
+            <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH CARLSON</h3>
             <p className="text-xs tracking-[0.3em] text-primary/40 mb-6">FOUNDER & FACILITATOR</p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
               I'm looking for people on a self-development journey — between the ages of 30 and 40ish, male and female — to take part in my 10-week test group. I am in no way "the expert" and I certainly won't be telling you what to think or do.
