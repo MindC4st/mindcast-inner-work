@@ -85,6 +85,9 @@ const LittleMindsLanding = () => (
                 </span>
               ))}
             </div>
+            <a href="https://littleminds.mindcast.co.nz/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-wider hover:opacity-80 transition-opacity mt-4" style={{ border: `1px solid ${LM.secondary}40`, color: LM.secondary, fontFamily: "var(--font-body)" }}>
+              VISIT WEBSITE ↗
+            </a>
           </div>
 
           <div className="flex justify-center">
