@@ -27,7 +27,7 @@ const About = () => (
           WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION
         </motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto leading-relaxed">
-          A place to go each week. A community that holds you. Frameworks for the hard stuff. Tools you carry into real life.
+          A place to show up every week. A community that holds you accountable. Frameworks for the hard stuff. Tools you carry into real life.
         </motion.p>
       </div>
     </section>
