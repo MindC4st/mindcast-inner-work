@@ -82,6 +82,7 @@ const AppRoutes = () => (
     <Route path="/admin/curriculum" element={<AdminCurriculum />} />
     <Route path="/admin/present/:id" element={<AdminPresenter />} />
     <Route path="/admin/session-runner" element={<AdminSessionRunner />} />
+    <Route path="/admin/applications" element={<AdminApplicationsPage />} />
     <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/checkin" element={<Checkin />} />
