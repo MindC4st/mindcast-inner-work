@@ -58,6 +58,7 @@ import SafeguardingPage from "./pages/SafeguardingPage";
 import SignalLanding from "./pages/SignalLanding";
 import LittleMindsLanding from "./pages/LittleMindsLanding";
 import ConnectLanding from "./pages/ConnectLanding";
+import Marketing from "./pages/Marketing";
 
 const queryClient = new QueryClient();
 
@@ -131,6 +132,7 @@ const AppRoutes = () => (
     <Route path="/privacy" element={<PrivacyPage />} />
     <Route path="/refund" element={<RefundPage />} />
     <Route path="/safeguarding" element={<SafeguardingPage />} />
+    <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
