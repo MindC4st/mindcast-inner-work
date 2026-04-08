@@ -34,7 +34,7 @@ const PortalDashboard = () => {
         .eq("member_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       if (data) setLatestGoal(data);
     };
     fetchGoal();

@@ -27,8 +27,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserData = async (userId: string) => {
     const [profileRes, roleRes, cohortRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", userId).single(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).limit(1).single(),
-      supabase.from("cohort_members").select("cohort_id").eq("user_id", userId).limit(1).single(),
+      supabase.from("user_roles").select("role").eq("user_id", userId).limit(1).maybeSingle(),
+      supabase.from("cohort_members").select("cohort_id").eq("user_id", userId).limit(1).maybeSingle(),
     ]);
     if (profileRes.data) setProfile(profileRes.data);
     if (roleRes.data) setRole(roleRes.data.role);

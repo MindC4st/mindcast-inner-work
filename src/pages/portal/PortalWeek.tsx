@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, ChevronLeft, Save } from "lucide-react";
+import { Check, ChevronLeft, Save, Loader2 } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +40,7 @@ const SESSION_1 = {
 const PortalWeek = () => {
   const { weekNumber } = useParams<{ weekNumber: string }>();
   const weekNum = parseInt(weekNumber || "1", 10);
-  const { user } = useAuth();
+  const { user, cohortId } = useAuth();
 
   // For now, only session 1 has content
   if (weekNum !== 1) {
@@ -58,62 +58,144 @@ const PortalWeek = () => {
     );
   }
 
-  return <Session1Content userId={user?.id || null} />;
+  return <Session1Content userId={user?.id || null} cohortId={cohortId} />;
 };
 
 /* ─── Session 1 Full Content ─── */
-const Session1Content = ({ userId }: { userId: string | null }) => {
+const Session1Content = ({ userId, cohortId }: { userId: string | null; cohortId: string | null }) => {
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, string>>({});
   const [finalReflection, setFinalReflection] = useState("");
   const [commitment, setCommitment] = useState({ what: "", why: "", how: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [commitmentSaving, setCommitmentSaving] = useState(false);
   const [commitmentSaved, setCommitmentSaved] = useState(false);
 
-  const showSaved = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+  // Load existing saved data on mount
+  useEffect(() => {
+    if (!userId || !cohortId) {
+      setLoading(false);
+      return;
+    }
+
+    const load = async () => {
+      const [entriesRes, goalRes] = await Promise.all([
+        supabase
+          .from("entries")
+          .select("question_key, answer_text")
+          .eq("user_id", userId)
+          .eq("cohort_id", cohortId)
+          .eq("week_number", 1),
+        supabase
+          .from("implementation_goals")
+          .select("what_i_will_implement, why_it_matters, how_i_will_know")
+          .eq("member_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ]);
+
+      if (entriesRes.data && entriesRes.data.length > 0) {
+        const responses: Record<string, string> = {};
+        entriesRes.data.forEach((e) => {
+          if (e.question_key === "final_reflection") {
+            setFinalReflection(e.answer_text || "");
+          } else {
+            responses[e.question_key] = e.answer_text || "";
+          }
+        });
+        setBookmarkResponses(responses);
+      }
+
+      if (goalRes.data) {
+        setCommitment({
+          what: goalRes.data.what_i_will_implement || "",
+          why: goalRes.data.why_it_matters || "",
+          how: goalRes.data.how_i_will_know || "",
+        });
+        setCommitmentSaved(true);
+      }
+
+      setLoading(false);
+    };
+
+    load();
+  }, [userId, cohortId]);
 
   const handleBookmarkChange = (id: string, value: string) => {
     setBookmarkResponses((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSaveReflections = async () => {
-    if (!userId) return;
-    // Save bookmark responses and final reflection as entries
-    const entries = SESSION_1.bookmarks
-      .filter((bm) => bookmarkResponses[bm.id])
-      .map((bm) => ({
-        user_id: userId,
-        cohort_id: "pilot-taupo-t1", // placeholder
-        week_number: 1,
-        question_key: bm.id,
-        answer_text: bookmarkResponses[bm.id],
-        is_shared: false,
-        is_locked: false,
-      }));
-
-    if (finalReflection) {
-      entries.push({
-        user_id: userId,
-        cohort_id: "pilot-taupo-t1",
-        week_number: 1,
-        question_key: "final_reflection",
-        answer_text: finalReflection,
-        is_shared: false,
-        is_locked: false,
-      });
+    if (!userId || !cohortId) {
+      toast({ title: "Not signed in", variant: "destructive" });
+      return;
     }
 
-    // For now just show a success toast — full Supabase save will work once cohort is set up
-    showSaved();
-    toast({ title: "Reflections saved", description: "Your responses have been recorded." });
+    const entriesToSave = [
+      ...SESSION_1.bookmarks
+        .filter((bm) => bookmarkResponses[bm.id])
+        .map((bm) => ({
+          user_id: userId,
+          cohort_id: cohortId,
+          week_number: 1,
+          question_key: bm.id,
+          answer_text: bookmarkResponses[bm.id],
+          is_shared: false,
+          is_locked: false,
+        })),
+      ...(finalReflection
+        ? [{
+            user_id: userId,
+            cohort_id: cohortId,
+            week_number: 1,
+            question_key: "final_reflection",
+            answer_text: finalReflection,
+            is_shared: false,
+            is_locked: false,
+          }]
+        : []),
+    ];
+
+    if (entriesToSave.length === 0) {
+      toast({ title: "Nothing to save", description: "Write something first." });
+      return;
+    }
+
+    setSaving(true);
+
+    // Delete then re-insert so we don't need to know the row IDs
+    const { error: delError } = await supabase
+      .from("entries")
+      .delete()
+      .eq("user_id", userId)
+      .eq("cohort_id", cohortId)
+      .eq("week_number", 1);
+
+    if (delError) {
+      setSaving(false);
+      toast({ title: "Save failed", description: delError.message, variant: "destructive" });
+      return;
+    }
+
+    const { error } = await supabase.from("entries").insert(entriesToSave);
+    setSaving(false);
+
+    if (error) {
+      toast({ title: "Save failed", description: error.message, variant: "destructive" });
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      toast({ title: "Reflections saved" });
+    }
   };
 
   const handleSaveCommitment = async () => {
     if (!userId) return;
+    setCommitmentSaving(true);
     try {
-      await supabase.from("implementation_goals").insert({
+      const { error } = await supabase.from("implementation_goals").insert({
         member_id: userId,
         what_i_will_implement: commitment.what,
         why_it_matters: commitment.why,
@@ -121,12 +203,26 @@ const Session1Content = ({ userId }: { userId: string | null }) => {
         shared_with_group: false,
         status: "committed",
       });
+      if (error) throw error;
       setCommitmentSaved(true);
-      toast({ title: "Commitment saved", description: "Your implementation goal has been recorded." });
-    } catch {
-      toast({ title: "Save failed", variant: "destructive" });
+      toast({ title: "Commitment saved" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      toast({ title: "Save failed", description: msg, variant: "destructive" });
+    } finally {
+      setCommitmentSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <PortalLayout>
+        <div className="max-w-2xl mx-auto flex items-center justify-center py-20">
+          <Loader2 size={20} className="animate-spin text-muted-foreground" />
+        </div>
+      </PortalLayout>
+    );
+  }
 
   return (
     <PortalLayout>
@@ -151,7 +247,7 @@ const Session1Content = ({ userId }: { userId: string | null }) => {
         <section className="mb-12">
           <div className="aspect-video bg-foreground/5 overflow-hidden">
             <iframe
-              src={`https://www.youtube.com/embed/${SESSION_1.youtubeId}?rel=0&modestbranding=1`}
+              src={`https://www.youtube.com/embed/${SESSION_1.youtubeId}?rel=0`}
               title={SESSION_1.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -185,7 +281,8 @@ const Session1Content = ({ userId }: { userId: string | null }) => {
                   value={bookmarkResponses[bm.id] || ""}
                   onChange={(e) => handleBookmarkChange(bm.id, e.target.value)}
                   placeholder="What comes to mind..."
-                  className="w-full bg-transparent border-b border-foreground/10 text-foreground text-sm font-body font-light px-0 py-2 min-h-[80px] focus:border-foreground/30 focus:outline-none transition-colors resize-none placeholder:text-muted-foreground/40"
+                  rows={3}
+                  className="w-full bg-transparent border-b border-foreground/10 text-foreground text-sm font-body font-light px-0 py-2 focus:border-foreground/30 focus:outline-none transition-colors resize-none placeholder:text-muted-foreground/40"
                 />
               </motion.div>
             ))}
@@ -203,13 +300,21 @@ const Session1Content = ({ userId }: { userId: string | null }) => {
               value={finalReflection}
               onChange={(e) => setFinalReflection(e.target.value)}
               placeholder="Take your time with this one..."
-              className="w-full bg-transparent border-b border-foreground/10 text-foreground text-sm font-body font-light px-0 py-2 min-h-[120px] focus:border-foreground/30 focus:outline-none transition-colors resize-none placeholder:text-muted-foreground/40"
+              rows={5}
+              className="w-full bg-transparent border-b border-foreground/10 text-foreground text-sm font-body font-light px-0 py-2 focus:border-foreground/30 focus:outline-none transition-colors resize-none placeholder:text-muted-foreground/40"
             />
             <button
               onClick={handleSaveReflections}
-              className="mt-5 flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors"
+              disabled={saving}
+              className="mt-5 flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-60"
             >
-              {saved ? <><Check size={14} /> SAVED</> : <><Save size={14} /> SAVE REFLECTIONS</>}
+              {saving ? (
+                <><Loader2 size={14} className="animate-spin" /> SAVING...</>
+              ) : saved ? (
+                <><Check size={14} /> SAVED</>
+              ) : (
+                <><Save size={14} /> SAVE REFLECTIONS</>
+              )}
             </button>
           </div>
         </section>
@@ -223,47 +328,39 @@ const Session1Content = ({ userId }: { userId: string | null }) => {
             </p>
 
             <div className="space-y-5">
-              <div>
-                <label className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body block mb-2">
-                  WHAT WILL YOU IMPLEMENT THIS WEEK?
-                </label>
-                <textarea
-                  value={commitment.what}
-                  onChange={(e) => setCommitment((c) => ({ ...c, what: e.target.value }))}
-                  placeholder="One specific action..."
-                  className="w-full bg-transparent border-b border-primary-foreground/15 text-primary-foreground text-sm font-body font-light px-0 py-2 min-h-[60px] focus:border-primary-foreground/40 focus:outline-none transition-colors resize-none placeholder:text-primary-foreground/15"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body block mb-2">
-                  WHY DOES THIS MATTER TO YOU?
-                </label>
-                <textarea
-                  value={commitment.why}
-                  onChange={(e) => setCommitment((c) => ({ ...c, why: e.target.value }))}
-                  placeholder="Connect it to something real..."
-                  className="w-full bg-transparent border-b border-primary-foreground/15 text-primary-foreground text-sm font-body font-light px-0 py-2 min-h-[60px] focus:border-primary-foreground/40 focus:outline-none transition-colors resize-none placeholder:text-primary-foreground/15"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body block mb-2">
-                  HOW WILL YOU KNOW YOU'VE SUCCEEDED?
-                </label>
-                <textarea
-                  value={commitment.how}
-                  onChange={(e) => setCommitment((c) => ({ ...c, how: e.target.value }))}
-                  placeholder="What does success look like?"
-                  className="w-full bg-transparent border-b border-primary-foreground/15 text-primary-foreground text-sm font-body font-light px-0 py-2 min-h-[60px] focus:border-primary-foreground/40 focus:outline-none transition-colors resize-none placeholder:text-primary-foreground/15"
-                />
-              </div>
+              {[
+                { key: "what", label: "WHAT WILL YOU IMPLEMENT THIS WEEK?", placeholder: "One specific action..." },
+                { key: "why", label: "WHY DOES THIS MATTER TO YOU?", placeholder: "Connect it to something real..." },
+                { key: "how", label: "HOW WILL YOU KNOW YOU'VE SUCCEEDED?", placeholder: "What does success look like?" },
+              ].map((field) => (
+                <div key={field.key}>
+                  <label className="text-[10px] tracking-[0.2em] text-primary-foreground/30 font-body block mb-2">
+                    {field.label}
+                  </label>
+                  <textarea
+                    value={commitment[field.key as keyof typeof commitment]}
+                    onChange={(e) => setCommitment((c) => ({ ...c, [field.key]: e.target.value }))}
+                    placeholder={field.placeholder}
+                    rows={2}
+                    disabled={commitmentSaved}
+                    className="w-full bg-transparent border-b border-primary-foreground/15 text-primary-foreground text-sm font-body font-light px-0 py-2 focus:border-primary-foreground/40 focus:outline-none transition-colors resize-none placeholder:text-primary-foreground/15 disabled:opacity-60"
+                  />
+                </div>
+              ))}
             </div>
 
             <button
               onClick={handleSaveCommitment}
-              disabled={commitmentSaved || !commitment.what}
-              className="mt-6 w-full bg-primary-foreground/10 text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary-foreground/15 transition-colors disabled:opacity-40"
+              disabled={commitmentSaved || commitmentSaving || !commitment.what}
+              className="mt-6 w-full bg-primary-foreground/10 text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary-foreground/15 transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
             >
-              {commitmentSaved ? "✓ COMMITMENT SAVED" : "SAVE MY COMMITMENT"}
+              {commitmentSaving ? (
+                <><Loader2 size={14} className="animate-spin" /> SAVING...</>
+              ) : commitmentSaved ? (
+                <><Check size={14} /> COMMITMENT SAVED</>
+              ) : (
+                "SAVE MY COMMITMENT"
+              )}
             </button>
           </div>
         </section>

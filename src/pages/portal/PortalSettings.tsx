@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,8 +7,13 @@ import { toast } from "@/hooks/use-toast";
 
 const PortalSettings = () => {
   const { user, profile } = useAuth();
-  const [name, setName] = useState(profile?.name || "");
+  const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Sync name when profile loads (auth may still be loading at mount)
+  useEffect(() => {
+    if (profile?.name) setName(profile.name);
+  }, [profile?.name]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -25,31 +30,35 @@ const PortalSettings = () => {
   return (
     <PortalLayout>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="heading-display text-3xl text-primary mb-2">SETTINGS</h1>
-        <p className="text-sm text-muted-foreground mb-8 font-body">Manage your account.</p>
+        <h1 className="portal-heading text-3xl text-foreground mb-2">Profile</h1>
+        <p className="text-sm text-muted-foreground mb-8 font-body font-light">Manage your account.</p>
 
-        <div className="border-[3px] border-primary p-6 md:p-8 space-y-6 max-w-lg">
+        <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg">
           <div>
-            <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">NAME</label>
+            <label className="portal-label block mb-2">NAME</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-transparent border-2 border-primary/20 text-primary px-4 py-3 text-sm font-body focus:border-primary focus:outline-none"
+              className="w-full bg-transparent border-b border-foreground/15 text-foreground px-0 py-3 text-sm font-body font-light focus:border-foreground/40 focus:outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">EMAIL</label>
-            <p className="text-sm text-primary font-body px-4 py-3 border-2 border-primary/10 bg-muted/20">{user?.email}</p>
+            <label className="portal-label block mb-2">EMAIL</label>
+            <p className="text-sm text-foreground/50 font-body font-light py-3">{user?.email}</p>
           </div>
 
           <div>
-            <label className="text-[10px] tracking-widest text-primary/40 mb-1 block">MEMBERSHIP</label>
-            <p className="text-sm text-primary font-body px-4 py-3 border-2 border-primary/10 bg-muted/20">MEMBER</p>
+            <label className="portal-label block mb-2">MEMBERSHIP</label>
+            <p className="text-sm text-foreground/50 font-body font-light py-3">Pilot — Term 1 2026</p>
           </div>
 
-          <button onClick={handleSave} disabled={saving} className="btn-navy text-xs py-2 px-6 disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={saving || !name}
+            className="bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
+          >
             {saving ? "SAVING..." : "SAVE CHANGES"}
           </button>
         </div>
