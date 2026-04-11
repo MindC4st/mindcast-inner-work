@@ -611,25 +611,19 @@ const Pilot = () => {
 
                     {/* Checkboxes */}
                     <div className="space-y-4 pt-2">
-                      <label className="flex items-start gap-3 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={formData.canAttend}
-                          onChange={(e) => setFormData({ ...formData, canAttend: e.target.checked })}
-                          className="mt-0.5 w-4 h-4 accent-cream"
-                        />
+                      <label className="flex items-start gap-3 cursor-pointer group p-2 -m-2 rounded-md">
+                        <div className="relative flex-shrink-0 mt-0.5 w-6 h-6 border-2 border-cream/40 rounded flex items-center justify-center cursor-pointer" onClick={() => setFormData({ ...formData, canAttend: !formData.canAttend })}>
+                          {formData.canAttend && <span className="text-cream text-sm font-bold">✓</span>}
+                        </div>
                         <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
                           I confirm I can attend Tuesday evenings in Taupō from 21 April 2026
                         </span>
                       </label>
 
-                      <label className="flex items-start gap-3 cursor-pointer group">
-                        <input
-                          type="checkbox"
-                          checked={formData.agreeTerms}
-                          onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
-                          className="mt-0.5 w-4 h-4 accent-cream"
-                        />
+                      <label className="flex items-start gap-3 cursor-pointer group p-2 -m-2 rounded-md">
+                        <div className="relative flex-shrink-0 mt-0.5 w-6 h-6 border-2 border-cream/40 rounded flex items-center justify-center cursor-pointer" onClick={() => setFormData({ ...formData, agreeTerms: !formData.agreeTerms })}>
+                          {formData.agreeTerms && <span className="text-cream text-sm font-bold">✓</span>}
+                        </div>
                         <span className="text-cream/50 text-sm font-body group-hover:text-cream/70 transition-colors">
                           I agree to the{" "}
                           <Link to="/terms" className="underline text-cream/60 hover:text-cream">Terms & Conditions</Link>
