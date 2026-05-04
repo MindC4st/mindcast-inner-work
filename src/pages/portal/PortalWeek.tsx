@@ -61,6 +61,11 @@ const PortalWeek = () => {
   return <Session1Content userId={user?.id || null} cohortId={cohortId} />;
 };
 
+function extractVideoId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+  return m ? m[1] : null;
+}
+
 /* ─── Session 1 Full Content ─── */
 const Session1Content = ({ userId, cohortId }: { userId: string | null; cohortId: string | null }) => {
   const [bookmarkResponses, setBookmarkResponses] = useState<Record<string, string>>({});
@@ -71,6 +76,7 @@ const Session1Content = ({ userId, cohortId }: { userId: string | null; cohortId
   const [saved, setSaved] = useState(false);
   const [commitmentSaving, setCommitmentSaving] = useState(false);
   const [commitmentSaved, setCommitmentSaved] = useState(false);
+  const [familyTracks, setFamilyTracks] = useState<{ littleOnes: any | null; teens: any | null }>({ littleOnes: null, teens: null });
 
   // Load existing saved data on mount
   useEffect(() => {
@@ -122,6 +128,26 @@ const Session1Content = ({ userId, cohortId }: { userId: string | null; cohortId
 
     load();
   }, [userId, cohortId]);
+
+  useEffect(() => {
+    supabase
+      .from("sessions")
+      .select("id")
+      .eq("session_number", 1)
+      .single()
+      .then(({ data: sess }) => {
+        if (!sess) return;
+        supabase
+          .from("kids_sessions")
+          .select("*")
+          .eq("parent_session_id", sess.id)
+          .then(({ data }) => {
+            const lo = (data || []).find((d: any) => d.age_group === "little_ones") || null;
+            const te = (data || []).find((d: any) => d.age_group === "teens") || null;
+            setFamilyTracks({ littleOnes: lo, teens: te });
+          });
+      });
+  }, []);
 
   const handleBookmarkChange = (id: string, value: string) => {
     setBookmarkResponses((prev) => ({ ...prev, [id]: value }));
@@ -364,6 +390,66 @@ const Session1Content = ({ userId, cohortId }: { userId: string | null; cohortId
             </button>
           </div>
         </section>
+
+        {/* ── Family Tracks ── */}
+        {(familyTracks.littleOnes || familyTracks.teens) && (
+          <section className="mb-12">
+            <h2 className="portal-heading text-xl text-foreground mb-2">For Families</h2>
+            <p className="text-sm text-muted-foreground mb-6 font-body font-light">
+              While the adults gather for The Source, children and teens run their own parallel session.
+            </p>
+            <div className="space-y-4">
+              {familyTracks.littleOnes && (
+                <div className="portal-card p-6">
+                  <span className="text-[10px] tracking-[0.2em] text-muted-foreground/60 font-body block mb-3">LITTLE ONES · AGES 4–11</span>
+                  <h3 className="font-display text-lg text-foreground mb-3">{familyTracks.littleOnes.lesson_theme}</h3>
+                  {familyTracks.littleOnes.activity_description && (
+                    <p className="text-sm text-foreground/70 font-body font-light leading-relaxed mb-4">
+                      {familyTracks.littleOnes.activity_description}
+                    </p>
+                  )}
+                  {familyTracks.littleOnes.materials_needed && (
+                    <p className="text-[11px] text-muted-foreground font-body">
+                      <span className="tracking-[0.1em] uppercase text-muted-foreground/40 mr-1">Bring:</span>
+                      {familyTracks.littleOnes.materials_needed}
+                    </p>
+                  )}
+                </div>
+              )}
+              {familyTracks.teens && (
+                <div className="portal-card p-6">
+                  <span className="text-[10px] tracking-[0.2em] text-muted-foreground/60 font-body block mb-3">TEENS · AGES 12–24</span>
+                  <h3 className="font-display text-lg text-foreground mb-3">{familyTracks.teens.lesson_theme}</h3>
+                  {familyTracks.teens.video_url && extractVideoId(familyTracks.teens.video_url) && (
+                    <div className="aspect-video bg-foreground/5 overflow-hidden mb-4">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${extractVideoId(familyTracks.teens.video_url)}?rel=0`}
+                        title={familyTracks.teens.video_title || "Teen session video"}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full border-0"
+                      />
+                    </div>
+                  )}
+                  {familyTracks.teens.video_title && !familyTracks.teens.video_url && (
+                    <p className="text-sm text-muted-foreground/60 font-body italic mb-4">{familyTracks.teens.video_title}</p>
+                  )}
+                  {familyTracks.teens.activity_description && (
+                    <p className="text-sm text-foreground/70 font-body font-light leading-relaxed mb-4">
+                      {familyTracks.teens.activity_description}
+                    </p>
+                  )}
+                  {familyTracks.teens.materials_needed && (
+                    <p className="text-[11px] text-muted-foreground font-body">
+                      <span className="tracking-[0.1em] uppercase text-muted-foreground/40 mr-1">Bring:</span>
+                      {familyTracks.teens.materials_needed}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </div>
     </PortalLayout>
   );

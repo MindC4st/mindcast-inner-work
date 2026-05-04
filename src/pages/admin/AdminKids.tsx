@@ -10,11 +10,38 @@ const ACTIVITY_TYPES = [
 ];
 
 const FIFTY_TWO_WEEK_PLAN: Record<number, { kids_title: string; kids_activity: string; teen_title: string }> = {
-  1: { kids_title: "What Makes Me Happy?", kids_activity: "Draw 5 things that make you smile", teen_title: "Meaning & Happiness" },
-  2: { kids_title: "Being Brave", kids_activity: "Colour a bravery shield", teen_title: "Courage & Fear" },
-  3: { kids_title: "Kindness Matters", kids_activity: "Kindness chain craft", teen_title: "Empathy & Connection" },
-  4: { kids_title: "My Feelings", kids_activity: "Feelings map drawing", teen_title: "Emotional Intelligence" },
-  5: { kids_title: "Being Different", kids_activity: "Draw what makes you unique", teen_title: "Identity & Belonging" },
+  // Movement 1 — Ground (Know Yourself)
+  1: { kids_title: "Who Am I Really?", kids_activity: "Draw your 'inside self' vs 'outside self' side by side", teen_title: "Finding Your True Identity" },
+  2: { kids_title: "My Story", kids_activity: "Story chain craft — retell a family memory together", teen_title: "The Stories We Tell" },
+  3: { kids_title: "Body Feelings", kids_activity: "Body map — colour where you feel different emotions", teen_title: "Listen to Your Body" },
+  4: { kids_title: "My Values", kids_activity: "Values sorting game — 'Is this really me?'", teen_title: "What Do You Actually Value?" },
+  5: { kids_title: "I Am More Than One Thing", kids_activity: "Identity collage — cut and paste from magazines", teen_title: "Identity Is Not Fixed" },
+  6: { kids_title: "My Superpowers", kids_activity: "Draw your superpower and your shadow side", teen_title: "Strengths and Shadows" },
+  7: { kids_title: "What Lights Me Up?", kids_activity: "Draw what gives you energy vs. what drains you", teen_title: "What Actually Gives Life Meaning?" },
+  // Movement 2 — Wound (Heal Yourself)
+  8: { kids_title: "Carrying Heavy Things", kids_activity: "Mindfulness: pass a stone and name what you're carrying", teen_title: "What Are You Carrying?" },
+  9: { kids_title: "Why Do I React Like That?", kids_activity: "Feelings comic strip — draw a reaction chain", teen_title: "Why Do I React Like That?" },
+  10: { kids_title: "Things Change", kids_activity: "Make a 'letting go' lantern or paper boat", teen_title: "Letting Go" },
+  11: { kids_title: "Oops, I Made a Mistake", kids_activity: "Torn-paper repair craft — tear paper, then fix and decorate it", teen_title: "Shame vs. Guilt" },
+  12: { kids_title: "I Forgive Myself", kids_activity: "'I forgive myself for...' sentence starters on paper hearts", teen_title: "Forgiving Yourself" },
+  13: { kids_title: "The Story I Keep Telling", kids_activity: "Draw the story you keep retelling in your head", teen_title: "Rewriting Old Stories" },
+  14: { kids_title: "Missing Someone", kids_activity: "Memory jar — write/draw what you love and miss, seal inside", teen_title: "Grief and Loss" },
+  // Movement 3 — Tend (Love Yourself)
+  15: { kids_title: "Resting Is Brave", kids_activity: "Rest collage — cut images of what real rest looks like for you", teen_title: "Rest Is Not Laziness" },
+  16: { kids_title: "My Bully Brain", kids_activity: "Draw your inner critic as a funny cartoon character", teen_title: "The Inner Critic" },
+  17: { kids_title: "What Makes Me Laugh?", kids_activity: "Free play station — pure fun, no instructions", teen_title: "Joy and Play" },
+  18: { kids_title: "I Can Say No", kids_activity: "Role-play: saying no kindly in different situations", teen_title: "Healthy Boundaries" },
+  19: { kids_title: "Being Kind to Myself", kids_activity: "Self-care bingo — fill in your own squares", teen_title: "Self-Compassion" },
+  20: { kids_title: "My Body Is Amazing", kids_activity: "Body gratitude — strike a pose, then draw what your body can do", teen_title: "Body Positivity" },
+  21: { kids_title: "Food and Feelings", kids_activity: "Sensory feast — taste, smell, texture exploration", teen_title: "Nourishment and Hunger" },
+  // Movement 4 — Open (Connect with Others)
+  22: { kids_title: "Someone Really Knows Me", kids_activity: "Pair share — tell a partner something almost no one else knows", teen_title: "Vulnerability and Being Known" },
+  23: { kids_title: "How Our Family Loves", kids_activity: "Family love languages chart — map how each person gives/receives love", teen_title: "Attachment and Love Styles" },
+  24: { kids_title: "Fighting Fair", kids_activity: "Drama scenario cards — act out healthy conflict resolution", teen_title: "Healthy Conflict" },
+  25: { kids_title: "We All Have Teachers", kids_activity: "Draw your ideal mentor or hero and what they'd say to you", teen_title: "Leadership and Mentorship" },
+  26: { kids_title: "Real Friends", kids_activity: "Sort friendship scenario cards — real friend or not?", teen_title: "True Friendship" },
+  27: { kids_title: "When I Help Too Much", kids_activity: "Helper or fixer? — discuss scenarios: when does helping hurt?", teen_title: "Helping vs. Enabling" },
+  28: { kids_title: "Our Circle", kids_activity: "Gratitude web — pass yarn across the circle, name something you're grateful for", teen_title: "Community and Belonging" },
 };
 
 function extractVideoId(url: string): string | null {

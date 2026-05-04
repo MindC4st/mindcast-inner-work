@@ -4,7 +4,21 @@
       "Bash(npx tsc:*)",
       "Bash(node_modules/.bin/tsc --noEmit)",
       "Bash(./node_modules/.bin/tsc --noEmit)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "mcp__claude_ai_Airtable__list_bases",
+      "WebSearch",
+      "mcp__claude_ai_Airtable__list_tables_for_base",
+      "WebFetch(domain:www.happyscribe.com)",
+      "WebFetch(domain:www.melrobbins.com)",
+      "WebFetch(domain:singjupost.com)",
+      "mcp__claude_ai_Airtable__create_table",
+      "mcp__claude_ai_Airtable__create_records_for_table",
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(npx supabase *)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npx vite *)"
     ]
   }
 }
