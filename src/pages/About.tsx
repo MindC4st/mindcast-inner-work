@@ -37,19 +37,19 @@ const About = () => (
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              I tried the gym. I tried book clubs. Neither could give me what I was looking for.
+              I loved podcasts the way some people love music. Driving was my favourite thing because it meant I could listen — really listen. But I could never retain what I was learning. The ideas would hit, stir something, then dissolve into the noise of the week.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              The gym culture was encouraging, but I was only there out of necessity for my physical wellbeing. The external motivators kept me going — moving up the leaderboard, chasing the highest status level for the dopamine hit — but I never actually wanted to be there. And I only read non-fiction, so joining a book club wasn't going to work either. I'd heard some people go to book club and don't even read the books.
+              I tried the gym. I was only there out of necessity — external motivators chased, never truly wanted. I tried book clubs, but I only read non-fiction and I heard some people don't even read the book. Then I started a women in business group: we rotated roles, shared wins, and spoke our intentions aloud each week. Because we'd said them in front of each other, we actually followed through. The structure worked.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              Through my own self-discovery journey, I figured out that I love structure and I love mental stimulation — and I thought surely there must be others out there who feel the same way. I've read so many self-help books and I listen to podcasts all the time, but I just can't retain the information. I know I'm extrinsically motivated. I need to be held accountable to something in order to achieve it.
+              But I was told to relax. To loosen the format. And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability — and I thought, surely there must be others out there who feel the same way.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              That's where the idea came from. I wanted to create a book club — but for podcasts. For people who actually want to implement what they learn.
+              That's where Mindcast began. A book club, but for podcasts. A place where people show up, watch something worth thinking about, reflect together, and leave with one thing to implement before next week. Not to be taught. Just to do the work, side by side.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
-              So I built Mindcast.
+              So I built the room.
             </p>
           </div>
         </div>
