@@ -89,21 +89,18 @@ const About = () => (
             <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH CARLSON</h3>
             <p className="text-xs tracking-[0.3em] text-primary/40 mb-6">FOUNDER & FACILITATOR</p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              I'm looking for people on a self-development journey — between the ages of 30 and 40ish, male and female — to take part in my 10-week test group. I am in no way "the expert" and I certainly won't be telling you what to think or do.
+              I'm not a teacher (anymore). I'm not a guru. I'm not a prophet, and I'm certainly not the source of whatever wisdom surfaces in a Mindcast session.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              My intention with these sessions is to use AI to prompt us with the guiding questions we need to ask ourselves to solve our own issues. I believe the more we learn about ourselves — recognising our patterns and uncovering why we do things the way we do — the closer we get to finding the answers we need.
+              Everything we draw from — the podcasts, the thinkers, the frameworks — already exists in the world. I didn't invent the wisdom. I just built the room. I created the shape of the evening. I wrote the questions. I set the table. What happens at that table belongs to everyone who sits at it.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              I'm running these sessions to hold myself accountable, and to test whether this is something worth offering in our town. The fee you pay is to hold yourselves accountable too, and to help cover the resources and venue costs.
-            </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              I hope we form the best founding group for this project — and that you're joining for your own enjoyment and learning, not just to support me. I hope this group can go on to shape the next phase of Mindcast in a way that benefits the wider community.
+              I built Mindcast because I needed it myself. I needed a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone. I was looking to find my people: those who get stimulated intellectually, who want to understand themselves better, who are tired of surfaces and small talk and pretending they're fine.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
-              In a world of technology and lost connection, I truly believe face-to-face interactions and groups like this need to be rebuilt. That's why we kickstart this pilot with Johann Hari and Steven Bartlett talking about just that.
+              So if you need a label, here's the truest one: I'm the first participant. The one who needed this badly enough to build it — and then left the door open for whoever else might need it too.
             </p>
-            <p className="text-xs tracking-[0.2em] text-primary/40 mt-6">BASED IN TAUPO, NEW ZEALAND</p>
+            <p className="text-xs tracking-[0.2em] text-primary/40 mt-6">BASED IN TAUPŌ, NEW ZEALAND</p>
           </motion.div>
         </div>
       </div>
