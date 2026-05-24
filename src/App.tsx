@@ -63,6 +63,7 @@ import FacilitatorView from "./pages/mindcast-live/FacilitatorView";
 import LiveJoin from "./pages/mindcast-live/LiveJoin";
 import MindcastLibrary from "./pages/mindcast-live/Library";
 import MindcastLesson from "./pages/mindcast-live/Lesson";
+import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Home />} />
+    <Route path="/demo" element={<Demo />} />
     <Route path="/classic" element={<Index />} />
     <Route path="/auth" element={<Auth />} />
     <Route path="/onboarding" element={<Onboarding />} />
