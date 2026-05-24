@@ -1,1 +1,4 @@
 project_id = "gjkhkaywozuobhbcdysi"
+
+[functions.buy-worksheet]
+verify_jwt = false
