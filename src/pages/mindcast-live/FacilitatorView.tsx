@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
 import {
   ChevronLeft, ChevronRight, Maximize, Minimize, Lock, Unlock,
-  StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode, Download,
+  StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode, Download, Film,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,6 +48,7 @@ type Response = {
   display_name: string;
   response_text: string;
   show_name: boolean;
+  is_public: boolean;
   created_at: string;
   hidden: boolean;
 };
@@ -80,6 +81,7 @@ const FacilitatorView = () => {
   const [showResponses, setShowResponses] = useState(true);
   const [responses, setResponses] = useState<Response[]>([]);
   const [code] = useState(() => search.get("code") || genCode());
+  const [generatingVideo, setGeneratingVideo] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Persist code in URL
@@ -105,22 +107,27 @@ const FacilitatorView = () => {
     })();
   }, [week, audience]);
 
-  // Load unlocked state
+  // Load unlocked state — count rows for this week across members. The
+  // facilitator considers a lesson "unlocked" when at least one member has it.
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
-        .from("unlocked_lessons").select("week_number").eq("week_number", week).maybeSingle();
-      setUnlocked(!!data);
+      const { count } = await (supabase as any)
+        .from("unlocked_lessons")
+        .select("user_id", { count: "exact", head: true })
+        .eq("week_number", week);
+      setUnlocked((count ?? 0) > 0);
     })();
   }, [week]);
 
-  // Load + subscribe responses
+  // Load + subscribe responses (public only — private submissions stay hidden
+  // from the live feed even though RLS lets facilitators read them).
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
         .from("session_responses")
-        .select("id, display_name, response_text, show_name, created_at, hidden")
+        .select("id, display_name, response_text, show_name, is_public, created_at, hidden")
         .eq("session_code", code)
+        .eq("is_public", true)
         .order("created_at", { ascending: false })
         .limit(80);
       setResponses(data || []);
@@ -128,9 +135,16 @@ const FacilitatorView = () => {
     const ch = supabase
       .channel(`responses:${code}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
-        (p: any) => setResponses(prev => [p.new, ...prev]))
+        (p: any) => { if (p.new?.is_public) setResponses(prev => [p.new, ...prev]); })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
-        (p: any) => setResponses(prev => prev.map(r => r.id === p.new.id ? p.new : r)))
+        (p: any) => setResponses(prev => {
+          // If a row was just made private or hidden, drop it.
+          if (!p.new?.is_public || p.new?.hidden) return prev.filter(r => r.id !== p.new.id);
+          const existing = prev.find(r => r.id === p.new.id);
+          return existing
+            ? prev.map(r => r.id === p.new.id ? p.new : r)
+            : [p.new, ...prev];
+        }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [code]);
@@ -186,16 +200,52 @@ const FacilitatorView = () => {
   const handleUnlock = async () => {
     if (!isFacilitator) { toast({ title: "Facilitators only" }); return; }
     if (unlocked) return;
+    // Fan out: one unlock row per member profile so each user sees their own
+    // unlock state. Upserts on (user_id, week_number).
+    const { data: profiles, error: profilesError } = await (supabase as any)
+      .from("profiles").select("user_id");
+    if (profilesError) {
+      toast({ title: "Could not load members", description: profilesError.message });
+      return;
+    }
+    const rows = (profiles || [])
+      .filter((p: any) => p.user_id)
+      .map((p: any) => ({ user_id: p.user_id, week_number: week, facilitator_id: user?.id }));
+    if (rows.length === 0) {
+      toast({ title: "No members to unlock for" });
+      return;
+    }
     const { error } = await (supabase as any).from("unlocked_lessons")
-      .insert({ week_number: week, facilitator_id: user?.id });
+      .upsert(rows, { onConflict: "user_id,week_number", ignoreDuplicates: true });
     if (error) { toast({ title: "Could not unlock", description: error.message }); return; }
     setUnlocked(true);
-    toast({ title: "Lesson unlocked for all members" });
+    toast({ title: `Lesson unlocked for ${rows.length} member${rows.length === 1 ? "" : "s"}` });
   };
 
   const hideResponse = async (id: string) => {
     await (supabase as any).from("session_responses").update({ hidden: true }).eq("id", id);
     setResponses(prev => prev.filter(r => r.id !== id));
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!isFacilitator) { toast({ title: "Facilitators only" }); return; }
+    setGeneratingVideo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-session-video", {
+        body: { week_number: week, audience },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({
+        title: "Session video generated",
+        description: "Storyboard PDF and narration MP3 uploaded.",
+      });
+      if ((data as any)?.storyboard_pdf_url) window.open((data as any).storyboard_pdf_url, "_blank");
+    } catch (e: any) {
+      toast({ title: "Video generation failed", description: e.message });
+    } finally {
+      setGeneratingVideo(false);
+    }
   };
 
   if (!session) {
@@ -226,6 +276,16 @@ const FacilitatorView = () => {
             {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
           </button>
           <button onClick={() => session && downloadWorksheetPdf(session as any)} title="Download worksheet PDF" className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><Download size={14} /></button>
+          {isFacilitator && (
+            <button
+              onClick={handleGenerateVideo}
+              disabled={generatingVideo}
+              title="Generate Session Video (Claude storyboard + ElevenLabs narration)"
+              className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
+            >
+              <Film size={12} />{generatingVideo ? "Generating…" : "Generate Video"}
+            </button>
+          )}
           <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
           <button onClick={toggleFs} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
         </div>

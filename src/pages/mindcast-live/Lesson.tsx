@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Lock, Download, ShoppingCart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Download, ShoppingCart, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { toast } from "@/hooks/use-toast";
 
@@ -9,9 +10,11 @@ type Session = {
   week_number: number;
   theme_title: string;
   session_title: string;
+  phase_name: string;
   core_concept: string;
   signal_metaphor: string;
   journaling_prompt: string;
+  experiential_exercise: string;
   weekly_practice_mon: string;
   weekly_practice_wed: string;
   weekly_practice_sun: string;
@@ -20,27 +23,48 @@ type Session = {
   video_description: string;
 };
 
+type ResponseRow = { prompt_type: string; response_text: string };
+
 const Lesson = () => {
   const { weekNumber } = useParams();
   const week = parseInt(weekNumber || "1", 10);
   const nav = useNavigate();
+  const { user } = useAuth();
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">("Adult");
   const [session, setSession] = useState<Session | null>(null);
   const [unlocked, setUnlocked] = useState<number[]>([]);
   const [isUnlocked, setIsUnlocked] = useState<boolean | null>(null);
+  const [savedResponses, setSavedResponses] = useState<Record<string, string>>({});
+  const [completed, setCompleted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!user) return;
     (async () => {
-      const [s, u] = await Promise.all([
+      const [s, u, r, c] = await Promise.all([
         (supabase as any).from("mindcast_live_sessions").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
-        (supabase as any).from("unlocked_lessons").select("week_number"),
+        (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
+        (supabase as any).from("session_responses")
+          .select("prompt_type, response_text")
+          .eq("user_id", user.id)
+          .eq("week_number", week)
+          .eq("audience_type", audience),
+        (supabase as any).from("lesson_completions")
+          .select("week_number")
+          .eq("user_id", user.id)
+          .eq("week_number", week)
+          .maybeSingle(),
       ]);
       setSession(s.data);
       const ids = (u.data || []).map((r: any) => r.week_number).sort((a: number, b: number) => a - b);
       setUnlocked(ids);
       setIsUnlocked(ids.includes(week));
+      const responseMap: Record<string, string> = {};
+      (r.data || []).forEach((row: ResponseRow) => { responseMap[row.prompt_type] = row.response_text; });
+      setSavedResponses(responseMap);
+      setCompleted(!!c.data);
     })();
-  }, [week, audience]);
+  }, [week, audience, user]);
 
   if (isUnlocked === false) {
     return (
@@ -61,6 +85,17 @@ const Lesson = () => {
   const prevWeek = [...unlocked].reverse().find(w => w < week);
   const nextWeek = unlocked.find(w => w > week);
 
+  const handleSubmit = async () => {
+    if (!user) return;
+    setSubmitting(true);
+    const { error } = await (supabase as any).from("lesson_completions")
+      .upsert({ user_id: user.id, week_number: week, audience_type: audience }, { onConflict: "user_id,week_number" });
+    setSubmitting(false);
+    if (error) { toast({ title: "Could not mark complete", description: error.message }); return; }
+    setCompleted(true);
+    toast({ title: "Worksheet submitted" });
+  };
+
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))] px-6 py-10">
       <div className="max-w-3xl mx-auto">
@@ -78,8 +113,8 @@ const Lesson = () => {
         <h1 className="font-display text-5xl md:text-6xl text-[hsl(var(--navy))] tracking-wider mb-2">{session.theme_title.toUpperCase()}</h1>
         <p className="font-serif italic text-[hsl(var(--navy-mid))] text-xl mb-6">{session.session_title}</p>
 
-        <div className="flex flex-wrap gap-2 mb-8">
-          <button onClick={() => downloadWorksheetPdf(session as any)}
+        <div className="flex flex-wrap items-center gap-2 mb-8">
+          <button onClick={() => downloadWorksheetPdf({ ...session, audience })}
             className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:opacity-90">
             <Download size={13} /> Download Worksheet
           </button>
@@ -94,6 +129,11 @@ const Lesson = () => {
           }} className="inline-flex items-center gap-2 px-4 py-2 border border-[hsl(var(--bronze))] text-[hsl(var(--bronze))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:bg-[hsl(var(--bronze))]/10">
             <ShoppingCart size={13} /> Buy Printed Copy · $5 NZD
           </button>
+          {completed && (
+            <span className="flex items-center gap-1.5 text-[hsl(var(--blue))] text-[11px] font-body tracking-widest uppercase ml-1">
+              <Check size={13} />Completed
+            </span>
+          )}
         </div>
 
         {ytId && (
@@ -114,21 +154,41 @@ const Lesson = () => {
 
         <Section title="Reflection">
           <p className="font-serif italic text-lg text-[hsl(var(--navy))] mb-3">"{session.journaling_prompt}"</p>
-          <SaveTextarea storageKey={`mc_reflection_${week}_${audience}`} placeholder="Your reflection..." />
+          <SupabaseTextarea
+            placeholder="Your reflection..."
+            initialValue={savedResponses["reflection"] || ""}
+            onSave={(value) => persistResponse({ user, week, audience, promptType: "reflection", value })}
+          />
         </Section>
 
         <Section title="Weekly Practice">
           {[
-            { d: "Monday", t: session.weekly_practice_mon },
-            { d: "Wednesday", t: session.weekly_practice_wed },
-            { d: "Sunday", t: session.weekly_practice_sun },
-          ].map(({ d, t }) => <PracticeRow key={d} day={d} text={t} week={week} />)}
+            { d: "Monday", t: session.weekly_practice_mon, key: "practice_mon" },
+            { d: "Wednesday", t: session.weekly_practice_wed, key: "practice_wed" },
+            { d: "Sunday", t: session.weekly_practice_sun, key: "practice_sun" },
+          ].map(({ d, t, key }) => (
+            <PracticeRow
+              key={d}
+              day={d}
+              text={t}
+              done={savedResponses[key] === "done"}
+              onToggle={(done) => persistResponse({ user, week, audience, promptType: key, value: done ? "done" : "" })}
+            />
+          ))}
         </Section>
 
         <div className="border border-[hsl(var(--bronze))]/40 rounded-sm p-6 bg-gradient-to-br from-[hsl(var(--bronze))]/5 to-transparent text-center my-8">
           <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-2">Affirmation</p>
           <p className="font-serif italic text-2xl text-[hsl(var(--navy))]">"{session.core_affirmation}"</p>
         </div>
+
+        <button
+          onClick={handleSubmit}
+          disabled={submitting || completed}
+          className="w-full bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm tracking-widest uppercase py-3 rounded-sm transition-colors"
+        >
+          {completed ? "Submitted" : submitting ? "Submitting…" : "Mark worksheet complete"}
+        </button>
 
         <div className="flex items-center justify-between mt-12 pt-6 border-t border-[hsl(var(--warm-border))]">
           <button onClick={() => prevWeek && nav(`/mindcast-live/lesson/${prevWeek}`)} disabled={!prevWeek}
@@ -145,6 +205,27 @@ const Lesson = () => {
   );
 };
 
+const persistResponse = async ({ user, week, audience, promptType, value }: {
+  user: { id: string } | null;
+  week: number;
+  audience: string;
+  promptType: string;
+  value: string;
+}) => {
+  if (!user) return;
+  await (supabase as any).from("session_responses").upsert({
+    user_id: user.id,
+    session_code: `LESSON-${week}`,
+    week_number: week,
+    audience_type: audience,
+    prompt_type: promptType,
+    response_text: value,
+    display_name: "Member",
+    is_public: false,
+    show_name: false,
+  }, { onConflict: "user_id,week_number,audience_type,prompt_type" });
+};
+
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="mb-8">
     <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-3">{title}</p>
@@ -152,27 +233,61 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </div>
 );
 
-const SaveTextarea = ({ storageKey, placeholder }: { storageKey: string; placeholder: string }) => {
-  const [val, setVal] = useState(() => localStorage.getItem(storageKey) || "");
+const SupabaseTextarea = ({ initialValue, placeholder, onSave }: {
+  initialValue: string;
+  placeholder: string;
+  onSave: (value: string) => Promise<void> | void;
+}) => {
+  const [val, setVal] = useState(initialValue);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => { setVal(initialValue); }, [initialValue]);
+
+  // Debounced save: 600ms after the user stops typing.
+  useEffect(() => {
+    if (val === initialValue) return;
+    const t = setTimeout(async () => {
+      await onSave(val);
+      setSavedAt(Date.now());
+    }, 600);
+    return () => clearTimeout(t);
+  }, [val]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <textarea value={val} onChange={e => { setVal(e.target.value); localStorage.setItem(storageKey, e.target.value); }}
-      placeholder={placeholder} rows={4}
-      className="w-full px-4 py-3 bg-white border border-[hsl(var(--warm-border))] rounded-sm font-body text-[hsl(var(--navy))] resize-none focus:outline-none focus:border-[hsl(var(--blue))]" />
+    <div>
+      <textarea
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        placeholder={placeholder}
+        rows={4}
+        className="w-full px-4 py-3 bg-white border border-[hsl(var(--warm-border))] rounded-sm font-body text-[hsl(var(--navy))] resize-none focus:outline-none focus:border-[hsl(var(--blue))]"
+      />
+      {savedAt && (
+        <p className="text-[10px] text-[hsl(var(--navy-mid))]/50 font-body tracking-widest uppercase mt-1">Saved</p>
+      )}
+    </div>
   );
 };
 
-const PracticeRow = ({ day, text, week }: { day: string; text: string; week: number }) => {
-  const key = `mc_practice_${week}_${day}`;
-  const [done, setDone] = useState(() => localStorage.getItem(key) === "1");
+const PracticeRow = ({ day, text, done, onToggle }: {
+  day: string;
+  text: string;
+  done: boolean;
+  onToggle: (done: boolean) => void;
+}) => {
+  const [local, setLocal] = useState(done);
+  useEffect(() => { setLocal(done); }, [done]);
   return (
     <div className="flex gap-3 items-start py-3 border-b border-[hsl(var(--warm-border))] last:border-0">
-      <button onClick={() => { const n = !done; setDone(n); localStorage.setItem(key, n ? "1" : "0"); }}
-        className={`mt-1 w-5 h-5 rounded-sm border-2 shrink-0 flex items-center justify-center ${done ? "bg-[hsl(var(--blue))] border-[hsl(var(--blue))]" : "border-[hsl(var(--warm-border))]"}`}>
-        {done && <span className="text-white text-xs">✓</span>}
+      <button
+        onClick={() => { const n = !local; setLocal(n); onToggle(n); }}
+        className={`mt-1 w-5 h-5 rounded-sm border-2 shrink-0 flex items-center justify-center ${local ? "bg-[hsl(var(--blue))] border-[hsl(var(--blue))]" : "border-[hsl(var(--warm-border))]"}`}
+      >
+        {local && <span className="text-white text-xs">✓</span>}
       </button>
       <div className="flex-1">
         <p className="font-display text-sm text-[hsl(var(--blue))] tracking-widest">{day.toUpperCase()}</p>
-        <p className={`font-body text-sm leading-relaxed ${done ? "text-[hsl(var(--navy-mid))]/50 line-through" : "text-[hsl(var(--navy))]"}`}>{text}</p>
+        <p className={`font-body text-sm leading-relaxed ${local ? "text-[hsl(var(--navy-mid))]/50 line-through" : "text-[hsl(var(--navy))]"}`}>{text}</p>
       </div>
     </div>
   );

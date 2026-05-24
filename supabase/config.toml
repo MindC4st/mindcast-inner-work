@@ -2,3 +2,6 @@ project_id = "gjkhkaywozuobhbcdysi"
 
 [functions.buy-worksheet]
 verify_jwt = false
+
+[functions.generate-session-video]
+verify_jwt = true

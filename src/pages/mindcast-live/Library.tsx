@@ -7,18 +7,20 @@ import { useAuth } from "@/contexts/AuthContext";
 type Row = { week_number: number; theme_title: string; phase_name: string; session_title: string };
 
 const Library = () => {
-  const { role } = useAuth();
+  const { user, role } = useAuth();
   const isFacilitator = role === "facilitator";
   const [weeks, setWeeks] = useState<Row[]>([]);
   const [unlocked, setUnlocked] = useState<Set<number>>(new Set());
+  const [completed, setCompleted] = useState<Set<number>>(new Set());
 
   useEffect(() => {
+    if (!user) return;
     (async () => {
-      const [{ data: sessions }, { data: unl }] = await Promise.all([
+      const [{ data: sessions }, { data: unl }, { data: comp }] = await Promise.all([
         (supabase as any).from("mindcast_live_sessions").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
-        (supabase as any).from("unlocked_lessons").select("week_number"),
+        (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
+        (supabase as any).from("lesson_completions").select("week_number").eq("user_id", user.id),
       ]);
-      // Build full 52-week grid: use data we have; pad missing
       const map = new Map<number, Row>();
       (sessions || []).forEach((s: Row) => map.set(s.week_number, s));
       const all: Row[] = [];
@@ -27,10 +29,12 @@ const Library = () => {
       }
       setWeeks(all);
       setUnlocked(new Set((unl || []).map((u: any) => u.week_number)));
+      setCompleted(new Set((comp || []).map((c: any) => c.week_number)));
     })();
-  }, []);
+  }, [user]);
 
   const unlockedCount = unlocked.size;
+  const completedCount = completed.size;
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))] px-6 py-12">
@@ -39,11 +43,13 @@ const Library = () => {
           <div>
             <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-2">Mindcast LIVE</p>
             <h1 className="font-display text-6xl text-[hsl(var(--navy))] tracking-wider">LESSON LIBRARY</h1>
-            <p className="text-[hsl(var(--navy-mid))] font-body text-sm mt-2">{unlockedCount} of 52 lessons unlocked</p>
+            <p className="text-[hsl(var(--navy-mid))] font-body text-sm mt-2">
+              {completedCount} of 52 completed · {unlockedCount} unlocked
+            </p>
           </div>
           <div className="flex-1 max-w-md hidden md:block">
             <div className="h-2 rounded-full bg-[hsl(var(--warm-border))] overflow-hidden mt-12">
-              <div className="h-full bg-[hsl(var(--blue))] transition-all" style={{ width: `${(unlockedCount / 52) * 100}%` }} />
+              <div className="h-full bg-[hsl(var(--blue))] transition-all" style={{ width: `${(completedCount / 52) * 100}%` }} />
             </div>
           </div>
         </div>
@@ -51,6 +57,7 @@ const Library = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {weeks.map(w => {
             const isUnlocked = unlocked.has(w.week_number);
+            const isCompleted = completed.has(w.week_number);
             const hasContent = !!w.theme_title;
             return (
               <div key={w.week_number}
@@ -70,6 +77,9 @@ const Library = () => {
                 <p className={`font-body text-xs italic mb-4 min-h-[2rem] ${isUnlocked ? "text-[hsl(var(--navy-mid))]" : "text-[hsl(var(--navy-mid))]/40"}`}>
                   {w.session_title}
                 </p>
+                {isCompleted && (
+                  <p className="text-[10px] text-[hsl(var(--blue))] font-body tracking-widest uppercase mb-2">✓ Completed</p>
+                )}
                 <div className="flex flex-col gap-2">
                   {isUnlocked && hasContent && (
                     <Link to={`/mindcast-live/lesson/${w.week_number}`}

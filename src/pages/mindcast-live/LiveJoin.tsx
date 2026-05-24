@@ -20,7 +20,8 @@ const LiveJoin = () => {
   const [name, setName] = useState(() => localStorage.getItem("mc_live_name") || "");
   const [joined, setJoined] = useState(false);
   const [showName, setShowName] = useState(true);
-  const [shareOnScreen, setShareOnScreen] = useState(true);
+  // Privacy default: opt-in for public sharing.
+  const [shareOnScreen, setShareOnScreen] = useState(false);
   const [response, setResponse] = useState("");
   const [state, setState] = useState<LiveState | null>(null);
   const [submittedFor, setSubmittedFor] = useState<string | null>(null);
