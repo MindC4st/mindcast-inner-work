@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
 import {
   ChevronLeft, ChevronRight, Maximize, Minimize, Lock, Unlock,
-  StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode,
+  StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode, Download,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 
 const SLIDE_TITLES = [
   "Title", "Signal Metaphor", "Ancient Wisdom", "Opening Hook",
