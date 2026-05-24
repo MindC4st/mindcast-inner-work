@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, Download, ShoppingCart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
+import { toast } from "@/hooks/use-toast";
 
 type Session = {
   week_number: number;
