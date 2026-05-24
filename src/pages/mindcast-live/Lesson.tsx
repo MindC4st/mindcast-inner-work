@@ -76,7 +76,25 @@ const Lesson = () => {
 
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-2">Week {week}</p>
         <h1 className="font-display text-5xl md:text-6xl text-[hsl(var(--navy))] tracking-wider mb-2">{session.theme_title.toUpperCase()}</h1>
-        <p className="font-serif italic text-[hsl(var(--navy-mid))] text-xl mb-8">{session.session_title}</p>
+        <p className="font-serif italic text-[hsl(var(--navy-mid))] text-xl mb-6">{session.session_title}</p>
+
+        <div className="flex flex-wrap gap-2 mb-8">
+          <button onClick={() => downloadWorksheetPdf(session as any)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:opacity-90">
+            <Download size={13} /> Download Worksheet
+          </button>
+          <button onClick={async () => {
+            try {
+              const { data, error } = await supabase.functions.invoke("buy-worksheet", { body: { week_number: week, audience } });
+              if (error) throw error;
+              if (data?.url) window.open(data.url, "_blank");
+            } catch (e: any) {
+              toast({ title: "Couldn't start checkout", description: e.message });
+            }
+          }} className="inline-flex items-center gap-2 px-4 py-2 border border-[hsl(var(--bronze))] text-[hsl(var(--bronze))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:bg-[hsl(var(--bronze))]/10">
+            <ShoppingCart size={13} /> Buy Printed Copy · $5 NZD
+          </button>
+        </div>
 
         {ytId && (
           <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-8">
