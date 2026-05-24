@@ -1,0 +1,524 @@
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import QRCode from "react-qr-code";
+import {
+  ChevronLeft, ChevronRight, Maximize, Minimize, Lock, Unlock,
+  StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+
+const SLIDE_TITLES = [
+  "Title", "Signal Metaphor", "Ancient Wisdom", "Opening Hook",
+  "Core Concept", "Teaching Points", "Reflection 1", "Experiential Exercise",
+  "Guided Reflection", "Reflection 2", "Weekly Practices", "Video", "Affirmation",
+];
+
+type Session = {
+  id: string;
+  week_number: number;
+  phase: number;
+  phase_name: string;
+  theme_title: string;
+  audience: string;
+  core_concept: string;
+  signal_metaphor: string;
+  ancient_wisdom_reframe: string;
+  session_title: string;
+  opening_hook: string;
+  teaching_points: string;
+  experiential_exercise: string;
+  guided_reflection: string;
+  journaling_prompt: string;
+  weekly_practice_mon: string;
+  weekly_practice_wed: string;
+  weekly_practice_sun: string;
+  core_affirmation: string;
+  video_link: string;
+  video_description: string;
+  video_backup_description: string;
+  facilitator_notes: string;
+};
+
+type Response = {
+  id: string;
+  display_name: string;
+  response_text: string;
+  show_name: boolean;
+  created_at: string;
+  hidden: boolean;
+};
+
+const genCode = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 31)]).join("");
+
+const splitPoints = (text: string): string[] => {
+  if (!text) return [];
+  const numbered = text.split(/\n?\s*\d+\.\s+/).filter(Boolean);
+  if (numbered.length > 1) return numbered.map(s => s.trim());
+  return text.split(/\n+/).filter(s => s.trim().length > 0);
+};
+
+const FacilitatorView = () => {
+  const { weekNumber } = useParams();
+  const week = parseInt(weekNumber || "1", 10);
+  const [search, setSearch] = useSearchParams();
+  const navigate = useNavigate();
+  const { user, role } = useAuth();
+
+  const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">(
+    (search.get("a") as any) || "Adult"
+  );
+  const [session, setSession] = useState<Session | null>(null);
+  const [slide, setSlide] = useState(0);
+  const [isFs, setIsFs] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [revealCount, setRevealCount] = useState(1);
+  const [unlocked, setUnlocked] = useState(false);
+  const [showResponses, setShowResponses] = useState(true);
+  const [responses, setResponses] = useState<Response[]>([]);
+  const [code] = useState(() => search.get("code") || genCode());
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Persist code in URL
+  useEffect(() => {
+    if (!search.get("code")) {
+      const next = new URLSearchParams(search);
+      next.set("code", code);
+      setSearch(next, { replace: true });
+    }
+  }, []);
+
+  // Load session
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("mindcast_live_sessions")
+        .select("*")
+        .eq("week_number", week)
+        .eq("audience", audience)
+        .maybeSingle();
+      setSession(data as Session | null);
+      setRevealCount(1);
+    })();
+  }, [week, audience]);
+
+  // Load unlocked state
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("unlocked_lessons").select("week_number").eq("week_number", week).maybeSingle();
+      setUnlocked(!!data);
+    })();
+  }, [week]);
+
+  // Load + subscribe responses
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("session_responses")
+        .select("id, display_name, response_text, show_name, created_at, hidden")
+        .eq("session_code", code)
+        .order("created_at", { ascending: false })
+        .limit(80);
+      setResponses(data || []);
+    })();
+    const ch = supabase
+      .channel(`responses:${code}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
+        (p: any) => setResponses(prev => [p.new, ...prev]))
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
+        (p: any) => setResponses(prev => prev.map(r => r.id === p.new.id ? p.new : r)))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [code]);
+
+  // Broadcast current prompt to audience
+  useEffect(() => {
+    if (!session) return;
+    const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
+    ch.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        const promptType = slide === 6 ? "journaling" : slide === 9 ? "reflection" : "idle";
+        const promptText = slide === 6 ? session.journaling_prompt : slide === 9 ? session.guided_reflection : "";
+        await ch.send({
+          type: "broadcast",
+          event: "state",
+          payload: { week, audience, slide, promptType, promptText, title: session.theme_title },
+        });
+      }
+    });
+    return () => { supabase.removeChannel(ch); };
+  }, [slide, session, code, week, audience]);
+
+  // Keyboard navigation
+  const goNext = useCallback(() => {
+    if (slide === 5 && session) {
+      const total = splitPoints(session.teaching_points).length;
+      if (revealCount < total) { setRevealCount(c => c + 1); return; }
+    }
+    setSlide(s => Math.min(s + 1, 12));
+  }, [slide, session, revealCount]);
+  const goPrev = useCallback(() => setSlide(s => Math.max(s - 1, 0)), []);
+
+  const toggleFs = useCallback(async () => {
+    if (!document.fullscreenElement) await containerRef.current?.requestFullscreen();
+    else await document.exitFullscreen();
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName === "INPUT" || (e.target as HTMLElement)?.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); goNext(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
+      if (e.key === "f") toggleFs();
+    };
+    window.addEventListener("keydown", onKey);
+    const onFs = () => setIsFs(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFs);
+    return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("fullscreenchange", onFs); };
+  }, [goNext, goPrev, toggleFs]);
+
+  const isFacilitator = role === "facilitator";
+
+  const handleUnlock = async () => {
+    if (!isFacilitator) { toast({ title: "Facilitators only" }); return; }
+    if (unlocked) return;
+    const { error } = await (supabase as any).from("unlocked_lessons")
+      .insert({ week_number: week, facilitator_id: user?.id });
+    if (error) { toast({ title: "Could not unlock", description: error.message }); return; }
+    setUnlocked(true);
+    toast({ title: "Lesson unlocked for all members" });
+  };
+
+  const hideResponse = async (id: string) => {
+    await (supabase as any).from("session_responses").update({ hidden: true }).eq("id", id);
+    setResponses(prev => prev.filter(r => r.id !== id));
+  };
+
+  if (!session) {
+    return <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center text-[hsl(var(--ivory))]/60 font-body text-sm tracking-widest">LOADING WEEK {week} ({audience})...</div>;
+  }
+
+  const visibleResponses = responses.filter(r => !r.hidden);
+  const onReflection = slide === 6 || slide === 9;
+  const joinUrl = `${window.location.origin}/live/${code}`;
+
+  return (
+    <div ref={containerRef} className="min-h-screen bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] flex flex-col relative overflow-hidden">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-[hsl(var(--ivory))]/10 z-30">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("/mindcast-live/library")} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest">← LIBRARY</button>
+          <span className="text-[hsl(var(--bronze))] font-display text-2xl tracking-wider">WEEK {week}</span>
+          <span className="text-[hsl(var(--ivory))]/50 text-xs font-body tracking-widest uppercase">{session.phase_name}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {(["Adult", "Teen", "Child"] as const).map(a => (
+            <button key={a} onClick={() => setAudience(a)}
+              className={`px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${audience === a ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/60 hover:bg-[hsl(var(--ivory))]/10"}`}>{a}</button>
+          ))}
+          <div className="w-px h-5 bg-[hsl(var(--ivory))]/20 mx-2" />
+          <button onClick={handleUnlock} disabled={unlocked}
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${unlocked ? "bg-[hsl(var(--bronze))]/20 text-[hsl(var(--bronze))]" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10"}`}>
+            {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
+          </button>
+          <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
+          <button onClick={toggleFs} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
+        </div>
+      </div>
+
+      {/* Main slide area */}
+      <div className="flex-1 flex relative">
+        <div className={`flex-1 relative ${onReflection && showResponses ? "lg:w-2/3" : ""}`}>
+          <AnimatePresence mode="wait">
+            <motion.div key={`${slide}-${audience}`}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 flex items-center justify-center px-12 py-8">
+              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Live response panel on reflection slides */}
+        {onReflection && showResponses && (
+          <div className="hidden lg:flex w-1/3 border-l border-[hsl(var(--ivory))]/10 bg-black/20 flex-col">
+            <div className="p-4 border-b border-[hsl(var(--ivory))]/10 flex items-center justify-between">
+              <div>
+                <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.3em] font-body uppercase">Live</p>
+                <p className="text-[hsl(var(--ivory))]/70 text-xs font-body mt-0.5">{visibleResponses.length} response{visibleResponses.length === 1 ? "" : "s"}</p>
+              </div>
+              <div className="bg-white p-1.5 rounded">
+                <QRCode value={joinUrl} size={50} />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {visibleResponses.length === 0 && (
+                <div className="text-center py-12 text-[hsl(var(--ivory))]/30 text-xs font-body tracking-widest uppercase">Waiting for responses...</div>
+              )}
+              {visibleResponses.map(r => (
+                <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  className="group bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-3 relative">
+                  <p className="text-[hsl(var(--ivory))] text-sm font-body leading-relaxed">{r.response_text}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase">
+                      {r.show_name ? r.display_name : "Anonymous"}
+                    </span>
+                    <button onClick={() => hideResponse(r.id)} className="opacity-0 group-hover:opacity-100 text-[hsl(var(--ivory))]/30 hover:text-red-400">
+                      <X size={12} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom controls */}
+      <div className="flex items-center justify-between px-6 py-3 border-t border-[hsl(var(--ivory))]/10 z-30">
+        <div className="flex items-center gap-2">
+          <button onClick={goPrev} disabled={slide === 0} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronLeft size={18} /></button>
+          <button onClick={goNext} disabled={slide === 12} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronRight size={18} /></button>
+        </div>
+        <div className="flex flex-col items-center">
+          <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLES[slide]}</span>
+          <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / 13</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {onReflection && (
+            <button onClick={() => setShowResponses(s => !s)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">
+              {showResponses ? <Eye size={12} /> : <EyeOff size={12} />}{showResponses ? "Showing" : "Hidden"}
+            </button>
+          )}
+          <span className="text-[hsl(var(--ivory))]/40 text-[10px] font-body tracking-widest uppercase">Code</span>
+          <span className="font-display text-[hsl(var(--bronze))] text-xl tracking-[0.3em]">{code}</span>
+        </div>
+      </div>
+
+      {/* Notes drawer */}
+      <AnimatePresence>
+        {notesOpen && (
+          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.3 }}
+            className="absolute top-0 right-0 h-full w-96 bg-[hsl(var(--navy))] border-l border-[hsl(var(--ivory))]/15 z-40 p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-xl tracking-wider text-[hsl(var(--bronze))]">FACILITATOR NOTES</h3>
+              <button onClick={() => setNotesOpen(false)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]"><X size={18} /></button>
+            </div>
+            <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
+            <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
+              <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest uppercase mb-2 font-body">Join QR</p>
+              <div className="bg-white p-3 rounded inline-block"><QRCode value={joinUrl} size={150} /></div>
+              <p className="text-[hsl(var(--ivory))]/60 text-xs mt-2 font-body">{joinUrl}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ---------------- Slide renderer ---------------- */
+
+const SlideRenderer = ({ slide, session, revealCount, joinUrl, code }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string }) => {
+  switch (slide) {
+    case 0: return (
+      <div className="text-center max-w-5xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Week {session.week_number} · {session.phase_name}</p>
+        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="font-display text-7xl md:text-8xl tracking-wide text-[hsl(var(--ivory))] mb-6">{session.theme_title.toUpperCase()}</motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
+          className="text-[hsl(var(--blue-light))] text-2xl font-serif italic">{session.session_title}</motion.p>
+      </div>
+    );
+    case 1: return (
+      <div className="relative w-full h-full flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--bronze))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
+        <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
+          className="relative max-w-4xl text-center px-8">
+          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">The Signal</p>
+          <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--ivory))] leading-snug italic">"{session.signal_metaphor}"</p>
+        </motion.blockquote>
+      </div>
+    );
+    case 2: return (
+      <div className="max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Ancient Wisdom</p>
+        <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed">{session.ancient_wisdom_reframe}</p>
+        </div>
+      </div>
+    );
+    case 3: return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Opening Hook</p>
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          className="font-serif text-3xl md:text-4xl text-[hsl(var(--ivory))] leading-snug">{session.opening_hook}</motion.p>
+      </div>
+    );
+    case 4: return (
+      <div className="max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Core Concept</p>
+        <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
+          {session.core_concept.split(/\n+/).filter(Boolean).map((para, i) => (
+            <p key={i} className="text-[hsl(var(--ivory))]/90 text-xl md:text-2xl font-body leading-relaxed">{para}</p>
+          ))}
+        </div>
+      </div>
+    );
+    case 5: {
+      const points = splitPoints(session.teaching_points);
+      return (
+        <div className="max-w-5xl w-full">
+          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Teaching Points</p>
+          <div className="space-y-5">
+            {points.slice(0, revealCount).map((p, i) => (
+              <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                className="flex gap-5 items-start">
+                <span className="font-display text-[hsl(var(--blue))] text-4xl leading-none w-12 shrink-0">{i + 1}</span>
+                <p className="text-[hsl(var(--ivory))]/90 text-lg md:text-xl font-body leading-relaxed flex-1">{p.replace(/^\d+\.\s*/, "")}</p>
+              </motion.div>
+            ))}
+          </div>
+          {revealCount < points.length && (
+            <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-8">→ Press space for next point ({revealCount} of {points.length})</p>
+          )}
+        </div>
+      );
+    }
+    case 6: return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
+        <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-10">"{session.journaling_prompt}"</motion.p>
+        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
+          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
+          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">Join at <span className="text-[hsl(var(--bronze))] font-bold">{joinUrl.replace(/^https?:\/\//, "")}</span></span>
+        </div>
+      </div>
+    );
+    case 7: return (
+      <ExerciseSlide text={session.experiential_exercise} />
+    );
+    case 8: return (
+      <div className="max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
+        <div className="border-l-2 border-[hsl(var(--blue))] pl-8 py-4">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-relaxed italic">{session.guided_reflection}</p>
+        </div>
+      </div>
+    );
+    case 9: return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Share Your Reflection</p>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="font-serif text-3xl md:text-4xl text-[hsl(var(--ivory))] leading-snug mb-10">"{session.guided_reflection.split(/[?.]/)[0]}?"</motion.p>
+        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
+          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
+          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">Code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.3em]">{code}</span></span>
+        </div>
+      </div>
+    );
+    case 10: return (
+      <div className="max-w-6xl w-full">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
+        <div className="grid md:grid-cols-3 gap-5">
+          {[
+            { day: "Mon", text: session.weekly_practice_mon },
+            { day: "Wed", text: session.weekly_practice_wed },
+            { day: "Sun", text: session.weekly_practice_sun },
+          ].map(({ day, text }) => (
+            <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
+              <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
+              <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    case 11: return (
+      <VideoSlide link={session.video_link} description={session.video_description} backup={session.video_backup_description} />
+    );
+    case 12: return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-10">Affirmation</p>
+        <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }}
+          className="font-serif text-4xl md:text-6xl text-[hsl(var(--ivory))] leading-snug italic">"{session.core_affirmation}"</motion.p>
+      </div>
+    );
+    default: return null;
+  }
+};
+
+const ExerciseSlide = ({ text }: { text: string }) => {
+  const [duration, setDuration] = useState(5);
+  const [remaining, setRemaining] = useState(0);
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    if (!running) return;
+    const t = setInterval(() => setRemaining(r => Math.max(0, r - 1)), 1000);
+    return () => clearInterval(t);
+  }, [running]);
+  useEffect(() => { if (remaining === 0) setRunning(false); }, [remaining]);
+  const start = () => { setRemaining(duration * 60); setRunning(true); };
+  const mm = Math.floor(remaining / 60).toString().padStart(2, "0");
+  const ss = (remaining % 60).toString().padStart(2, "0");
+  const steps = text.split(/\n+/).filter(Boolean);
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Experiential Exercise</p>
+      <div className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
+        <div className="space-y-3">
+          {steps.map((s, i) => (
+            <div key={i} className="flex gap-4 items-start">
+              <span className="font-display text-[hsl(var(--blue))] text-xl shrink-0 w-7">{i + 1}.</span>
+              <p className="text-[hsl(var(--ivory))]/90 font-body text-base md:text-lg leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
+            </div>
+          ))}
+        </div>
+        <div className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 text-center min-w-[180px]">
+          <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest font-body uppercase mb-3">Timer</p>
+          <p className="font-display text-[hsl(var(--bronze))] text-5xl tracking-wider tabular-nums">{running || remaining > 0 ? `${mm}:${ss}` : `${duration}:00`}</p>
+          <div className="flex justify-center gap-1 mt-3">
+            {[1,3,5,10,15].map(m => (
+              <button key={m} onClick={() => setDuration(m)}
+                className={`px-2 py-1 text-[10px] font-body rounded-sm ${duration === m ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/60"}`}>{m}m</button>
+            ))}
+          </div>
+          <div className="flex gap-2 mt-3 justify-center">
+            <button onClick={start} className="flex items-center gap-1 px-3 py-1.5 bg-[hsl(var(--blue))] text-white text-xs font-body rounded-sm">
+              <Play size={12} />Start
+            </button>
+            <button onClick={() => setRunning(r => !r)} className="p-1.5 bg-[hsl(var(--ivory))]/10 rounded-sm">{running ? <Pause size={12} /> : <Play size={12} />}</button>
+            <button onClick={() => { setRunning(false); setRemaining(0); }} className="p-1.5 bg-[hsl(var(--ivory))]/10 rounded-sm"><RotateCcw size={12} /></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const VideoSlide = ({ link, description, backup }: { link: string; description: string; backup: string }) => {
+  const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
+  const ytId = ytMatch?.[1];
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">This Week's Listen</p>
+      {ytId ? (
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
+          <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+        </div>
+      ) : (
+        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
+          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video link configured</p>
+        </div>
+      )}
+      <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>
+      {backup && <p className="text-[hsl(var(--ivory))]/30 text-xs font-body mt-2 text-center italic">Backup: {backup}</p>}
+    </div>
+  );
+};
+
+export default FacilitatorView;

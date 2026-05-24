@@ -59,6 +59,10 @@ import SignalLanding from "./pages/SignalLanding";
 import LittleMindsLanding from "./pages/LittleMindsLanding";
 import ConnectLanding from "./pages/ConnectLanding";
 import Marketing from "./pages/Marketing";
+import FacilitatorView from "./pages/mindcast-live/FacilitatorView";
+import LiveJoin from "./pages/mindcast-live/LiveJoin";
+import MindcastLibrary from "./pages/mindcast-live/Library";
+import MindcastLesson from "./pages/mindcast-live/Lesson";
 
 const queryClient = new QueryClient();
 
@@ -108,6 +112,10 @@ const AppRoutes = () => (
     <Route path="/signal" element={<SignalLanding />} />
     <Route path="/connect" element={<ConnectLanding />} />
     <Route path="/live" element={<ComingSoon />} />
+    <Route path="/live/:code" element={<LiveJoin />} />
+    <Route path="/mindcast-live/library" element={<ProtectedRoute><MindcastLibrary /></ProtectedRoute>} />
+    <Route path="/mindcast-live/lesson/:weekNumber" element={<ProtectedRoute><MindcastLesson /></ProtectedRoute>} />
+    <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
     <Route path="/resources" element={<ComingSoon />} />
     <Route path="/membership" element={<Navigate to="/pilot" replace />} />
     <Route path="/about" element={<About />} />

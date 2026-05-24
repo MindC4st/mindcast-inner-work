@@ -692,6 +692,93 @@ export type Database = {
           },
         ]
       }
+      mindcast_live_sessions: {
+        Row: {
+          ancient_wisdom_reframe: string | null
+          audience: string
+          core_affirmation: string | null
+          core_concept: string | null
+          created_at: string
+          experiential_exercise: string | null
+          facilitator_notes: string | null
+          film_script_2min: string | null
+          guided_reflection: string | null
+          id: string
+          journaling_prompt: string | null
+          opening_hook: string | null
+          phase: number
+          phase_name: string
+          session_title: string | null
+          signal_metaphor: string | null
+          teaching_points: string | null
+          theme_title: string
+          updated_at: string
+          video_backup_description: string | null
+          video_description: string | null
+          video_link: string | null
+          week_number: number
+          weekly_practice_mon: string | null
+          weekly_practice_sun: string | null
+          weekly_practice_wed: string | null
+        }
+        Insert: {
+          ancient_wisdom_reframe?: string | null
+          audience: string
+          core_affirmation?: string | null
+          core_concept?: string | null
+          created_at?: string
+          experiential_exercise?: string | null
+          facilitator_notes?: string | null
+          film_script_2min?: string | null
+          guided_reflection?: string | null
+          id?: string
+          journaling_prompt?: string | null
+          opening_hook?: string | null
+          phase: number
+          phase_name?: string
+          session_title?: string | null
+          signal_metaphor?: string | null
+          teaching_points?: string | null
+          theme_title?: string
+          updated_at?: string
+          video_backup_description?: string | null
+          video_description?: string | null
+          video_link?: string | null
+          week_number: number
+          weekly_practice_mon?: string | null
+          weekly_practice_sun?: string | null
+          weekly_practice_wed?: string | null
+        }
+        Update: {
+          ancient_wisdom_reframe?: string | null
+          audience?: string
+          core_affirmation?: string | null
+          core_concept?: string | null
+          created_at?: string
+          experiential_exercise?: string | null
+          facilitator_notes?: string | null
+          film_script_2min?: string | null
+          guided_reflection?: string | null
+          id?: string
+          journaling_prompt?: string | null
+          opening_hook?: string | null
+          phase?: number
+          phase_name?: string
+          session_title?: string | null
+          signal_metaphor?: string | null
+          teaching_points?: string | null
+          theme_title?: string
+          updated_at?: string
+          video_backup_description?: string | null
+          video_description?: string | null
+          video_link?: string | null
+          week_number?: number
+          weekly_practice_mon?: string | null
+          weekly_practice_sun?: string | null
+          weekly_practice_wed?: string | null
+        }
+        Relationships: []
+      }
       pilot_applications: {
         Row: {
           age_range: string | null
@@ -960,6 +1047,51 @@ export type Database = {
           },
         ]
       }
+      session_responses: {
+        Row: {
+          audience_type: string
+          created_at: string
+          display_name: string
+          hidden: boolean
+          id: string
+          is_public: boolean
+          prompt_type: string
+          response_text: string
+          session_code: string
+          show_name: boolean
+          user_id: string | null
+          week_number: number
+        }
+        Insert: {
+          audience_type?: string
+          created_at?: string
+          display_name?: string
+          hidden?: boolean
+          id?: string
+          is_public?: boolean
+          prompt_type?: string
+          response_text: string
+          session_code: string
+          show_name?: boolean
+          user_id?: string | null
+          week_number: number
+        }
+        Update: {
+          audience_type?: string
+          created_at?: string
+          display_name?: string
+          hidden?: boolean
+          id?: string
+          is_public?: boolean
+          prompt_type?: string
+          response_text?: string
+          session_code?: string
+          show_name?: boolean
+          user_id?: string | null
+          week_number?: number
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           active_slide: number | null
@@ -1193,6 +1325,27 @@ export type Database = {
           },
         ]
       }
+      unlocked_lessons: {
+        Row: {
+          facilitator_id: string | null
+          id: string
+          unlocked_at: string
+          week_number: number
+        }
+        Insert: {
+          facilitator_id?: string | null
+          id?: string
+          unlocked_at?: string
+          week_number: number
+        }
+        Update: {
+          facilitator_id?: string | null
+          id?: string
+          unlocked_at?: string
+          week_number?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1342,6 +1495,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      worksheets: {
+        Row: {
+          audience_type: string
+          created_at: string
+          id: string
+          pdf_url: string | null
+          price_nzd: number | null
+          video_url: string | null
+          week_number: number
+        }
+        Insert: {
+          audience_type?: string
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          price_nzd?: number | null
+          video_url?: string | null
+          week_number: number
+        }
+        Update: {
+          audience_type?: string
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          price_nzd?: number | null
+          video_url?: string | null
+          week_number?: number
+        }
+        Relationships: []
       }
     }
     Views: {
