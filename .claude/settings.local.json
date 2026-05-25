@@ -20,7 +20,10 @@
       "Bash(npm install *)",
       "Bash(npx vite *)",
       "Bash(head -n 541 /c/GitHub/mindcast-inner-work/src/data/curriculumData.ts)",
-      "Bash(mv /tmp/curric_head.ts /c/GitHub/mindcast-inner-work/src/data/curriculumData.ts)"
+      "Bash(mv /tmp/curric_head.ts /c/GitHub/mindcast-inner-work/src/data/curriculumData.ts)",
+      "Bash(bun --version)",
+      "Bash(bun install *)",
+      "Bash(echo \"---EXIT: $?\")"
     ]
   }
 }
