@@ -416,6 +416,53 @@ export type Database = {
           },
         ]
       }
+      featured_callbacks: {
+        Row: {
+          audience_type: string
+          display_name: string
+          id: string
+          next_week_number: number
+          prompt_type: string | null
+          response_id: string | null
+          response_text: string
+          selected_at: string
+          source_week_number: number
+          used_at: string | null
+        }
+        Insert: {
+          audience_type: string
+          display_name: string
+          id?: string
+          next_week_number: number
+          prompt_type?: string | null
+          response_id?: string | null
+          response_text: string
+          selected_at?: string
+          source_week_number: number
+          used_at?: string | null
+        }
+        Update: {
+          audience_type?: string
+          display_name?: string
+          id?: string
+          next_week_number?: number
+          prompt_type?: string | null
+          response_id?: string | null
+          response_text?: string
+          selected_at?: string
+          source_week_number?: number
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_callbacks_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "session_responses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       framework_steps: {
         Row: {
           created_at: string | null
@@ -908,6 +955,36 @@ export type Database = {
         }
         Relationships: []
       }
+      practice_reminder_log: {
+        Row: {
+          day: string
+          email_sent: number
+          id: string
+          push_failed: number
+          push_sent: number
+          ran_at: string
+          sent_for_date: string
+        }
+        Insert: {
+          day: string
+          email_sent?: number
+          id?: string
+          push_failed?: number
+          push_sent?: number
+          ran_at?: string
+          sent_for_date: string
+        }
+        Update: {
+          day?: string
+          email_sent?: number
+          id?: string
+          push_failed?: number
+          push_sent?: number
+          ran_at?: string
+          sent_for_date?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age_group: string | null
@@ -921,6 +998,8 @@ export type Database = {
           is_admin: boolean | null
           name: string
           nfc_id: string | null
+          notify_practice_email: boolean
+          notify_practice_push: boolean
           onboarding_complete: boolean | null
           opt_in_public_goals: boolean | null
           show_attendance_on_screen: boolean | null
@@ -939,6 +1018,8 @@ export type Database = {
           is_admin?: boolean | null
           name?: string
           nfc_id?: string | null
+          notify_practice_email?: boolean
+          notify_practice_push?: boolean
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
@@ -957,10 +1038,45 @@ export type Database = {
           is_admin?: boolean | null
           name?: string
           nfc_id?: string | null
+          notify_practice_email?: boolean
+          notify_practice_push?: boolean
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: []
