@@ -1,19 +1,24 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logoNavLight from "@/assets/logo-cream.png";
 
 const Dashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeSession, setActiveSession] = useState<any>(null);
   const [entries, setEntries] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [activeEntry, setActiveEntry] = useState<any>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // Bracelet-tap entry: ?source=bracelet&name=… → show the Attending banner.
+  const cameFromBracelet = searchParams.get("source") === "bracelet";
+  const braceletName = searchParams.get("name") || "";
+  const [latestUnlockedWeek, setLatestUnlockedWeek] = useState<number | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -21,6 +26,16 @@ const Dashboard = () => {
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => setActiveSession(data));
     supabase.from("sessions").select("*").order("session_number").then(({ data }) => setSessions(data || []));
     supabase.from("workbook_entries").select("*").eq("profile_id", user.id).then(({ data }) => setEntries(data || []));
+
+    // Latest unlocked Mindcast LIVE week — the bracelet banner links here.
+    (supabase as any)
+      .from("unlocked_lessons")
+      .select("week_number")
+      .eq("user_id", user.id)
+      .order("week_number", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }: any) => setLatestUnlockedWeek(data?.week_number ?? null));
   }, [user, authLoading]);
 
   useEffect(() => {
@@ -50,6 +65,45 @@ const Dashboard = () => {
       </nav>
 
       <div className="max-w-lg mx-auto px-5 pt-6">
+        {/* Bracelet attending banner — shown when the member arrived here via /b/:token */}
+        {cameFromBracelet && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="relative border border-primary/30 bg-primary/[0.04] rounded-sm p-5 mb-6">
+            <button
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete("source"); next.delete("name");
+                setSearchParams(next, { replace: true });
+              }}
+              className="absolute top-3 right-3 text-foreground/30 hover:text-foreground/60 text-xs"
+              aria-label="Dismiss banner"
+            >
+              ×
+            </button>
+            <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-2">
+              <Check size={11} className="inline mr-1" /> Checked in
+            </p>
+            <p className="font-display text-2xl text-foreground mb-1">
+              {braceletName ? `Welcome, ${braceletName}.` : "You're in."}
+            </p>
+            <p className="font-body text-sm text-muted-foreground mb-4">
+              Attending today's live session — {new Date().toLocaleDateString("en-NZ", { weekday: "long", day: "numeric", month: "long" })}
+            </p>
+            {latestUnlockedWeek ? (
+              <Link
+                to={`/mindcast-live/lesson/${latestUnlockedWeek}`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground text-xs font-display font-bold hover:bg-primary/90 transition-colors rounded-sm"
+              >
+                <BookOpen size={13} /> Open today's coursebook <ArrowRight size={13} />
+              </Link>
+            ) : (
+              <p className="text-foreground/40 text-xs font-body italic">
+                Your coursebook will appear here once the facilitator unlocks today's lesson.
+              </p>
+            )}
+          </motion.div>
+        )}
+
         {activeSession && (
           <div className="border border-border p-5 mb-8">
             <p className="text-muted-foreground text-[9px] tracking-[0.15em] font-body mb-2">

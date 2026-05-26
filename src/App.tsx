@@ -64,6 +64,7 @@ import FacilitatorView from "./pages/mindcast-live/FacilitatorView";
 import LiveJoin from "./pages/mindcast-live/LiveJoin";
 import MindcastLibrary from "./pages/mindcast-live/Library";
 import MindcastLesson from "./pages/mindcast-live/Lesson";
+import BraceletTap from "./pages/BraceletTap";
 import Demo from "./pages/Demo";
 
 const queryClient = new QueryClient();
@@ -116,6 +117,7 @@ const AppRoutes = () => (
     <Route path="/connect" element={<ConnectLanding />} />
     <Route path="/live" element={<ComingSoon />} />
     <Route path="/live/:code" element={<LiveJoin />} />
+    <Route path="/b/:token" element={<BraceletTap />} />
     <Route path="/mindcast-live/library" element={<ProtectedRoute><MindcastLibrary /></ProtectedRoute>} />
     <Route path="/mindcast-live/lesson/:weekNumber" element={<ProtectedRoute><MindcastLesson /></ProtectedRoute>} />
     <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
