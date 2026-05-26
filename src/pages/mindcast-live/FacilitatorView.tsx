@@ -17,10 +17,11 @@ import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 
 const SLIDE_TITLES = [
-  "Title", "Signal Metaphor", "Ancient Wisdom", "Opening Hook",
+  "Title", "Voices from Last Week", "Signal Metaphor", "Ancient Wisdom", "Opening Hook",
   "Core Concept", "Teaching Points", "Reflection 1", "Experiential Exercise",
   "Guided Reflection", "Reflection 2", "Weekly Practices", "Video", "Affirmation",
 ];
+const LAST_SLIDE = SLIDE_TITLES.length - 1; // 13
 
 type Session = {
   id: string;
@@ -46,6 +47,14 @@ type Session = {
   video_description: string;
   video_backup_description: string;
   facilitator_notes: string;
+  previous_week_callback: string;
+};
+
+type Callback = {
+  id: string;
+  display_name: string;
+  response_text: string;
+  prompt_type: string | null;
 };
 
 type Response = {
@@ -97,6 +106,7 @@ const FacilitatorView = () => {
   const [generatingVideo, setGeneratingVideo] = useState(false);
   const [renderedMp4, setRenderedMp4] = useState<string | null>(null);
   const [renderStatus, setRenderStatus] = useState<string | null>(null);
+  const [callbacks, setCallbacks] = useState<Callback[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Persist code in URL
@@ -147,6 +157,22 @@ const FacilitatorView = () => {
         })
       .subscribe();
     return () => { active = false; supabase.removeChannel(ch); };
+  }, [week, audience]);
+
+  // Load up to 20 moderator-approved reflections from last week for the
+  // "Voices from Last Week" slide. Selected by the Sun 9am cron and stored
+  // in featured_callbacks (next_week_number = this week).
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("featured_callbacks")
+        .select("id, display_name, response_text, prompt_type")
+        .eq("next_week_number", week)
+        .eq("audience_type", audience)
+        .order("selected_at", { ascending: true })
+        .limit(20);
+      setCallbacks(data || []);
+    })();
   }, [week, audience]);
 
   // Load unlocked state — count rows for this week across members. The
@@ -200,8 +226,8 @@ const FacilitatorView = () => {
   // Broadcast current prompt to audience
   useEffect(() => {
     if (!session) return;
-    const promptType = slide === 6 ? "journaling" : slide === 9 ? "reflection" : "idle";
-    const promptText = slide === 6 ? session.journaling_prompt : slide === 9 ? session.guided_reflection : "";
+    const promptType = slide === 7 ? "journaling" : slide === 10 ? "reflection" : "idle";
+    const promptText = slide === 7 ? session.journaling_prompt : slide === 10 ? session.guided_reflection : "";
     const payload = { week, audience, slide, promptType, promptText, title: session.theme_title };
 
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
@@ -222,11 +248,11 @@ const FacilitatorView = () => {
 
   // Keyboard navigation
   const goNext = useCallback(() => {
-    if (slide === 5 && session) {
+    if (slide === 6 && session) {
       const total = splitPoints(session.teaching_points).length;
       if (revealCount < total) { setRevealCount(c => c + 1); return; }
     }
-    setSlide(s => Math.min(s + 1, 12));
+    setSlide(s => Math.min(s + 1, LAST_SLIDE));
   }, [slide, session, revealCount]);
   const goPrev = useCallback(() => setSlide(s => Math.max(s - 1, 0)), []);
 
@@ -362,7 +388,7 @@ const FacilitatorView = () => {
 
   const liveBoard = responses.filter(r => !r.hidden && r.moderation_status === "approved");
   const pendingQueue = responses.filter(r => !r.hidden && (r.moderation_status === "pending" || r.moderation_status === null));
-  const onReflection = slide === 6 || slide === 9;
+  const onReflection = slide === 7 || slide === 10;
   const joinUrl = `${window.location.origin}/live/${code}`;
 
   return (
@@ -408,7 +434,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
+              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} callbacks={callbacks} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -472,11 +498,11 @@ const FacilitatorView = () => {
       <div className="flex items-center justify-between px-6 py-3 border-t border-[hsl(var(--ivory))]/10 z-30">
         <div className="flex items-center gap-2">
           <button onClick={goPrev} disabled={slide === 0} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronLeft size={18} /></button>
-          <button onClick={goNext} disabled={slide === 12} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronRight size={18} /></button>
+          <button onClick={goNext} disabled={slide === LAST_SLIDE} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronRight size={18} /></button>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLES[slide]}</span>
-          <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / 13</span>
+          <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / {SLIDE_TITLES.length}</span>
         </div>
         <div className="flex items-center gap-2">
           {onReflection && (
@@ -513,7 +539,7 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
+const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus, callbacks, onSessionUpdate }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; callbacks: Callback[]; onSessionUpdate: (s: Session) => void }) => {
   switch (slide) {
     case 0: return (
       <div className="text-center max-w-5xl">
@@ -525,13 +551,20 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
       </div>
     );
     case 1: return (
+      <VoicesLastWeekSlide
+        callbacks={callbacks}
+        weekNumber={session.week_number}
+        intro={session.previous_week_callback}
+      />
+    );
+    case 2: return (
       <SignalMetaphorSlide
         text={session.signal_metaphor}
         mp4Url={renderedMp4}
         renderStatus={renderStatus}
       />
     );
-    case 2: return (
+    case 3: return (
       <div className="max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Ancient Wisdom</p>
         <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
@@ -539,14 +572,14 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 3: return (
+    case 4: return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Opening Hook</p>
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="font-serif text-3xl md:text-4xl text-[hsl(var(--ivory))] leading-snug">{session.opening_hook}</motion.p>
       </div>
     );
-    case 4: return (
+    case 5: return (
       <div className="max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Core Concept</p>
         <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
@@ -556,7 +589,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 5: {
+    case 6: {
       const points = splitPoints(session.teaching_points);
       return (
         <div className="max-w-5xl w-full">
@@ -576,7 +609,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       );
     }
-    case 6: return (
+    case 7: return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
         <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
@@ -587,10 +620,10 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 7: return (
+    case 8: return (
       <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />
     );
-    case 8: return (
+    case 9: return (
       <div className="max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
         <div className="border-l-2 border-[hsl(var(--blue))] pl-8 py-4">
@@ -598,7 +631,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 9: return (
+    case 10: return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Share Your Reflection</p>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -609,7 +642,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 10: return (
+    case 11: return (
       <div className="max-w-6xl w-full">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
         <div className="grid md:grid-cols-3 gap-5">
@@ -626,7 +659,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 11: return (
+    case 12: return (
       <VideoSlide
         link={session.video_link}
         description={session.video_description}
@@ -639,7 +672,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         }}
       />
     );
-    case 12: return (
+    case 13: return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-10">Affirmation</p>
         <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }}
@@ -709,6 +742,58 @@ const PendingCard = ({
         )}
       </AnimatePresence>
     </motion.div>
+  );
+};
+
+/**
+ * Voices from Last Week — sits between Title and Signal Metaphor.
+ * Data comes from `featured_callbacks` populated by the Sun 9am cron.
+ * Empty state (e.g. Week 1, or no approved public responses) gracefully
+ * shows a welcome card instead of an empty grid.
+ */
+const VoicesLastWeekSlide = ({
+  callbacks, weekNumber, intro,
+}: { callbacks: Callback[]; weekNumber: number; intro: string }) => {
+  if (callbacks.length === 0) {
+    return (
+      <div className="text-center max-w-3xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Voices from Last Week</p>
+        <p className="font-serif italic text-2xl md:text-3xl text-[hsl(var(--ivory))]/80 leading-snug">
+          {weekNumber === 1
+            ? "This is where it starts. Welcome to the room — your voice joins the wall from next week."
+            : "Nothing made the wall this week — but the room is still listening."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl w-full">
+      <div className="text-center mb-6">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Voices from Last Week</p>
+        {intro && (
+          <p className="font-serif italic text-lg md:text-xl text-[hsl(var(--ivory))]/80 leading-snug max-w-2xl mx-auto">
+            {intro}
+          </p>
+        )}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[70vh] overflow-y-auto pr-1">
+        {callbacks.map((c, i) => (
+          <motion.div
+            key={c.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(i * 0.04, 0.6), duration: 0.5 }}
+            className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-4"
+          >
+            <p className="text-[hsl(var(--ivory))]/90 font-serif text-sm leading-relaxed italic">"{c.response_text}"</p>
+            <p className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase mt-2">
+              — {c.display_name}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 };
 
