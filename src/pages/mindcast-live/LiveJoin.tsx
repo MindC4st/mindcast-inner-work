@@ -82,6 +82,7 @@ const LiveJoin = () => {
       setState(payload as LiveState);
       setSubmittedFor(prev => prev === `${payload.slide}` ? prev : null);
     });
+    // Moderator decisions land here — we only act on events about *our* row.
     ch.on("broadcast", { event: "moderation" }, ({ payload }) => {
       if (!payload || payload.id !== submittedRowId) return;
       if (payload.status === "approved") setModerationStatus("approved");
@@ -90,9 +91,14 @@ const LiveJoin = () => {
         setDenialReason(payload.reason || "Held — not for tonight's room.");
       }
     });
-    ch.subscribe(async (status) => {
+    ch.subscribe((status) => {
       if (status === "SUBSCRIBED") {
+<<<<<<< Updated upstream
         await ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
+=======
+        // Hello — asks the facilitator to (re)send current state for late joiners.
+        ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
+>>>>>>> Stashed changes
       }
     });
     return () => { supabase.removeChannel(ch); };
