@@ -28,7 +28,8 @@
       "Bash(where python3 *)",
       "Bash(py -V)",
       "Bash(py *)",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "Bash(node *)"
     ]
   }
 }

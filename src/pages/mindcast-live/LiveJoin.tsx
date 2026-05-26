@@ -93,12 +93,8 @@ const LiveJoin = () => {
     });
     ch.subscribe((status) => {
       if (status === "SUBSCRIBED") {
-<<<<<<< Updated upstream
-        await ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
-=======
         // Hello — asks the facilitator to (re)send current state for late joiners.
         ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
->>>>>>> Stashed changes
       }
     });
     return () => { supabase.removeChannel(ch); };

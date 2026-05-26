@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
 import {
   ChevronLeft, ChevronRight, Maximize, Minimize, Lock, Unlock,
   StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode, Download, Film,
-  Check, ShieldOff,
+  Check, ShieldOff, PenLine, ArrowLeft,
 } from "lucide-react";
+
+// tldraw is ~400KB+ — only fetch the chunk when the facilitator actually
+// opens the whiteboard on the Exercise slide.
+const ExerciseWhiteboard = lazy(() => import("@/components/whiteboard/ExerciseWhiteboard"));
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -573,7 +577,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
       </div>
     );
     case 7: return (
-      <ExerciseSlide text={session.experiential_exercise} />
+      <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />
     );
     case 8: return (
       <div className="max-w-4xl">
@@ -687,10 +691,16 @@ const PendingCard = ({
   );
 };
 
-const ExerciseSlide = ({ text }: { text: string }) => {
+const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; audience: string }) => {
   const [duration, setDuration] = useState(5);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
+  // The whiteboard is a separate view of this slide — opens on demand and
+  // keeps its drawing per (week, audience) via tldraw persistenceKey.
+  const [whiteboardOpen, setWhiteboardOpen] = useState(false);
+  // While the whiteboard is open we also collapse the instruction text into
+  // a small floating card so the facilitator can still reference it.
+  const [instructionsCollapsed, setInstructionsCollapsed] = useState(false);
   useEffect(() => {
     if (!running) return;
     const t = setInterval(() => setRemaining(r => Math.max(0, r - 1)), 1000);
@@ -701,6 +711,69 @@ const ExerciseSlide = ({ text }: { text: string }) => {
   const mm = Math.floor(remaining / 60).toString().padStart(2, "0");
   const ss = (remaining % 60).toString().padStart(2, "0");
   const steps = text.split(/\n+/).filter(Boolean);
+
+  // ---------- Whiteboard mode ----------
+  if (whiteboardOpen) {
+    return (
+      <div className="relative w-full h-full min-h-[70vh] flex flex-col">
+        {/* Top toolbar — back button + collapse-instructions toggle + timer */}
+        <div className="flex items-center justify-between gap-3 mb-3 z-20">
+          <button
+            onClick={() => setWhiteboardOpen(false)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[hsl(var(--ivory))]/10 hover:bg-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest uppercase rounded-sm"
+          >
+            <ArrowLeft size={12} /> Back to instructions
+          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setInstructionsCollapsed(c => !c)}
+              className="px-3 py-1.5 bg-[hsl(var(--ivory))]/10 hover:bg-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]/70 text-[10px] font-body tracking-widest uppercase rounded-sm"
+            >
+              {instructionsCollapsed ? "Show instructions" : "Hide instructions"}
+            </button>
+            <div className="flex items-center gap-2 bg-[hsl(var(--ivory))]/10 px-3 py-1.5 rounded-sm">
+              <span className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest font-body uppercase">Timer</span>
+              <span className="font-display text-[hsl(var(--bronze))] text-base tracking-wider tabular-nums">
+                {running || remaining > 0 ? `${mm}:${ss}` : `${duration}:00`}
+              </span>
+              <button onClick={start} className="p-1 bg-[hsl(var(--blue))] text-white rounded-sm"><Play size={10} /></button>
+              <button onClick={() => setRunning(r => !r)} className="p-1 bg-[hsl(var(--ivory))]/10 rounded-sm">{running ? <Pause size={10} /> : <Play size={10} />}</button>
+              <button onClick={() => { setRunning(false); setRemaining(0); }} className="p-1 bg-[hsl(var(--ivory))]/10 rounded-sm"><RotateCcw size={10} /></button>
+            </div>
+          </div>
+        </div>
+
+        {/* Whiteboard surface (fills remaining height). The light theme keeps
+            ink readable; the surrounding slide stays dark navy. */}
+        <div className="relative flex-1 rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-white min-h-[60vh]">
+          <Suspense fallback={
+            <div className="absolute inset-0 flex items-center justify-center text-[hsl(var(--navy-mid))]/60 text-xs font-body tracking-widest uppercase">
+              Loading whiteboard…
+            </div>
+          }>
+            <ExerciseWhiteboard week={week} audience={audience} />
+          </Suspense>
+
+          {/* Floating instructions card — collapsible reference */}
+          {!instructionsCollapsed && (
+            <div className="absolute top-3 left-3 z-30 max-w-sm bg-[hsl(var(--navy))]/90 backdrop-blur-sm border border-[hsl(var(--ivory))]/15 rounded-sm p-4 shadow-xl">
+              <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase mb-2">Exercise</p>
+              <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+                {steps.map((s, i) => (
+                  <div key={i} className="flex gap-2 items-start">
+                    <span className="font-display text-[hsl(var(--blue-light))] text-xs shrink-0 w-4">{i + 1}.</span>
+                    <p className="text-[hsl(var(--ivory))]/90 font-body text-xs leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- Default (instructions + timer) view ----------
   return (
     <div className="max-w-5xl w-full">
       <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Experiential Exercise</p>
@@ -712,6 +785,12 @@ const ExerciseSlide = ({ text }: { text: string }) => {
               <p className="text-[hsl(var(--ivory))]/90 font-body text-base md:text-lg leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
             </div>
           ))}
+          <button
+            onClick={() => setWhiteboardOpen(true)}
+            className="mt-4 flex items-center gap-2 px-4 py-2 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--blue))]/80 text-white text-xs font-body tracking-widest uppercase rounded-sm"
+          >
+            <PenLine size={13} /> Open whiteboard
+          </button>
         </div>
         <div className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 text-center min-w-[180px]">
           <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest font-body uppercase mb-3">Timer</p>
