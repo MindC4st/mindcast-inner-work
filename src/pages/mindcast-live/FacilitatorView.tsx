@@ -616,7 +616,19 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
       </div>
     );
     case 11: return (
-      <VideoSlide link={session.video_link} description={session.video_description} backup={session.video_backup_description} mp4Url={renderedMp4} renderStatus={renderStatus} />
+      <VideoSlide
+        link={session.video_link}
+        description={session.video_description}
+        backup={session.video_backup_description}
+        mp4Url={renderedMp4}
+        renderStatus={renderStatus}
+        onUpdateLink={async (newLink) => {
+          const { error } = await supabase.from("sessions").update({ video_link: newLink }).eq("id", session.id);
+          if (error) { toast({ title: "Could not save video", description: error.message, variant: "destructive" }); return; }
+          setSession({ ...session, video_link: newLink });
+          toast({ title: "Video updated" });
+        }}
+      />
     );
     case 12: return (
       <div className="text-center max-w-4xl">
