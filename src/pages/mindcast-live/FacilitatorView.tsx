@@ -499,7 +499,7 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null }) => {
+const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
   switch (slide) {
     case 0: return (
       <div className="text-center max-w-5xl">
