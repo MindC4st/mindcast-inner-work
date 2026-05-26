@@ -5,6 +5,7 @@ import QRCode from "react-qr-code";
 import {
   ChevronLeft, ChevronRight, Maximize, Minimize, Lock, Unlock,
   StickyNote, Eye, EyeOff, Play, Pause, RotateCcw, X, QrCode, Download, Film,
+  Check, ShieldOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -51,7 +52,15 @@ type Response = {
   is_public: boolean;
   created_at: string;
   hidden: boolean;
+  moderation_status: "pending" | "approved" | "denied" | null;
 };
+
+// Mindcast-tone presets — moderators can pick one or write their own.
+const DENIAL_PRESETS = [
+  "Held — not for tonight's room. Thank you for trusting us with it.",
+  "Some words live better between you and the page. We'll keep this one private.",
+  "We're keeping the space gentle tonight. Feel free to share another reflection.",
+];
 
 const genCode = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 31)]).join("");
 
@@ -150,13 +159,15 @@ const FacilitatorView = () => {
 
   // Load + subscribe responses (public only — private submissions stay hidden
   // from the live feed even though RLS lets facilitators read them).
+  // Pending rows feed the moderation queue; approved rows feed the live wall.
   useEffect(() => {
     (async () => {
       const { data } = await (supabase as any)
         .from("session_responses")
-        .select("id, display_name, response_text, show_name, is_public, created_at, hidden")
+        .select("id, display_name, response_text, show_name, is_public, created_at, hidden, moderation_status")
         .eq("session_code", code)
         .eq("is_public", true)
+        .in("moderation_status", ["pending", "approved"])
         .order("created_at", { ascending: false })
         .limit(80);
       setResponses(data || []);
@@ -167,13 +178,17 @@ const FacilitatorView = () => {
         (p: any) => { if (p.new?.is_public) setResponses(prev => [p.new, ...prev]); })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
         (p: any) => setResponses(prev => {
-          // If a row was just made private or hidden, drop it.
-          if (!p.new?.is_public || p.new?.hidden) return prev.filter(r => r.id !== p.new.id);
+          // If a row was just made private, hidden, or denied, drop it.
+          if (!p.new?.is_public || p.new?.hidden || p.new?.moderation_status === "denied") {
+            return prev.filter(r => r.id !== p.new.id);
+          }
           const existing = prev.find(r => r.id === p.new.id);
           return existing
             ? prev.map(r => r.id === p.new.id ? p.new : r)
             : [p.new, ...prev];
         }))
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
+        (p: any) => setResponses(prev => prev.filter(r => r.id !== p.old?.id)))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [code]);
@@ -261,6 +276,47 @@ const FacilitatorView = () => {
     setResponses(prev => prev.filter(r => r.id !== id));
   };
 
+  // Fire-and-forget broadcast to the audience so the submitter sees the
+  // moderator's decision land on their own device.
+  const broadcastModeration = async (
+    id: string,
+    status: "approved" | "denied",
+    reason?: string,
+  ) => {
+    const ch = supabase.channel(`live:${code}`);
+    await new Promise<void>((resolve) => {
+      ch.subscribe((s) => { if (s === "SUBSCRIBED") resolve(); });
+    });
+    await ch.send({
+      type: "broadcast",
+      event: "moderation",
+      payload: { id, status, reason },
+    });
+    supabase.removeChannel(ch);
+  };
+
+  const approveResponse = async (id: string) => {
+    const { error } = await (supabase as any)
+      .from("session_responses")
+      .update({ moderation_status: "approved" })
+      .eq("id", id);
+    if (error) { toast({ title: "Couldn't approve", description: error.message }); return; }
+    setResponses(prev => prev.map(r => r.id === id ? { ...r, moderation_status: "approved" } : r));
+    broadcastModeration(id, "approved");
+  };
+
+  const denyResponse = async (id: string, reason: string) => {
+    // Broadcast first so the submitter sees the Mindcast-tone message even
+    // if the DB delete races with their realtime listener.
+    await broadcastModeration(id, "denied", reason);
+    const { error } = await (supabase as any)
+      .from("session_responses")
+      .delete()
+      .eq("id", id);
+    if (error) { toast({ title: "Couldn't remove response", description: error.message }); return; }
+    setResponses(prev => prev.filter(r => r.id !== id));
+  };
+
   const handleGenerateVideo = async () => {
     if (!isFacilitator) { toast({ title: "Facilitators only" }); return; }
     setGeneratingVideo(true);
@@ -286,7 +342,8 @@ const FacilitatorView = () => {
     return <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center text-[hsl(var(--ivory))]/60 font-body text-sm tracking-widest">LOADING WEEK {week} ({audience})...</div>;
   }
 
-  const visibleResponses = responses.filter(r => !r.hidden);
+  const liveBoard = responses.filter(r => !r.hidden && r.moderation_status === "approved");
+  const pendingQueue = responses.filter(r => !r.hidden && (r.moderation_status === "pending" || r.moderation_status === null));
   const onReflection = slide === 6 || slide === 9;
   const joinUrl = `${window.location.origin}/live/${code}`;
 
@@ -343,31 +400,51 @@ const FacilitatorView = () => {
           <div className="hidden lg:flex w-1/3 border-l border-[hsl(var(--ivory))]/10 bg-black/20 flex-col">
             <div className="p-4 border-b border-[hsl(var(--ivory))]/10 flex items-center justify-between">
               <div>
-                <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.3em] font-body uppercase">Live</p>
-                <p className="text-[hsl(var(--ivory))]/70 text-xs font-body mt-0.5">{visibleResponses.length} response{visibleResponses.length === 1 ? "" : "s"}</p>
+                <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.3em] font-body uppercase">Moderation</p>
+                <p className="text-[hsl(var(--ivory))]/70 text-xs font-body mt-0.5">
+                  {pendingQueue.length} pending · {liveBoard.length} on screen
+                </p>
               </div>
             <div className="bg-white p-2 rounded inline-block">
                 <QRCode value={joinUrl} size={80} level="M" />
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
-              {visibleResponses.length === 0 && (
-                <div className="text-center py-12 text-[hsl(var(--ivory))]/30 text-xs font-body tracking-widest uppercase">Waiting for responses...</div>
-              )}
-              {visibleResponses.map(r => (
-                <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  className="group bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-3 relative">
-                  <p className="text-[hsl(var(--ivory))] text-sm font-body leading-relaxed">{r.response_text}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase">
-                      {r.show_name ? r.display_name : "Anonymous"}
-                    </span>
-                    <button onClick={() => hideResponse(r.id)} className="opacity-0 group-hover:opacity-100 text-[hsl(var(--ivory))]/30 hover:text-red-400">
-                      <X size={12} />
-                    </button>
+            <div className="flex-1 overflow-y-auto p-3 space-y-4">
+              {/* Pending queue */}
+              <div>
+                <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.3em] font-body uppercase mb-2">Awaiting approval</p>
+                {pendingQueue.length === 0 && (
+                  <div className="text-center py-6 text-[hsl(var(--ivory))]/20 text-[10px] font-body tracking-widest uppercase">No pending responses</div>
+                )}
+                <div className="space-y-2">
+                  {pendingQueue.map(r => (
+                    <PendingCard key={r.id} response={r} onApprove={approveResponse} onDeny={denyResponse} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Approved → on screen */}
+              {liveBoard.length > 0 && (
+                <div>
+                  <p className="text-[hsl(var(--blue-light))] text-[9px] tracking-[0.3em] font-body uppercase mb-2">On screen</p>
+                  <div className="space-y-2">
+                    {liveBoard.map(r => (
+                      <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                        className="group bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-3 relative">
+                        <p className="text-[hsl(var(--ivory))] text-sm font-body leading-relaxed">{r.response_text}</p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase">
+                            {r.show_name ? r.display_name : "Anonymous"}
+                          </span>
+                          <button onClick={() => hideResponse(r.id)} title="Hide from screen" className="opacity-0 group-hover:opacity-100 text-[hsl(var(--ivory))]/30 hover:text-red-400">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -546,6 +623,68 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
     );
     default: return null;
   }
+};
+
+const PendingCard = ({
+  response, onApprove, onDeny,
+}: {
+  response: Response;
+  onApprove: (id: string) => void | Promise<void>;
+  onDeny: (id: string, reason: string) => void | Promise<void>;
+}) => {
+  const [showDenyMenu, setShowDenyMenu] = useState(false);
+  const [customReason, setCustomReason] = useState("");
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      className="bg-[hsl(var(--bronze))]/[0.06] border border-[hsl(var(--bronze))]/30 rounded-sm p-3">
+      <p className="text-[hsl(var(--ivory))] text-sm font-body leading-relaxed">{response.response_text}</p>
+      <div className="flex items-center justify-between mt-2 mb-2">
+        <span className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase">
+          {response.show_name ? response.display_name : "Anonymous"}
+        </span>
+      </div>
+      <div className="flex gap-1.5">
+        <button
+          onClick={() => onApprove(response.id)}
+          className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--blue))]/80 text-white text-[10px] font-body tracking-widest uppercase py-1.5 rounded-sm">
+          <Check size={11} /> Approve
+        </button>
+        <button
+          onClick={() => setShowDenyMenu(s => !s)}
+          className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/70 text-[10px] font-body tracking-widest uppercase py-1.5 rounded-sm">
+          <ShieldOff size={11} /> Hold back
+        </button>
+      </div>
+      <AnimatePresence>
+        {showDenyMenu && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="mt-3 pt-3 border-t border-[hsl(var(--ivory))]/10 space-y-1.5">
+            <p className="text-[hsl(var(--ivory))]/40 text-[9px] tracking-widest font-body uppercase mb-1">Pick a message to send back</p>
+            {DENIAL_PRESETS.map((preset, i) => (
+              <button key={i} onClick={() => onDeny(response.id, preset)}
+                className="w-full text-left text-[hsl(var(--ivory))]/80 text-xs font-body leading-snug bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 px-2.5 py-2 rounded-sm">
+                {preset}
+              </button>
+            ))}
+            <div className="flex gap-1 mt-2">
+              <input
+                value={customReason}
+                onChange={e => setCustomReason(e.target.value.slice(0, 200))}
+                placeholder="Custom message…"
+                className="flex-1 bg-[hsl(var(--ivory))]/5 border border-[hsl(var(--ivory))]/10 rounded-sm px-2 py-1.5 text-xs text-[hsl(var(--ivory))] font-body focus:outline-none focus:border-[hsl(var(--blue))]"
+              />
+              <button
+                onClick={() => customReason.trim() && onDeny(response.id, customReason.trim())}
+                disabled={!customReason.trim()}
+                className="bg-[hsl(var(--ivory))]/10 hover:bg-[hsl(var(--ivory))]/15 disabled:opacity-30 text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase px-3 rounded-sm">
+                Send
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
 };
 
 const ExerciseSlide = ({ text }: { text: string }) => {

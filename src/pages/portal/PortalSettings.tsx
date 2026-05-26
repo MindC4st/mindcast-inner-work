@@ -1,24 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
+type DisplayMode = "full" | "first_initial" | "anonymous";
+
+const previewFor = (first: string, last: string, mode: DisplayMode): string => {
+  if (mode === "anonymous") return "Anonymous";
+  if (mode === "full") return `${first} ${last}`.trim() || "Member";
+  return last ? `${first} ${last[0].toUpperCase()}.` : (first || "Member");
+};
+
 const PortalSettings = () => {
   const { user, profile } = useAuth();
   const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [liveMode, setLiveMode] = useState<DisplayMode>("first_initial");
   const [saving, setSaving] = useState(false);
 
-  // Sync name when profile loads (auth may still be loading at mount)
   useEffect(() => {
-    if (profile?.name) setName(profile.name);
-  }, [profile?.name]);
+    if (!profile) return;
+    setName(profile.name || "");
+    const p: any = profile;
+    setFirstName(p.first_name || "");
+    setLastName(p.last_name || "");
+    setLiveMode((p.live_display_mode as DisplayMode) || "first_initial");
+  }, [profile]);
+
+  const preview = useMemo(() => previewFor(firstName, lastName, liveMode), [firstName, lastName, liveMode]);
 
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from("profiles").update({ name }).eq("user_id", user.id);
+    const { error } = await supabase.from("profiles").update({
+      name,
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      live_display_mode: liveMode,
+    } as any).eq("user_id", user.id);
     setSaving(false);
     if (error) {
       toast({ title: "Failed to save", description: error.message, variant: "destructive" });
@@ -57,6 +79,78 @@ const PortalSettings = () => {
           <button
             onClick={handleSave}
             disabled={saving || !name}
+            className="bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
+          >
+            {saving ? "SAVING..." : "SAVE CHANGES"}
+          </button>
+        </div>
+
+        {/* ===== LIVE SESSION DISPLAY ===== */}
+        <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg mt-6">
+          <div>
+            <h2 className="portal-heading text-xl text-foreground mb-1">Live session display</h2>
+            <p className="text-xs text-muted-foreground font-body font-light leading-relaxed">
+              Choose how your name appears on screen when you share a reflection during Mindcast LIVE sessions.
+              You can also change this from the live join screen.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="portal-label block mb-2">FIRST NAME</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full bg-transparent border-b border-foreground/15 text-foreground px-0 py-3 text-sm font-body font-light focus:border-foreground/40 focus:outline-none transition-colors"
+              />
+            </div>
+            <div>
+              <label className="portal-label block mb-2">LAST NAME</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full bg-transparent border-b border-foreground/15 text-foreground px-0 py-3 text-sm font-body font-light focus:border-foreground/40 focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="portal-label block mb-3">SHOW MY NAME AS</label>
+            <div className="space-y-2">
+              {([
+                { v: "full",          label: "Full name",         hint: `e.g. ${previewFor(firstName || "Ash", lastName || "Carmichael", "full")}` },
+                { v: "first_initial", label: "First + initial",   hint: `e.g. ${previewFor(firstName || "Ash", lastName || "Carmichael", "first_initial")}` },
+                { v: "anonymous",     label: "Anonymous",         hint: "No name shown on screen" },
+              ] as const).map(opt => (
+                <button
+                  key={opt.v}
+                  onClick={() => setLiveMode(opt.v)}
+                  className={`w-full flex items-center justify-between text-left px-3 py-2.5 border rounded-sm transition-colors ${
+                    liveMode === opt.v
+                      ? "border-primary bg-primary/5"
+                      : "border-foreground/10 hover:border-foreground/30"
+                  }`}
+                >
+                  <div>
+                    <p className="text-sm text-foreground font-body">{opt.label}</p>
+                    <p className="text-[11px] text-muted-foreground font-body font-light mt-0.5">{opt.hint}</p>
+                  </div>
+                  <span className={`w-4 h-4 rounded-full border-2 ${liveMode === opt.v ? "border-primary bg-primary" : "border-foreground/30"}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-l-2 border-primary/40 pl-4 py-2">
+            <p className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground font-body mb-1">Preview on screen</p>
+            <p className="text-sm text-foreground font-body italic">"{preview}"</p>
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={saving}
             className="bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
           >
             {saving ? "SAVING..." : "SAVE CHANGES"}

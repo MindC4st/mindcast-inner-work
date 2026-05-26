@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +15,15 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Allow callers to round-trip back to where they were — e.g. /live/CODE
+  // bouncing through Auth then home. Defaults to /dashboard.
+  const redirectTo = (() => {
+    const r = searchParams.get("redirect");
+    if (!r) return "/dashboard";
+    // Same-origin guard: only allow absolute paths, never an external URL.
+    return r.startsWith("/") && !r.startsWith("//") ? r : "/dashboard";
+  })();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +33,7 @@ const Auth = () => {
     if (error) {
       toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
     } else {
-      navigate("/dashboard");
+      navigate(redirectTo);
     }
   };
 
@@ -53,7 +62,7 @@ const Auth = () => {
       return;
     }
     if (result.redirected) return;
-    navigate("/dashboard");
+    navigate(redirectTo);
   };
 
   return (
