@@ -81,12 +81,6 @@ const LiveJoin = () => {
     ch.on("broadcast", { event: "state" }, ({ payload }) => {
       setState(payload as LiveState);
       setSubmittedFor(prev => prev === `${payload.slide}` ? prev : null);
-<<<<<<< Updated upstream
-    }).subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        // Ask facilitator to (re)send current state
-        ch.send({ type: "broadcast", event: "hello", payload: {} });
-=======
     });
     ch.on("broadcast", { event: "moderation" }, ({ payload }) => {
       if (!payload || payload.id !== submittedRowId) return;
@@ -99,7 +93,6 @@ const LiveJoin = () => {
     ch.subscribe(async (status) => {
       if (status === "SUBSCRIBED") {
         await ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
->>>>>>> Stashed changes
       }
     });
     return () => { supabase.removeChannel(ch); };
