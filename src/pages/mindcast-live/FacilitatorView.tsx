@@ -181,16 +181,21 @@ const FacilitatorView = () => {
   // Broadcast current prompt to audience
   useEffect(() => {
     if (!session) return;
+    const promptType = slide === 6 ? "journaling" : slide === 9 ? "reflection" : "idle";
+    const promptText = slide === 6 ? session.journaling_prompt : slide === 9 ? session.guided_reflection : "";
+    const payload = { week, audience, slide, promptType, promptText, title: session.theme_title };
+
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
-    ch.subscribe(async (status) => {
+    const sendState = () => ch.send({ type: "broadcast", event: "state", payload });
+
+    // Re-send state whenever a member requests it (on join)
+    ch.on("broadcast", { event: "hello" }, () => { sendState(); });
+    ch.subscribe((status) => {
       if (status === "SUBSCRIBED") {
-        const promptType = slide === 6 ? "journaling" : slide === 9 ? "reflection" : "idle";
-        const promptText = slide === 6 ? session.journaling_prompt : slide === 9 ? session.guided_reflection : "";
-        await ch.send({
-          type: "broadcast",
-          event: "state",
-          payload: { week, audience, slide, promptType, promptText, title: session.theme_title },
-        });
+        sendState();
+        // Re-broadcast to catch late joiners
+        setTimeout(sendState, 1000);
+        setTimeout(sendState, 3000);
       }
     });
     return () => { supabase.removeChannel(ch); };

@@ -32,9 +32,13 @@ const LiveJoin = () => {
     const ch = supabase.channel(`live:${sessionCode}`, { config: { broadcast: { self: true } } });
     ch.on("broadcast", { event: "state" }, ({ payload }) => {
       setState(payload as LiveState);
-      // Reset submitted lock if facilitator moves to a different prompt
       setSubmittedFor(prev => prev === `${payload.slide}` ? prev : null);
-    }).subscribe();
+    }).subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        // Ask facilitator to (re)send current state
+        ch.send({ type: "broadcast", event: "hello", payload: {} });
+      }
+    });
     return () => { supabase.removeChannel(ch); };
   }, [joined, sessionCode]);
 
