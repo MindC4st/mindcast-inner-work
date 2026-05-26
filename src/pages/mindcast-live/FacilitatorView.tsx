@@ -826,13 +826,49 @@ const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; a
   );
 };
 
-const VideoSlide = ({ link, description, backup, mp4Url, renderStatus }: { link: string; description: string; backup: string; mp4Url: string | null; renderStatus: string | null }) => {
+const VideoSlide = ({ link, description, backup, mp4Url, renderStatus, onUpdateLink }: { link: string; description: string; backup: string; mp4Url: string | null; renderStatus: string | null; onUpdateLink: (newLink: string) => void | Promise<void> }) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
   const rendering = renderStatus === "processing" || renderStatus === "rendering" || renderStatus === "saving";
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(link || "");
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { setDraft(link || ""); }, [link]);
+
+  const save = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    const valid = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/.test(trimmed);
+    if (!valid) { toast({ title: "Invalid YouTube URL", variant: "destructive" }); return; }
+    setSaving(true);
+    await onUpdateLink(trimmed);
+    setSaving(false);
+    setEditing(false);
+  };
+
   return (
     <div className="max-w-5xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">This Week's Listen</p>
+      <div className="flex items-center justify-center gap-3 mb-4">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
+        {!mp4Url && (
+          <button onClick={() => setEditing(e => !e)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
+            {editing ? "Cancel" : "Replace URL"}
+          </button>
+        )}
+      </div>
+      {editing && !mp4Url && (
+        <div className="mb-4 flex gap-2">
+          <input
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="flex-1 bg-[hsl(var(--ivory))]/5 border border-[hsl(var(--ivory))]/20 rounded-sm px-3 py-2 text-[hsl(var(--ivory))] text-sm font-body"
+          />
+          <button onClick={save} disabled={saving} className="px-4 py-2 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm disabled:opacity-50">
+            {saving ? "Saving…" : "Save"}
+          </button>
+        </div>
+      )}
       {mp4Url ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
           <video src={mp4Url} controls className="w-full h-full" />
@@ -845,11 +881,11 @@ const VideoSlide = ({ link, description, backup, mp4Url, renderStatus }: { link:
         </div>
       ) : ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
-          <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
-          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video — click "Generate Video" to render one</p>
+          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video — paste a YouTube URL above or click "Generate Video"</p>
         </div>
       )}
       <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>
