@@ -82,6 +82,8 @@ const FacilitatorView = () => {
   const [responses, setResponses] = useState<Response[]>([]);
   const [code] = useState(() => search.get("code") || genCode());
   const [generatingVideo, setGeneratingVideo] = useState(false);
+  const [renderedMp4, setRenderedMp4] = useState<string | null>(null);
+  const [renderStatus, setRenderStatus] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Persist code in URL
@@ -105,6 +107,33 @@ const FacilitatorView = () => {
       setSession(data as Session | null);
       setRevealCount(1);
     })();
+  }, [week, audience]);
+
+  // Load + realtime-subscribe the worksheets row for this lesson so the
+  // generated MP4 appears the moment the Shotstack webhook completes.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("worksheets")
+        .select("video_mp4_url, render_status")
+        .eq("week_number", week).eq("audience_type", audience).maybeSingle();
+      if (!active) return;
+      setRenderedMp4(data?.video_mp4_url || null);
+      setRenderStatus(data?.render_status || null);
+    })();
+    const ch = supabase
+      .channel(`worksheet:${week}:${audience}`)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "worksheets",
+          filter: `week_number=eq.${week}` },
+        (p: any) => {
+          if (p.new?.audience_type !== audience) return;
+          setRenderedMp4(p.new?.video_mp4_url || null);
+          setRenderStatus(p.new?.render_status || null);
+        })
+      .subscribe();
+    return () => { active = false; supabase.removeChannel(ch); };
   }, [week, audience]);
 
   // Load unlocked state — count rows for this week across members. The
@@ -236,11 +265,11 @@ const FacilitatorView = () => {
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
+      setRenderStatus("processing");
       toast({
-        title: "Session video generated",
-        description: "Storyboard PDF and narration MP3 uploaded.",
+        title: "Video rendering started",
+        description: "Storyboard + narration uploaded. MP4 will appear on the slide when Shotstack finishes (~3–5 min).",
       });
-      if ((data as any)?.storyboard_pdf_url) window.open((data as any).storyboard_pdf_url, "_blank");
     } catch (e: any) {
       toast({ title: "Video generation failed", description: e.message });
     } finally {
@@ -299,7 +328,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} />
+              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -384,7 +413,7 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ slide, session, revealCount, joinUrl, code }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string }) => {
+const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null }) => {
   switch (slide) {
     case 0: return (
       <div className="text-center max-w-5xl">
@@ -501,7 +530,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code }: { slide: 
       </div>
     );
     case 11: return (
-      <VideoSlide link={session.video_link} description={session.video_description} backup={session.video_backup_description} />
+      <VideoSlide link={session.video_link} description={session.video_description} backup={session.video_backup_description} mp4Url={renderedMp4} renderStatus={renderStatus} />
     );
     case 12: return (
       <div className="text-center max-w-4xl">
@@ -562,19 +591,30 @@ const ExerciseSlide = ({ text }: { text: string }) => {
   );
 };
 
-const VideoSlide = ({ link, description, backup }: { link: string; description: string; backup: string }) => {
+const VideoSlide = ({ link, description, backup, mp4Url, renderStatus }: { link: string; description: string; backup: string; mp4Url: string | null; renderStatus: string | null }) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
+  const rendering = renderStatus === "processing" || renderStatus === "rendering" || renderStatus === "saving";
   return (
     <div className="max-w-5xl w-full">
       <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">This Week's Listen</p>
-      {ytId ? (
+      {mp4Url ? (
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
+          <video src={mp4Url} controls className="w-full h-full" />
+        </div>
+      ) : rendering ? (
+        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex flex-col items-center justify-center bg-[hsl(var(--ivory))]/[0.03] gap-3">
+          <div className="w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse" />
+          <p className="text-[hsl(var(--ivory))]/60 text-xs font-body tracking-widest uppercase">Rendering session video…</p>
+          <p className="text-[hsl(var(--ivory))]/30 text-[10px] font-body">Shotstack typically takes 3–5 minutes</p>
+        </div>
+      ) : ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
           <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
-          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video link configured</p>
+          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video — click "Generate Video" to render one</p>
         </div>
       )}
       <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>

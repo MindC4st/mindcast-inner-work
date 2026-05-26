@@ -37,11 +37,12 @@ const Lesson = () => {
   const [savedResponses, setSavedResponses] = useState<Record<string, string>>({});
   const [completed, setCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [renderedMp4, setRenderedMp4] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [s, u, r, c] = await Promise.all([
+      const [s, u, r, c, w] = await Promise.all([
         (supabase as any).from("mindcast_live_sessions").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
         (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         (supabase as any).from("session_responses")
@@ -54,6 +55,11 @@ const Lesson = () => {
           .eq("user_id", user.id)
           .eq("week_number", week)
           .maybeSingle(),
+        (supabase as any).from("worksheets")
+          .select("video_mp4_url")
+          .eq("week_number", week)
+          .eq("audience_type", audience)
+          .maybeSingle(),
       ]);
       setSession(s.data);
       const ids = (u.data || []).map((r: any) => r.week_number).sort((a: number, b: number) => a - b);
@@ -63,6 +69,7 @@ const Lesson = () => {
       (r.data || []).forEach((row: ResponseRow) => { responseMap[row.prompt_type] = row.response_text; });
       setSavedResponses(responseMap);
       setCompleted(!!c.data);
+      setRenderedMp4(w.data?.video_mp4_url || null);
     })();
   }, [week, audience, user]);
 
@@ -136,11 +143,15 @@ const Lesson = () => {
           )}
         </div>
 
-        {ytId && (
+        {renderedMp4 ? (
+          <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-8 bg-black">
+            <video src={renderedMp4} controls className="w-full h-full" />
+          </div>
+        ) : ytId ? (
           <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-8">
             <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
           </div>
-        )}
+        ) : null}
 
         <Section title="The Signal">
           <p className="font-serif italic text-xl text-[hsl(var(--navy))] leading-snug">"{session.signal_metaphor}"</p>

@@ -1,16 +1,29 @@
-// generate-session-video
-// Pipeline: Claude builds an 8-shot storyboard JSON from `film_script_2min`,
-// ElevenLabs synthesises a narration MP3 from the script,
-// both are uploaded to the `worksheets` storage bucket, and the public URLs
-// are written back to `public.worksheets.video_url` (PDF storyboard) + a
-// sibling row for the MP3.
+// generate-session-video — Hybrid video pipeline
 //
-// Required env (set in Supabase project secrets — do NOT hardcode):
-//   ANTHROPIC_API_KEY    — Claude API key
-//   ELEVENLABS_API_KEY   — your ElevenLabs key
-//   ELEVENLABS_VOICE_ID  — optional; defaults to Rachel
-//   SUPABASE_URL         — auto-injected
-//   SUPABASE_SERVICE_ROLE_KEY — auto-injected (server-only, never exposed)
+// Pipeline:
+//   1. Claude builds an 8-shot storyboard JSON from `film_script_2min`
+//   2. ElevenLabs synthesises a narration MP3
+//   3. Storyboard PDF (jsPDF) and narration MP3 are uploaded to the
+//      `worksheets` storage bucket (public URLs).
+//   4. Pexels Video API is queried per scene for a matching stock clip.
+//   5. A Shotstack render job is submitted asynchronously with a webhook
+//      pointing back to the `shotstack-webhook` function. We return
+//      immediately with the render id; the webhook finalises the row.
+//
+// Why webhook (not poll): Shotstack renders take 1–5 minutes, longer than the
+// Supabase edge function timeout. The webhook handler picks up the finished
+// MP4 and writes it back to `public.worksheets.video_mp4_url`.
+//
+// Required env (set via Supabase Edge Function secrets):
+//   ANTHROPIC_API_KEY       — Claude API
+//   ELEVENLABS_API_KEY      — ElevenLabs (narration)
+//   ELEVENLABS_VOICE_ID     — optional, defaults to Rachel
+//   PEXELS_API_KEY          — Pexels stock video search (free key)
+//   SHOTSTACK_API_KEY       — Shotstack render
+//   SHOTSTACK_ENV           — optional: "stage" (default) or "v1" (prod)
+//   SHOTSTACK_WEBHOOK_URL   — optional: override; otherwise derived from SUPABASE_URL
+//   SUPABASE_URL            — auto-injected
+//   SUPABASE_SERVICE_ROLE_KEY — auto-injected
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
@@ -21,14 +34,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CLAUDE_MODEL = "claude-sonnet-4-5"; // bump as newer models become GA
-const DEFAULT_VOICE = "21m00Tcm4TlvDq8ikWAM"; // ElevenLabs "Rachel"
+const CLAUDE_MODEL = "claude-sonnet-4-5";
+const DEFAULT_VOICE = "pcKdPWtbF6bM9o7NHjCI"; // ElevenLabs "Kylee" — English (NZ accent)
 
 type Scene = {
   scene: number;
   narration: string;
   visuals: string;
   duration_sec: number;
+  search_keywords?: string;
 };
 
 const json = (body: unknown, status = 200) =>
@@ -48,8 +62,10 @@ const callClaudeStoryboard = async (filmScript: string, themeTitle: string): Pro
   const systemPrompt =
     "You are a film storyboard generator for a contemplative mental-wellness podcast called Mindcast. " +
     "Given a 2-minute spoken-word script, return an 8-shot storyboard as valid JSON with the schema: " +
-    `{ "scenes": [{ "scene": int, "narration": str, "visuals": str, "duration_sec": int }] }. ` +
-    "Total duration must sum to ~120 seconds. Visuals must be evocative, cinematic, and respect a calm/serious tone — no people speaking on camera. Return JSON only, no prose.";
+    `{ "scenes": [{ "scene": int, "narration": str, "visuals": str, "duration_sec": int, "search_keywords": str }] }. ` +
+    "Total duration must sum to ~120 seconds. `visuals` is a one-sentence cinematic description. " +
+    "`search_keywords` is 2–4 concrete, filmable nouns suitable for searching a stock video library (Pexels). " +
+    "Tone: calm, serious, evocative. No people speaking on camera. Return JSON only, no prose.";
   const userPrompt = `THEME: ${themeTitle}\n\nSCRIPT:\n${filmScript}`;
 
   const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -61,18 +77,15 @@ const callClaudeStoryboard = async (filmScript: string, themeTitle: string): Pro
     },
     body: JSON.stringify({
       model: CLAUDE_MODEL,
-      max_tokens: 1500,
+      max_tokens: 2000,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     }),
   });
 
-  if (!r.ok) {
-    throw new Error(`Anthropic ${r.status}: ${await r.text()}`);
-  }
+  if (!r.ok) throw new Error(`Anthropic ${r.status}: ${await r.text()}`);
   const data = await r.json();
   const text: string = data?.content?.[0]?.text ?? "";
-  // Strip markdown code fences if Claude wraps the JSON.
   const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```\s*$/i, "").trim();
   let parsed: { scenes?: Scene[] };
   try {
@@ -102,9 +115,7 @@ const callElevenLabsNarration = async (script: string): Promise<Uint8Array> => {
       voice_settings: { stability: 0.5, similarity_boost: 0.7 },
     }),
   });
-  if (!r.ok) {
-    throw new Error(`ElevenLabs ${r.status}: ${await r.text()}`);
-  }
+  if (!r.ok) throw new Error(`ElevenLabs ${r.status}: ${await r.text()}`);
   const buf = new Uint8Array(await r.arrayBuffer());
   if (buf.length < 1024) throw new Error("ElevenLabs returned empty/short audio");
   return buf;
@@ -123,7 +134,6 @@ const renderStoryboardPDF = (themeTitle: string, week: number, audience: string,
   doc.setFontSize(8);
   doc.setTextColor(184, 137, 90);
   doc.text(`MINDCAST · WEEK ${week} · ${audience.toUpperCase()} · STORYBOARD`, M, 30);
-  doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
   doc.setTextColor(255, 250, 246);
   doc.text(themeTitle.toUpperCase(), M, 58);
@@ -136,8 +146,6 @@ const renderStoryboardPDF = (themeTitle: string, week: number, audience: string,
     doc.setTextColor(53, 133, 175);
     doc.text(`SCENE ${s.scene}  ·  ${s.duration_sec}s`, M, y);
     y += 14;
-
-    doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
     doc.setTextColor(184, 137, 90);
     doc.text("VISUALS", M, y);
@@ -148,7 +156,6 @@ const renderStoryboardPDF = (themeTitle: string, week: number, audience: string,
     const vis = doc.splitTextToSize(s.visuals || "", W - M * 2);
     doc.text(vis, M, y);
     y += vis.length * 12 + 6;
-
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
     doc.setTextColor(184, 137, 90);
@@ -162,17 +169,166 @@ const renderStoryboardPDF = (themeTitle: string, week: number, audience: string,
     y += nar.length * 12 + 18;
   });
 
-  const out = doc.output("arraybuffer");
-  return new Uint8Array(out);
+  return new Uint8Array(doc.output("arraybuffer"));
 };
 
 const stripScriptForNarration = (text: string) =>
   (text || "")
-    // Strip stage directions in [..], (...) ; keep spoken lines
     .replace(/\[[^\]]+\]/g, " ")
     .replace(/\(([^)]+)\)/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+type PexelsVideo = { url: string; width: number; height: number };
+
+const searchPexelsVideo = async (query: string): Promise<PexelsVideo | null> => {
+  const PEXELS_API_KEY = requireEnv("PEXELS_API_KEY");
+  // Trim aggressive punctuation, keep first ~6 words for relevance.
+  const q = query.replace(/[^\w\s]/g, " ").split(/\s+/).filter(Boolean).slice(0, 6).join(" ");
+  const url = `https://api.pexels.com/videos/search?per_page=3&orientation=landscape&query=${encodeURIComponent(q)}`;
+  const r = await fetch(url, { headers: { Authorization: PEXELS_API_KEY } });
+  if (!r.ok) return null;
+  const data = await r.json();
+  const first = data?.videos?.[0];
+  if (!first) return null;
+  // Pexels returns several quality variants. Pick the smallest >=720p mp4 to keep
+  // Shotstack render time/cost down — we don't need 4K for 720p output.
+  const files: { link: string; width: number; height: number; file_type: string }[] = first.video_files || [];
+  const candidates = files
+    .filter(f => (f.file_type === "video/mp4" || f.link.endsWith(".mp4")) && f.height >= 540)
+    .sort((a, b) => a.height - b.height);
+  const pick = candidates[0] || files[0];
+  return pick ? { url: pick.link, width: pick.width, height: pick.height } : null;
+};
+
+type ShotstackResp = { success: boolean; response: { id: string; message: string }; message?: string };
+
+const submitShotstackRender = async (params: {
+  themeTitle: string;
+  weekNumber: number;
+  audience: string;
+  affirmation: string;
+  narrationMp3Url: string;
+  scenes: Scene[];
+  brollUrls: (string | null)[];
+  webhookUrl: string;
+}): Promise<string> => {
+  const SHOTSTACK_API_KEY = requireEnv("SHOTSTACK_API_KEY");
+  const SHOTSTACK_ENV = Deno.env.get("SHOTSTACK_ENV") || "stage";
+  const totalDuration = params.scenes.reduce((s, sc) => s + sc.duration_sec, 0);
+
+  // Build the Shotstack timeline:
+  //  - audio track: ElevenLabs narration MP3 (full length)
+  //  - video track: title card, B-roll clips with crossfades, outro affirmation card
+  //  - title overlay on each scene with the narration text (for accessibility)
+  const TITLE_DUR = 4;
+  const OUTRO_DUR = 6;
+
+  // Title clip
+  const titleClip = {
+    asset: {
+      type: "title",
+      text: params.themeTitle.toUpperCase(),
+      style: "minimal",
+      color: "#fffaf6",
+      background: "#0a1120",
+      size: "x-large",
+      position: "center",
+    },
+    start: 0,
+    length: TITLE_DUR,
+    transition: { in: "fade", out: "fade" },
+  };
+
+  // Per-scene B-roll
+  let cursor = TITLE_DUR;
+  const brollClips: any[] = [];
+  params.scenes.forEach((s, i) => {
+    const url = params.brollUrls[i];
+    if (url) {
+      brollClips.push({
+        asset: { type: "video", src: url, trim: 0 },
+        start: cursor,
+        length: s.duration_sec,
+        fit: "cover",
+        effect: "zoomIn",
+        transition: { in: "fade", out: "fade" },
+      });
+    } else {
+      // No B-roll found → fallback to a soft branded slate
+      brollClips.push({
+        asset: {
+          type: "title",
+          text: s.visuals || "",
+          style: "minimal",
+          color: "#fffaf6",
+          background: "#0a1120",
+          size: "medium",
+          position: "center",
+        },
+        start: cursor,
+        length: s.duration_sec,
+        transition: { in: "fade", out: "fade" },
+      });
+    }
+    cursor += s.duration_sec;
+  });
+
+  // Outro affirmation
+  const outroClip = {
+    asset: {
+      type: "title",
+      text: `"${params.affirmation || params.themeTitle}"`,
+      style: "minimal",
+      color: "#fffaf6",
+      background: "#0a1120",
+      size: "large",
+      position: "center",
+    },
+    start: cursor,
+    length: OUTRO_DUR,
+    transition: { in: "fade", out: "fade" },
+  };
+
+  const audioTrack = {
+    clips: [
+      {
+        asset: { type: "audio", src: params.narrationMp3Url, volume: 1 },
+        // Narration starts after the title card so the room can settle.
+        start: TITLE_DUR,
+        length: Math.max(totalDuration, 1),
+      },
+    ],
+  };
+
+  const timeline = {
+    background: "#0a1120",
+    tracks: [
+      { clips: [titleClip, ...brollClips, outroClip] },
+      audioTrack,
+    ],
+  };
+
+  const body = {
+    timeline,
+    output: { format: "mp4", resolution: "hd", aspectRatio: "16:9", fps: 25 },
+    callback: params.webhookUrl,
+  };
+
+  const r = await fetch(`https://api.shotstack.io/${SHOTSTACK_ENV}/render`, {
+    method: "POST",
+    headers: {
+      "x-api-key": SHOTSTACK_API_KEY,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const respJson = (await r.json()) as ShotstackResp;
+  if (!r.ok || !respJson?.success) {
+    throw new Error(`Shotstack ${r.status}: ${respJson?.message || JSON.stringify(respJson)}`);
+  }
+  return respJson.response.id;
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -197,11 +353,11 @@ serve(async (req) => {
     // Load lesson
     const { data: session, error: sErr } = await supa
       .from("mindcast_live_sessions")
-      .select("week_number, theme_title, film_script_2min")
+      .select("week_number, theme_title, film_script_2min, core_affirmation")
       .eq("week_number", week_number).eq("audience", audience).maybeSingle();
     if (sErr) throw sErr;
     if (!session) return json({ error: "Session not found" }, 404);
-    if (!session.film_script_2min) return json({ error: "film_script_2min is empty" }, 400);
+    if (!session.film_script_2min) return json({ error: "film_script_2min is empty for this week + audience" }, 400);
 
     // 1. Storyboard from Claude
     const scenes = await callClaudeStoryboard(session.film_script_2min, session.theme_title || "Mindcast");
@@ -230,22 +386,48 @@ serve(async (req) => {
     const pdfUrl = supa.storage.from("worksheets").getPublicUrl(pdfPath).data.publicUrl;
     const mp3Url = supa.storage.from("worksheets").getPublicUrl(mp3Path).data.publicUrl;
 
-    // 4. Persist URLs against worksheets table (upsert by week + audience).
+    // 4. Pexels B-roll per scene (best-effort — null is fine, Shotstack falls
+    //    back to a branded slate for that scene).
+    const brollUrls = await Promise.all(
+      scenes.map((s) => searchPexelsVideo(s.search_keywords || s.visuals).catch(() => null).then(v => v?.url ?? null))
+    );
+
+    // 5. Submit Shotstack render with webhook back to shotstack-webhook fn.
+    const webhookUrl =
+      Deno.env.get("SHOTSTACK_WEBHOOK_URL") ||
+      `${SUPABASE_URL}/functions/v1/shotstack-webhook`;
+    const renderId = await submitShotstackRender({
+      themeTitle: session.theme_title || "Mindcast",
+      weekNumber: week_number,
+      audience,
+      affirmation: session.core_affirmation || "",
+      narrationMp3Url: mp3Url,
+      scenes,
+      brollUrls,
+      webhookUrl,
+    });
+
+    // 6. Persist render_id + 'processing' status. The webhook will fill
+    //    video_mp4_url + flip render_status when the render completes.
     const { error: wErr } = await supa.from("worksheets")
       .upsert({
         week_number,
         audience_type: audience,
-        video_url: mp3Url,
         pdf_url: pdfUrl,
+        video_url: mp3Url, // legacy: keep MP3 URL accessible here
+        render_id: renderId,
+        render_status: "processing",
       }, { onConflict: "week_number,audience_type" });
-    if (wErr) {
-      // Table may not have that unique key — fall back to insert.
-      await supa.from("worksheets").insert({
-        week_number, audience_type: audience, video_url: mp3Url, pdf_url: pdfUrl,
-      });
-    }
+    if (wErr) throw wErr;
 
-    return json({ ok: true, storyboard_pdf_url: pdfUrl, narration_mp3_url: mp3Url, scenes });
+    return json({
+      ok: true,
+      render_id: renderId,
+      render_status: "processing",
+      storyboard_pdf_url: pdfUrl,
+      narration_mp3_url: mp3Url,
+      scenes,
+    });
   } catch (e: any) {
     return json({ error: e?.message ?? String(e) }, 500);
   }

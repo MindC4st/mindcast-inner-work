@@ -23,7 +23,12 @@
       "Bash(mv /tmp/curric_head.ts /c/GitHub/mindcast-inner-work/src/data/curriculumData.ts)",
       "Bash(bun --version)",
       "Bash(bun install *)",
-      "Bash(echo \"---EXIT: $?\")"
+      "Bash(echo \"---EXIT: $?\")",
+      "Bash(python *)",
+      "Bash(where python3 *)",
+      "Bash(py -V)",
+      "Bash(py *)",
+      "Bash(echo \"exit=$?\")"
     ]
   }
 }

@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-session-video]
 verify_jwt = true
+
+[functions.shotstack-webhook]
+verify_jwt = false
