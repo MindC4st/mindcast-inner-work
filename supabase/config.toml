@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.select-weekly-callbacks]
 verify_jwt = false
+
+[functions.nfc-checkin]
+verify_jwt = false

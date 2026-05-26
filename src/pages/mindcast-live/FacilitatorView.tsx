@@ -11,6 +11,7 @@ import {
 // tldraw is ~400KB+ — only fetch the chunk when the facilitator actually
 // opens the whiteboard on the Exercise slide.
 const ExerciseWhiteboard = lazy(() => import("@/components/whiteboard/ExerciseWhiteboard"));
+import WelcomeWall from "@/components/mindcast-live/WelcomeWall";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -542,13 +543,12 @@ const FacilitatorView = () => {
 const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus, callbacks, onSessionUpdate }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; callbacks: Callback[]; onSessionUpdate: (s: Session) => void }) => {
   switch (slide) {
     case 0: return (
-      <div className="text-center max-w-5xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Week {session.week_number} · {session.phase_name}</p>
-        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="font-display text-7xl md:text-8xl tracking-wide text-[hsl(var(--ivory))] mb-6">{session.theme_title.toUpperCase()}</motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-          className="text-[hsl(var(--blue-light))] text-2xl font-serif italic">{session.session_title}</motion.p>
-      </div>
+      <WelcomeWall
+        weekNumber={session.week_number}
+        themeTitle={session.theme_title}
+        sessionTitle={session.session_title}
+        phaseName={session.phase_name}
+      />
     );
     case 1: return (
       <VoicesLastWeekSlide
