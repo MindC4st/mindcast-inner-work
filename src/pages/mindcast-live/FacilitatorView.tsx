@@ -346,8 +346,8 @@ const FacilitatorView = () => {
                 <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.3em] font-body uppercase">Live</p>
                 <p className="text-[hsl(var(--ivory))]/70 text-xs font-body mt-0.5">{visibleResponses.length} response{visibleResponses.length === 1 ? "" : "s"}</p>
               </div>
-              <div className="bg-white p-1.5 rounded">
-                <QRCode value={joinUrl} size={50} />
+            <div className="bg-white p-2 rounded inline-block">
+                <QRCode value={joinUrl} size={80} level="M" />
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -406,7 +406,7 @@ const FacilitatorView = () => {
             <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
             <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
               <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest uppercase mb-2 font-body">Join QR</p>
-              <div className="bg-white p-3 rounded inline-block"><QRCode value={joinUrl} size={150} /></div>
+              <div className="bg-white p-3 rounded inline-block"><QRCode value={joinUrl} size={150} level="M" /></div>
               <p className="text-[hsl(var(--ivory))]/60 text-xs mt-2 font-body">{joinUrl}</p>
             </div>
           </motion.div>
