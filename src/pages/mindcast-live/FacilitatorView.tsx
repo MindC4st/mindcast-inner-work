@@ -394,7 +394,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} />
+              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
