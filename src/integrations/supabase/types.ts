@@ -1524,6 +1524,9 @@ export type Database = {
           id: string
           pdf_url: string | null
           price_nzd: number | null
+          render_id: string | null
+          render_status: string | null
+          video_mp4_url: string | null
           video_url: string | null
           week_number: number
         }
@@ -1533,6 +1536,9 @@ export type Database = {
           id?: string
           pdf_url?: string | null
           price_nzd?: number | null
+          render_id?: string | null
+          render_status?: string | null
+          video_mp4_url?: string | null
           video_url?: string | null
           week_number: number
         }
@@ -1542,6 +1548,9 @@ export type Database = {
           id?: string
           pdf_url?: string | null
           price_nzd?: number | null
+          render_id?: string | null
+          render_status?: string | null
+          video_mp4_url?: string | null
           video_url?: string | null
           week_number?: number
         }
