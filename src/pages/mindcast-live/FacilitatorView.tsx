@@ -623,7 +623,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         mp4Url={renderedMp4}
         renderStatus={renderStatus}
         onUpdateLink={async (newLink) => {
-          const { error } = await supabase.from("sessions").update({ video_link: newLink }).eq("id", session.id);
+          const { error } = await (supabase as any).from("mindcast_live_sessions").update({ video_link: newLink }).eq("id", session.id);
           if (error) { toast({ title: "Could not save video", description: error.message, variant: "destructive" }); return; }
           setSession({ ...session, video_link: newLink });
           toast({ title: "Video updated" });
