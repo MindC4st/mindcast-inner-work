@@ -525,14 +525,11 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
       </div>
     );
     case 1: return (
-      <div className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--bronze))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
-        <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
-          className="relative max-w-4xl text-center px-8">
-          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">The Signal</p>
-          <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--ivory))] leading-snug italic">"{session.signal_metaphor}"</p>
-        </motion.blockquote>
-      </div>
+      <SignalMetaphorSlide
+        text={session.signal_metaphor}
+        mp4Url={renderedMp4}
+        renderStatus={renderStatus}
+      />
     );
     case 2: return (
       <div className="max-w-4xl">
@@ -634,8 +631,6 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         link={session.video_link}
         description={session.video_description}
         backup={session.video_backup_description}
-        mp4Url={renderedMp4}
-        renderStatus={renderStatus}
         onUpdateLink={async (newLink) => {
           const { error } = await (supabase as any).from("mindcast_live_sessions").update({ video_link: newLink }).eq("id", session.id);
           if (error) { toast({ title: "Could not save video", description: error.message, variant: "destructive" }); return; }
@@ -840,10 +835,61 @@ const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; a
   );
 };
 
-const VideoSlide = ({ link, description, backup, mp4Url, renderStatus, onUpdateLink }: { link: string; description: string; backup: string; mp4Url: string | null; renderStatus: string | null; onUpdateLink: (newLink: string) => void | Promise<void> }) => {
+/**
+ * Signal Metaphor slide — the AI-generated 2-min film is conceptually a
+ * visual rendering of this metaphor (city/noise → signal), so we play it
+ * here when it exists. If no MP4 yet, the quote stands alone.
+ */
+const SignalMetaphorSlide = ({
+  text, mp4Url, renderStatus,
+}: { text: string; mp4Url: string | null; renderStatus: string | null }) => {
+  const rendering = renderStatus === "processing" || renderStatus === "rendering" || renderStatus === "saving";
+
+  if (mp4Url) {
+    return (
+      <div className="max-w-5xl w-full">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">The Signal</p>
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
+          <video src={mp4Url} controls className="w-full h-full" />
+        </div>
+        <motion.blockquote initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1 }}
+          className="text-center mt-6 px-8">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-snug italic">"{text}"</p>
+        </motion.blockquote>
+      </div>
+    );
+  }
+
+  if (rendering) {
+    return (
+      <div className="max-w-5xl w-full">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">The Signal</p>
+        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex flex-col items-center justify-center bg-[hsl(var(--ivory))]/[0.03] gap-3">
+          <div className="w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse" />
+          <p className="text-[hsl(var(--ivory))]/60 text-xs font-body tracking-widest uppercase">Rendering session video…</p>
+          <p className="text-[hsl(var(--ivory))]/30 text-[10px] font-body">Shotstack typically takes 3–5 minutes</p>
+        </div>
+        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-snug italic text-center mt-6 px-8">"{text}"</p>
+      </div>
+    );
+  }
+
+  // Default — original full-bleed metaphor design with ambient gradient pulse.
+  return (
+    <div className="relative w-full h-full flex items-center justify-center">
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--bronze))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
+      <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
+        className="relative max-w-4xl text-center px-8">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">The Signal</p>
+        <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--ivory))] leading-snug italic">"{text}"</p>
+      </motion.blockquote>
+    </div>
+  );
+};
+
+const VideoSlide = ({ link, description, backup, onUpdateLink }: { link: string; description: string; backup: string; onUpdateLink: (newLink: string) => void | Promise<void> }) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
-  const rendering = renderStatus === "processing" || renderStatus === "rendering" || renderStatus === "saving";
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(link || "");
   const [saving, setSaving] = useState(false);
@@ -864,13 +910,11 @@ const VideoSlide = ({ link, description, backup, mp4Url, renderStatus, onUpdateL
     <div className="max-w-5xl w-full">
       <div className="flex items-center justify-center gap-3 mb-4">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
-        {!mp4Url && (
-          <button onClick={() => setEditing(e => !e)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
-            {editing ? "Cancel" : "Replace URL"}
-          </button>
-        )}
+        <button onClick={() => setEditing(e => !e)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
+          {editing ? "Cancel" : "Replace URL"}
+        </button>
       </div>
-      {editing && !mp4Url && (
+      {editing && (
         <div className="mb-4 flex gap-2">
           <input
             value={draft}
@@ -883,23 +927,13 @@ const VideoSlide = ({ link, description, backup, mp4Url, renderStatus, onUpdateL
           </button>
         </div>
       )}
-      {mp4Url ? (
-        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
-          <video src={mp4Url} controls className="w-full h-full" />
-        </div>
-      ) : rendering ? (
-        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex flex-col items-center justify-center bg-[hsl(var(--ivory))]/[0.03] gap-3">
-          <div className="w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse" />
-          <p className="text-[hsl(var(--ivory))]/60 text-xs font-body tracking-widest uppercase">Rendering session video…</p>
-          <p className="text-[hsl(var(--ivory))]/30 text-[10px] font-body">Shotstack typically takes 3–5 minutes</p>
-        </div>
-      ) : ytId ? (
+      {ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
           <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
-          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video — paste a YouTube URL above or click "Generate Video"</p>
+          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video — paste a YouTube URL above</p>
         </div>
       )}
       <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>

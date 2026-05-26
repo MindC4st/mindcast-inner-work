@@ -27,7 +27,10 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-import jsPDF from "npm:jspdf@2.5.1";
+// Deno's npm: interop doesn't reliably expose jspdf's default export as a
+// callable constructor (`jsPDF is not a constructor` at runtime). Pull the
+// named export instead — works in both ESM and CJS interop paths.
+import { jsPDF } from "npm:jspdf@2.5.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

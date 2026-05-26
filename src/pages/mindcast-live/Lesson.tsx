@@ -143,17 +143,18 @@ const Lesson = () => {
           )}
         </div>
 
-        {renderedMp4 ? (
-          <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-8 bg-black">
-            <video src={renderedMp4} controls className="w-full h-full" />
-          </div>
-        ) : ytId ? (
+        {ytId && (
           <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-8">
             <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
           </div>
-        ) : null}
+        )}
 
         <Section title="The Signal">
+          {renderedMp4 && (
+            <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-4 bg-black">
+              <video src={renderedMp4} controls className="w-full h-full" />
+            </div>
+          )}
           <p className="font-serif italic text-xl text-[hsl(var(--navy))] leading-snug">"{session.signal_metaphor}"</p>
         </Section>
 
