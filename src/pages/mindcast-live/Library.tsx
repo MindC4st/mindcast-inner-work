@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Lock, Unlock, Play, Presentation } from "lucide-react";
+import { Lock, Unlock, Play, Presentation, Film } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 type Row = { week_number: number; theme_title: string; phase_name: string; session_title: string };
 
@@ -12,6 +13,7 @@ const Library = () => {
   const [weeks, setWeeks] = useState<Row[]>([]);
   const [unlocked, setUnlocked] = useState<Set<number>>(new Set());
   const [completed, setCompleted] = useState<Set<number>>(new Set());
+  const [bulkRunning, setBulkRunning] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -36,6 +38,23 @@ const Library = () => {
   const unlockedCount = unlocked.size;
   const completedCount = completed.size;
 
+  const handleBulkGenerate = async () => {
+    setBulkRunning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("bulk-generate-videos", { body: {} });
+      if (error) throw error;
+      const d = data as any;
+      toast({
+        title: `Queued ${d.queued_this_run} renders`,
+        description: `${d.already_done} already done · ${d.already_processing} already in flight · ${d.remaining_after_this_run} left. Re-click after a few minutes to continue.`,
+      });
+    } catch (e: any) {
+      toast({ title: "Bulk generate failed", description: e.message });
+    } finally {
+      setBulkRunning(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))] px-6 py-12">
       <div className="max-w-7xl mx-auto">
@@ -52,6 +71,16 @@ const Library = () => {
               <div className="h-full bg-[hsl(var(--blue))] transition-all" style={{ width: `${(completedCount / 52) * 100}%` }} />
             </div>
           </div>
+          {isFacilitator && (
+            <button
+              onClick={handleBulkGenerate}
+              disabled={bulkRunning}
+              title="Queue Shotstack renders for every lesson that has a film script and no MP4 yet"
+              className="self-start flex items-center gap-2 px-4 py-2 bg-[hsl(var(--navy))] hover:bg-[hsl(var(--navy-mid))] disabled:opacity-40 text-white text-[11px] font-body tracking-widest uppercase rounded-sm"
+            >
+              <Film size={13} />{bulkRunning ? "Queueing…" : "Generate all videos"}
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
