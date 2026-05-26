@@ -328,7 +328,20 @@ const FacilitatorView = () => {
       const { data, error } = await supabase.functions.invoke("generate-session-video", {
         body: { week_number: week, audience },
       });
-      if (error) throw error;
+      // supabase-js gives a generic FunctionsHttpError on non-2xx — pull the real
+      // error message out of the response body when available.
+      if (error) {
+        let detail = error.message;
+        try {
+          const ctx: any = (error as any).context;
+          if (ctx?.body) {
+            const text = typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body).text();
+            const parsed = JSON.parse(text);
+            if (parsed?.error) detail = parsed.error;
+          }
+        } catch { /* keep generic */ }
+        throw new Error(detail);
+      }
       if ((data as any)?.error) throw new Error((data as any).error);
       setRenderStatus("processing");
       toast({
@@ -336,7 +349,8 @@ const FacilitatorView = () => {
         description: "Storyboard + narration uploaded. MP4 will appear on the slide when Shotstack finishes (~3–5 min).",
       });
     } catch (e: any) {
-      toast({ title: "Video generation failed", description: e.message });
+      console.error("generate-session-video failed:", e);
+      toast({ title: "Video generation failed", description: e.message, variant: "destructive" });
     } finally {
       setGeneratingVideo(false);
     }
