@@ -1,0 +1,97 @@
+-- pg_cron schedules for practice reminders + Sunday callback selection.
+--
+-- All schedules are expressed in UTC because pg_cron runs in UTC. NZST is
+-- UTC+12, NZDT is UTC+13 — schedules drift by ±1h with daylight saving.
+-- That's acceptable for "evening" nudges. If the drift matters, replace the
+-- raw cron string with a TIMEZONE wrapper once Supabase enables timezone
+-- support natively on the platform.
+--
+-- Cron map:
+--   7pm NZST Mon  = 07:00 UTC Mon → '0 7 * * 1'
+--   7pm NZST Wed  = 07:00 UTC Wed → '0 7 * * 3'
+--   8am NZST Sun  = 20:00 UTC Sat → '0 20 * * 6'   (Sun morning NZ is Sat evening UTC)
+--   9am NZST Sun  = 21:00 UTC Sat → '0 21 * * 6'
+--
+-- Setup notes (run ONCE per environment, NOT via this migration so the
+-- service-role key never ships in version control):
+--
+--   1. In the Supabase Dashboard → Database → Extensions, enable `pg_cron`
+--      and `pg_net` if not already on.
+--   2. Open the SQL editor and run the block below, substituting:
+--        <PROJECT_REF>      = your project ref (e.g. gjkhkaywozuobhbcdysi)
+--        <SERVICE_ROLE_KEY> = found in Project Settings → API
+--   3. Verify by querying `cron.job` — you should see 4 jobs.
+--
+-- ---------------------------------------------------------------
+-- BEGIN cron schedule block (copy into SQL editor, do not commit):
+-- ---------------------------------------------------------------
+--
+-- SELECT cron.schedule(
+--   'mc-practice-reminder-mon',
+--   '0 7 * * 1',
+--   $$
+--     SELECT net.http_post(
+--       url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/send-practice-reminder',
+--       headers := jsonb_build_object('Content-Type', 'application/json',
+--                                     'Authorization', 'Bearer <SERVICE_ROLE_KEY>'),
+--       body    := jsonb_build_object('day', 'mon')
+--     );
+--   $$
+-- );
+--
+-- SELECT cron.schedule(
+--   'mc-practice-reminder-wed',
+--   '0 7 * * 3',
+--   $$
+--     SELECT net.http_post(
+--       url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/send-practice-reminder',
+--       headers := jsonb_build_object('Content-Type', 'application/json',
+--                                     'Authorization', 'Bearer <SERVICE_ROLE_KEY>'),
+--       body    := jsonb_build_object('day', 'wed')
+--     );
+--   $$
+-- );
+--
+-- SELECT cron.schedule(
+--   'mc-practice-reminder-sun',
+--   '0 20 * * 6',
+--   $$
+--     SELECT net.http_post(
+--       url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/send-practice-reminder',
+--       headers := jsonb_build_object('Content-Type', 'application/json',
+--                                     'Authorization', 'Bearer <SERVICE_ROLE_KEY>'),
+--       body    := jsonb_build_object('day', 'sun')
+--     );
+--   $$
+-- );
+--
+-- SELECT cron.schedule(
+--   'mc-select-weekly-callbacks',
+--   '0 21 * * 6',
+--   $$
+--     SELECT net.http_post(
+--       url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/select-weekly-callbacks',
+--       headers := jsonb_build_object('Content-Type', 'application/json',
+--                                     'Authorization', 'Bearer <SERVICE_ROLE_KEY>')
+--     );
+--   $$
+-- );
+--
+-- ---------------------------------------------------------------
+-- END cron schedule block
+-- ---------------------------------------------------------------
+--
+-- To unschedule later:
+--   SELECT cron.unschedule('mc-practice-reminder-mon');
+--   ...
+--
+-- To dry-run the reminder right now (great for testing copy):
+--   curl -X POST 'https://<PROJECT_REF>.supabase.co/functions/v1/send-practice-reminder' \
+--        -H 'Authorization: Bearer <SERVICE_ROLE_KEY>' \
+--        -H 'Content-Type: application/json' \
+--        -d '{"day":"mon"}'
+
+-- This migration is documentation-only — the real schedules are registered
+-- in the SQL editor (see comments above). Placing a no-op statement so the
+-- migration has a verifiable effect when run.
+SELECT 1 AS cron_schedule_doc_only;
