@@ -69,7 +69,7 @@ Replaced the Google Fonts CSS import with `@fontsource` packages (Montserrat, Co
 
 ### Known gaps / recommendations (not code-fixable here)
 1. **Set `SHOTSTACK_WEBHOOK_SECRET`** in Supabase function secrets to activate webhook authentication (fix #2 above enforces it once present).
-2. **`moderate-content` AI path is silently broken**: it POSTs `{ prompt }` to `ai-insights`, which ignores that field and returns a canned message, so moderation degrades to the static word-list. Either give `moderate-content` its own Lovable AI call or add a prompt mode to `ai-insights`.
+2. ~~**`moderate-content` AI path is silently broken**~~ **Fixed in this branch**: it POSTed `{ prompt }` to `ai-insights`, which ignores that field, so moderation silently degraded to the static word-list. It now calls the Lovable AI Gateway directly with the moderation prompt (word-list pre-check and fail-safe fallbacks unchanged).
 3. **Supabase advisors**: the MCP connection available during this review didn't have permission for project `gjkhkaywozuobhbcdysi`. Run Dashboard → Advisors → Security once and clear anything flagged (e.g. leaked-password protection, OTP expiry).
 4. `word_submissions` remains anonymously readable — fine while the word cloud is a public display; revisit if words become attributable.
 5. Consider Stripe webhooks (checkout.session.completed) instead of client-initiated `verify-pilot-payment` for payment truth.

@@ -30,18 +30,12 @@ serve(async (req) => {
       }), { headers: { ...corsHeaders, "content-type": "application/json" } });
     }
 
-    // Use Lovable AI for moderation
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const response = await fetch(`${supabaseUrl}/functions/v1/ai-insights`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${serviceKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: `You are a content moderator for a community wellness platform called Mindcast. Members share personal success stories about goals they set the previous week. Review the following submission for:
+    // AI moderation via the Lovable AI Gateway. (Previously this POSTed a
+    // `prompt` field to the ai-insights function, which ignores it — so the
+    // AI check never ran and everything fell through to the word list.)
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (LOVABLE_API_KEY) {
+      const systemPrompt = `You are a content moderator for a community wellness platform called Mindcast. Members share personal success stories about goals they set the previous week. Review the submission for:
 1. Profanity or offensive language
 2. Personal attacks or insults directed at anyone
 3. Private personal information (full names, addresses, phone numbers)
@@ -50,26 +44,40 @@ serve(async (req) => {
 
 A submission is acceptable if it is a genuine personal success story, even if it involves difficult emotions.
 
-Reply ONLY with valid JSON: {"safe": true/false, "reason": "brief reason if not safe, null if safe", "requires_manual": true/false}
+Reply ONLY with valid JSON: {"safe": true/false, "reason": "brief reason if not safe, null if safe", "requires_manual": true/false}`;
 
-Context: ${context}
-Submission: "${text}"`,
-      }),
-    });
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Context: ${context}\nSubmission: "${text}"` },
+          ],
+        }),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      const raw = data.content || data.text || JSON.stringify(data);
-      const match = raw.match(/\{[\s\S]*\}/);
-      if (match) {
-        const result = JSON.parse(match[0]);
-        return new Response(JSON.stringify({
-          approved: result.safe && !result.requires_manual,
-          flagged: !result.safe,
-          reason: result.reason || null,
-          requires_manual_review: result.requires_manual || false,
-        }), { headers: { ...corsHeaders, "content-type": "application/json" } });
+      if (response.ok) {
+        const data = await response.json();
+        const raw = data.choices?.[0]?.message?.content || "";
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (match) {
+          const result = JSON.parse(match[0]);
+          return new Response(JSON.stringify({
+            approved: result.safe === true && !result.requires_manual,
+            flagged: result.safe !== true,
+            reason: result.reason || null,
+            requires_manual_review: result.requires_manual === true,
+          }), { headers: { ...corsHeaders, "content-type": "application/json" } });
+        }
+      } else {
+        console.error("moderate-content: AI gateway error", response.status);
       }
+    } else {
+      console.warn("moderate-content: LOVABLE_API_KEY not set — word-list check only");
     }
 
     // Fallback: auto-approve if AI unavailable but no profanity detected
