@@ -130,7 +130,7 @@ const About = () => (
         playsInline
         className="absolute inset-0 w-full h-full object-cover opacity-15"
       >
-        <source src="/videos/waves_pulsating.mp4" type="video/mp4" />
+        <source src="/videos/hero-loop.mp4" type="video/mp4" />
       </video>
       <div className="absolute inset-0 bg-[hsl(var(--primary))]/85" />
       <div className="container mx-auto px-6 relative z-10 max-w-3xl">

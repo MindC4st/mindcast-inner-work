@@ -396,9 +396,15 @@ serve(async (req) => {
     );
 
     // 5. Submit Shotstack render with webhook back to shotstack-webhook fn.
-    const webhookUrl =
+    // SHOTSTACK_WEBHOOK_SECRET (when set) is checked by shotstack-webhook,
+    // so unauthenticated callers can't spoof render callbacks.
+    let webhookUrl =
       Deno.env.get("SHOTSTACK_WEBHOOK_URL") ||
       `${SUPABASE_URL}/functions/v1/shotstack-webhook`;
+    const webhookSecret = Deno.env.get("SHOTSTACK_WEBHOOK_SECRET");
+    if (webhookSecret) {
+      webhookUrl += `${webhookUrl.includes("?") ? "&" : "?"}token=${encodeURIComponent(webhookSecret)}`;
+    }
     const renderId = await submitShotstackRender({
       themeTitle: session.theme_title || "Mindcast",
       weekNumber: week_number,

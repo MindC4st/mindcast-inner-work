@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Activity, Moon, Utensils, Dumbbell } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import signalLogo from "@/assets/signal-logo.png";
-import signalSquare from "@/assets/signal-square.png";
-import signalBodyscan from "@/assets/signal-bodyscan.png";
-import signalMeditation from "@/assets/signal-meditation.png";
-import signalRecipe from "@/assets/signal-recipe.png";
+import signalLogo from "@/assets/signal-logo.webp";
+import signalSquare from "@/assets/signal-square.webp";
+import signalBodyscan from "@/assets/signal-bodyscan.webp";
+import signalMeditation from "@/assets/signal-meditation.webp";
+import signalRecipe from "@/assets/signal-recipe.webp";
 
 /* Signal brand palette */
 const SIG = {

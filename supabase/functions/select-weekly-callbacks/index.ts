@@ -26,6 +26,14 @@ const CALLBACKS_PER_PAIR = 20;
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // verify_jwt is off for this function, so gate it ourselves: the pg_cron
+  // schedule calls with the service-role key as the bearer. Without this,
+  // anyone could trigger the snapshot early with an incomplete pool.
+  const auth = req.headers.get("authorization") || "";
+  if (auth !== `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`) {
+    return json({ error: "Unauthorized" }, 401);
+  }
+
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
