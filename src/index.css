@@ -1,4 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=Bebas+Neue&display=swap');
+/* Self-hosted fonts (was a render-blocking Google Fonts request). */
+@import '@fontsource/montserrat/400.css';
+@import '@fontsource/montserrat/500.css';
+@import '@fontsource/montserrat/600.css';
+@import '@fontsource/montserrat/700.css';
+@import '@fontsource/montserrat/800.css';
+@import '@fontsource/montserrat/900.css';
+@import '@fontsource/cormorant-garamond/400.css';
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/cormorant-garamond/400-italic.css';
+@import '@fontsource/inter/300.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/bebas-neue/400.css';
 
 @tailwind base;
 @tailwind components;
@@ -72,6 +87,14 @@
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* GSAP entrance offsets (x: ±60) on below-the-fold sections otherwise
+       widen the page and cause horizontal scroll on mobile. `clip` avoids
+       creating a scroll container, so position:sticky keeps working. */
+    overflow-x: clip;
+  }
+
+  html {
+    overflow-x: clip;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);

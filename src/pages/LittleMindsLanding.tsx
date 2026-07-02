@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, Mic, Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import littleMindsLogo from "@/assets/littleminds-logo.png";
-import littleMindsHero from "@/assets/littleminds-hero.png";
-import littleMindsGarden from "@/assets/littleminds-garden.png";
-import littleMindsElephant from "@/assets/littleminds-elephant.png";
-import littleMindsBalloon from "@/assets/littleminds-balloon.png";
-import littleMindsButterfly from "@/assets/littleminds-butterfly.png";
+import littleMindsLogo from "@/assets/littleminds-logo.webp";
+import littleMindsHero from "@/assets/littleminds-hero.webp";
+import littleMindsGarden from "@/assets/littleminds-garden.webp";
+import littleMindsElephant from "@/assets/littleminds-elephant.webp";
+import littleMindsBalloon from "@/assets/littleminds-balloon.webp";
+import littleMindsButterfly from "@/assets/littleminds-butterfly.webp";
 
 /* Little Minds brand palette — warm storybook tones */
 const LM = {

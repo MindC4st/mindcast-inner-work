@@ -602,25 +602,25 @@ const StickyTimeline = () => {
       num: "01",
       title: "LISTEN BEFORE YOU ARRIVE",
       body: "Each week I curate one self-development podcast episode for the group. You listen in your own time — on your commute, at the gym, cooking dinner.",
-      image: "/images/headphones_man.png",
+      image: "/images/headphones_man.webp",
     },
     {
       num: "02",
       title: "WORK THROUGH THE WORKSHEET",
       body: "Before Tuesday, you complete a structured reflection. What landed? What challenged you? What do you want to explore further? You arrive prepared.",
-      image: "/images/worksheet_man.png",
+      image: "/images/worksheet_man.webp",
     },
     {
       num: "03",
       title: "DISCUSS WITH DEPTH",
       body: "Tuesday night is where the magic happens. A small group of curious adults — no surface level, no small talk. Real ideas, real application, real conversation.",
-      image: "/images/pool_group.png",
+      image: "/images/pool_group.webp",
     },
     {
       num: "04",
       title: "YOUR VOICE SHAPES THE ROOM",
       body: "Once a month you nominate the podcast. Your recommendation, your topic, your night to lead. And as a founding member, your feedback shapes what Mindcast becomes.",
-      image: "/images/speaker_group.png",
+      image: "/images/speaker_group.webp",
       badge: true,
     },
   ];
@@ -777,14 +777,14 @@ const VisionQuote = () => {
 /* ─── IMAGE GALLERY (Masonry) ─── */
 const ImageGallery = () => {
   const images = [
-    { src: "/images/gallery_1.png", label: "THE ARRIVAL" },
-    { src: "/images/gallery_2.png", label: "THE GATHERING" },
-    { src: "/images/gallery_3.png", label: "THE SESSION" },
-    { src: "/images/gallery_4.png", label: "THE WORK" },
-    { src: "/images/gallery_5.png", label: "THE CONVERSATION" },
-    { src: "/images/gallery_6.png", label: "THE SPACE" },
-    { src: "/images/gallery_7.png", label: "THE PRACTICE" },
-    { src: "/images/gallery_8.png", label: "THE COMMUNITY" },
+    { src: "/images/gallery_1.webp", label: "THE ARRIVAL" },
+    { src: "/images/gallery_2.webp", label: "THE GATHERING" },
+    { src: "/images/gallery_3.webp", label: "THE SESSION" },
+    { src: "/images/gallery_4.webp", label: "THE WORK" },
+    { src: "/images/gallery_5.webp", label: "THE CONVERSATION" },
+    { src: "/images/gallery_6.webp", label: "THE SPACE" },
+    { src: "/images/gallery_7.webp", label: "THE PRACTICE" },
+    { src: "/images/gallery_8.webp", label: "THE COMMUNITY" },
   ];
 
   return (
