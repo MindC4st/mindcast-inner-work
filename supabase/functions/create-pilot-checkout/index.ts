@@ -8,6 +8,28 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Stripe redirects the customer back to these URLs after checkout — only
+// ever send them to an origin we own.
+const safeOrigin = (raw: string | null): string => {
+  const fallback = "https://mindcast.co.nz";
+  if (!raw) return fallback;
+  try {
+    const u = new URL(raw);
+    const ok =
+      u.hostname === "mindcast.co.nz" ||
+      u.hostname.endsWith(".mindcast.co.nz") ||
+      u.hostname.endsWith(".lovable.app") ||
+      u.hostname === "localhost" ||
+      u.hostname === "127.0.0.1";
+    return ok ? u.origin : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const clip = (v: unknown, max: number): string | null =>
+  typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -30,6 +52,9 @@ serve(async (req) => {
     if (!fullName || !email) {
       throw new Error("Full name and email are required");
     }
+    if (typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error("A valid email address is required");
+    }
 
     // Check remaining spots
     const { count } = await supabaseAdmin
@@ -46,17 +71,17 @@ serve(async (req) => {
     const { data: application, error: appError } = await supabaseAdmin
       .from("pilot_applications")
       .insert({
-        full_name: fullName,
-        email,
-        phone: phone || null,
-        age_range: ageRange || null,
-        current_work: currentWork || null,
-        what_led_you_here: whatLedYouHere || null,
-        hoped_outcome: hopedOutcome || null,
-        past_achievement: pastAchievement || null,
-        current_obstacles: currentObstacles || null,
-        confirmed_attendance: confirmedAttendance || false,
-        agreed_terms: agreedTerms || false,
+        full_name: clip(fullName, 200),
+        email: email.trim().toLowerCase(),
+        phone: clip(phone, 40),
+        age_range: clip(ageRange, 40),
+        current_work: clip(currentWork, 2000),
+        what_led_you_here: clip(whatLedYouHere, 4000),
+        hoped_outcome: clip(hopedOutcome, 4000),
+        past_achievement: clip(pastAchievement, 4000),
+        current_obstacles: clip(currentObstacles, 4000),
+        confirmed_attendance: confirmedAttendance === true,
+        agreed_terms: agreedTerms === true,
         application_status: "pending_payment",
       })
       .select()
@@ -87,8 +112,8 @@ serve(async (req) => {
       ],
       mode: "payment",
       allow_promotion_codes: true,
-      success_url: `${req.headers.get("origin")}/pilot?success=true`,
-      cancel_url: `${req.headers.get("origin")}/pilot?canceled=true`,
+      success_url: `${safeOrigin(req.headers.get("origin"))}/pilot?success=true`,
+      cancel_url: `${safeOrigin(req.headers.get("origin"))}/pilot?canceled=true`,
       metadata: {
         application_id: application.id,
         pilot: "founding",

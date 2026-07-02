@@ -55,6 +55,11 @@ const nzDateString = (): string => {
   return fmt.format(new Date());
 };
 
+// Session content is admin-authored, but escape anyway so a stray character
+// (or a compromised row) can't inject markup into member emails.
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 const buildEmailHtml = (week: number, day: Day, practice: string, theme: string, lessonUrl: string) => {
   const intro = DAY_COPY[day].intro;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -69,9 +74,9 @@ const buildEmailHtml = (week: number, day: Day, practice: string, theme: string,
       .footer { margin-top:48px; font-size:11px; color:#7a8a9a; border-top:1px solid #e8e0d8; padding-top:24px; }
     </style></head><body><div class="container">
       <div class="badge">WEEK ${week} · ${day.toUpperCase()} PRACTICE</div>
-      <h1>${theme || "This week"}</h1>
+      <h1>${escapeHtml(theme) || "This week"}</h1>
       <p>${intro}</p>
-      <blockquote>"${practice}"</blockquote>
+      <blockquote>"${escapeHtml(practice)}"</blockquote>
       <a class="cta" href="${lessonUrl}">Open in coursebook →</a>
       <div class="footer">You're getting this because practice reminders are on. Adjust in <a href="https://mindcast.co.nz/portal/settings" style="color:#3585af;">your settings</a>.</div>
     </div></body></html>`;
@@ -79,6 +84,14 @@ const buildEmailHtml = (week: number, day: Day, practice: string, theme: string,
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // verify_jwt is off for this function, so gate it ourselves: the pg_cron
+  // schedule calls with the service-role key as the bearer. Without this,
+  // anyone on the internet could trigger member emails/pushes.
+  const auth = req.headers.get("authorization") || "";
+  if (auth !== `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`) {
+    return json({ error: "Unauthorized" }, 401);
+  }
 
   try {
     const body = await req.json().catch(() => ({}));

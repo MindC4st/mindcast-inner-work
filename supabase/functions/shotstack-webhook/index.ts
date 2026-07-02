@@ -24,11 +24,36 @@ const json = (body: unknown, status = 200) =>
     status,
   });
 
+// Shotstack cannot sign its callbacks, so only ever mirror files that live on
+// Shotstack-owned hosts — otherwise an unauthenticated POST could make us
+// publish an arbitrary URL's bytes into the public worksheets bucket.
+const isShotstackUrl = (raw: string): boolean => {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    return (
+      u.hostname === "cdn.shotstack.io" ||
+      u.hostname.endsWith(".shotstack.io") ||
+      /^shotstack-api-(v1|stage)-output\.s3(\.|-)[a-z0-9-]+\.amazonaws\.com$/.test(u.hostname)
+    );
+  } catch {
+    return false;
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
   try {
+    // Shared-secret gate: generate-session-video appends ?token=<secret> to
+    // the callback URL it registers with Shotstack. Enforced when configured.
+    const secret = Deno.env.get("SHOTSTACK_WEBHOOK_SECRET");
+    if (secret) {
+      const token = new URL(req.url).searchParams.get("token");
+      if (token !== secret) return json({ error: "Unauthorized" }, 401);
+    }
+
     const payload = await req.json();
     const renderId: string | undefined = payload?.id || payload?.response?.id;
     const status: string | undefined = (payload?.status || payload?.response?.status || "").toLowerCase();
@@ -59,6 +84,10 @@ serve(async (req) => {
       // Intermediate status (e.g. "rendering", "saving") — just record it.
       await supa.from("worksheets").update({ render_status: status || "processing" }).eq("id", row.id);
       return json({ ok: true, status });
+    }
+
+    if (!isShotstackUrl(mp4Url)) {
+      return json({ error: "Refusing to mirror non-Shotstack URL" }, 400);
     }
 
     // Download Shotstack's MP4, mirror into our bucket.
