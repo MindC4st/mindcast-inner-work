@@ -15,8 +15,8 @@ const AdminSessions = () => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate("/"); return; }
-    supabase.from("profiles").select("is_admin").eq("user_id", user.id).single().then(({ data }) => {
-      if (!data?.is_admin) { toast({ title: "Access denied", variant: "destructive" }); navigate("/"); }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "facilitator").maybeSingle().then(({ data }) => {
+      if (!data) { toast({ title: "Access denied", variant: "destructive" }); navigate("/"); }
     });
     fetchSessions();
   }, [user, authLoading]);

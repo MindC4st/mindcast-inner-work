@@ -15,12 +15,13 @@ const AdminApplicationsPage = () => {
     if (loading) return;
     if (!user) { navigate("/"); return; }
     supabase
-      .from("profiles")
-      .select("is_admin")
+      .from("user_roles")
+      .select("role")
       .eq("user_id", user.id)
-      .single()
+      .eq("role", "facilitator")
+      .maybeSingle()
       .then(({ data }) => {
-        if (!data?.is_admin) {
+        if (!data) {
           toast({ title: "Access denied", variant: "destructive" });
           navigate("/");
         }

@@ -16,14 +16,15 @@ const AdminLanding = () => {
       navigate("/");
       return;
     }
-    // Check is_admin on profiles
+    // Check facilitator role via user_roles (never trust profiles.is_admin — it's user-writable).
     supabase
-      .from("profiles")
-      .select("is_admin")
+      .from("user_roles")
+      .select("role")
       .eq("user_id", user.id)
-      .single()
+      .eq("role", "facilitator")
+      .maybeSingle()
       .then(({ data }) => {
-        if (!data?.is_admin) {
+        if (!data) {
           toast({ title: "Access denied", description: "You don't have access to that page.", variant: "destructive" });
           navigate("/");
         }
