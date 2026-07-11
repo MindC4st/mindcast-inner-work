@@ -419,7 +419,7 @@ const TracksSection = () => {
             EVERY AGE. THE SAME WORK.
           </h2>
           <p className="font-body text-navy/70 text-[16px] md:text-[17px] leading-relaxed">
-            Whānau-wide behaviour change starts with a shared language.
+            Family-wide behaviour change starts with a shared language.
             Adults, teens and kids each have their own workbook — different
             depth, different words, same weekly theme — so the conversation
             keeps going in the car, at the dinner table, at bedtime.
