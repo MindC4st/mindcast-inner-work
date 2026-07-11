@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS checkins_read_all ON public.check_ins;
