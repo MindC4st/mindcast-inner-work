@@ -334,7 +334,7 @@ const GatheringSection = () => {
           <div className="gathering-copy">
             <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE IDEA</span>
             <h2 className="font-display text-cream text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
-              WE ALL KNOW WHAT TO DO. WHY AREN'T WE DOING IT?
+              KNOWING BETTER ISN'T DOING BETTER.
             </h2>
             <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-6">
               We've listened to the podcast. Read the book. Saved the reel.
@@ -342,9 +342,9 @@ const GatheringSection = () => {
             </p>
             <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-8">
               Mindcast is a weekly live room built for the missing step —
-              <span className="text-cream"> follow-through.</span> A community
-              that helps you bring the unconscious to the conscious, set one
-              honest intention, and come back the following week to be held to it.
+              <span className="text-cream"> follow-through.</span> You set one
+              honest intention, come back seven days later, and get held to
+              it. Awareness into action, together.
             </p>
             <div className="grid grid-cols-2 gap-4 mb-10">
               {[
