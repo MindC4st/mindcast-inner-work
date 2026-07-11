@@ -10,7 +10,6 @@ import InstallPrompt from "@/components/InstallPrompt";
 // Route-level code splitting: every page loads on demand so first paint only
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
 // jspdf) stay inside the chunks of the pages that use them.
-const Index = lazy(() => import("./pages/Index"));
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -28,8 +27,6 @@ const AdminSessionRunner = lazy(() => import("./pages/admin/AdminSessionRunner")
 const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
 const AdminEmailReminders = lazy(() => import("./pages/admin/AdminEmailReminders"));
 const WorkbookRouter = lazy(() => import("./pages/WorkbookRouter"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Checkin = lazy(() => import("./pages/Checkin"));
 const WelcomeWall = lazy(() => import("./pages/display/WelcomeWall"));
 const GoalWall = lazy(() => import("./pages/display/GoalWall"));
 const WordCloud = lazy(() => import("./pages/display/WordCloud"));
@@ -37,10 +34,7 @@ const About = lazy(() => import("./pages/About"));
 const Pilot = lazy(() => import("./pages/Pilot"));
 const PilotSuccess = lazy(() => import("./pages/PilotSuccess"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
-const Session = lazy(() => import("./pages/Session"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const JoinEntry = lazy(() => import("./pages/JoinEntry"));
-const JoinSession = lazy(() => import("./pages/JoinSession"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PortalLogin = lazy(() => import("./pages/portal/PortalLogin"));
 const PortalDashboard = lazy(() => import("./pages/portal/PortalDashboard"));
