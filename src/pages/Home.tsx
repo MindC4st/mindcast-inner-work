@@ -515,8 +515,7 @@ const RhythmSection = () => {
           REFLECT. GATHER. COMMIT.
         </h2>
         <p className="font-body text-cream/70 text-[16px] leading-relaxed">
-          A cadence built around the only thing that actually changes behaviour —
-          coming back next week and being asked whether you did it.
+          A cadence built around the only thing that actually changes behaviour — coming back next week and being asked if you did it.
         </p>
       </div>
 
