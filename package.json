@@ -13,7 +13,6 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@capacitor-community/nfc": "^6.0.0",
     "@capacitor/android": "^6.1.2",
     "@capacitor/core": "^6.1.2",
     "@capacitor/ios": "^6.1.2",
@@ -54,7 +53,6 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@sentry/react": "^8.0.0",
     "@supabase/supabase-js": "^2.101.0",
-    "posthog-js": "^1.160.0",
     "@tanstack/react-query": "^5.83.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -67,6 +65,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
+    "posthog-js": "^1.160.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
