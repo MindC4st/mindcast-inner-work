@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const isAdmin = role === "admin" || profile?.is_admin === true;
   const isStaff = isAdmin || role === "facilitator";
-  const membershipStatus = profile?.membership_status ?? "none";
+  const membershipStatus = (profile as any)?.membership_status ?? "none";
 
   return (
     <AuthContext.Provider

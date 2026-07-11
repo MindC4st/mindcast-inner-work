@@ -59,7 +59,8 @@
     --white: 0 0% 100%;
     --ivory: 30 100% 98%;
     --warm-border: 214 32% 91%;
-    --bronze: 36 62% 48%;
+    /* Bronze retired — alias to brand blue so any legacy references stay on-brand. */
+    --bronze: 200 50% 45%;
     --cream: 30 100% 98%;
     --electric: 200 50% 38%;
 
