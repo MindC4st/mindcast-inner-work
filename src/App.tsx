@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import InstallPrompt from "@/components/InstallPrompt";
+import DevPageMenu from "@/components/DevPageMenu";
 
 // Route-level code splitting: every page loads on demand so first paint only
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
@@ -261,6 +262,7 @@ const App = () => (
           <RouteTitle />
           <AppRoutes />
           <InstallPrompt />
+          <DevPageMenu />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
