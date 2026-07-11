@@ -996,7 +996,6 @@ export type Database = {
           id: string
           is_active: boolean
           is_admin: boolean | null
-          membership_status: string
           name: string
           nfc_id: string | null
           notify_practice_email: boolean
@@ -1004,7 +1003,6 @@ export type Database = {
           onboarding_complete: boolean | null
           opt_in_public_goals: boolean | null
           show_attendance_on_screen: boolean | null
-          stripe_customer_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1018,7 +1016,6 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
-          membership_status?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1026,7 +1023,6 @@ export type Database = {
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
-          stripe_customer_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1040,7 +1036,6 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
-          membership_status?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1048,7 +1043,6 @@ export type Database = {
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
-          stripe_customer_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1692,7 +1686,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "member" | "facilitator" | "admin"
+      app_role: "member" | "facilitator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1820,7 +1814,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["member", "facilitator", "admin"],
+      app_role: ["member", "facilitator"],
     },
   },
 } as const
