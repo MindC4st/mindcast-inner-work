@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, ChevronLeft, Save, Loader2 } from "lucide-react";
@@ -6,8 +6,9 @@ import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useCurriculumWeeks, trackForAgeGroup, type CurriculumWeek } from "@/hooks/useCurriculumWeeks";
 
-/* ─── Session 1 Data ─── */
+/* ─── Session 1 fallback content (rich reflection deck for pilot opener) ─── */
 const SESSION_1 = {
   title: "Everything You Think You Know About Meaning and Happiness Is Wrong",
   guest: "Johann Hari",
@@ -40,25 +41,90 @@ const SESSION_1 = {
 const PortalWeek = () => {
   const { weekNumber } = useParams<{ weekNumber: string }>();
   const weekNum = parseInt(weekNumber || "1", 10);
-  const { user, cohortId } = useAuth();
+  const { user, cohortId, profile } = useAuth();
+  const track = trackForAgeGroup((profile as any)?.age_group);
+  const { weeks, loading: weeksLoading } = useCurriculumWeeks(track);
+  const curriculumWeek = useMemo(
+    () => weeks.find((w) => w.week_number === weekNum) ?? null,
+    [weeks, weekNum]
+  );
 
-  // For now, only session 1 has content
-  if (weekNum !== 1) {
+  // Session 1 keeps its hand-authored reflection deck; every other week reads
+  // from curriculum_weeks so facilitators can publish new sessions without a
+  // code change.
+  if (weekNum === 1) {
+    return <Session1Content userId={user?.id || null} cohortId={cohortId} />;
+  }
+
+  return (
+    <DynamicWeekContent
+      weekNum={weekNum}
+      curriculumWeek={curriculumWeek}
+      loading={weeksLoading}
+    />
+  );
+};
+
+const DynamicWeekContent = ({
+  weekNum,
+  curriculumWeek,
+  loading,
+}: {
+  weekNum: number;
+  curriculumWeek: CurriculumWeek | null;
+  loading: boolean;
+}) => {
+  if (loading) {
     return (
       <PortalLayout>
-        <div className="max-w-2xl mx-auto">
-          <Link to="/portal/dashboard" className="text-sm text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 transition-colors">
-            <ChevronLeft size={16} /> Back
-          </Link>
-          <div className="text-center py-20">
-            <p className="text-muted-foreground font-body">This session content is coming soon.</p>
-          </div>
+        <div className="max-w-2xl mx-auto flex items-center justify-center py-20">
+          <Loader2 size={20} className="animate-spin text-muted-foreground" />
         </div>
       </PortalLayout>
     );
   }
 
-  return <Session1Content userId={user?.id || null} cohortId={cohortId} />;
+  return (
+    <PortalLayout>
+      <div className="max-w-2xl mx-auto">
+        <Link
+          to="/portal/dashboard"
+          className="text-sm text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1 transition-colors"
+        >
+          <ChevronLeft size={16} /> Back
+        </Link>
+
+        <section className="mb-8">
+          <span className="portal-label text-foreground/40 block mb-2">
+            WEEK {String(weekNum).padStart(2, "0")}
+            {curriculumWeek?.block_theme ? ` · ${curriculumWeek.block_theme}` : ""}
+          </span>
+          <h1 className="heading-display text-2xl md:text-3xl text-foreground mb-3 leading-snug">
+            {curriculumWeek?.title || curriculumWeek?.weekly_theme || "Session coming soon"}
+          </h1>
+          {curriculumWeek?.source && (
+            <p className="text-sm text-muted-foreground font-body font-light">
+              {curriculumWeek.source}
+            </p>
+          )}
+        </section>
+
+        {curriculumWeek?.notes ? (
+          <div className="portal-card p-6 md:p-8 mb-12">
+            <p className="text-sm text-foreground/80 font-body font-light leading-relaxed whitespace-pre-wrap">
+              {curriculumWeek.notes}
+            </p>
+          </div>
+        ) : (
+          <div className="portal-card p-8 text-center">
+            <p className="text-sm text-muted-foreground font-body font-light">
+              This session opens on its scheduled Sunday. Check back soon.
+            </p>
+          </div>
+        )}
+      </div>
+    </PortalLayout>
+  );
 };
 
 function extractVideoId(url: string): string | null {
