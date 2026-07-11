@@ -30,7 +30,8 @@
       "Bash(py *)",
       "Bash(echo \"exit=$?\")",
       "Bash(node *)",
-      "mcp__Claude_Code_Remote__send_later"
+      "mcp__Claude_Code_Remote__send_later",
+      "mcp__Claude_Code_Remote__unsubscribe_pr_activity"
     ]
   }
 }
