@@ -97,6 +97,28 @@ const LiveJoin = () => {
         ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
       }
     });
+
+    // Durable fallback: if the presenter's broadcast hasn't reached us yet
+    // (late join / reconnect), resolve the current slide from the DB. A live
+    // broadcast that arrives after this still wins (it setState unconditionally).
+    (supabase as any)
+      .from("live_session_state")
+      .select("*")
+      .eq("session_code", sessionCode)
+      .maybeSingle()
+      .then(({ data }: { data: any }) => {
+        if (data && data.is_live) {
+          setState((prev) => prev ?? {
+            week: data.week_number,
+            audience: data.audience,
+            slide: data.current_slide,
+            promptType: data.prompt_type,
+            promptText: data.prompt_text,
+            title: data.title,
+          });
+        }
+      });
+
     return () => { supabase.removeChannel(ch); };
   }, [joined, sessionCode, submittedRowId]);
 

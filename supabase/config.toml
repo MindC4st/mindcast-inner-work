@@ -20,3 +20,18 @@ verify_jwt = false
 
 [functions.nfc-checkin]
 verify_jwt = false
+
+# Recurring membership billing.
+[functions.create-subscription-checkout]
+verify_jwt = true
+
+[functions.create-billing-portal]
+verify_jwt = true
+
+# Stripe calls this with its own signature, not a Supabase JWT.
+[functions.stripe-webhook]
+verify_jwt = false
+
+# Public uptime probe.
+[functions.health]
+verify_jwt = false

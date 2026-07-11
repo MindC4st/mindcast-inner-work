@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import InstallPrompt from "@/components/InstallPrompt";
 
 // Route-level code splitting: every page loads on demand so first paint only
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
@@ -51,6 +52,7 @@ const PortalDownloads = lazy(() => import("./pages/portal/PortalDownloads"));
 const PortalSettings = lazy(() => import("./pages/portal/PortalSettings"));
 const PortalProgress = lazy(() => import("./pages/portal/PortalProgress"));
 const PortalAdmin = lazy(() => import("./pages/portal/PortalAdmin"));
+const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
@@ -64,6 +66,11 @@ const LiveJoin = lazy(() => import("./pages/mindcast-live/LiveJoin"));
 const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
+const Kiosk = lazy(() => import("./pages/Kiosk"));
+const AdminScheduling = lazy(() => import("./pages/admin/AdminScheduling"));
+const AdminHouseholds = lazy(() => import("./pages/admin/AdminHouseholds"));
+const AdminMembership = lazy(() => import("./pages/admin/AdminMembership"));
+const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
 const Demo = lazy(() => import("./pages/Demo"));
 
 const queryClient = new QueryClient({
@@ -88,11 +95,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Session-admin UI: reachable by facilitators (run a live session) and admins.
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, role, loading } = useAuth();
+  const { session, isStaff, loading } = useAuth();
   if (loading) return <PageLoader />;
   if (!session) return <Navigate to="/portal/login" replace />;
-  if (role !== "facilitator") return <Navigate to="/portal/dashboard" replace />;
+  if (!isStaff) return <Navigate to="/portal/dashboard" replace />;
+  return <>{children}</>;
+};
+
+// Admin-only UI (payments, member/household management). Facilitators excluded.
+const AdminOnlyRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, isAdmin, loading } = useAuth();
+  if (loading) return <PageLoader />;
+  if (!session) return <Navigate to="/portal/login" replace />;
+  if (!isAdmin) return <Navigate to="/portal/dashboard" replace />;
   return <>{children}</>;
 };
 
@@ -119,6 +136,11 @@ const AppRoutes = () => (
       <Route path="/admin/session-runner" element={<AdminRoute><AdminSessionRunner /></AdminRoute>} />
       <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
       <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
+      <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
+      <Route path="/admin/scheduling" element={<AdminRoute><AdminScheduling /></AdminRoute>} />
+      <Route path="/admin/moderation" element={<AdminRoute><AdminModeration /></AdminRoute>} />
+      <Route path="/admin/households" element={<AdminOnlyRoute><AdminHouseholds /></AdminOnlyRoute>} />
+      <Route path="/admin/membership" element={<AdminOnlyRoute><AdminMembership /></AdminOnlyRoute>} />
       <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/checkin" element={<Checkin />} />
@@ -154,6 +176,7 @@ const AppRoutes = () => (
       <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
+      <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/refund" element={<RefundPage />} />
@@ -227,6 +250,7 @@ const App = () => (
           <ScrollToTop />
           <RouteTitle />
           <AppRoutes />
+          <InstallPrompt />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

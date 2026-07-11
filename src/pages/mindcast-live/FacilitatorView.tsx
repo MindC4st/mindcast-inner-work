@@ -234,6 +234,22 @@ const FacilitatorView = () => {
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
     const sendState = () => ch.send({ type: "broadcast", event: "state", payload });
 
+    // Durable mirror: broadcast is low-latency but ephemeral, so a late joiner
+    // or a reconnect can miss it. Persist the current state so LiveJoin can
+    // resolve it on mount regardless of presenter timing.
+    (supabase as any).from("live_session_state").upsert({
+      session_code: code,
+      week_number: week,
+      audience,
+      current_slide: slide,
+      prompt_type: promptType,
+      prompt_text: promptText,
+      title: session.theme_title,
+      is_live: true,
+      updated_by: user?.id ?? null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "session_code" }).then(() => {});
+
     // Re-send state whenever a member requests it (on join)
     ch.on("broadcast", { event: "hello" }, () => { sendState(); });
     ch.subscribe((status) => {

@@ -7,7 +7,13 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   profile: Tables<"profiles"> | null;
-  role: "member" | "facilitator" | null;
+  role: "member" | "facilitator" | "admin" | null;
+  /** True for a full admin (payments, member management, journals-policy owner). */
+  isAdmin: boolean;
+  /** True for admin OR facilitator — i.e. anyone who can run the session-admin UI. */
+  isStaff: boolean;
+  /** Coarse membership gate mirrored from Stripe: active/trialing/past_due/lapsed/paused/none. */
+  membershipStatus: string;
   cohortId: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -20,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
-  const [role, setRole] = useState<"member" | "facilitator" | null>(null);
+  const [role, setRole] = useState<"member" | "facilitator" | "admin" | null>(null);
   const [cohortId, setCohortId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -81,8 +87,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setCohortId(null);
   };
 
+  const isAdmin = role === "admin" || profile?.is_admin === true;
+  const isStaff = isAdmin || role === "facilitator";
+  const membershipStatus = profile?.membership_status ?? "none";
+
   return (
-    <AuthContext.Provider value={{ session, user, profile, role, cohortId, loading, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        session, user, profile, role, isAdmin, isStaff, membershipStatus,
+        cohortId, loading, signIn, signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

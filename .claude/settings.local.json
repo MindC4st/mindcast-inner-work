@@ -29,7 +29,8 @@
       "Bash(py -V)",
       "Bash(py *)",
       "Bash(echo \"exit=$?\")",
-      "Bash(node *)"
+      "Bash(node *)",
+      "mcp__Claude_Code_Remote__send_later"
     ]
   }
 }
