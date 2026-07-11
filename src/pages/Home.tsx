@@ -89,7 +89,7 @@ const CinematicNav = () => {
           ) : (
             <Link
               to="/pilot"
-              className="px-5 py-2 border border-cream/30 text-cream text-[11px] font-bold tracking-[0.12em] font-body hover:bg-cream hover:text-[#0f1e35] transition-all"
+              className="px-5 py-2 border border-cream/30 text-cream text-[11px] font-bold tracking-[0.12em] font-body hover:bg-cream hover:text-navy transition-all"
             >
               JOIN THE PILOT
             </Link>

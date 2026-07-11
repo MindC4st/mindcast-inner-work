@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowLeft, Check, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-// Standalone Q&A moderation queue across live sessions. Facilitator RLS now
-// exposes only is_public=true rows (private reflections stay private), so this
-// queue is exactly the shared-response stream awaiting a decision.
+// Standalone Q&A moderation queue across live sessions. Facilitator RLS only
+// exposes is_public=true rows, so this queue is the shared-response stream.
 
 type Resp = {
   id: string;
@@ -56,37 +56,53 @@ const AdminModeration = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5">
-        <Link to="/admin" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
-        <Link to="/admin" className="text-sm text-foreground/50 hover:text-foreground">← Admin</Link>
+      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-foreground/[0.06]">
+        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
+        <Link to="/admin" className="flex items-center gap-2 text-[10px] tracking-[0.12em] font-body text-foreground/40 hover:text-foreground/70">
+          <ArrowLeft size={12} /> ADMIN
+        </Link>
       </nav>
-      <div className="max-w-2xl mx-auto px-6 pt-10">
-        <h1 className="font-display text-2xl font-bold mb-1">Q&amp;A moderation</h1>
-        <p className="text-foreground/40 text-sm mb-6">Shared responses awaiting a decision update live.</p>
 
-        <h2 className="text-sm font-semibold mb-2">Pending ({pending.length})</h2>
+      <div className="max-w-3xl mx-auto px-6 pt-10 pb-16">
+        <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Admin</p>
+        <h1 className="font-display text-3xl md:text-4xl tracking-wider mb-2">Q&amp;A MODERATION</h1>
+        <p className="text-foreground/50 text-sm font-body mb-8">Shared responses awaiting a decision update live.</p>
+
+        <div className="flex items-baseline gap-2 mb-3">
+          <h2 className="font-display text-base tracking-wider">PENDING</h2>
+          <span className="text-[10px] font-body uppercase tracking-widest text-foreground/40">({pending.length})</span>
+        </div>
+        {pending.length === 0 && (
+          <p className="text-foreground/40 text-sm font-body border border-foreground/10 rounded-sm py-6 text-center mb-10">Nothing waiting.</p>
+        )}
         {pending.map((r) => (
-          <div key={r.id} className="border rounded p-3 mb-2">
-            <div className="flex justify-between text-xs text-foreground/40 mb-1">
+          <div key={r.id} className="border border-foreground/10 rounded-sm p-4 mb-2 bg-foreground/[0.02]">
+            <div className="flex justify-between items-center text-[10px] font-body uppercase tracking-widest text-foreground/40 mb-2">
               <span>{r.display_name} · {r.session_code}</span>
               <span>{new Date(r.created_at).toLocaleTimeString()}</span>
             </div>
-            <p className="text-sm mb-2">{r.response_text}</p>
+            <p className="text-sm text-foreground font-body mb-3 leading-relaxed">{r.response_text}</p>
             <div className="flex gap-2">
-              <button onClick={() => approve(r.id)} className="text-xs bg-primary text-primary-foreground rounded px-3 py-1">Approve</button>
-              <button onClick={() => hide(r.id)} className="text-xs border rounded px-3 py-1">Hide</button>
+              <button onClick={() => approve(r.id)} className="flex items-center gap-1.5 text-[10px] font-body font-semibold tracking-widest uppercase bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm px-3 py-2">
+                <Check size={12} strokeWidth={1.5} /> Approve
+              </button>
+              <button onClick={() => hide(r.id)} className="flex items-center gap-1.5 text-[10px] font-body font-semibold tracking-widest uppercase border border-foreground/15 text-foreground/70 hover:border-destructive/40 hover:text-destructive rounded-sm px-3 py-2">
+                <EyeOff size={12} strokeWidth={1.5} /> Hide
+              </button>
             </div>
           </div>
         ))}
-        {pending.length === 0 && <p className="text-foreground/40 text-sm mb-6">Nothing waiting.</p>}
 
-        <h2 className="text-sm font-semibold mt-8 mb-2">Recent decisions</h2>
-        {decided.slice(0, 30).map((r) => (
-          <div key={r.id} className="flex justify-between text-sm border-b border-foreground/[0.06] py-1.5">
-            <span className="truncate mr-2">{r.response_text}</span>
-            <span className="text-foreground/40 shrink-0">{r.hidden ? "hidden" : r.moderation_status}</span>
-          </div>
-        ))}
+        <h2 className="font-display text-base tracking-wider mt-10 mb-3">RECENT DECISIONS</h2>
+        <div className="border border-foreground/10 rounded-sm">
+          {decided.slice(0, 30).map((r) => (
+            <div key={r.id} className="flex justify-between items-center text-sm font-body border-b border-foreground/[0.06] last:border-0 px-4 py-2.5">
+              <span className="truncate mr-3 text-foreground/70">{r.response_text}</span>
+              <span className="text-[10px] font-body uppercase tracking-widest text-foreground/40 shrink-0">{r.hidden ? "hidden" : r.moderation_status}</span>
+            </div>
+          ))}
+          {decided.length === 0 && <p className="text-foreground/40 text-sm font-body py-6 text-center">Nothing yet.</p>}
+        </div>
       </div>
     </div>
   );
