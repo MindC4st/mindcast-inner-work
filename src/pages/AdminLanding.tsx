@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Radio, History, Users, Baby, BookOpen, Clapperboard, ClipboardList, Mail } from "lucide-react";
+import { Calendar, Radio, History, Users, Baby, BookOpen, Clapperboard, ClipboardList, Mail, Home, CalendarClock, CreditCard, MessageSquare, Nfc } from "lucide-react";
 
 const AdminLanding = () => {
   const { user, loading } = useAuth();
@@ -16,12 +16,13 @@ const AdminLanding = () => {
       navigate("/");
       return;
     }
-    // Check facilitator role via user_roles (never trust profiles.is_admin — it's user-writable).
+    // Check staff role via user_roles (never trust profiles.is_admin — it's user-writable).
+    // Facilitators run sessions; admins additionally manage members/payments.
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "facilitator")
+      .in("role", ["facilitator", "admin"])
       .maybeSingle()
       .then(({ data }) => {
         if (!data) {
@@ -42,6 +43,11 @@ const AdminLanding = () => {
     { label: "Session Runner", icon: Clapperboard, to: "/admin/session-runner", desc: "Run live sessions on TV" },
     { label: "Pilot Applications", icon: ClipboardList, to: "/admin/applications", desc: "Review pilot intake answers" },
     { label: "Email Reminders", icon: Mail, to: "/admin/emails", desc: "View and send weekly reminders" },
+    { label: "Scheduling", icon: CalendarClock, to: "/admin/scheduling", desc: "Schedule parallel adult/teen/child tracks" },
+    { label: "Households", icon: Home, to: "/admin/households", desc: "Link guardians and children" },
+    { label: "Membership", icon: CreditCard, to: "/admin/membership", desc: "Subscription & payment health" },
+    { label: "Q&A Moderation", icon: MessageSquare, to: "/admin/moderation", desc: "Review shared live responses" },
+    { label: "Check-in Kiosk", icon: Nfc, to: "/admin/kiosk", desc: "Staff NFC bracelet scan mode" },
   ];
 
   return (

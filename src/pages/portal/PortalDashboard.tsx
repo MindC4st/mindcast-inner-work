@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Lock, CheckCircle, PlayCircle, ArrowRight, Headphones, Target } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
+import TodaysSessionBanner from "@/components/portal/TodaysSessionBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -54,6 +55,8 @@ const PortalDashboard = () => {
           Term 1 — Taupō Pilot
         </p>
       </motion.div>
+
+      <TodaysSessionBanner />
 
       {/* This Week's Session — Hero card */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5 }}>

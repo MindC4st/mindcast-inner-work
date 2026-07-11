@@ -67,6 +67,10 @@ const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
+const AdminScheduling = lazy(() => import("./pages/admin/AdminScheduling"));
+const AdminHouseholds = lazy(() => import("./pages/admin/AdminHouseholds"));
+const AdminMembership = lazy(() => import("./pages/admin/AdminMembership"));
+const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
 const Demo = lazy(() => import("./pages/Demo"));
 
 const queryClient = new QueryClient({
@@ -133,6 +137,10 @@ const AppRoutes = () => (
       <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
       <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
       <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
+      <Route path="/admin/scheduling" element={<AdminRoute><AdminScheduling /></AdminRoute>} />
+      <Route path="/admin/moderation" element={<AdminRoute><AdminModeration /></AdminRoute>} />
+      <Route path="/admin/households" element={<AdminOnlyRoute><AdminHouseholds /></AdminOnlyRoute>} />
+      <Route path="/admin/membership" element={<AdminOnlyRoute><AdminMembership /></AdminOnlyRoute>} />
       <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/checkin" element={<Checkin />} />

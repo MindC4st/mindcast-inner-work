@@ -59,6 +59,16 @@ Deferred within Phase 2: the standalone Q&A **moderation-queue** screen (inline 
 
 Deferred within Phase 3: member in-app "tap to check in" screen (kiosk + `nfc.ts` cover the pipeline; the member-facing tap UI is a thin wrapper to add during the app build).
 
+## Admin UI
+- **Role-split fix:** `AdminLanding` gated on `role='facilitator'` only, which would have locked out pure `admin` accounts after the Phase 1 split — now accepts `facilitator` **or** `admin`. New tiles added.
+- `AdminScheduling` (`/admin/scheduling`, staff) — create/update parallel Adult/Teen/Child sessions per day, mark live/ended (`scheduled_sessions`).
+- `AdminHouseholds` (`/admin/households`, admin-only) — create households, link guardians + children; this is what powers guardian journal read-access.
+- `AdminMembership` (`/admin/membership`, admin-only) — subscription & membership-status health (reads `subscriptions` + `profiles.membership_status`).
+- `AdminModeration` (`/admin/moderation`, staff) — standalone live Q&A moderation queue with realtime updates (sees only `is_public=true` rows).
+- Member side: `TodaysSessionBanner` on the dashboard surfaces today's session for the member's track and deep-links to the live room; `/portal/billing` added to the portal nav.
+
+New tables (`households`, `household_members`, `subscriptions`, `scheduled_sessions`, `live_session_state`) are accessed via `(supabase as any)` casts in these pages until `types.ts` is regenerated from the live DB post-migration.
+
 ## Verification done
 - `tsc --noEmit -p tsconfig.app.json` — clean (Phase 0/1 and Phase 2).
 - `vite build` — succeeds (Phase 0/1).
