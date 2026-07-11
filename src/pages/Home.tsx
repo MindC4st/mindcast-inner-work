@@ -32,7 +32,7 @@ const CinematicNav = () => {
   }, []);
 
   const links = [
-    { label: "THE GATHERING", href: "#gathering" },
+    { label: "THE IDEA", href: "#gathering" },
     { label: "THREE TRACKS", href: "#tracks" },
     { label: "THE RHYTHM", href: "#rhythm" },
     { label: "ABOUT", href: "/about" },
@@ -173,23 +173,23 @@ const HeroSection = () => {
           style={{ color: "#c5e3f3", fontFamily: "var(--font-display)" }}
         >
           <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#3585af" }} />
-          COMING SOON · NEW ZEALAND
+          COMING SOON · AOTEAROA NEW ZEALAND
         </motion.span>
 
         <h1 className="font-display text-cream text-[52px] sm:text-[76px] md:text-[104px] lg:text-[132px] uppercase leading-[0.9] tracking-[0.02em]">
-          {"ONE THEME.".split(" ").map((w, i) => (
+          {"TUNE INTO".split(" ").map((w, i) => (
             <span key={`a${i}`} className="hero-word inline-block mr-[0.2em]">{w}</span>
           ))}
           <br />
-          {"THREE GENERATIONS.".split(" ").map((w, i) => (
+          {"YOUR INNER SELF.".split(" ").map((w, i) => (
             <span key={`b${i}`} className="hero-word inline-block mr-[0.2em]">{w}</span>
           ))}
         </h1>
 
         <p className="hero-sub mt-8 text-[15px] md:text-[17px] font-body max-w-2xl mx-auto leading-relaxed" style={{ color: "#e6f1f8" }}>
-          A facilitated live gathering — a modern, secular alternative to Sunday service.
-          Adults, teens, and children work through the same weekly theme in parallel,
-          then take the practice home together.
+          We consume more self-development than any generation before us — and apply almost none of it.
+          Mindcast is a weekly live gathering built for follow-through: a room that holds you accountable
+          to the things you already know you should do.
         </p>
 
         <div className="hero-cta mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -241,11 +241,10 @@ const ManifestoSection = () => {
   }, []);
 
   const lines = [
-    "Most families consume ideas separately.",
-    "Different podcasts. Different feeds. Different rooms.",
-    "Mindcast is one shared practice —",
-    "a place where parents, teens, and children",
-    "learn to notice, name, and rewire together.",
+    "You are unaware, and you don't change.",
+    "You are aware, and you still don't change.",
+    "You are aware — and you do.",
+    "Mindcast is the room built for that third one.",
   ];
 
   return (
@@ -270,7 +269,33 @@ const ManifestoSection = () => {
         <div className="mt-16 flex flex-col items-center gap-4">
           <div className="w-20 h-[2px]" style={{ background: "#3585af" }} />
           <span className="text-[13px] tracking-[0.3em] font-display" style={{ color: "#3585af" }}>
-            NOTICE. NAME. REWIRE.
+            UNCONSCIOUS → CONSCIOUS → CHANGED.
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ─── POSITIONING STRIP ─── */
+const PositioningStrip = () => {
+  const labels = [
+    "NOT THERAPY",
+    "NOT RELIGION",
+    "NOT SELF-HELP",
+    "NOT A PODCAST",
+  ];
+  return (
+    <section className="section-cream border-y-[3px] border-primary py-10">
+      <div className="container mx-auto px-6">
+        <div className="flex flex-wrap justify-center md:justify-between items-center gap-x-8 gap-y-3">
+          {labels.map((l) => (
+            <span key={l} className="font-display text-[16px] md:text-[22px] tracking-[0.15em] text-navy/30">
+              {l}
+            </span>
+          ))}
+          <span className="font-display text-[18px] md:text-[24px] tracking-[0.15em] text-primary">
+            A STRUCTURED WEEKLY PRACTICE.
           </span>
         </div>
       </div>
@@ -306,21 +331,25 @@ const GatheringSection = () => {
           </div>
 
           <div className="gathering-copy">
-            <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE GATHERING</span>
+            <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE IDEA</span>
             <h2 className="font-display text-cream text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
-              A LIVE WEEKLY PRACTICE — FOR EVERY GENERATION UNDER ONE ROOF.
+              WE ALL KNOW WHAT TO DO. WHY AREN'T WE DOING IT?
             </h2>
+            <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-6">
+              We've listened to the podcast. Read the book. Saved the reel.
+              Then Monday arrives and nothing actually changes.
+            </p>
             <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-8">
-              A facilitated Sunday gathering with parallel sessions for adults,
-              teens, and children — all working through the same weekly theme.
-              Warm, secular, human. Structured space for the inner work most of
-              us never learned how to do.
+              Mindcast is a weekly live room built for the missing step —
+              <span className="text-cream"> follow-through.</span> A community
+              that helps you bring the unconscious to the conscious, set one
+              honest intention, and come back the following week to be held to it.
             </p>
             <div className="grid grid-cols-2 gap-4 mb-10">
               {[
                 { k: "Format", v: "Live, in person" },
                 { k: "Cadence", v: "Weekly" },
-                { k: "Tracks", v: "Three, in parallel" },
+                { k: "Tracks", v: "Adults · Teens · Kids" },
                 { k: "Status", v: "Coming soon" },
               ].map((s) => (
                 <div key={s.k} className="border-l-2 border-primary/40 pl-4">
@@ -386,12 +415,13 @@ const TracksSection = () => {
         <div className="max-w-3xl mx-auto text-center mb-16 md:mb-20">
           <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THREE TRACKS · ONE THEME</span>
           <h2 className="font-display text-navy text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
-            EVERY AGE. THE SAME PRACTICE.
+            EVERY AGE. THE SAME WORK.
           </h2>
           <p className="font-body text-navy/70 text-[16px] md:text-[17px] leading-relaxed">
-            Adults, teens, and children each have their own interactive course book —
-            different depth, different language, but always the same weekly theme.
-            So what you learn on Sunday can be shared, questioned, and continued at home.
+            Whānau-wide behaviour change starts with a shared language.
+            Adults, teens and kids each have their own workbook — different
+            depth, different words, same weekly theme — so the conversation
+            keeps going in the car, at the dinner table, at bedtime.
           </p>
         </div>
 
@@ -419,10 +449,10 @@ const TracksSection = () => {
         </div>
 
         <div className="mt-16 md:mt-20 relative aspect-[16/10] md:aspect-[16/7] overflow-hidden">
-          <img src={threeWorkbooks} alt="Three open workbooks side by side" loading="lazy" className="w-full h-full object-cover" />
+          <img src={threeWorkbooks} alt="A Mindcast wristband being tapped at the door" loading="lazy" className="w-full h-full object-cover" />
         </div>
         <p className="text-center mt-6 font-body italic text-navy/60 text-[15px] max-w-2xl mx-auto" style={{ fontFamily: "var(--font-serif)" }}>
-          "Three workbooks. One conversation the whole family can keep having."
+          "One wristband. One theme. One conversation the whole whānau can keep having."
         </p>
       </div>
     </section>
@@ -452,25 +482,25 @@ const RhythmSection = () => {
   const steps = [
     {
       num: "01",
-      day: "SUNDAY",
-      title: "THE LESSON",
-      body: "Everyone gathers. Adults, teens, and children move into their own rooms and work through the same theme in parallel — through workbooks, prompts, and live facilitation.",
-      image: facilitatorRoom,
+      day: "OPEN",
+      title: "REFLECT ON LAST WEEK",
+      body: "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data. This is the accountability loop most self-development is missing.",
+      image: lifeGroup,
       icon: Sparkles,
     },
     {
       num: "02",
-      day: "TUESDAY",
-      title: "LIFE GROUP",
-      body: "A smaller adult-only gathering. Revisit the week's course book, re-watch the related podcast or YouTube clip, and add deeper notes together.",
-      image: lifeGroup,
+      day: "GATHER",
+      title: "THIS WEEK'S LESSON",
+      body: "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious.",
+      image: facilitatorRoom,
       icon: Podcast,
     },
     {
       num: "03",
-      day: "AT HOME",
-      title: "THE PRACTICE",
-      body: "Because every generation worked through the same theme, the conversation continues at the dinner table, on the drive, at bedtime. The practice becomes family life.",
+      day: "COMMIT",
+      title: "ONE INTENTION. ACTIONED.",
+      body: "Before you leave, you write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes.",
       image: heroFamily,
       icon: HomeIcon,
     },
@@ -481,11 +511,11 @@ const RhythmSection = () => {
       <div className="container mx-auto px-6 pt-20 md:pt-24 pb-8 max-w-4xl text-center">
         <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE WEEKLY RHYTHM</span>
         <h2 className="font-display text-cream text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
-          SUNDAY. TUESDAY. HOME.
+          REFLECT. GATHER. COMMIT.
         </h2>
         <p className="font-body text-cream/70 text-[16px] leading-relaxed">
-          A cadence built around how change actually happens — noticed in the room,
-          named in reflection, rewired in daily life.
+          A cadence built around the only thing that actually changes behaviour —
+          coming back next week and being asked whether you did it.
         </p>
       </div>
 
@@ -550,7 +580,7 @@ const VisionQuote = () => {
     return () => ctx.revert();
   }, []);
 
-  const quote = "The things that shaped who we are used to happen in community — across generations, in shared rooms. Mindcast is bringing that back.";
+  const quote = "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes that gap — together, every week.";
 
   return (
     <section ref={sectionRef} className="section-cream grain-overlay relative min-h-screen flex items-center py-24">
@@ -603,11 +633,11 @@ const FinalCTA = () => (
         transition={{ duration: 0.8 }}
         className="font-display text-cream text-[56px] md:text-[104px] tracking-[0.02em] leading-[0.9] uppercase mb-6"
       >
-        BRING THE WHOLE FAMILY.
+        STOP CONSUMING. START DOING.
       </motion.h2>
       <p className="font-body text-[16px] md:text-[19px] mb-10 text-cream/75 leading-relaxed">
-        The first Mindcast gatherings are forming now. Join the waitlist to be
-        invited when doors open in your area.
+        The first Mindcast gatherings are forming across Aotearoa. Add your
+        name to the waitlist and we'll invite you when doors open near you.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
@@ -635,6 +665,7 @@ const Home = () => {
       <CinematicNav />
       <HeroSection />
       <ManifestoSection />
+      <PositioningStrip />
       <GatheringSection />
       <TracksSection />
       <RhythmSection />
