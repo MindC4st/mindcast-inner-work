@@ -187,10 +187,9 @@ const HeroSection = () => {
         </h1>
 
         <p className="hero-sub mt-8 text-[15px] md:text-[17px] font-body max-w-2xl mx-auto leading-relaxed" style={{ color: "#e6f1f8" }}>
-          Knowing better isn't doing better. We consume endless self-development
-          and rarely act on it. Mindcast is a weekly live gathering built for
-          follow-through — you set an intention, come back seven days later, and
-          get held to it.
+          We consume more self-development than any generation before us — and apply almost none of it.
+          Mindcast is a weekly live gathering built for follow-through: a room that holds you accountable
+          to the things you already know you should do.
         </p>
 
         <div className="hero-cta mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -242,10 +241,10 @@ const ManifestoSection = () => {
   }, []);
 
   const lines = [
-    "Knowing better isn't doing better.",
-    "You consume it. You agree with it. Nothing shifts.",
-    "You act on it — with a room that asks you back.",
-    "Mindcast is built for that last one.",
+    "You are unaware, and you don't change.",
+    "You are aware, and you still don't change.",
+    "You are aware — and you do.",
+    "Mindcast is the room built for that third one.",
   ];
 
   return (
@@ -270,7 +269,7 @@ const ManifestoSection = () => {
         <div className="mt-16 flex flex-col items-center gap-4">
           <div className="w-20 h-[2px]" style={{ background: "#3585af" }} />
           <span className="text-[13px] tracking-[0.3em] font-display" style={{ color: "#3585af" }}>
-            AWARENESS → ACTION → EVERY WEEK.
+            UNCONSCIOUS → CONSCIOUS → CHANGED.
           </span>
         </div>
       </div>
@@ -334,7 +333,7 @@ const GatheringSection = () => {
           <div className="gathering-copy">
             <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE IDEA</span>
             <h2 className="font-display text-cream text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
-              KNOWING BETTER ISN'T DOING BETTER.
+              WE ALL KNOW WHAT TO DO. WHY AREN'T WE DOING IT?
             </h2>
             <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-6">
               We've listened to the podcast. Read the book. Saved the reel.
@@ -342,9 +341,9 @@ const GatheringSection = () => {
             </p>
             <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-8">
               Mindcast is a weekly live room built for the missing step —
-              <span className="text-cream"> follow-through.</span> You set one
-              honest intention, come back seven days later, and get held to
-              it. Awareness into action, together.
+              <span className="text-cream"> follow-through.</span> A community
+              that helps you bring the unconscious to the conscious, set one
+              honest intention, and come back the following week to be held to it.
             </p>
             <div className="grid grid-cols-2 gap-4 mb-10">
               {[
@@ -419,7 +418,7 @@ const TracksSection = () => {
             EVERY AGE. THE SAME WORK.
           </h2>
           <p className="font-body text-navy/70 text-[16px] md:text-[17px] leading-relaxed">
-            Family-wide behaviour change starts with a shared language.
+            Whānau-wide behaviour change starts with a shared language.
             Adults, teens and kids each have their own workbook — different
             depth, different words, same weekly theme — so the conversation
             keeps going in the car, at the dinner table, at bedtime.
@@ -453,7 +452,7 @@ const TracksSection = () => {
           <img src={threeWorkbooks} alt="A Mindcast wristband being tapped at the door" loading="lazy" className="w-full h-full object-cover" />
         </div>
         <p className="text-center mt-6 font-body italic text-navy/60 text-[15px] max-w-2xl mx-auto" style={{ fontFamily: "var(--font-serif)" }}>
-          "One wristband. One theme. One conversation the whole family can keep having."
+          "One wristband. One theme. One conversation the whole whānau can keep having."
         </p>
       </div>
     </section>
@@ -485,7 +484,7 @@ const RhythmSection = () => {
       num: "01",
       day: "OPEN",
       title: "REFLECT ON LAST WEEK",
-      body: "Every session opens the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? No shame, just honest data. This is the accountability loop most self-development skips entirely.",
+      body: "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data. This is the accountability loop most self-development is missing.",
       image: lifeGroup,
       icon: Sparkles,
     },
@@ -493,7 +492,7 @@ const RhythmSection = () => {
       num: "02",
       day: "GATHER",
       title: "THIS WEEK'S LESSON",
-      body: "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. Not more information. Awareness you can actually act on.",
+      body: "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious.",
       image: facilitatorRoom,
       icon: Podcast,
     },
@@ -501,7 +500,7 @@ const RhythmSection = () => {
       num: "03",
       day: "COMMIT",
       title: "ONE INTENTION. ACTIONED.",
-      body: "Before you leave, you write one specific thing you'll do this week. It goes in the workbook, and it comes back with you next Sunday. Awareness into action, every week, together.",
+      body: "Before you leave, you write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes.",
       image: heroFamily,
       icon: HomeIcon,
     },
@@ -515,7 +514,8 @@ const RhythmSection = () => {
           REFLECT. GATHER. COMMIT.
         </h2>
         <p className="font-body text-cream/70 text-[16px] leading-relaxed">
-          A cadence built around the only thing that actually changes behaviour — coming back next week and being asked if you did it.
+          A cadence built around the only thing that actually changes behaviour —
+          coming back next week and being asked whether you did it.
         </p>
       </div>
 
@@ -580,7 +580,7 @@ const VisionQuote = () => {
     return () => ctx.revert();
   }, []);
 
-  const quote = "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes the gap — awareness into action, every week.";
+  const quote = "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes that gap — together, every week.";
 
   return (
     <section ref={sectionRef} className="section-cream grain-overlay relative min-h-screen flex items-center py-24">
@@ -636,9 +636,8 @@ const FinalCTA = () => (
         STOP CONSUMING. START DOING.
       </motion.h2>
       <p className="font-body text-[16px] md:text-[19px] mb-10 text-cream/75 leading-relaxed">
-        From awareness to action — every week. The first Mindcast gatherings are
-        forming across Aotearoa. Add your name to the waitlist and we'll invite
-        you when doors open near you.
+        The first Mindcast gatherings are forming across Aotearoa. Add your
+        name to the waitlist and we'll invite you when doors open near you.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
