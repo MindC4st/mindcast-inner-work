@@ -207,7 +207,7 @@ const ScrollToTop = () => {
 
 // Per-route document titles so browser tabs, history and search results are
 // meaningful. Longest prefix wins; falls back to the brand default.
-const DEFAULT_TITLE = "Mindcast — Weekly Gathering for Growth";
+const DEFAULT_TITLE = "Mindcast — Tune Into Your Inner Self";
 const TITLE_MAP: [string, string][] = [
   ["/portal/dashboard", "Dashboard · Mindcast Portal"],
   ["/portal/weeks", "Weekly Sessions · Mindcast Portal"],

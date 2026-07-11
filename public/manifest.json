@@ -1,6 +1,7 @@
 {
-  "name": "Mindcast",
+  "name": "Mindcast — Tune Into Your Inner Self",
   "short_name": "Mindcast",
+  "description": "Weekly live gatherings that turn self-development into follow-through — awareness into action, and real behaviour change. No religion.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fffaf6",
