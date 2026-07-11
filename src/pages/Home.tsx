@@ -580,7 +580,7 @@ const VisionQuote = () => {
     return () => ctx.revert();
   }, []);
 
-  const quote = "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes that gap — together, every week.";
+  const quote = "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes the gap — awareness into action, every week.";
 
   return (
     <section ref={sectionRef} className="section-cream grain-overlay relative min-h-screen flex items-center py-24">
