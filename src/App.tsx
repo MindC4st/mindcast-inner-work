@@ -118,11 +118,10 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/demo" element={<Demo />} />
-      <Route path="/classic" element={<Index />} />
       <Route path="/auth" element={<Auth />} />
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/join" element={<JoinEntry />} />
-      <Route path="/join/:code" element={<JoinSession />} />
+
+      {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminLanding /></AdminRoute>} />
       <Route path="/admin/sessions" element={<AdminRoute><AdminSessions /></AdminRoute>} />
       <Route path="/admin/sessions/:id" element={<AdminRoute><AdminSessionEditor /></AdminRoute>} />
@@ -141,29 +140,8 @@ const AppRoutes = () => (
       <Route path="/admin/moderation" element={<AdminRoute><AdminModeration /></AdminRoute>} />
       <Route path="/admin/households" element={<AdminOnlyRoute><AdminHouseholds /></AdminOnlyRoute>} />
       <Route path="/admin/membership" element={<AdminOnlyRoute><AdminMembership /></AdminOnlyRoute>} />
-      <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/checkin" element={<Checkin />} />
-      <Route path="/display" element={<WelcomeWall />} />
-      <Route path="/display/goals" element={<GoalWall />} />
-      <Route path="/display/wordcloud" element={<WordCloud />} />
-      <Route path="/little-minds" element={<LittleMindsLanding />} />
-      <Route path="/signal" element={<SignalLanding />} />
-      <Route path="/connect" element={<ConnectLanding />} />
-      <Route path="/live" element={<ComingSoon />} />
-      <Route path="/live/:code" element={<LiveJoin />} />
-      <Route path="/b/:token" element={<BraceletTap />} />
-      <Route path="/mindcast-live/library" element={<ProtectedRoute><MindcastLibrary /></ProtectedRoute>} />
-      <Route path="/mindcast-live/lesson/:weekNumber" element={<ProtectedRoute><MindcastLesson /></ProtectedRoute>} />
-      <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
-      <Route path="/resources" element={<ComingSoon />} />
-      <Route path="/membership" element={<Navigate to="/pilot" replace />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/ecosystem" element={<ComingSoon />} />
-      <Route path="/pilot" element={<Pilot />} />
-      <Route path="/pilot/success" element={<PilotSuccess />} />
-      <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
-      <Route path="/session/:sessionId" element={<Session />} />
+
+      {/* Portal (life-group companion) */}
       <Route path="/portal/login" element={<PortalLogin />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
@@ -177,11 +155,49 @@ const AppRoutes = () => (
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
+      <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
+
+      {/* Sunday Live (facilitator + members) */}
+      <Route path="/live" element={<ComingSoon />} />
+      <Route path="/live/:code" element={<LiveJoin />} />
+      <Route path="/b/:token" element={<BraceletTap />} />
+      <Route path="/mindcast-live/library" element={<ProtectedRoute><MindcastLibrary /></ProtectedRoute>} />
+      <Route path="/mindcast-live/lesson/:weekNumber" element={<ProtectedRoute><MindcastLesson /></ProtectedRoute>} />
+      <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
+
+      {/* Public displays */}
+      <Route path="/display" element={<WelcomeWall />} />
+      <Route path="/display/goals" element={<GoalWall />} />
+      <Route path="/display/wordcloud" element={<WordCloud />} />
+
+      {/* Marketing */}
+      <Route path="/about" element={<About />} />
+      <Route path="/pilot" element={<Pilot />} />
+      <Route path="/pilot/success" element={<PilotSuccess />} />
+      <Route path="/little-minds" element={<LittleMindsLanding />} />
+      <Route path="/signal" element={<SignalLanding />} />
+      <Route path="/connect" element={<ConnectLanding />} />
+      <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
+
+      {/* Legal */}
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/refund" element={<RefundPage />} />
       <Route path="/safeguarding" element={<SafeguardingPage />} />
-      <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
+
+      {/* Retired routes → forwarded to the current equivalents (Phase 5).
+          Files remain in the repo for one more sweep, then get removed. */}
+      <Route path="/classic" element={<Navigate to="/" replace />} />
+      <Route path="/ecosystem" element={<Navigate to="/" replace />} />
+      <Route path="/resources" element={<Navigate to="/" replace />} />
+      <Route path="/membership" element={<Navigate to="/pilot" replace />} />
+      <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
+      <Route path="/dashboard" element={<Navigate to="/portal/dashboard" replace />} />
+      <Route path="/checkin" element={<Navigate to="/portal/dashboard" replace />} />
+      <Route path="/join" element={<Navigate to="/live" replace />} />
+      <Route path="/join/:code" element={<Navigate to="/live" replace />} />
+      <Route path="/session/:sessionId" element={<Navigate to="/portal/weeks" replace />} />
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   </Suspense>
