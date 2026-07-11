@@ -34,7 +34,15 @@ Ships the safety-critical journal fix (Phase 0) and the identity + recurring-bil
 - **Field-level encryption** for child journal columns (Phase 1 follow-up; RLS-locked-to-owner ships first, as recommended).
 - Phase 2+ (durable live-session state, track scheduling, Q&A rate limiting, PWA offline shell, Capacitor NFC) — per the audit's build order.
 
+## Phase 2 — live-engine hardening (`20260711130000_phase2_live_hardening.sql`)
+- **session_responses privacy (important):** facilitators could read *every* response, including members' private `is_public=false` coursebook reflections. Replaced `responses_facilitator_read` with `responses_staff_read_public` (staff see shared rows only) and added `responses_own_read` so members can revisit their own reflections. Staff moderate/delete now includes `admin`.
+- **Durable live state:** new `live_session_state` table (per `session_code`). `FacilitatorView` upserts on every slide change; `LiveJoin` resolves it on mount so late joiners / reconnects catch up without waiting for the presenter to re-emit. Broadcast still drives low-latency updates; the table is the fallback.
+- **Q&A rate limiting:** `session_responses_rate_limit()` BEFORE INSERT trigger — max 1 submission / 4s per actor per session, plus a 60/10s whole-session flood cap.
+- **Track scheduling:** `scheduled_sessions` (one row per date × Adult/Teen/Child track) with staff-manage / member-read RLS. Foundation for "today's session for my track" and the admin scheduler (reader UI lands with the admin dashboard).
+
+Deferred within Phase 2: the standalone Q&A **moderation-queue** screen (inline approve/deny already works in `FacilitatorView`) and the dashboard "today's session" banner — both fold into the admin-UI pass.
+
 ## Verification done
-- `tsc --noEmit -p tsconfig.app.json` — clean.
-- `vite build` — succeeds.
+- `tsc --noEmit -p tsconfig.app.json` — clean (Phase 0/1 and Phase 2).
+- `vite build` — succeeds (Phase 0/1).
 - Runtime RLS behaviour needs a live DB to exercise (apply to a Supabase **branch** first and test as a member vs facilitator vs guardian before production).
