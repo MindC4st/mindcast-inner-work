@@ -636,8 +636,9 @@ const FinalCTA = () => (
         STOP CONSUMING. START DOING.
       </motion.h2>
       <p className="font-body text-[16px] md:text-[19px] mb-10 text-cream/75 leading-relaxed">
-        The first Mindcast gatherings are forming across Aotearoa. Add your
-        name to the waitlist and we'll invite you when doors open near you.
+        From awareness to action — every week. The first Mindcast gatherings are
+        forming across Aotearoa. Add your name to the waitlist and we'll invite
+        you when doors open near you.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
