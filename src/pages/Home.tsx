@@ -3,17 +3,17 @@ import { Link } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
-import { ChevronDown, Headphones, ClipboardList, MessageCircle, CalendarDays, MapPin } from "lucide-react";
-import heroCouple from "@/assets/hero-couple.jpg";
-import heroPortrait from "@/assets/hero-portrait.jpg";
+import { ChevronDown, Users, GraduationCap, Baby, Sparkles, BookOpen, Podcast, Home as HomeIcon } from "lucide-react";
+import heroFamily from "@/assets/home-family-workbooks.jpg";
+import facilitatorRoom from "@/assets/home-facilitator-room.jpg";
+import adultWorkbook from "@/assets/home-adult-workbook.jpg";
+import teenWorkbook from "@/assets/home-teen-workbook.jpg";
+import childColouring from "@/assets/home-child-colouring.jpg";
+import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
+import lifeGroup from "@/assets/home-life-group.jpg";
 import founderPortrait from "@/assets/founder-portrait.jpg";
-import flatlayRoadmap from "@/assets/flatlay-roadmap.jpg";
-import logoLight from "@/assets/logo-cream.png";
-import logoDark from "@/assets/logo-dark-tagline.png";
-import logoNav from "@/assets/logo-dark-notagline.png";
 import logoNavLight from "@/assets/logo-cream.png";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 
@@ -32,49 +32,32 @@ const CinematicNav = () => {
   }, []);
 
   const links = [
-    { label: "THE PRACTICE", href: "#practice" },
-    { label: "PILOT GROUP", href: "#pilot" },
+    { label: "THE GATHERING", href: "#gathering" },
+    { label: "THREE TRACKS", href: "#tracks" },
+    { label: "THE RHYTHM", href: "#rhythm" },
     { label: "ABOUT", href: "/about" },
   ];
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "backdrop-blur-xl border-b"
-          : "bg-transparent border-b border-transparent"
+        scrolled ? "backdrop-blur-xl border-b" : "bg-transparent border-b border-transparent"
       }`}
-      style={
-        scrolled
-          ? { background: "rgba(15,30,53,0.85)", borderColor: "rgba(53,133,175,0.2)" }
-          : {}
-      }
+      style={scrolled ? { background: "rgba(15,30,53,0.85)", borderColor: "rgba(53,133,175,0.2)" } : {}}
     >
       <div className="container mx-auto flex items-center justify-between h-16 px-6">
         <Link to="/">
-          <img
-            src={scrolled ? logoNavLight : logoNavLight}
-            alt="Mindcast"
-            className="h-7"
-          />
+          <img src={logoNavLight} alt="Mindcast" className="h-7" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">
           {links.map((l) =>
             l.href.startsWith("#") ? (
-              <a
-                key={l.label}
-                href={l.href}
-                className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body"
-              >
+              <a key={l.label} href={l.href} className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body">
                 {l.label}
               </a>
             ) : (
-              <Link
-                key={l.label}
-                to={l.href}
-                className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body"
-              >
+              <Link key={l.label} to={l.href} className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body">
                 {l.label}
               </Link>
             )
@@ -84,21 +67,22 @@ const CinematicNav = () => {
         <div className="hidden lg:flex items-center gap-4">
           {session ? (
             <Link to="/portal/dashboard" className="text-[11px] font-bold tracking-[0.12em] text-cream/60 hover:text-cream transition-colors font-body">
-              DASHBOARD
+              PORTAL
             </Link>
           ) : (
             <Link
-              to="/pilot"
-              className="px-5 py-2 border border-cream/30 text-cream text-[11px] font-bold tracking-[0.12em] font-body hover:bg-cream hover:text-navy transition-all"
+              to="/membership"
+              className="px-5 py-2 border border-cream/30 text-cream text-[11px] font-bold tracking-[0.12em] font-body hover:bg-cream hover:text-navy transition-all min-h-[44px] flex items-center"
             >
-              JOIN THE PILOT
+              JOIN THE WAITLIST
             </Link>
           )}
         </div>
 
         <button
-          className="lg:hidden text-cream"
+          className="lg:hidden text-cream w-11 h-11 flex items-center justify-center"
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
         >
           {mobileOpen ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -115,42 +99,25 @@ const CinematicNav = () => {
           className="lg:hidden fixed inset-0 top-16 z-40"
           style={{ background: "hsl(210 56% 14%)" }}
         >
-          <div className="flex flex-col items-center justify-center h-full gap-8">
+          <div className="flex flex-col items-center justify-center h-full gap-8 safe-area-bottom">
             {links.map((l, i) => (
-              <motion.div
-                key={l.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
+              <motion.div key={l.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                 {l.href.startsWith("#") ? (
-                  <a
-                    href={l.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="text-cream text-2xl font-display tracking-widest"
-                  >
+                  <a href={l.href} onClick={() => setMobileOpen(false)} className="text-cream text-2xl font-display tracking-widest">
                     {l.label}
                   </a>
                 ) : (
-                  <Link
-                    to={l.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="text-cream text-2xl font-display tracking-widest"
-                  >
+                  <Link to={l.href} onClick={() => setMobileOpen(false)} className="text-cream text-2xl font-display tracking-widest">
                     {l.label}
                   </Link>
                 )}
               </motion.div>
             ))}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
               <Link
                 to="/membership"
                 onClick={() => setMobileOpen(false)}
-                className="mt-4 px-8 py-3 border border-cream/40 text-cream text-sm tracking-widest font-body"
+                className="mt-4 px-8 py-4 border border-cream/40 text-cream text-sm tracking-widest font-body min-h-[64px] flex items-center"
               >
                 JOIN WAITLIST
               </Link>
@@ -175,39 +142,26 @@ const HeroSection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(".hero-word", {
-        y: 60,
-        opacity: 0,
-        stagger: 0.08,
-        duration: 0.8,
-        delay: 0.5,
-        ease: "power3.out",
-      });
+      gsap.from(".hero-word", { y: 60, opacity: 0, stagger: 0.08, duration: 0.8, delay: 0.5, ease: "power3.out" });
       gsap.from(".hero-sub", { y: 20, opacity: 0, delay: 1.2, duration: 0.8 });
       gsap.from(".hero-cta", { y: 20, opacity: 0, delay: 1.5, duration: 0.8 });
+      gsap.to(".hero-image", { scale: 1.05, duration: 12, ease: "power1.inOut", yoyo: true, repeat: -1 });
     }, sectionRef);
     return () => ctx.revert();
   }, []);
 
   return (
     <section ref={sectionRef} className="relative min-h-screen flex items-end justify-center pb-24 md:pb-32 overflow-hidden">
-      {/* Video Background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        poster={heroCouple}
-      >
-        <source src="/videos/hero-loop.mp4" type="video/mp4" />
-      </video>
-      {/* Gradient Overlay */}
+      <img
+        src={heroFamily}
+        alt="A family gathered together with open workbooks"
+        className="hero-image absolute inset-0 w-full h-full object-cover"
+        width={1600}
+        height={1008}
+      />
       <div
         className="absolute inset-0"
-        style={{
-          background: "linear-gradient(to bottom, rgba(15,30,53,0.3) 0%, rgba(15,30,53,0.55) 60%, rgba(15,30,53,0.85) 100%)",
-        }}
+        style={{ background: "linear-gradient(to bottom, rgba(10,17,32,0.35) 0%, rgba(10,17,32,0.6) 55%, rgba(10,17,32,0.9) 100%)" }}
       />
 
       <div className="relative z-10 container mx-auto px-6 text-center">
@@ -215,56 +169,53 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="inline-block text-[13px] tracking-[0.2em] mb-6"
+          className="inline-flex items-center gap-3 text-[13px] tracking-[0.25em] mb-6"
           style={{ color: "#c5e3f3", fontFamily: "var(--font-display)" }}
         >
-          TUNE INTO YOUR INNER SELF
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#3585af" }} />
+          COMING SOON · NEW ZEALAND
         </motion.span>
 
-        <h1 className="font-body font-black text-cream text-[52px] sm:text-[72px] md:text-[96px] lg:text-[120px] uppercase leading-[0.95] tracking-[-0.03em]">
-          {"INNER WORK".split(" ").map((w, i) => (
-            <span key={i} className="hero-word inline-block mr-[0.25em]">{w}</span>
+        <h1 className="font-display text-cream text-[52px] sm:text-[76px] md:text-[104px] lg:text-[132px] uppercase leading-[0.9] tracking-[0.02em]">
+          {"ONE THEME.".split(" ").map((w, i) => (
+            <span key={`a${i}`} className="hero-word inline-block mr-[0.2em]">{w}</span>
           ))}
           <br />
-          {"FOR REAL LIFE".split(" ").map((w, i) => (
-            <span key={i} className="hero-word inline-block mr-[0.25em]">{w}</span>
+          {"THREE GENERATIONS.".split(" ").map((w, i) => (
+            <span key={`b${i}`} className="hero-word inline-block mr-[0.2em]">{w}</span>
           ))}
         </h1>
 
-        <p className="hero-sub mt-6 text-[15px] tracking-[0.08em] font-body" style={{ color: "#c5e3f3" }}>
-          NOT THERAPY. NOT RELIGION. A STRUCTURED LIFE PRACTICE.
+        <p className="hero-sub mt-8 text-[15px] md:text-[17px] font-body max-w-2xl mx-auto leading-relaxed" style={{ color: "#e6f1f8" }}>
+          A facilitated live gathering — a modern, secular alternative to Sunday service.
+          Adults, teens, and children work through the same weekly theme in parallel,
+          then take the practice home together.
         </p>
 
         <div className="hero-cta mt-10 flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/membership"
-            className="px-8 py-4 bg-cream text-[#0f1e35] text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-[#3585af] hover:text-cream transition-all"
+            className="px-8 py-4 min-h-[56px] bg-cream text-navy text-[12px] font-body font-bold tracking-[0.12em] uppercase hover:bg-primary hover:text-cream transition-all flex items-center justify-center"
           >
-            JOIN THE FOUNDING COMMUNITY →
+            JOIN THE WAITLIST →
           </Link>
           <a
-            href="#practice"
-            className="px-8 py-4 border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:border-cream hover:bg-cream/[0.08] transition-all"
+            href="#gathering"
+            className="px-8 py-4 min-h-[56px] border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.12em] uppercase hover:border-cream hover:bg-cream/[0.08] transition-all flex items-center justify-center"
           >
-            EXPLORE THE PRACTICE
+            SEE HOW IT WORKS
           </a>
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
         initial={{ opacity: 1 }}
         animate={{ opacity: showScroll ? 1 : 0 }}
         transition={{ duration: 0.4 }}
       >
-        <span className="text-[10px] tracking-[0.2em] text-cream/50" style={{ fontFamily: "var(--font-display)" }}>
-          SCROLL
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
+        <span className="text-[10px] tracking-[0.25em] text-cream/50 font-display">SCROLL</span>
+        <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
           <ChevronDown size={16} className="text-cream/50" />
         </motion.div>
       </motion.div>
@@ -272,22 +223,17 @@ const HeroSection = () => {
   );
 };
 
-/* ─── MANIFESTO (word-by-word reveal) ─── */
+/* ─── MANIFESTO — NOTICE. NAME. REWIRE. ─── */
 const ManifestoSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLSpanElement>(".manifesto-word").forEach((word, i) => {
+      gsap.utils.toArray<HTMLSpanElement>(".manifesto-word").forEach((word) => {
         gsap.to(word, {
           opacity: 1,
-          color: "#0f1e35",
-          scrollTrigger: {
-            trigger: word,
-            start: "top 80%",
-            end: "top 50%",
-            scrub: true,
-          },
+          color: "#0a1120",
+          scrollTrigger: { trigger: word, start: "top 80%", end: "top 50%", scrub: true },
         });
       });
     }, sectionRef);
@@ -295,22 +241,23 @@ const ManifestoSection = () => {
   }, []);
 
   const lines = [
-    "Most people spend their 30s consuming ideas.",
-    "Podcasts. Books. Courses. Content.",
-    "But consuming is not the same as applying.",
-    "Mindcast is where ideas become practice.",
+    "Most families consume ideas separately.",
+    "Different podcasts. Different feeds. Different rooms.",
+    "Mindcast is one shared practice —",
+    "a place where parents, teens, and children",
+    "learn to notice, name, and rewire together.",
   ];
 
   return (
     <section ref={sectionRef} className="section-cream grain-overlay relative min-h-screen flex items-center py-24">
       <div className="container mx-auto px-6 max-w-4xl text-center">
-        <div className="text-[36px] sm:text-[48px] md:text-[60px] font-body font-black leading-[1.15] tracking-[-0.02em]">
+        <div className="text-[30px] sm:text-[42px] md:text-[56px] font-display leading-[1.15] tracking-[0.01em] uppercase">
           {lines.map((line, li) => (
             <p key={li} className="mb-4">
               {line.split(" ").map((word, wi) => (
                 <span
                   key={wi}
-                  className="manifesto-word inline-block mr-[0.3em]"
+                  className="manifesto-word inline-block mr-[0.28em]"
                   style={{ opacity: 0.15, color: "#8e9299", transition: "color 0.1s" }}
                 >
                   {word}
@@ -322,11 +269,8 @@ const ManifestoSection = () => {
 
         <div className="mt-16 flex flex-col items-center gap-4">
           <div className="w-20 h-[2px]" style={{ background: "#3585af" }} />
-          <span
-            className="text-[13px] tracking-[0.25em]"
-            style={{ fontFamily: "var(--font-display)", color: "#3585af" }}
-          >
-            TUNE INTO YOUR INNER SELF
+          <span className="text-[13px] tracking-[0.3em] font-display" style={{ color: "#3585af" }}>
+            NOTICE. NAME. REWIRE.
           </span>
         </div>
       </div>
@@ -334,186 +278,18 @@ const ManifestoSection = () => {
   );
 };
 
-/* ─── WHAT IS MINDCAST (Horizontal scroll panels on desktop, stacked on mobile) ─── */
-const HorizontalPanels = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const panelsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (window.innerWidth < 768) return; // skip on mobile
-
-    const ctx = gsap.context(() => {
-      const panels = panelsRef.current;
-      if (!panels) return;
-      const totalWidth = panels.scrollWidth - window.innerWidth;
-
-      gsap.to(panels, {
-        x: -totalWidth,
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: () => `+=${totalWidth}`,
-          scrub: 1,
-          pin: true,
-          anticipatePin: 1,
-        },
-      });
-    }, containerRef);
-    return () => ctx.revert();
-  }, []);
-
-  const panels = [
-    {
-      num: "01",
-      title: "THE PROBLEM",
-      headline: "YOU'VE TRIED THE GYM CULT.",
-      body: "You've done book clubs. Online courses. Morning routines. None of it stuck — because consuming ideas without structure, reflection, or community doesn't change how you actually live.",
-      image: heroCouple,
-    },
-    {
-      num: "02",
-      title: "THE PRACTICE",
-      headline: "INNER WORK HAS A STRUCTURE.",
-      body: null,
-      cards: [
-        { icon: "headphones", title: "LISTEN", desc: "A curated podcast episode each week" },
-        { icon: "clipboard", title: "REFLECT", desc: "Your worksheet. Your insights. Before you arrive." },
-        { icon: "message", title: "DISCUSS", desc: "Real conversation. Real depth. Every Tuesday." },
-      ],
-    },
-    {
-      num: "03",
-      title: "THE SPACE",
-      headline: "TAUPŌ'S MOST INTENTIONAL TUESDAY NIGHT.",
-      body: null,
-      image: heroPortrait,
-      overlay: true,
-      details: "Tuesdays 5:30\u20137:30pm \u00b7 111 Jarden Mile, Taupō",
-    },
-    {
-      num: "04",
-      title: "THE VISION",
-      headline: "THIS IS THE PILOT.",
-      body: "Mindcast is building something bigger — a platform for the ideas that shape how you live. The pilot group is where it starts. Founding members shape what it becomes.",
-      image: flatlayRoadmap,
-      cta: true,
-    },
-  ];
-
-  return (
-    <div ref={containerRef} id="practice" className="section-navy relative overflow-hidden">
-      <div
-        ref={panelsRef}
-        className="flex md:flex-row flex-col"
-        style={{ width: "fit-content" }}
-      >
-        {panels.map((p, i) => (
-          <div
-            key={i}
-            className="w-screen min-h-screen flex items-center relative px-8 md:px-16 py-20"
-          >
-            {/* Big decorative numeral */}
-            <span
-              className="absolute top-8 left-8 font-body font-black text-[180px] md:text-[200px] leading-none select-none"
-              style={{ color: "rgba(53,133,175,0.1)" }}
-            >
-              {p.num}
-            </span>
-
-            <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center w-full max-w-6xl mx-auto">
-              <div>
-                <span className="text-[11px] tracking-[0.15em] font-body font-bold mb-3 block" style={{ color: "#3585af" }}>
-                  {p.title}
-                </span>
-                <h3 className="font-body font-black text-cream text-[36px] md:text-[48px] leading-[1.05] tracking-[-0.02em] mb-6">
-                  {p.headline}
-                </h3>
-                {p.body && (
-                  <p className="font-body text-[17px] leading-relaxed" style={{ color: "rgba(197,227,243,0.8)" }}>
-                    {p.body}
-                  </p>
-                )}
-                {p.cards && (
-                  <div className="grid gap-4 mt-4">
-                    {p.cards.map((c) => {
-                      const IconComp = c.icon === "headphones" ? Headphones : c.icon === "clipboard" ? ClipboardList : MessageCircle;
-                      return (
-                      <div key={c.title} className="flex items-start gap-4 p-4 border border-cream/10">
-                        <IconComp className="w-6 h-6 text-cream/70 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="font-body font-bold text-cream text-sm tracking-wider">{c.title}</h4>
-                          <p className="text-cream/60 text-sm font-body">{c.desc}</p>
-                        </div>
-                      </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {p.details && (
-                  <div className="mt-6 flex items-center gap-4 flex-wrap" style={{ color: "#c5e3f3" }}>
-                    <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><CalendarDays className="w-4 h-4" /> Tuesdays 5:30–7:30pm</span>
-                    <span className="flex items-center gap-2 text-[14px] tracking-wide font-body"><MapPin className="w-4 h-4" /> 111 Jarden Mile, Taupō</span>
-                  </div>
-                )}
-                {p.cta && (
-                  <Link
-                    to="/pilot"
-                    className="inline-block mt-8 px-8 py-4 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase transition-all hover:brightness-110"
-                    style={{ background: "#3585af" }}
-                  >
-                    BECOME A FOUNDING MEMBER
-                  </Link>
-                )}
-              </div>
-
-              {p.image && (
-                <div className={`relative overflow-hidden ${p.overlay ? "h-[500px]" : "h-[400px]"}`}>
-                  <img
-                    src={p.image}
-                    alt={p.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  {p.overlay && (
-                    <div className="absolute inset-0" style={{ background: "rgba(53,133,175,0.15)" }} />
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-/* ─── PILOT GROUP (Split Screen) ─── */
-const PilotGroupSection = () => {
-  const [spots, setSpots] = useState(12);
+/* ─── THE GATHERING (facilitator hero + supporting copy) ─── */
+const GatheringSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    // Optionally fetch real count from Supabase
-    supabase.from("profiles").select("id", { count: "exact", head: true }).then(({ count }) => {
-      if (count !== null) setSpots(Math.max(0, 15 - count));
-    });
-  }, []);
-
-  useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(".pilot-image", {
-        x: -60,
-        opacity: 0,
-        duration: 0.9,
-        ease: "power2.out",
+      gsap.from(".gathering-image", {
+        opacity: 0, y: 40, duration: 1, ease: "power2.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 70%" },
       });
-      gsap.from(".pilot-content", {
-        x: 40,
-        opacity: 0,
-        duration: 0.9,
-        ease: "power2.out",
+      gsap.from(".gathering-copy > *", {
+        opacity: 0, y: 30, duration: 0.7, stagger: 0.12, ease: "power2.out",
         scrollTrigger: { trigger: sectionRef.current, start: "top 70%" },
       });
     }, sectionRef);
@@ -521,54 +297,43 @@ const PilotGroupSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="pilot" className="section-cream grain-overlay relative">
-      <div className="grid md:grid-cols-2 min-h-screen">
-        {/* Left — Image */}
-        <div className="pilot-image relative overflow-hidden h-[400px] md:h-auto">
-          <img
-            src={founderPortrait}
-            alt="Mindcast founder"
-            className="w-full h-full object-cover animate-kenburns"
-          />
-        </div>
-        {/* Right — Content */}
-        <div className="pilot-content flex items-center p-10 md:p-20">
-          <div>
-            <span
-              className="text-[12px] tracking-[0.2em] mb-4 block"
-              style={{ fontFamily: "var(--font-display)", color: "#3585af" }}
-            >
-              PILOT GROUP · TAUPŌ · 2025
-            </span>
-            <h2 className="font-body font-black text-[40px] md:text-[56px] leading-[1.05] tracking-[-0.02em] mb-6" style={{ color: "#0f1e35" }}>
-              15 SEATS.<br />FOUNDING MEMBERS ONLY.
+    <section ref={sectionRef} id="gathering" className="section-navy relative py-24 md:py-32 grain-overlay overflow-hidden">
+      <div className="container mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+          <div className="gathering-image relative overflow-hidden aspect-[4/5] md:aspect-[4/5]">
+            <img src={facilitatorRoom} alt="A facilitator leading a warm gathering" className="w-full h-full object-cover" loading="lazy" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 60%, rgba(10,17,32,0.6))" }} />
+          </div>
+
+          <div className="gathering-copy">
+            <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE GATHERING</span>
+            <h2 className="font-display text-cream text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
+              A LIVE WEEKLY PRACTICE — FOR EVERY GENERATION UNDER ONE ROOF.
             </h2>
-            <p className="font-body text-[16px] leading-relaxed mb-8" style={{ color: "#0f1e35cc" }}>
-              Each week you'll listen to a curated podcast, complete a structured worksheet, and join a real conversation with a small group of curious adults. One night. Every Tuesday. No fluff.
+            <p className="font-body text-[16px] md:text-[17px] leading-relaxed text-cream/70 mb-8">
+              A facilitated Sunday gathering with parallel sessions for adults,
+              teens, and children — all working through the same weekly theme.
+              Warm, secular, human. Structured space for the inner work most of
+              us never learned how to do.
             </p>
-
-            <div
-              className="text-[48px] font-body font-black mb-2"
-              style={{ color: "#3585af" }}
-            >
-              {spots} OF 15
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              {[
+                { k: "Format", v: "Live, in person" },
+                { k: "Cadence", v: "Weekly" },
+                { k: "Tracks", v: "Three, in parallel" },
+                { k: "Status", v: "Coming soon" },
+              ].map((s) => (
+                <div key={s.k} className="border-l-2 border-primary/40 pl-4">
+                  <div className="text-[10px] tracking-[0.2em] font-body text-cream/40 mb-1 uppercase">{s.k}</div>
+                  <div className="font-display text-cream text-[18px] tracking-wide">{s.v}</div>
+                </div>
+              ))}
             </div>
-            <p className="text-[12px] tracking-[0.15em] font-body font-bold mb-8" style={{ color: "#0f1e35aa" }}>
-              SPOTS REMAINING
-            </p>
-
-            <div className="flex flex-wrap gap-6 text-[13px] mb-8" style={{ fontFamily: "var(--font-display)", color: "#0f1e35cc" }}>
-              <span>📅 Tuesdays 5:30–7:30pm</span>
-              <span>📍 111 Jarden Mile, Taupō</span>
-              <span>💳 $150 / 10-week term</span>
-            </div>
-
             <Link
               to="/membership"
-              className="block text-center px-8 py-4 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:shadow-lg transition-all"
-              style={{ background: "#3585af" }}
+              className="inline-flex items-center gap-3 px-8 py-4 min-h-[56px] bg-primary text-cream text-[12px] font-body font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all"
             >
-              SECURE MY SPOT →
+              JOIN THE WAITLIST →
             </Link>
           </div>
         </div>
@@ -577,14 +342,101 @@ const PilotGroupSection = () => {
   );
 };
 
-/* ─── HOW IT WORKS (Sticky scroll) ─── */
-const StickyTimeline = () => {
+/* ─── THREE TRACKS ─── */
+const TracksSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".track-card", {
+        opacity: 0, y: 60, duration: 0.8, stagger: 0.15, ease: "power2.out",
+        scrollTrigger: { trigger: sectionRef.current, start: "top 75%" },
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
+
+  const tracks = [
+    {
+      icon: Users,
+      label: "ADULTS",
+      title: "A REFLECTIVE WORKBOOK",
+      desc: "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you.",
+      image: adultWorkbook,
+    },
+    {
+      icon: GraduationCap,
+      label: "TEENS",
+      title: "A TEEN WORKBOOK",
+      desc: "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down.",
+      image: teenWorkbook,
+    },
+    {
+      icon: Baby,
+      label: "CHILDREN",
+      title: "COLOURING & PICTURE-BOOK",
+      desc: "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice.",
+      image: childColouring,
+    },
+  ];
+
+  return (
+    <section ref={sectionRef} id="tracks" className="section-cream grain-overlay relative py-24 md:py-32">
+      <div className="container mx-auto px-6">
+        <div className="max-w-3xl mx-auto text-center mb-16 md:mb-20">
+          <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THREE TRACKS · ONE THEME</span>
+          <h2 className="font-display text-navy text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
+            EVERY AGE. THE SAME PRACTICE.
+          </h2>
+          <p className="font-body text-navy/70 text-[16px] md:text-[17px] leading-relaxed">
+            Adults, teens, and children each have their own interactive course book —
+            different depth, different language, but always the same weekly theme.
+            So what you learn on Sunday can be shared, questioned, and continued at home.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          {tracks.map((t) => {
+            const Icon = t.icon;
+            return (
+              <div key={t.label} className="track-card group bg-card border border-navy/[0.08] overflow-hidden flex flex-col">
+                <div className="aspect-[4/5] overflow-hidden">
+                  <img src={t.image} alt={t.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                </div>
+                <div className="p-6 md:p-8 flex-1 flex flex-col">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Icon size={18} className="text-primary" strokeWidth={1.5} />
+                    <span className="text-[11px] tracking-[0.2em] font-body font-bold text-primary">{t.label}</span>
+                  </div>
+                  <h3 className="font-display text-navy text-[26px] md:text-[30px] tracking-wide uppercase leading-tight mb-3">
+                    {t.title}
+                  </h3>
+                  <p className="font-body text-navy/70 text-[15px] leading-relaxed">{t.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-16 md:mt-20 relative aspect-[16/10] md:aspect-[16/7] overflow-hidden">
+          <img src={threeWorkbooks} alt="Three open workbooks side by side" loading="lazy" className="w-full h-full object-cover" />
+        </div>
+        <p className="text-center mt-6 font-body italic text-navy/60 text-[15px] max-w-2xl mx-auto" style={{ fontFamily: "var(--font-serif)" }}>
+          "Three workbooks. One conversation the whole family can keep having."
+        </p>
+      </div>
+    </section>
+  );
+};
+
+/* ─── THE RHYTHM — sticky timeline ─── */
+const RhythmSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(1);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(".timeline-step").forEach((step, i) => {
+      gsap.utils.toArray<HTMLElement>(".rhythm-step").forEach((step, i) => {
         ScrollTrigger.create({
           trigger: step,
           start: "top center",
@@ -600,133 +452,84 @@ const StickyTimeline = () => {
   const steps = [
     {
       num: "01",
-      title: "LISTEN BEFORE YOU ARRIVE",
-      body: "Each week I curate one self-development podcast episode for the group. You listen in your own time — on your commute, at the gym, cooking dinner.",
-      image: "/images/headphones_man.webp",
+      day: "SUNDAY",
+      title: "THE LESSON",
+      body: "Everyone gathers. Adults, teens, and children move into their own rooms and work through the same theme in parallel — through workbooks, prompts, and live facilitation.",
+      image: facilitatorRoom,
+      icon: Sparkles,
     },
     {
       num: "02",
-      title: "WORK THROUGH THE WORKSHEET",
-      body: "Before Tuesday, you complete a structured reflection. What landed? What challenged you? What do you want to explore further? You arrive prepared.",
-      image: "/images/worksheet_man.webp",
+      day: "TUESDAY",
+      title: "LIFE GROUP",
+      body: "A smaller adult-only gathering. Revisit the week's course book, re-watch the related podcast or YouTube clip, and add deeper notes together.",
+      image: lifeGroup,
+      icon: Podcast,
     },
     {
       num: "03",
-      title: "DISCUSS WITH DEPTH",
-      body: "Tuesday night is where the magic happens. A small group of curious adults — no surface level, no small talk. Real ideas, real application, real conversation.",
-      image: "/images/pool_group.webp",
-    },
-    {
-      num: "04",
-      title: "YOUR VOICE SHAPES THE ROOM",
-      body: "Once a month you nominate the podcast. Your recommendation, your topic, your night to lead. And as a founding member, your feedback shapes what Mindcast becomes.",
-      image: "/images/speaker_group.webp",
-      badge: true,
+      day: "AT HOME",
+      title: "THE PRACTICE",
+      body: "Because every generation worked through the same theme, the conversation continues at the dinner table, on the drive, at bedtime. The practice becomes family life.",
+      image: heroFamily,
+      icon: HomeIcon,
     },
   ];
 
   return (
-    <div ref={containerRef} className="section-navy relative">
-      <div className="grid md:grid-cols-[200px_1fr]">
-        {/* Left sticky */}
+    <div ref={containerRef} id="rhythm" className="section-navy relative">
+      <div className="container mx-auto px-6 pt-20 md:pt-24 pb-8 max-w-4xl text-center">
+        <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE WEEKLY RHYTHM</span>
+        <h2 className="font-display text-cream text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
+          SUNDAY. TUESDAY. HOME.
+        </h2>
+        <p className="font-body text-cream/70 text-[16px] leading-relaxed">
+          A cadence built around how change actually happens — noticed in the room,
+          named in reflection, rewired in daily life.
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-[220px_1fr]">
         <div className="hidden md:flex sticky top-0 h-screen items-center justify-center">
           <div className="text-center">
-            <span
-              className="block font-body font-black text-[80px] leading-none"
-              style={{ color: "#3585af" }}
-            >
+            <span className="block font-display text-[96px] leading-none text-primary tracking-wide">
               {String(activeStep).padStart(2, "0")}
             </span>
-            <span
-              className="block text-[11px] tracking-[0.2em] mt-4 text-cream/20 rotate-[-90deg] origin-center font-display"
-            >
-              THE PRACTICE
+            <span className="block text-[11px] tracking-[0.3em] mt-4 text-cream/30 font-display">
+              THE RHYTHM
             </span>
           </div>
         </div>
 
-        {/* Right scrolling steps */}
         <div>
-          {steps.map((s, i) => (
-            <div key={i} className="timeline-step min-h-screen flex items-center py-20 px-8 md:px-16">
-              <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl">
-                <div className="border-l-2 pl-8" style={{ borderColor: "#3585af" }}>
-                  <span className="text-cream/20 font-body font-black text-5xl md:hidden mb-4 block">{s.num}</span>
-                  <h3 className="font-body font-bold text-cream text-[24px] md:text-[32px] leading-tight mb-4">
-                    {s.title}
-                  </h3>
-                  <p className="font-body text-[16px] leading-relaxed" style={{ color: "rgba(197,227,243,0.75)" }}>
-                    {s.body}
-                  </p>
-                  {s.badge && (
-                    <span
-                      className="inline-block mt-6 px-4 py-1 text-[10px] font-body font-bold tracking-[0.12em] uppercase"
-                      style={{ background: "rgba(201,137,42,0.15)", color: "#c9892a", border: "1px solid rgba(201,137,42,0.3)" }}
-                    >
-                      FOUNDING MEMBER
-                    </span>
-                  )}
-                </div>
-                <div className="overflow-hidden h-[300px] md:h-[400px]">
-                  <img src={s.image} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+          {steps.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <div key={i} className="rhythm-step min-h-screen flex items-center py-20 px-6 md:px-16">
+                <div className="grid md:grid-cols-2 gap-10 md:gap-12 items-center max-w-5xl">
+                  <div className="border-l-2 border-primary pl-6 md:pl-8">
+                    <span className="text-cream/20 font-display text-5xl md:hidden mb-4 block">{s.num}</span>
+                    <div className="flex items-center gap-3 mb-4">
+                      <Icon size={16} className="text-primary" strokeWidth={1.5} />
+                      <span className="text-[11px] tracking-[0.3em] font-body font-bold text-primary">{s.day}</span>
+                    </div>
+                    <h3 className="font-display text-cream text-[32px] md:text-[44px] leading-tight uppercase tracking-wide mb-5">
+                      {s.title}
+                    </h3>
+                    <p className="font-body text-[16px] leading-relaxed text-cream/70">
+                      {s.body}
+                    </p>
+                  </div>
+                  <div className="overflow-hidden aspect-[4/3] md:aspect-[4/5]">
+                    <img src={s.image} alt={s.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
-  );
-};
-
-/* ─── SIGNAL TEASER ─── */
-const SignalTeaser = () => {
-  const headlineRef = useRef<HTMLHeadingElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      if (!headlineRef.current) return;
-      gsap.from(headlineRef.current, {
-        opacity: 0,
-        scale: 0.8,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: { trigger: headlineRef.current, start: "top 80%" },
-      });
-    });
-    return () => ctx.revert();
-  }, []);
-
-  return (
-    <section className="relative py-32 grain-overlay overflow-hidden" style={{ background: "linear-gradient(to bottom, #0f1e35, #1a3a5c)" }}>
-      <div className="container mx-auto px-6 text-center relative z-10">
-        <span
-          className="text-[12px] tracking-[0.3em] mb-6 block"
-          style={{ fontFamily: "var(--font-display)", color: "#c9892a" }}
-        >
-          COMING SOON
-        </span>
-        <h2
-          ref={headlineRef}
-          className="font-body font-black text-cream text-[80px] md:text-[120px] tracking-[-0.03em] leading-none mb-6"
-        >
-          SIGNAL.
-        </h2>
-        <p className="font-body font-light text-[18px] md:text-[20px] max-w-2xl mx-auto leading-relaxed" style={{ color: "#c5e3f3" }}>
-          A cycle-syncing wellness app built on community intelligence.
-          Somatic practices. AI-generated plans. Inner work, digitised.
-        </p>
-        <Link
-          to="/signal"
-          className="inline-block mt-10 px-8 py-4 border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-cream hover:text-[#0f1e35] transition-all"
-        >
-          JOIN THE WAITLIST
-        </Link>
-        <p className="mt-6 text-cream/30 text-[11px] tracking-[0.1em] font-body">
-          Part of the Mindcast ecosystem
-        </p>
-      </div>
-    </section>
   );
 };
 
@@ -739,7 +542,7 @@ const VisionQuote = () => {
       gsap.utils.toArray<HTMLSpanElement>(".quote-word").forEach((word) => {
         gsap.to(word, {
           opacity: 1,
-          color: "#0f1e35",
+          color: "#0a1120",
           scrollTrigger: { trigger: word, start: "top 85%", end: "top 55%", scrub: true },
         });
       });
@@ -747,75 +550,27 @@ const VisionQuote = () => {
     return () => ctx.revert();
   }, []);
 
-  const quote = "The things that shaped who we are used to happen in community. Mindcast is bringing that back.";
+  const quote = "The things that shaped who we are used to happen in community — across generations, in shared rooms. Mindcast is bringing that back.";
 
   return (
     <section ref={sectionRef} className="section-cream grain-overlay relative min-h-screen flex items-center py-24">
       <div className="container mx-auto px-6 max-w-4xl text-center">
-        <p className="font-body font-black italic text-[32px] sm:text-[44px] md:text-[56px] leading-[1.2] tracking-[-0.02em]">
+        <p
+          className="text-[28px] sm:text-[38px] md:text-[48px] leading-[1.25] tracking-[-0.01em] italic"
+          style={{ fontFamily: "var(--font-serif)", fontWeight: 500 }}
+        >
           {quote.split(" ").map((w, i) => (
-            <span
-              key={i}
-              className="quote-word inline-block mr-[0.3em]"
-              style={{ opacity: 0.15, color: "#8e9299" }}
-            >
+            <span key={i} className="quote-word inline-block mr-[0.25em]" style={{ opacity: 0.15, color: "#8e9299" }}>
               {w}
             </span>
           ))}
         </p>
         <div className="mt-12 flex items-center justify-center gap-4">
-          <img src={founderPortrait} alt="Ashleigh" className="w-16 h-16 rounded-full object-cover" />
-          <span className="font-body text-[15px]" style={{ color: "#3585af" }}>
-            — Ashleigh, Founder of Mindcast
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-/* ─── IMAGE GALLERY (Masonry) ─── */
-const ImageGallery = () => {
-  const images = [
-    { src: "/images/gallery_1.webp", label: "THE ARRIVAL" },
-    { src: "/images/gallery_2.webp", label: "THE GATHERING" },
-    { src: "/images/gallery_3.webp", label: "THE SESSION" },
-    { src: "/images/gallery_4.webp", label: "THE WORK" },
-    { src: "/images/gallery_5.webp", label: "THE CONVERSATION" },
-    { src: "/images/gallery_6.webp", label: "THE SPACE" },
-    { src: "/images/gallery_7.webp", label: "THE PRACTICE" },
-    { src: "/images/gallery_8.webp", label: "THE COMMUNITY" },
-  ];
-
-  return (
-    <section className="section-navy py-16 md:py-24">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {images.map((img, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.6 }}
-              className="relative group overflow-hidden aspect-[4/3]"
-            >
-              <img
-                src={img.src}
-                alt={img.label}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
-                <span
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-cream text-[13px] tracking-[0.2em]"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {img.label}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+          <img src={founderPortrait} alt="Ashleigh" className="w-16 h-16 rounded-full object-cover" loading="lazy" />
+          <div className="text-left">
+            <div className="font-display text-navy text-[18px] tracking-wide">ASHLEIGH CARLSON</div>
+            <div className="font-body text-[12px] tracking-[0.15em] text-primary uppercase">Founder · Mindcast</div>
+          </div>
         </div>
       </div>
     </section>
@@ -823,63 +578,54 @@ const ImageGallery = () => {
 };
 
 /* ─── FINAL CTA ─── */
-const FinalCTA = () => {
-  const [spots, setSpots] = useState(12);
+const FinalCTA = () => (
+  <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+    <img src={heroFamily} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+    <div className="absolute inset-0" style={{ background: "rgba(10,17,32,0.82)" }} />
+    <div className="absolute inset-0 grain-overlay pointer-events-none" />
 
-  useEffect(() => {
-    supabase.from("profiles").select("id", { count: "exact", head: true }).then(({ count }) => {
-      if (count !== null) setSpots(Math.max(0, 15 - count));
-    });
-  }, []);
-
-  return (
-    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        poster={heroCouple}
+    <div className="relative z-10 text-center px-6 max-w-3xl">
+      <motion.span
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        className="inline-flex items-center gap-3 text-[13px] tracking-[0.3em] mb-8 font-display"
+        style={{ color: "#c5e3f3" }}
       >
-        <source src="/videos/hero-loop.mp4" type="video/mp4" />
-      </video>
-      <div className="absolute inset-0" style={{ background: "rgba(15,30,53,0.75)" }} />
+        <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#3585af" }} />
+        COMING SOON
+      </motion.span>
 
-      <div className="relative z-10 text-center px-6">
-        <motion.h2
-          initial={{ scale: 0.8, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="font-body font-black text-cream text-[64px] md:text-[96px] tracking-[-0.03em] leading-none mb-4"
+      <motion.h2
+        initial={{ scale: 0.9, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="font-display text-cream text-[56px] md:text-[104px] tracking-[0.02em] leading-[0.9] uppercase mb-6"
+      >
+        BRING THE WHOLE FAMILY.
+      </motion.h2>
+      <p className="font-body text-[16px] md:text-[19px] mb-10 text-cream/75 leading-relaxed">
+        The first Mindcast gatherings are forming now. Join the waitlist to be
+        invited when doors open in your area.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Link
+          to="/membership"
+          className="px-8 py-4 min-h-[56px] bg-cream text-navy text-[12px] font-body font-bold tracking-[0.12em] uppercase hover:bg-primary hover:text-cream transition-all flex items-center justify-center"
         >
-          READY?
-        </motion.h2>
-        <p className="font-body font-light text-[20px] md:text-[24px] mb-8" style={{ color: "#c5e3f3" }}>
-          The founding group is forming now.
-        </p>
-        <p className="font-body font-black text-[36px] md:text-[48px] mb-10" style={{ color: "#3585af" }}>
-          {spots} SPOTS REMAINING
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            to="/membership"
-            className="px-8 py-4 bg-cream text-[#0f1e35] text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-[#3585af] hover:text-cream transition-all"
-          >
-            REGISTER FOR PILOT GROUP →
-          </Link>
-          <Link
-            to="/signal"
-            className="px-8 py-4 border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.1em] uppercase hover:bg-cream/10 transition-all"
-          >
-            JOIN THE SIGNAL WAITLIST
-          </Link>
-        </div>
+          JOIN THE WAITLIST →
+        </Link>
+        <Link
+          to="/about"
+          className="px-8 py-4 min-h-[56px] border border-cream/40 text-cream text-[12px] font-body font-bold tracking-[0.12em] uppercase hover:bg-cream/10 transition-all flex items-center justify-center"
+        >
+          READ THE STORY
+        </Link>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 /* ─── HOME PAGE ─── */
 const Home = () => {
@@ -889,12 +635,10 @@ const Home = () => {
       <CinematicNav />
       <HeroSection />
       <ManifestoSection />
-      <HorizontalPanels />
-      <PilotGroupSection />
-      <StickyTimeline />
-      <SignalTeaser />
+      <GatheringSection />
+      <TracksSection />
+      <RhythmSection />
       <VisionQuote />
-      <ImageGallery />
       <FinalCTA />
       <Footer />
     </div>
