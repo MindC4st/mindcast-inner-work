@@ -187,9 +187,10 @@ const HeroSection = () => {
         </h1>
 
         <p className="hero-sub mt-8 text-[15px] md:text-[17px] font-body max-w-2xl mx-auto leading-relaxed" style={{ color: "#e6f1f8" }}>
-          We consume more self-development than any generation before us — and apply almost none of it.
-          Mindcast is a weekly live gathering built for follow-through: a room that holds you accountable
-          to the things you already know you should do.
+          Knowing better isn't doing better. We consume endless self-development
+          and rarely act on it. Mindcast is a weekly live gathering built for
+          follow-through — you set an intention, come back seven days later, and
+          get held to it.
         </p>
 
         <div className="hero-cta mt-10 flex flex-col sm:flex-row gap-4 justify-center">
