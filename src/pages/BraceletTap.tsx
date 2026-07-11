@@ -48,9 +48,9 @@ const BraceletTap = () => {
   useEffect(() => {
     if (state.status !== "done") return;
     if (authLoading) return;
-    // Members: pop them onto their dashboard with the attending flag.
+    // Members: pop them onto their portal dashboard with the attending flag.
     if (user && role === "member") {
-      navigate(`/dashboard?source=bracelet&name=${encodeURIComponent(state.displayName)}`, { replace: true });
+      navigate(`/portal/dashboard?source=bracelet&name=${encodeURIComponent(state.displayName)}`, { replace: true });
     }
     // Facilitator + unauthenticated cases stay on this page and show the
     // appropriate UI below.
@@ -118,7 +118,7 @@ const BraceletTap = () => {
           You're checked in. Sign in to open your coursebook on this device.
         </p>
         <Link
-          to="/auth?redirect=/dashboard?source=bracelet"
+          to="/auth?redirect=/portal/dashboard?source=bracelet"
           className="w-full inline-flex items-center justify-center gap-2 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] text-white font-body text-sm tracking-widest uppercase py-3 rounded-sm transition-colors"
         >
           <LogIn size={14} /> Sign in
