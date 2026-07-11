@@ -242,10 +242,10 @@ const ManifestoSection = () => {
   }, []);
 
   const lines = [
-    "You are unaware, and you don't change.",
-    "You are aware, and you still don't change.",
-    "You are aware — and you do.",
-    "Mindcast is the room built for that third one.",
+    "Knowing better isn't doing better.",
+    "You consume it. You agree with it. Nothing shifts.",
+    "You act on it — with a room that asks you back.",
+    "Mindcast is built for that last one.",
   ];
 
   return (
@@ -270,7 +270,7 @@ const ManifestoSection = () => {
         <div className="mt-16 flex flex-col items-center gap-4">
           <div className="w-20 h-[2px]" style={{ background: "#3585af" }} />
           <span className="text-[13px] tracking-[0.3em] font-display" style={{ color: "#3585af" }}>
-            UNCONSCIOUS → CONSCIOUS → CHANGED.
+            AWARENESS → ACTION → EVERY WEEK.
           </span>
         </div>
       </div>
