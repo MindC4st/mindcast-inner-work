@@ -1,0 +1,40 @@
+# Phase 0 + Phase 1 — implementation notes
+
+Ships the safety-critical journal fix (Phase 0) and the identity + recurring-billing foundation (Phase 1). Migrations and edge functions are in the repo; **nothing has been applied to the production Supabase project** — apply/deploy steps are below.
+
+## What shipped
+
+### Phase 0 — journal privacy (member-safety-critical)
+- `supabase/migrations/20260711120200_journal_privacy.sql`
+  - Removes the blanket `facilitator` `SELECT` on every journal table (`workbook_entries`, `teen_/kids_workbook_entries`, `entries`, `commitments`, `domain_scores`, `bookmark_responses`, `implementation_checkins`). **Journals are now readable only by the owner** (+ a linked guardian for child/teen).
+  - Reconciles the workbook owner-key bug: RLS now uses `profile_id = current_profile_id()` (translates `auth.uid()` → `profiles.id`), and backfills any rows that stored the auth uid.
+- App coupling (required, or saves would fail the new `WITH CHECK`): `Workbook.tsx`, `TeenWorkbook.tsx`, `KidsWorkbook.tsx` now write/read `profile.id` instead of `user.id`.
+- **Opt-in group sharing is preserved** (the `is_shared` cohort policies stay). Only staff snooping is removed.
+
+### Phase 1a — roles + households
+- `20260711120000_add_admin_role.sql` — adds `admin` to `app_role` (distinct from `facilitator`).
+- `20260711120100_households.sql` — `households` + `household_members` tables, RLS, and helpers `current_profile_id()`, `is_guardian_of_profile()`, `is_household_member()`. **Guardian read** of a linked child/teen journal is granted here (per decision 2026-07-11: parent view = yes).
+- App: `AuthContext` exposes `isAdmin`, `isStaff`, `membershipStatus`. `App.tsx` `AdminRoute` now admits admins **and** facilitators; new `AdminOnlyRoute` gates admin-only screens.
+
+### Phase 1b — recurring membership (Stripe)
+- `20260711120300_membership_subscriptions.sql` — `subscriptions` table + `profiles.membership_status` / `stripe_customer_id`; extends the privilege-escalation guard so members can't self-set billing fields.
+- Edge functions: `create-subscription-checkout` (auth, `mode:"subscription"`, env prices), `stripe-webhook` (signature-verified, syncs status), `create-billing-portal` (self-service). `config.toml` updated (`verify_jwt` per function).
+- App: `src/pages/portal/PortalBilling.tsx` at `/portal/billing` — pick plan → Checkout; manage/cancel via portal.
+
+## Deploy / config steps (not yet done — require your Supabase + Stripe access)
+1. **Apply migrations in order** (they are timestamped; `20260711120000` must run before the others so the `admin` enum value commits before it's referenced).
+2. **Set Supabase Function secrets:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_MONTHLY`, `STRIPE_PRICE_TERMLY`, plus the standard `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_ANON_KEY`.
+3. **Create the recurring prices in Stripe** (monthly + termly) and put their price ids in the env vars above.
+4. **Register the webhook** in Stripe → endpoint `…/functions/v1/stripe-webhook`, events: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`. Copy the signing secret into `STRIPE_WEBHOOK_SECRET`.
+5. **Promote an admin:** `UPDATE public.user_roles SET role='admin' WHERE user_id='<uuid>';` (or insert a row). Facilitators are unaffected.
+6. Regenerate `types.ts` from the live DB after applying migrations (the hand-added `membership_status`/`stripe_customer_id`/`admin` entries will be superseded by the generated ones; new tables `households`/`household_members`/`subscriptions` will appear).
+
+## Deliberately NOT in this pass (tracked follow-ups)
+- **Admin UI** to create households / link children, and a **subscription-health** dashboard (reads `subscriptions`). Schema + RLS are ready; the screens are Phase 1 admin work.
+- **Field-level encryption** for child journal columns (Phase 1 follow-up; RLS-locked-to-owner ships first, as recommended).
+- Phase 2+ (durable live-session state, track scheduling, Q&A rate limiting, PWA offline shell, Capacitor NFC) — per the audit's build order.
+
+## Verification done
+- `tsc --noEmit -p tsconfig.app.json` — clean.
+- `vite build` — succeeds.
+- Runtime RLS behaviour needs a live DB to exercise (apply to a Supabase **branch** first and test as a member vs facilitator vs guardian before production).

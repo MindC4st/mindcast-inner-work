@@ -23,7 +23,7 @@ function extractVideoId(url: string): string | null {
 }
 
 const TeenWorkbook = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [session, setSession] = useState<any>(null);
   const [entry, setEntry] = useState<any>({});
@@ -39,10 +39,11 @@ const TeenWorkbook = () => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate("/auth"); return; }
+    if (!profile) return; // journal rows are keyed on profiles.id
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => {
       if (data) {
         setSession(data);
-        supabase.from("teen_workbook_entries").select("*").eq("session_id", data.id).eq("profile_id", user.id).maybeSingle().then(({ data: e }) => {
+        supabase.from("teen_workbook_entries").select("*").eq("session_id", data.id).eq("profile_id", profile.id).maybeSingle().then(({ data: e }) => {
           if (e) { setEntry(e); setEntryId(e.id); }
           else {
             const key = `mindcast_teen_wb_${data.id}_${user.id}`;
@@ -52,10 +53,10 @@ const TeenWorkbook = () => {
         });
       }
     });
-  }, [user, authLoading]);
+  }, [user, profile, authLoading]);
 
   const autoSave = useCallback((updates: any) => {
-    if (!session || !user) return;
+    if (!session || !user || !profile) return;
     clearTimeout(saveTimer.current);
     setSaveStatus("saving");
     if (lsKey) {
@@ -63,7 +64,7 @@ const TeenWorkbook = () => {
     }
     saveTimer.current = setTimeout(async () => {
       try {
-        const payload = { ...updates, profile_id: user.id, session_id: session.id };
+        const payload = { ...updates, profile_id: profile.id, session_id: session.id };
         if (entryId) {
           const { error } = await supabase.from("teen_workbook_entries").update(payload).eq("id", entryId);
           if (error) throw error;
@@ -79,7 +80,7 @@ const TeenWorkbook = () => {
         setTimeout(() => setSaveStatus("idle"), 3000);
       }
     }, 1500);
-  }, [session, user, entryId, entry, lsKey]);
+  }, [session, user, profile, entryId, entry, lsKey]);
 
   const updateField = (key: string, value: string) => {
     const updated = { ...entry, [key]: value };

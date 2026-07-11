@@ -51,6 +51,7 @@ const PortalDownloads = lazy(() => import("./pages/portal/PortalDownloads"));
 const PortalSettings = lazy(() => import("./pages/portal/PortalSettings"));
 const PortalProgress = lazy(() => import("./pages/portal/PortalProgress"));
 const PortalAdmin = lazy(() => import("./pages/portal/PortalAdmin"));
+const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
@@ -88,11 +89,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Session-admin UI: reachable by facilitators (run a live session) and admins.
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session, role, loading } = useAuth();
+  const { session, isStaff, loading } = useAuth();
   if (loading) return <PageLoader />;
   if (!session) return <Navigate to="/portal/login" replace />;
-  if (role !== "facilitator") return <Navigate to="/portal/dashboard" replace />;
+  if (!isStaff) return <Navigate to="/portal/dashboard" replace />;
+  return <>{children}</>;
+};
+
+// Admin-only UI (payments, member/household management). Facilitators excluded.
+const AdminOnlyRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, isAdmin, loading } = useAuth();
+  if (loading) return <PageLoader />;
+  if (!session) return <Navigate to="/portal/login" replace />;
+  if (!isAdmin) return <Navigate to="/portal/dashboard" replace />;
   return <>{children}</>;
 };
 
@@ -154,6 +165,7 @@ const AppRoutes = () => (
       <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
+      <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/refund" element={<RefundPage />} />
