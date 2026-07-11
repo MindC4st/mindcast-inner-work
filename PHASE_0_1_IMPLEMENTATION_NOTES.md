@@ -42,6 +42,23 @@ Ships the safety-critical journal fix (Phase 0) and the identity + recurring-bil
 
 Deferred within Phase 2: the standalone Q&A **moderation-queue** screen (inline approve/deny already works in `FacilitatorView`) and the dashboard "today's session" banner — both fold into the admin-UI pass.
 
+## Phase 3 — native + offline
+**PWA hardening (fully working web):**
+- `public/sw.js` rewritten from push-only to an offline app-shell SW: navigations = network-first → cached shell → `public/offline.html`; static assets = stale-while-revalidate; **Supabase API/Realtime/Functions + all non-GET = network-only** (never serve stale live/journal data). Bump `CACHE_VERSION` to invalidate on deploy.
+- Install prompt: `useInstallPrompt` hook + dismissable `InstallPrompt` banner (mounted in `App`). Android/desktop Chrome; iOS uses the native app.
+
+**Check-in pipeline unification:**
+- `20260711140000_checkin_source_track.sql` adds `track`, `source` (`kiosk|member_app|manual`), `scheduled_session_id` to `check_ins`.
+- `nfc-checkin` edge fn now accepts `{ track?, source?, scheduled_session_id? }`, normalizes track from the member's `age_group`, and both the member tap and kiosk scan write through it → Realtime Welcome Wall stays the single source of truth.
+- `src/lib/nfc.ts` — platform-detecting NFC read (Capacitor native plugin via computed dynamic import; Web NFC fallback; else unsupported).
+- `src/pages/Kiosk.tsx` at `/admin/kiosk` — staff-only continuous-scan kiosk mode (scans *other* people's bracelets, distinct from the member self-tap).
+
+**Capacitor scaffold (native build is out of scope for this environment):**
+- `capacitor.config.ts` + deps added to `package.json` (`@capacitor/core|ios|android`, `@capacitor-community/nfc`, `@capacitor/cli`). The web build stays green because nothing imports these statically.
+- **Native steps to run on a dev machine (Xcode / Android Studio):** `npm install` → `npx cap add ios` / `npx cap add android` → `npm run build && npx cap sync`. iOS: enrol in the **Apple Developer Program**, enable the **Core NFC entitlement**, add `NFCReaderUsageDescription` to `Info.plist`, submit for review (budget 1–3 weeks first time). Android: NFC permission in the manifest. The `ios/` and `android/` native projects are intentionally **not** committed here.
+
+Deferred within Phase 3: member in-app "tap to check in" screen (kiosk + `nfc.ts` cover the pipeline; the member-facing tap UI is a thin wrapper to add during the app build).
+
 ## Verification done
 - `tsc --noEmit -p tsconfig.app.json` — clean (Phase 0/1 and Phase 2).
 - `vite build` — succeeds (Phase 0/1).

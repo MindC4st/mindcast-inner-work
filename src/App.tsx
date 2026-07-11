@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import InstallPrompt from "@/components/InstallPrompt";
 
 // Route-level code splitting: every page loads on demand so first paint only
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
@@ -65,6 +66,7 @@ const LiveJoin = lazy(() => import("./pages/mindcast-live/LiveJoin"));
 const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
+const Kiosk = lazy(() => import("./pages/Kiosk"));
 const Demo = lazy(() => import("./pages/Demo"));
 
 const queryClient = new QueryClient({
@@ -130,6 +132,7 @@ const AppRoutes = () => (
       <Route path="/admin/session-runner" element={<AdminRoute><AdminSessionRunner /></AdminRoute>} />
       <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
       <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
+      <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
       <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/checkin" element={<Checkin />} />
@@ -239,6 +242,7 @@ const App = () => (
           <ScrollToTop />
           <RouteTitle />
           <AppRoutes />
+          <InstallPrompt />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

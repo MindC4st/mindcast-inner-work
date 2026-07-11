@@ -6,8 +6,13 @@
 // Public endpoint (no JWT). NFC ids are opaque tokens; an unknown id just
 // 404s without leaking anything.
 //
-// POST body:  { nfc_id: string }
-// Response:   { ok: true, display_name } | { error: string }
+// POST body:  { nfc_id: string, track?: 'Adult'|'Teen'|'Child',
+//               source?: 'kiosk'|'member_app'|'manual', scheduled_session_id?: string }
+// Response:   { ok: true, display_name, track } | { error: string }
+//
+// The member's own-phone tap and the staff kiosk scan both call this endpoint;
+// only `source` differs. Supabase Realtime on check_ins remains the single
+// source of truth for the Welcome Wall either way.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
@@ -45,8 +50,24 @@ serve(async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
   try {
-    const { nfc_id } = await req.json();
+    const body = await req.json();
+    const { nfc_id } = body;
     if (!nfc_id || typeof nfc_id !== "string") return json({ error: "nfc_id required" }, 400);
+
+    const VALID_TRACKS = ["Adult", "Teen", "Child"];
+    const VALID_SOURCES = ["kiosk", "member_app", "manual"];
+    const normalizeTrack = (v: unknown): string | null => {
+      if (typeof v !== "string") return null;
+      const t = v.trim().toLowerCase();
+      if (t === "adult") return "Adult";
+      if (t === "teen") return "Teen";
+      if (t === "child" || t === "kids" || t === "kid") return "Child";
+      return null;
+    };
+    const track = VALID_TRACKS.includes(body.track) ? body.track : normalizeTrack(body.track);
+    const source = VALID_SOURCES.includes(body.source) ? body.source : "kiosk";
+    const scheduledSessionId =
+      typeof body.scheduled_session_id === "string" ? body.scheduled_session_id : null;
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -54,7 +75,7 @@ serve(async (req) => {
 
     const { data: profile, error: pErr } = await supa
       .from("profiles")
-      .select("id, user_id, first_name, last_name, name, display_name, live_display_mode")
+      .select("id, user_id, first_name, last_name, name, display_name, live_display_mode, age_group")
       .eq("nfc_id", nfc_id)
       .maybeSingle();
     if (pErr) throw pErr;
@@ -81,10 +102,13 @@ serve(async (req) => {
       profile_id: profile.id,
       display_name: displayName,
       is_anonymous: isAnonymous,
+      track: track ?? normalizeTrack((profile as any).age_group),
+      source,
+      scheduled_session_id: scheduledSessionId,
     });
     if (insErr) throw insErr;
 
-    return json({ ok: true, display_name: displayName });
+    return json({ ok: true, display_name: displayName, track });
   } catch (e: any) {
     return json({ error: e?.message ?? String(e) }, 500);
   }
