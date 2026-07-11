@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Subscription & payment health. Reads the subscriptions table (kept in sync by
@@ -15,6 +16,21 @@ type Sub = {
   stripe_customer_id: string;
 };
 type Profile = { id: string; display_name: string | null; name: string | null; email: string | null; membership_status: string };
+
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-primary/15 text-primary border-primary/30",
+  trialing: "bg-primary/10 text-primary border-primary/25",
+  past_due: "bg-destructive/10 text-destructive border-destructive/30",
+  paused: "bg-foreground/10 text-foreground/60 border-foreground/15",
+  lapsed: "bg-foreground/5 text-foreground/40 border-foreground/10",
+  none: "bg-foreground/5 text-foreground/40 border-foreground/10",
+};
+
+const StatusPill = ({ status }: { status: string }) => (
+  <span className={`inline-block text-[9px] font-body font-semibold tracking-[0.15em] uppercase px-2 py-1 rounded-sm border ${STATUS_STYLES[status] || STATUS_STYLES.none}`}>
+    {status.replace("_", " ")}
+  </span>
+);
 
 const AdminMembership = () => {
   const [subs, setSubs] = useState<Sub[]>([]);
@@ -43,40 +59,49 @@ const AdminMembership = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5">
-        <Link to="/admin" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
-        <Link to="/admin" className="text-sm text-foreground/50 hover:text-foreground">← Admin</Link>
+      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-foreground/[0.06]">
+        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
+        <Link to="/admin" className="flex items-center gap-2 text-[10px] tracking-[0.12em] font-body text-foreground/40 hover:text-foreground/70">
+          <ArrowLeft size={12} /> ADMIN
+        </Link>
       </nav>
-      <div className="max-w-3xl mx-auto px-6 pt-10">
-        <h1 className="font-display text-2xl font-bold mb-6">Membership & payments</h1>
 
-        <div className="flex flex-wrap gap-3 mb-8">
+      <div className="max-w-4xl mx-auto px-6 pt-10 pb-16">
+        <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Admin</p>
+        <h1 className="font-display text-3xl md:text-4xl tracking-wider mb-2">MEMBERSHIP & PAYMENTS</h1>
+        <p className="text-foreground/50 text-sm font-body mb-10">Subscription health, mirrored from Stripe via the webhook.</p>
+
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mb-10">
           {["active", "trialing", "past_due", "paused", "lapsed", "none"].map((k) => (
-            <div key={k} className="border rounded px-4 py-3 min-w-[6rem]">
-              <div className="text-2xl font-semibold">{counts[k] || 0}</div>
-              <div className="text-xs text-foreground/50 capitalize">{k.replace("_", " ")}</div>
+            <div key={k} className="border border-foreground/10 rounded-sm p-4 bg-foreground/[0.02]">
+              <div className="font-display text-3xl tracking-wider text-foreground">{counts[k] || 0}</div>
+              <div className="text-[10px] font-body uppercase tracking-widest text-foreground/40 mt-1">{k.replace("_", " ")}</div>
             </div>
           ))}
         </div>
 
-        <h2 className="font-semibold text-sm mb-2">Subscriptions</h2>
-        <table className="w-full text-sm">
-          <thead><tr className="text-left text-foreground/40 border-b">
-            <th className="py-2">Member</th><th>Plan</th><th>Status</th><th>Renews</th><th>Cancelling</th>
-          </tr></thead>
-          <tbody>
-            {subs.map((s) => (
-              <tr key={s.id} className="border-b border-foreground/[0.06]">
-                <td className="py-2">{nameFor(s.profile_id)}</td>
-                <td>{s.plan || "—"}</td>
-                <td>{s.status}</td>
-                <td>{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</td>
-                <td>{s.cancel_at_period_end ? "Yes" : "—"}</td>
+        <h2 className="font-display text-lg tracking-wider mb-3">SUBSCRIPTIONS</h2>
+        <div className="border border-foreground/10 rounded-sm overflow-hidden">
+          <table className="w-full text-sm font-body">
+            <thead className="bg-foreground/[0.03]">
+              <tr className="text-left text-[10px] font-body uppercase tracking-widest text-foreground/40">
+                <th className="py-3 px-4">Member</th><th className="px-2">Plan</th><th className="px-2">Status</th><th className="px-2">Renews</th><th className="px-2">Cancelling</th>
               </tr>
-            ))}
-            {subs.length === 0 && <tr><td colSpan={5} className="py-6 text-center text-foreground/40">No subscriptions yet.</td></tr>}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {subs.map((s) => (
+                <tr key={s.id} className="border-t border-foreground/[0.06]">
+                  <td className="py-2.5 px-4 text-foreground">{nameFor(s.profile_id)}</td>
+                  <td className="px-2 text-foreground/70">{s.plan || "—"}</td>
+                  <td className="px-2"><StatusPill status={s.status} /></td>
+                  <td className="px-2 text-foreground/60 text-xs">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</td>
+                  <td className="px-2 text-foreground/60 text-xs">{s.cancel_at_period_end ? "Yes" : "—"}</td>
+                </tr>
+              ))}
+              {subs.length === 0 && <tr><td colSpan={5} className="py-8 text-center text-foreground/40 text-sm">No subscriptions yet.</td></tr>}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

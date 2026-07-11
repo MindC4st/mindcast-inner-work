@@ -94,8 +94,8 @@ const AdminMembers = () => {
 
       {/* NFC Modal */}
       {selected && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4" onClick={() => setSelected(null)}>
-          <div className="bg-[#1A1725] border border-foreground/10 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm flex items-center justify-center z-50 px-4" onClick={() => setSelected(null)}>
+          <div className="bg-card border border-foreground/10 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-display font-bold text-foreground">{selected.display_name || selected.name}</h3>
               <button onClick={() => setSelected(null)} className="text-foreground/20 hover:text-foreground/40"><X size={18} /></button>
@@ -130,7 +130,7 @@ const AdminMembers = () => {
                 <div className="border border-foreground/[0.08] rounded-lg p-4 bg-foreground/[0.02]">
                   <label className="text-[10px] font-body text-foreground/30 uppercase tracking-[0.1em] block mb-2">Bracelet URL — write this to the NFC tag</label>
                   <div className="flex gap-2 items-stretch">
-                    <code className="flex-1 bg-black/30 text-foreground/90 px-3 py-2 rounded font-mono text-[11px] break-all flex items-center">
+                    <code className="flex-1 bg-foreground/[0.06] text-foreground/90 px-3 py-2 rounded font-mono text-[11px] break-all flex items-center">
                       {braceletUrlFor(nfcId)}
                     </code>
                     <button
@@ -147,7 +147,7 @@ const AdminMembers = () => {
                   </div>
 
                   <div className="flex items-center gap-4 mt-4">
-                    <div className="bg-white p-2 rounded shrink-0">
+                    <div className="bg-cream p-2 rounded shrink-0">
                       <QRCode value={braceletUrlFor(nfcId)} size={92} />
                     </div>
                     <div>

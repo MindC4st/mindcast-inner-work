@@ -71,10 +71,10 @@ const BraceletTap = () => {
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
         <div className="max-w-sm text-center">
-          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Mindcast LIVE</p>
+          <p className="text-primary text-xs tracking-[0.5em] font-body uppercase mb-3">Mindcast LIVE</p>
           <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">BRACELET NOT RECOGNISED</h1>
           <p className="font-body text-sm text-[hsl(var(--navy-mid))] mb-6">{state.message}</p>
-          <Link to="/" className="text-[hsl(var(--blue))] text-xs tracking-widest uppercase font-body border-b border-[hsl(var(--blue))]/40">
+          <Link to="/" className="text-primary text-xs tracking-widest uppercase font-body border-b border-primary/40">
             Back to home
           </Link>
         </div>
@@ -93,7 +93,7 @@ const BraceletTap = () => {
           <div className="w-14 h-14 rounded-full bg-[hsl(var(--blue))]/15 flex items-center justify-center mx-auto mb-5">
             <Check className="text-[hsl(var(--blue-light))]" size={28} />
           </div>
-          <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.5em] font-body uppercase mb-2">Checked in</p>
+          <p className="text-primary text-[10px] tracking-[0.5em] font-body uppercase mb-2">Checked in</p>
           <p className="font-display text-3xl tracking-wider mb-6">{state.displayName.toUpperCase()}</p>
           <p className="text-[hsl(var(--ivory))]/50 text-[11px] font-body">Tap the next bracelet to continue, or return to the slideshow.</p>
           <Link to="/mindcast-live/library" className="inline-block mt-6 text-[hsl(var(--blue-light))] text-xs tracking-widest uppercase font-body border-b border-[hsl(var(--blue-light))]/40">
@@ -112,7 +112,7 @@ const BraceletTap = () => {
         <div className="w-14 h-14 rounded-full bg-[hsl(var(--blue))]/10 flex items-center justify-center mx-auto mb-5">
           <Check className="text-[hsl(var(--blue))]" size={26} />
         </div>
-        <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.5em] font-body uppercase mb-2">Welcome, {state.displayName}</p>
+        <p className="text-primary text-[10px] tracking-[0.5em] font-body uppercase mb-2">Welcome, {state.displayName}</p>
         <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">YOU'RE IN.</h1>
         <p className="font-body text-sm text-[hsl(var(--navy-mid))] mb-6">
           You're checked in. Sign in to open your coursebook on this device.
