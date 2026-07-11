@@ -11,6 +11,36 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  // Guard: this fans out emails to members, so only the cron job (service-role
+  // bearer) or a staff account (facilitator/admin) may trigger it. Without this
+  // any logged-in member could set off an email blast.
+  const authHeader = req.headers.get("authorization") || "";
+  const isCron = authHeader === `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`;
+  if (!isCron) {
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    let allowed = false;
+    if (token) {
+      const anon = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+      });
+      const { data: userRes } = await anon.auth.getUser();
+      if (userRes?.user) {
+        const svc = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const { data: roles } = await svc
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userRes.user.id);
+        allowed = (roles ?? []).some((r: { role: string }) => r.role === "facilitator" || r.role === "admin");
+      }
+    }
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
     const testEmail = body?.test_email;

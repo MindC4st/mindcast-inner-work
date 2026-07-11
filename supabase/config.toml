@@ -31,3 +31,7 @@ verify_jwt = true
 # Stripe calls this with its own signature, not a Supabase JWT.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Public uptime probe.
+[functions.health]
+verify_jwt = false
