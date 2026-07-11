@@ -453,7 +453,7 @@ const TracksSection = () => {
           <img src={threeWorkbooks} alt="A Mindcast wristband being tapped at the door" loading="lazy" className="w-full h-full object-cover" />
         </div>
         <p className="text-center mt-6 font-body italic text-navy/60 text-[15px] max-w-2xl mx-auto" style={{ fontFamily: "var(--font-serif)" }}>
-          "One wristband. One theme. One conversation the whole whānau can keep having."
+          "One wristband. One theme. One conversation the whole family can keep having."
         </p>
       </div>
     </section>
