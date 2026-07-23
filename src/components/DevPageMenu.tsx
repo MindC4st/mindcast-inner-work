@@ -32,7 +32,7 @@ const GROUPS: Group[] = [
   { label: "Admin", links: [
     ["/admin", "Admin home"], ["/admin/sessions", "Sessions"], ["/admin/history", "History"],
     ["/admin/live", "Live"], ["/admin/framework", "Framework"], ["/admin/kids", "Kids"],
-    ["/admin/members", "Members"], ["/admin/curriculum", "Curriculum"], ["/admin/session-runner", "Session runner"],
+    ["/admin/members", "Members"], ["/admin/session-runner", "Session runner"],
     ["/admin/applications", "Applications"], ["/admin/emails", "Emails"], ["/admin/kiosk", "Kiosk"],
     ["/admin/scheduling", "Scheduling"], ["/admin/moderation", "Moderation"], ["/admin/households", "Households"],
     ["/admin/membership", "Membership"], ["/marketing", "Marketing"],

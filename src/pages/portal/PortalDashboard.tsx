@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCurrentCurriculumWeek, trackForAgeGroup } from "@/hooks/useCurriculumWeeks";
 
 // Life-group companion to Sunday Live. Pulls the 52-week curriculum from
-// `curriculum_weeks` (populated by AdminCurriculum) and resolves the current
+// `curriculum_weeks` (the live 52-week lesson plans) and resolves the current
 // week from `scheduled_sessions`. No more hardcoded pilot list.
 
 const PortalDashboard = () => {

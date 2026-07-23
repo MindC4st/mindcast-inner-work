@@ -22,7 +22,6 @@ const AdminLive = lazy(() => import("./pages/admin/AdminLive"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
 const AdminKids = lazy(() => import("./pages/admin/AdminKids"));
 const AdminMembers = lazy(() => import("./pages/admin/AdminMembers"));
-const AdminCurriculum = lazy(() => import("./pages/admin/AdminCurriculum"));
 const AdminPresenter = lazy(() => import("./pages/admin/AdminPresenter"));
 const AdminSessionRunner = lazy(() => import("./pages/admin/AdminSessionRunner"));
 const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
@@ -125,7 +124,6 @@ const AppRoutes = () => (
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
       <Route path="/admin/kids" element={<AdminRoute><AdminKids /></AdminRoute>} />
       <Route path="/admin/members" element={<AdminRoute><AdminMembers /></AdminRoute>} />
-      <Route path="/admin/curriculum" element={<AdminRoute><AdminCurriculum /></AdminRoute>} />
       <Route path="/admin/present/:id" element={<AdminRoute><AdminPresenter /></AdminRoute>} />
       <Route path="/admin/session-runner" element={<AdminRoute><AdminSessionRunner /></AdminRoute>} />
       <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
