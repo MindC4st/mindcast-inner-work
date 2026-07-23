@@ -46,7 +46,7 @@ const About = () => (
               But I was told to relax. To loosen the format. And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability — and I thought, surely there must be others out there who feel the same way.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              That's where Mindcast began. A book club, but for podcasts. A place where people show up, watch something worth thinking about, reflect together, and leave with one thing to implement before next week. Not to be taught. Just to do the work, side by side.
+              That's where Mindcast began. Not a book club, not a lecture — a facilitated weekly gathering. A 52-week journey where adults, teens and children each work through the same theme in their own live session, reflect in their course book, and leave with one thing to implement before next week. During the week, Life Groups meet to revisit the Sunday session and go deeper. Not to be taught. Just to do the work, side by side.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
               So I built the room.
@@ -63,8 +63,8 @@ const About = () => (
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {[
             { title: "COMMUNITY", body: "A weekly gathering of people who show up for each other. Not followers. Not fans. A real group doing real work together — in person, face to face." },
-            { title: "PRACTICE", body: "A structured four-step cycle that runs every week: listen to a curated podcast, complete a guided worksheet, discuss it together in the room, then leave with one thing to implement before next time." },
-            { title: "TOOLS", body: "Curated podcast episodes, guided reflection worksheets, online question submissions, and live discussion prompts — designed to make the inner work tangible and trackable, week after week." },
+            { title: "PRACTICE", body: "A 52-week journey with a weekly rhythm: a facilitated Sunday session works through the theme, you reflect in your course book and set one intention, then a midweek Life Group revisits it and goes deeper — and every session opens by asking whether last week's intention actually happened." },
+            { title: "TOOLS", body: "A live digital course book, guided reflection and journaling, weekly practices, and Life Groups — designed to make the inner work tangible and trackable across the whole 52-week journey." },
           ].map((pillar, i) => (
             <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
               <h3 className="font-display text-3xl tracking-widest mb-4">{pillar.title}</h3>
@@ -92,7 +92,7 @@ const About = () => (
               I'm not a teacher (anymore). I'm not a guru. I'm not a prophet, and I'm certainly not the source of whatever wisdom surfaces in a Mindcast session.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              Everything we draw from — the podcasts, the thinkers, the frameworks — already exists in the world. I didn't invent the wisdom. I just built the room. I created the shape of the evening. I wrote the questions. I set the table. What happens at that table belongs to everyone who sits at it.
+              Everything we draw from — the ideas, the thinkers, the frameworks — already exists in the world. I didn't invent the wisdom. I just built the room. I created the shape of the evening. I wrote the questions. I set the table. What happens at that table belongs to everyone who sits at it.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
               I built Mindcast because I needed it myself. I needed a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone. I was looking to find my people: those who get stimulated intellectually, who want to understand themselves better, who are tired of surfaces and small talk and pretending they're fine.
@@ -177,10 +177,10 @@ const About = () => (
           READY TO START?
         </motion.h2>
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
-          The Taupo Pilot is running now — 15 founding members, 10 weeks, every Tuesday evening. This is where Mindcast begins.
+          The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō.
         </motion.p>
         <motion.a href="/pilot" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
-          RESERVE YOUR SPOT &rarr;
+          BECOME A MEMBER &rarr;
         </motion.a>
       </div>
     </section>

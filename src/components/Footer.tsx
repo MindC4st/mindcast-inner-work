@@ -13,14 +13,13 @@ const Footer = () => (
           </p>
         </div>
 
-        {/* 2 — Products */}
+        {/* 2 — Explore */}
         <div>
-          <h4 className="text-cream/60 text-[11px] tracking-[0.15em] font-body font-bold mb-4">PRODUCTS</h4>
+          <h4 className="text-cream/60 text-[11px] tracking-[0.15em] font-body font-bold mb-4">EXPLORE</h4>
           <div className="flex flex-col gap-2">
-            <Link to="/signal" className="text-xs font-body hover:opacity-80 transition-opacity" style={{ color: "#9974A1" }}>Signal</Link>
-            <Link to="/little-minds" className="text-xs font-body hover:opacity-80 transition-opacity" style={{ color: "#E8927C" }}>Little Minds</Link>
-            <Link to="/connect" className="text-xs font-body hover:opacity-80 transition-opacity" style={{ color: "#A78DBF" }}>Mindcast Connect</Link>
-            <Link to="/pilot" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Pilot Group</Link>
+            <Link to="/about" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">About</Link>
+            <Link to="/pilot" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Membership</Link>
+            <Link to="/portal/login" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Member Sign In</Link>
           </div>
         </div>
 
