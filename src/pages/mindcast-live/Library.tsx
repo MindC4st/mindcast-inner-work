@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Lock, Unlock, Play, Presentation, Film } from "lucide-react";
+import { Lock, Unlock, Play, Presentation, Film, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -123,6 +123,12 @@ const Library = () => {
                     <Link to={`/mindcast-live/facilitate/${w.week_number}`}
                       className="flex items-center justify-center gap-1.5 bg-[hsl(var(--navy))] hover:bg-[hsl(var(--navy-mid))] text-white text-[11px] font-body tracking-widest uppercase py-2 rounded-sm transition-colors">
                       <Presentation size={11} />Facilitate
+                    </Link>
+                  )}
+                  {isFacilitator && (
+                    <Link to={`/mindcast-live/edit/${w.week_number}`}
+                      className="flex items-center justify-center gap-1.5 border border-[hsl(var(--navy))]/20 hover:border-[hsl(var(--navy))]/50 text-[hsl(var(--navy))] text-[11px] font-body tracking-widest uppercase py-2 rounded-sm transition-colors">
+                      <Pencil size={11} />Edit lesson
                     </Link>
                   )}
                 </div>
