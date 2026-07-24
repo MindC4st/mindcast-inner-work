@@ -19,7 +19,8 @@ type CurriculumRow = {
   week_number: number; block_theme: string | null; weekly_theme: string | null;
   core_learning: string | null; youtube_url: string | null; youtube_title: string | null;
   reflective_question: string | null; interactive_activity: string | null;
-  inner_wisdom_alignment: string | null; signal_metaphor: string | null;
+  inner_wisdom_alignment: string | null;
+  signal_metaphor: string | null; teen_signal_metaphor: string | null; kids_signal_metaphor: string | null;
   adult_video_title: string | null;
   teen_video_title: string | null; kids_title: string | null;
   kids_picture_book: string | null; kids_picture_book_note: string | null;
@@ -127,7 +128,11 @@ const LockedPanel = ({ icon, title, body, cta }: { icon: React.ReactNode; title:
 
 const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
   weekNum: number; track: string; row: CurriculumRow | null; vid: string | null; kidsAddon: boolean; profileId: string | null;
-}) => (
+}) => {
+  // Show the metaphor for the member's track (child content shows via the kids view).
+  const metaphor = track === "Teen" ? row?.teen_signal_metaphor
+    : track === "Child" ? row?.kids_signal_metaphor : row?.signal_metaphor;
+  return (
   <>
     {vid && (
       <section className="mb-10">
@@ -140,7 +145,7 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
       </section>
     )}
 
-    {(row?.inner_wisdom_alignment || row?.signal_metaphor) && (
+    {(row?.inner_wisdom_alignment || metaphor) && (
       <section className="mb-10 portal-card p-5 md:p-6 space-y-4">
         {row?.inner_wisdom_alignment && (
           <div className="flex gap-3">
@@ -151,12 +156,12 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
             </div>
           </div>
         )}
-        {row?.signal_metaphor && (
+        {metaphor && (
           <div className="flex gap-3 pt-4 border-t border-foreground/[0.06]">
             <Lightbulb size={16} className="text-primary shrink-0 mt-0.5" />
             <div>
               <p className="portal-label text-foreground/40 mb-1">IN TODAY'S WORLD</p>
-              <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{row.signal_metaphor}</p>
+              <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{metaphor}</p>
             </div>
           </div>
         )}
@@ -184,7 +189,8 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
       <JournalPanel weekNum={weekNum} track={track} profileId={profileId} reflectiveQuestion={row?.reflective_question || ""} />
     )}
   </>
-);
+  );
+};
 
 // Private per-week journal (lesson_journal). Owner-only + guardian-read RLS.
 const JournalPanel = ({ weekNum, track, profileId, reflectiveQuestion }: {
