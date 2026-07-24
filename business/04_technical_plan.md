@@ -21,6 +21,13 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
   checkout + webhook**, and a **program schedule** (weeks unlock 9:30am Sundays).
 - **Server-side paywall** (content is RLS-gated — not just hidden in the UI).
 - **Check-in → Welcome Wall**, **Q&A moderation**, display walls.
+- **Account & data deletion** — an in-app "Delete my account" flow (Settings) +
+  a `delete-account` edge function that cancels any Stripe subscription, deletes
+  personal data, and removes the auth user. *(Fulfils the privacy-policy promise
+  + app-store requirement.)*
+- **Private colouring-PDF bucket** — a `colouring` Storage bucket (private) with
+  RLS so only staff or a paying kids-add-on member can read (via signed URL);
+  facilitators upload. Portal has a per-week "Download colouring page" button.
 
 ### Still to do 🔧 (in priority order)
 1. **Switch Stripe on (config, not code).** Create the products/prices in Stripe
@@ -32,11 +39,15 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
 3. **Apply all migrations** to your Supabase (`supabase db push`) — this turns on
    the paywall RLS, tiers, schedule, and `activity_type`.
 4. **Set the program start date** at `/admin/program`.
-5. **Moderation before on-screen** — confirm every publicly-shown submission
-   (Q&A/wall) is `pending` until a moderator approves (already the model; verify
-   end-to-end on the live wall).
-6. **Kids colouring PDFs** → a **private** Storage bucket, served via signed URLs
-   gated on `kids_addon`. Upload the PDFs when ready.
+5. **Moderation before on-screen — one gap to close.** The **facilitator live
+   board is correctly gated** (only `approved` submissions display). But the two
+   **legacy display walls** (`/display/wordcloud`, `/display/goals`) pull
+   *opt-in-but-un-moderated* member shares (`workbook_entries.leaving_word`,
+   `check_ins.goal_update`). Before you rely on those walls (or submit to app
+   stores), add the same approve-before-show gate to them, or retire them in
+   favour of the moderated FacilitatorView wall.
+6. **Kids colouring PDFs** → the private `colouring` bucket + download button are
+   **built**; just **upload the PDFs** (`week-01.pdf` … `week-52.pdf`) when ready.
 7. **Live interactive widgets** — the word-cloud/poll aggregation driven by
    `activity_type` (data is in; the on-screen aggregation UI is the remaining
    build; best done against the live app).

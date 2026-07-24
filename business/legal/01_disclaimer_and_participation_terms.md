@@ -27,6 +27,30 @@ themselves and take small, practical steps toward a life they value.
   faith in the hope it helps people discover more about themselves — it is **not a
   substitute for professional care**.
 
+## 2a. The founder's role — a curator, not an authority
+Mindcast is **curated** by its founder, who gathers, arranges and reframes ideas
+from many sources into a weekly practice. The founder **does not claim to have
+the answers**, to be an expert or authority, or to have originated the underlying
+ideas. Their role is to hold the space, share what has helped others, and help
+you draw out **your own** understanding. Any answers you find here are your own,
+reached in your own way and at your own pace.
+
+## 2b. What the material is based on
+The ideas shared in Mindcast are drawn from two kinds of sources:
+- **Evidence-informed** research and widely-recognised psychological and wellbeing
+  concepts that are publicly available; and
+- **Ancient philosophical and wisdom traditions** that form part of the public
+  domain of human thought.
+
+This material is **collated, reframed and expressed in Mindcast's own words** as a
+general educational synthesis. It is shared in good faith to help people reflect
+and grow. It is **not** presented as original scientific fact, clinical guidance,
+or the teaching of any particular organisation, religion, or copyrighted work, and
+we make **no guarantee** as to the completeness, accuracy, currency, or
+suitability of any idea for your particular situation. Where we point to a talk,
+book or video, we do so as a reference for your own further exploration — we do
+not claim to represent or speak for its author.
+
 ## 3. Please seek professional help when you need it
 If you are experiencing mental or physical health difficulties, distress, or
 crisis, please consult a qualified professional. In New Zealand you can call or
@@ -71,6 +95,12 @@ confirm you have read, understood and agree to these terms.
   without a licence" or "you gave me advice" claims.
 - It frames the content as **collated general information shared in good faith** —
   your exact intent.
+- The **curator** clause makes clear you don't claim to have the answers or to be
+  an authority — reducing "you told me to / you're responsible" exposure.
+- The **basis-of-material** clause anchors the content to *evidence-informed
+  research + public-domain wisdom traditions* (not original claims and not any
+  copyrighted work), which supports both the "not professional advice" defence and
+  the copyright position in [Content IP](02_content_ip_and_licensing.md).
 - It builds in **voluntariness + freedom to leave** (also core to the anti-cult
   protection).
 - It **refers** distressed people to real help — care *and* liability defence.
