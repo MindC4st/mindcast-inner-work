@@ -1,0 +1,34 @@
+# Mindcast — Business & Operations Docs
+
+This folder is the founder's operating manual for Mindcast: the *why*, the
+numbers, the plans, the legal cover, and the checklists to launch and grow.
+
+> **Founder's north star:** money is not the goal. Covering costs is the
+> constraint; **living in a safe, loving community built through Mindcast** is
+> the goal — and, in time, licensing the lessons + software to other cities so
+> the same thing can grow elsewhere.
+
+## How to read this
+Start at the top and work down.
+
+| # | Doc | What it's for |
+|---|-----|----------------|
+| 01 | [Vision & Strategy](01_vision_and_strategy.md) | Vision, purpose, elevator pitch, business model, values |
+| 02 | [Financial Forecast](02_financial_forecast.md) | Costs, break-even, pricing tiers, paying staff not volunteers |
+| 03 | [Business Plan — Pre-launch / Launch / Marketing](03_business_plan.md) | The next-steps roadmap and go-to-market |
+| 04 | [Technical Plan](04_technical_plan.md) | What's built, what's left, moving off Lovable → own Supabase + Vercel |
+| 05 | [HR & Safeguarding Plan](05_hr_and_safeguarding.md) | Recruiting, vetting, contracts, training, moving off volunteers |
+| 06 | [App Store Launch Checklist](06_app_store_checklist.md) | Apple/Google review, disclosures, moderation, privacy |
+| L1 | [legal/ Disclaimer & Participation Terms](legal/01_disclaimer_and_participation_terms.md) | "I'm not a doctor" + educational-purpose cover |
+| L2 | [legal/ Content IP & Licensing](legal/02_content_ip_and_licensing.md) | Protect your lessons; licence to other cities |
+| L3 | [legal/ Safeguarding, Ethics & Anti-Cult Charter](legal/03_safeguarding_ethics_anticult.md) | The document that proves this is a healthy community |
+| L4 | [legal/ Privacy Policy notes](legal/04_privacy_policy_notes.md) | NZ Privacy Act 2020 — what you collect and why |
+| L5 | [legal/ IP Review of the 52 Weeks](legal/05_ip_review_52_weeks.md) | Pre-launch copyright audit + what was remediated |
+
+## Important
+- **Currency:** NZD. **Base:** Taupō, New Zealand.
+- **These are founder drafts, not filed legal/financial advice.** Anything in
+  `legal/` and the numbers in `02` must be reviewed by a **New Zealand lawyer and
+  accountant** before you rely on them. Each doc says where.
+- **Decisions still open** are listed at the end of each doc under
+  *"Decisions to confirm."* The biggest one — your legal structure — is in `01`.
