@@ -261,3 +261,23 @@ Gating rules for a given week + track:
 - [ ] Teen membership unlocks teen track only; kids add-on gives a paying adult
       the kids lessons + colouring PDFs; kids don't log in.
 - [ ] Tier/entitlement is written only by the Stripe webhook (service role).
+
+---
+
+## Part 2b — Portal home tiles (follow-ons)
+The member portal home is now an adaptive tile launcher (Check-In, Today's
+Session, Session History, Life Group, Downloads, My Progress, + a conditional
+Kid Sessions tile shown when `profiles.kids_addon` is true). Two wiring jobs
+remain for you:
+
+1. **Kid Sessions view.** The Kid Sessions tile currently points at
+   `/portal/downloads` as a placeholder. Build a proper kids view for a paying
+   adult with `kids_addon`: list the **Child-track** lessons (curriculum_weeks /
+   mindcast_live_sessions where audience='Child') and the downloadable colouring
+   PDFs from storage. Kids never log in — this is the adult's account.
+
+2. **Live input → durable journal.** The Today's Session tile opens
+   `/live/:code` (LiveJoin), which today writes to `session_responses`. Also
+   upsert the member's answers into `lesson_journal`
+   (`profile_id, week_number, track`) so reflections/activities persist beyond
+   the live room and show up under Session History → the week's journal.
