@@ -493,6 +493,80 @@ export type Database = {
         }
         Relationships: []
       }
+      household_members: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          profile_id: string
+          role_in_household: string
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          profile_id: string
+          role_in_household?: string
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          profile_id?: string
+          role_in_household?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "household_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          payer_profile_id: string | null
+          stripe_customer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          payer_profile_id?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          payer_profile_id?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "households_payer_profile_id_fkey"
+            columns: ["payer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       implementation_checkins: {
         Row: {
           cohort_id: string
@@ -1677,6 +1751,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_profile_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1684,6 +1759,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_guardian_of_profile: {
+        Args: { target_profile: string }
+        Returns: boolean
+      }
+      is_household_member: { Args: { h: string }; Returns: boolean }
     }
     Enums: {
       app_role: "member" | "facilitator" | "admin"
