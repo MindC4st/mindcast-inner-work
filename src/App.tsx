@@ -45,9 +45,6 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
 const SafeguardingPage = lazy(() => import("./pages/SafeguardingPage"));
-const SignalLanding = lazy(() => import("./pages/SignalLanding"));
-const LittleMindsLanding = lazy(() => import("./pages/LittleMindsLanding"));
-const ConnectLanding = lazy(() => import("./pages/ConnectLanding"));
 const Marketing = lazy(() => import("./pages/Marketing"));
 const FacilitatorView = lazy(() => import("./pages/mindcast-live/FacilitatorView"));
 const LiveJoin = lazy(() => import("./pages/mindcast-live/LiveJoin"));
@@ -155,9 +152,6 @@ const AppRoutes = () => (
       {/* Marketing */}
       <Route path="/about" element={<About />} />
       <Route path="/pilot" element={<Pilot />} />
-      <Route path="/little-minds" element={<LittleMindsLanding />} />
-      <Route path="/signal" element={<SignalLanding />} />
-      <Route path="/connect" element={<ConnectLanding />} />
       <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
 
       {/* Legal */}
@@ -171,6 +165,10 @@ const AppRoutes = () => (
       <Route path="/classic" element={<Navigate to="/" replace />} />
       <Route path="/ecosystem" element={<Navigate to="/" replace />} />
       <Route path="/resources" element={<Navigate to="/" replace />} />
+      {/* Retired product landing pages — folded into the single Mindcast membership */}
+      <Route path="/little-minds" element={<Navigate to="/" replace />} />
+      <Route path="/signal" element={<Navigate to="/" replace />} />
+      <Route path="/connect" element={<Navigate to="/" replace />} />
       <Route path="/membership" element={<Navigate to="/pilot" replace />} />
       <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
       {/* Legacy admin session runner retired — consolidated onto mindcast-live */}
@@ -227,9 +225,6 @@ const TITLE_MAP: [string, string][] = [
   ["/privacy", "Privacy Policy · Mindcast"],
   ["/refund", "Refund Policy · Mindcast"],
   ["/safeguarding", "Safeguarding · Mindcast"],
-  ["/little-minds", "Little Minds · Mindcast"],
-  ["/signal", "Signal · Mindcast"],
-  ["/connect", "Connect · Mindcast"],
 ];
 
 const RouteTitle = () => {
