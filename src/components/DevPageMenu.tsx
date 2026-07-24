@@ -14,9 +14,8 @@ type Group = { label: string; links: [string, string][] };
 
 const GROUPS: Group[] = [
   { label: "Public / Marketing", links: [
-    ["/", "Home"], ["/demo", "Demo"], ["/about", "About"], ["/pilot", "Pilot"],
-    ["/pilot/success", "Pilot success"], ["/little-minds", "Little Minds"],
-    ["/signal", "Signal"], ["/connect", "Connect"], ["/auth", "Sign in"], ["/onboarding", "Onboarding"],
+    ["/", "Home"], ["/demo", "Demo"], ["/about", "About"], ["/pilot", "Membership"],
+    ["/auth", "Sign in"], ["/onboarding", "Onboarding"],
   ]},
   { label: "Portal (member)", links: [
     ["/portal/dashboard", "Dashboard"], ["/portal/weeks", "Weeks"], ["/portal/week/1", "Week (1)"],
@@ -30,9 +29,9 @@ const GROUPS: Group[] = [
     ["/mindcast-live/facilitate/1", "Facilitate (1)"], ["/b/SAMPLE", "Bracelet tap (sample)"],
   ]},
   { label: "Admin", links: [
-    ["/admin", "Admin home"], ["/admin/sessions", "Sessions"], ["/admin/history", "History"],
-    ["/admin/live", "Live"], ["/admin/framework", "Framework"], ["/admin/kids", "Kids"],
-    ["/admin/members", "Members"], ["/admin/curriculum", "Curriculum"], ["/admin/session-runner", "Session runner"],
+    ["/admin", "Admin home"], ["/admin/history", "History"],
+    ["/admin/framework", "Framework"], ["/admin/kids", "Kids"],
+    ["/admin/members", "Members"],
     ["/admin/applications", "Applications"], ["/admin/emails", "Emails"], ["/admin/kiosk", "Kiosk"],
     ["/admin/scheduling", "Scheduling"], ["/admin/moderation", "Moderation"], ["/admin/households", "Households"],
     ["/admin/membership", "Membership"], ["/marketing", "Marketing"],

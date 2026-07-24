@@ -15,16 +15,10 @@ const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const AdminLanding = lazy(() => import("./pages/AdminLanding"));
-const AdminSessions = lazy(() => import("./pages/admin/AdminSessions"));
-const AdminSessionEditor = lazy(() => import("./pages/admin/AdminSessionEditor"));
 const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
-const AdminLive = lazy(() => import("./pages/admin/AdminLive"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
 const AdminKids = lazy(() => import("./pages/admin/AdminKids"));
 const AdminMembers = lazy(() => import("./pages/admin/AdminMembers"));
-const AdminCurriculum = lazy(() => import("./pages/admin/AdminCurriculum"));
-const AdminPresenter = lazy(() => import("./pages/admin/AdminPresenter"));
-const AdminSessionRunner = lazy(() => import("./pages/admin/AdminSessionRunner"));
 const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
 const AdminEmailReminders = lazy(() => import("./pages/admin/AdminEmailReminders"));
 const WorkbookRouter = lazy(() => import("./pages/WorkbookRouter"));
@@ -33,7 +27,6 @@ const GoalWall = lazy(() => import("./pages/display/GoalWall"));
 const WordCloud = lazy(() => import("./pages/display/WordCloud"));
 const About = lazy(() => import("./pages/About"));
 const Pilot = lazy(() => import("./pages/Pilot"));
-const PilotSuccess = lazy(() => import("./pages/PilotSuccess"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -46,20 +39,19 @@ const PortalInsights = lazy(() => import("./pages/portal/PortalInsights"));
 const PortalDownloads = lazy(() => import("./pages/portal/PortalDownloads"));
 const PortalSettings = lazy(() => import("./pages/portal/PortalSettings"));
 const PortalProgress = lazy(() => import("./pages/portal/PortalProgress"));
+const PortalCheckIn = lazy(() => import("./pages/portal/PortalCheckIn"));
 const PortalAdmin = lazy(() => import("./pages/portal/PortalAdmin"));
 const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
 const SafeguardingPage = lazy(() => import("./pages/SafeguardingPage"));
-const SignalLanding = lazy(() => import("./pages/SignalLanding"));
-const LittleMindsLanding = lazy(() => import("./pages/LittleMindsLanding"));
-const ConnectLanding = lazy(() => import("./pages/ConnectLanding"));
 const Marketing = lazy(() => import("./pages/Marketing"));
 const FacilitatorView = lazy(() => import("./pages/mindcast-live/FacilitatorView"));
 const LiveJoin = lazy(() => import("./pages/mindcast-live/LiveJoin"));
 const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
+const LessonEditor = lazy(() => import("./pages/mindcast-live/LessonEditor"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
 const AdminScheduling = lazy(() => import("./pages/admin/AdminScheduling"));
@@ -118,16 +110,10 @@ const AppRoutes = () => (
 
       {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminLanding /></AdminRoute>} />
-      <Route path="/admin/sessions" element={<AdminRoute><AdminSessions /></AdminRoute>} />
-      <Route path="/admin/sessions/:id" element={<AdminRoute><AdminSessionEditor /></AdminRoute>} />
       <Route path="/admin/history" element={<AdminRoute><AdminHistory /></AdminRoute>} />
-      <Route path="/admin/live" element={<AdminRoute><AdminLive /></AdminRoute>} />
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
       <Route path="/admin/kids" element={<AdminRoute><AdminKids /></AdminRoute>} />
       <Route path="/admin/members" element={<AdminRoute><AdminMembers /></AdminRoute>} />
-      <Route path="/admin/curriculum" element={<AdminRoute><AdminCurriculum /></AdminRoute>} />
-      <Route path="/admin/present/:id" element={<AdminRoute><AdminPresenter /></AdminRoute>} />
-      <Route path="/admin/session-runner" element={<AdminRoute><AdminSessionRunner /></AdminRoute>} />
       <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
       <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
       <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
@@ -148,6 +134,7 @@ const AppRoutes = () => (
       <Route path="/portal/downloads" element={<ProtectedRoute><PortalDownloads /></ProtectedRoute>} />
       <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
+      <Route path="/portal/checkin" element={<ProtectedRoute><PortalCheckIn /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
       <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
@@ -159,6 +146,7 @@ const AppRoutes = () => (
       <Route path="/mindcast-live/library" element={<ProtectedRoute><MindcastLibrary /></ProtectedRoute>} />
       <Route path="/mindcast-live/lesson/:weekNumber" element={<ProtectedRoute><MindcastLesson /></ProtectedRoute>} />
       <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
+      <Route path="/mindcast-live/edit/:weekNumber" element={<AdminRoute><LessonEditor /></AdminRoute>} />
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
@@ -168,10 +156,6 @@ const AppRoutes = () => (
       {/* Marketing */}
       <Route path="/about" element={<About />} />
       <Route path="/pilot" element={<Pilot />} />
-      <Route path="/pilot/success" element={<PilotSuccess />} />
-      <Route path="/little-minds" element={<LittleMindsLanding />} />
-      <Route path="/signal" element={<SignalLanding />} />
-      <Route path="/connect" element={<ConnectLanding />} />
       <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
 
       {/* Legal */}
@@ -185,8 +169,18 @@ const AppRoutes = () => (
       <Route path="/classic" element={<Navigate to="/" replace />} />
       <Route path="/ecosystem" element={<Navigate to="/" replace />} />
       <Route path="/resources" element={<Navigate to="/" replace />} />
+      {/* Retired product landing pages — folded into the single Mindcast membership */}
+      <Route path="/little-minds" element={<Navigate to="/" replace />} />
+      <Route path="/signal" element={<Navigate to="/" replace />} />
+      <Route path="/connect" element={<Navigate to="/" replace />} />
       <Route path="/membership" element={<Navigate to="/pilot" replace />} />
       <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
+      {/* Legacy admin session runner retired — consolidated onto mindcast-live */}
+      <Route path="/admin/sessions" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/sessions/:id" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/live" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/present/:id" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/session-runner" element={<Navigate to="/mindcast-live/library" replace />} />
       <Route path="/dashboard" element={<Navigate to="/portal/dashboard" replace />} />
       <Route path="/checkin" element={<Navigate to="/portal/dashboard" replace />} />
       <Route path="/join" element={<Navigate to="/live" replace />} />
@@ -218,10 +212,12 @@ const TITLE_MAP: [string, string][] = [
   ["/portal/downloads", "Downloads · Mindcast Portal"],
   ["/portal/settings", "Settings · Mindcast Portal"],
   ["/portal/progress", "Progress · Mindcast Portal"],
+  ["/portal/checkin", "Check-In · Mindcast Portal"],
   ["/portal/login", "Member Login · Mindcast"],
   ["/mindcast-live/library", "Coursebook Library · Mindcast"],
   ["/mindcast-live/lesson", "Lesson · Mindcast"],
   ["/mindcast-live/facilitate", "Facilitate · Mindcast"],
+  ["/mindcast-live/edit", "Edit Lesson · Mindcast"],
   ["/admin", "Admin · Mindcast"],
   ["/workbook", "Workbook · Mindcast"],
   ["/dashboard", "Dashboard · Mindcast"],
@@ -235,9 +231,6 @@ const TITLE_MAP: [string, string][] = [
   ["/privacy", "Privacy Policy · Mindcast"],
   ["/refund", "Refund Policy · Mindcast"],
   ["/safeguarding", "Safeguarding · Mindcast"],
-  ["/little-minds", "Little Minds · Mindcast"],
-  ["/signal", "Signal · Mindcast"],
-  ["/connect", "Connect · Mindcast"],
 ];
 
 const RouteTitle = () => {

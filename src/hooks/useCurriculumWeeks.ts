@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Life-group companion pulls the full 52-week curriculum from the database
-// (populated by AdminCurriculum) instead of a hardcoded pilot array. Each
+// (the live 52-week lesson plans) instead of a hardcoded pilot array. Each
 // track (adult/teen/child) reads its own title column but shares the weekly
 // theme.
 

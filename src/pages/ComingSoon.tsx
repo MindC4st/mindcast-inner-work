@@ -6,15 +6,15 @@ import Footer from "@/components/Footer";
 const pageContent: Record<string, { title: string; message: string }> = {
   "/live": {
     title: "LIVE SESSIONS",
-    message: "Live sessions and recordings are coming in Term 2. Join the pilot to be first in.",
+    message: "Your Sunday live session opens here each week. Become a member to join.",
   },
   "/resources": {
     title: "RESOURCE LIBRARY",
-    message: "The resource library is being built. Pilot members get early access.",
+    message: "The resource library is being built. Members get access as lessons unlock.",
   },
   "/ecosystem": {
     title: "THE ECOSYSTEM",
-    message: "The full Mindcast ecosystem launches after our founding pilot.",
+    message: "The full 52-week Mindcast journey is rolling out. Become a member to begin.",
   },
 };
 

@@ -8,9 +8,9 @@ const PortalGroup = () => (
       <div className="w-12 h-12 bg-foreground/5 flex items-center justify-center mx-auto mb-6">
         <Users size={20} className="text-foreground/30" strokeWidth={1.5} />
       </div>
-      <h1 className="portal-heading text-2xl text-foreground mb-3">GROUP VIEW</h1>
+      <h1 className="portal-heading text-2xl text-foreground mb-3">LIFE GROUP</h1>
       <p className="text-sm text-muted-foreground font-body font-light leading-relaxed mb-4">
-        Shared reflections from your cohort will appear here once sessions begin.
+        Shared reflections from your Life Group will appear here once sessions begin.
       </p>
       <div className="inline-flex items-center gap-2 text-[10px] tracking-[0.2em] text-muted-foreground/60 font-body">
         <Lock size={12} strokeWidth={1.5} />
