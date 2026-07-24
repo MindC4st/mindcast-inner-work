@@ -8,6 +8,7 @@ import {
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 
 // Member portal home — an adaptive tile launcher. The set of tiles adjusts to
 // the member type (adult / teen / adult-with-kids). Settings is not a tile; it
@@ -34,9 +35,10 @@ const PortalDashboard = () => {
   const firstName = (profile?.name || "").split(" ")[0] || "there";
 
   const [liveCode, setLiveCode] = useState<string | null>(null);
-  const [weekNo, setWeekNo] = useState<number | null>(null);
   const [joinOpen, setJoinOpen] = useState(false);
   const [code, setCode] = useState("");
+  const { currentWeek } = useProgramSchedule();
+  const weekNo = currentWeek;
 
   // Today's scheduled session for the member's track — drives the live deep-link.
   useEffect(() => {
@@ -44,13 +46,11 @@ const PortalDashboard = () => {
     const date = new Date().toISOString().slice(0, 10);
     (supabase as any)
       .from("scheduled_sessions")
-      .select("week_number, session_code, status")
+      .select("session_code, status")
       .eq("session_date", date).eq("track", track).neq("status", "cancelled")
       .maybeSingle()
-      .then(({ data }: { data: { week_number: number; session_code: string | null; status: string } | null }) => {
-        if (!data) return;
-        setWeekNo(data.week_number);
-        if (data.status === "live" && data.session_code) setLiveCode(data.session_code);
+      .then(({ data }: { data: { session_code: string | null; status: string } | null }) => {
+        if (data?.status === "live" && data.session_code) setLiveCode(data.session_code);
       });
   }, [profile, track]);
 
@@ -76,7 +76,7 @@ const PortalDashboard = () => {
     ];
     // Kid Sessions appears for a paying adult who added a kids membership.
     if (!isTeen && hasKids) {
-      base.splice(3, 0, { key: "kids", title: "Kid Sessions", subtitle: "Kids lessons & colouring pages", icon: Baby, to: "/portal/downloads", badge: "KIDS" });
+      base.splice(3, 0, { key: "kids", title: "Kid Sessions", subtitle: "Kids lessons & colouring pages", icon: Baby, to: "/portal/kids", badge: "KIDS" });
     }
     return base;
   }, [liveCode, hasKids, isTeen]);

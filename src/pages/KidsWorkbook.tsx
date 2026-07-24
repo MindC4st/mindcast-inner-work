@@ -25,7 +25,7 @@ const SECTIONS = [
   { key: "question_2_answer", title: "Big thinking question 2", type: "bigq", questionField: "question_2" },
   { key: "something_to_remember", title: "Something I want to remember", type: "remember" },
   { key: "weekly_goal", title: "My goal this week", type: "goal" },
-  { key: "little_minds_question", title: "Little Minds Big Questions", type: "littleminds" },
+  { key: "little_minds_question", title: "Big Questions", type: "littleminds" },
   { key: "parent_conversation_notes", title: "Talk with a grown-up", type: "parent" },
 ];
 
@@ -301,7 +301,7 @@ const KidsWorkbook = () => {
             <p className="text-foreground/40 text-sm font-body text-center leading-relaxed mb-4">A question that came to me during today's session was:</p>
             <textarea value={entry.little_minds_question || ""} onChange={(e) => updateField("little_minds_question", e.target.value)} rows={3} className="w-full bg-transparent border border-foreground/[0.06] text-foreground font-body text-sm p-4 focus:outline-none focus:border-foreground/15 resize-none placeholder:text-foreground/10 rounded-lg" placeholder="My big question..." autoFocus />
           </div>
-          <p className="text-foreground/20 text-[10px] font-body text-center leading-relaxed">Ask a grown-up to help you explore this question further using the Little Minds Big Questions app. They will create a story just for you!</p>
+          <p className="text-foreground/20 text-[10px] font-body text-center leading-relaxed">Ask a grown-up to help you explore your big question together and make up a story about it!</p>
           <div className="mt-4">
             <p className="text-foreground/20 text-xs font-body mb-2 text-center">After you read your story together, take a photo of your favourite part:</p>
             <DrawingUpload field="little_minds_drawing_url" label="story drawing" />

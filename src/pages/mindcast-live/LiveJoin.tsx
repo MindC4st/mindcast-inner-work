@@ -150,6 +150,21 @@ const LiveJoin = () => {
       .maybeSingle();
     setSubmitting(false);
     if (error) { toast({ title: "Couldn't submit", description: error.message }); return; }
+
+    // Persist to the member's durable journal so their live activity input shows
+    // up under Session History. Only activity_response is set, so a portal
+    // reflection for the same week is preserved (on-conflict updates that column
+    // only). Best-effort — never block the live submission on it.
+    const pid = (profile as any)?.id;
+    if (pid && state.audience) {
+      try {
+        await (supabase as any).from("lesson_journal").upsert(
+          { profile_id: pid, week_number: state.week, track: state.audience, activity_response: response.trim().slice(0, 2000) },
+          { onConflict: "profile_id,week_number,track" },
+        );
+      } catch { /* journal write is best-effort */ }
+    }
+
     setSubmittedFor(`${state.slide}`);
     setSubmittedRowId(data?.id ?? null);
     setModerationStatus(shareOnScreen ? "pending" : "approved");
