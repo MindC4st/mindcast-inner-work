@@ -23,6 +23,7 @@ Start at the top and work down.
 | L2 | [legal/ Content IP & Licensing](legal/02_content_ip_and_licensing.md) | Protect your lessons; licence to other cities |
 | L3 | [legal/ Safeguarding, Ethics & Anti-Cult Charter](legal/03_safeguarding_ethics_anticult.md) | The document that proves this is a healthy community |
 | L4 | [legal/ Privacy Policy notes](legal/04_privacy_policy_notes.md) | NZ Privacy Act 2020 — what you collect and why |
+| L5 | [legal/ IP Review of the 52 Weeks](legal/05_ip_review_52_weeks.md) | Pre-launch copyright audit + what was remediated |
 
 ## Important
 - **Currency:** NZD. **Base:** Taupō, New Zealand.
