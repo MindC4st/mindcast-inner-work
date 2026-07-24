@@ -37,8 +37,9 @@ const PortalDashboard = () => {
   const [liveCode, setLiveCode] = useState<string | null>(null);
   const [joinOpen, setJoinOpen] = useState(false);
   const [code, setCode] = useState("");
-  const { currentWeek } = useProgramSchedule();
+  const { currentWeek, startDate, loading: schedLoading } = useProgramSchedule();
   const weekNo = currentWeek;
+  const notStarted = !schedLoading && !startDate;
 
   // Today's scheduled session for the member's track — drives the live deep-link.
   useEffect(() => {
@@ -102,6 +103,26 @@ const PortalDashboard = () => {
           <Settings size={17} strokeWidth={1.5} />
         </Link>
       </motion.div>
+
+      {/* Live-now banner — check in the moment a session is live */}
+      {liveCode && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className="mb-6 rounded-lg bg-primary text-primary-foreground p-4 flex items-center gap-3 flex-wrap">
+          <span className="flex items-center gap-2 text-[11px] font-body tracking-widest uppercase">
+            <span className="w-2 h-2 rounded-full bg-primary-foreground animate-pulse" /> Live now
+          </span>
+          <span className="text-sm font-body flex-1 min-w-0">Your session is running.</span>
+          <Link to="/portal/checkin" className="text-[11px] font-body tracking-widest uppercase bg-primary-foreground/15 hover:bg-primary-foreground/25 rounded px-3 py-1.5 transition-colors">Check in</Link>
+          <button onClick={() => navigate(`/live/${liveCode}`)} className="text-[11px] font-body tracking-widest uppercase bg-primary-foreground text-primary rounded px-3 py-1.5">Join →</button>
+        </motion.div>
+      )}
+
+      {/* Cold-start — program hasn't been dated yet */}
+      {notStarted && (
+        <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
+          <p className="text-sm font-body text-foreground/80">Your 52-week journey hasn't started yet — your facilitator will set the start date soon. You can still explore the coursebook below.</p>
+        </div>
+      )}
 
       {/* Join-code entry (revealed when there's no live deep-link) */}
       {joinOpen && (

@@ -141,6 +141,12 @@ const PortalBilling = () => {
           </div>
         )}
 
+        {!isMember && (
+          <p className="text-[11px] text-foreground/40 font-body mt-4">
+            You'll see the exact price{addKids ? " (including the kids membership)" : ""} before confirming at checkout. Cancel anytime.
+          </p>
+        )}
+
         {error && <p className="text-sm text-destructive font-body mt-6">{error}</p>}
         {authLoading && <p className="text-xs font-body uppercase tracking-widest text-foreground/40 mt-6">Loading…</p>}
       </div>

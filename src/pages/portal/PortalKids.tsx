@@ -13,25 +13,34 @@ import { supabase } from "@/integrations/supabase/client";
 
 type KidWeek = {
   week_number: number; block_theme: string | null; weekly_theme: string | null;
-  kids_title: string | null; kids_picture_book: string | null;
-  kids_picture_book_note: string | null; kids_colouring_prompt: string | null;
+  kids_title: string | null;
 };
+type KidContent = { kids_picture_book: string | null; kids_picture_book_note: string | null; kids_colouring_prompt: string | null };
 
 const PortalKids = () => {
   const { isMember, kidsAddon } = useEntitlement();
   const { isUnlocked, unlockDate } = useProgramSchedule();
   const [weeks, setWeeks] = useState<KidWeek[]>([]);
+  const [content, setContent] = useState<Record<number, KidContent>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("curriculum_weeks")
-        .select("week_number, block_theme, weekly_theme, kids_title, kids_picture_book, kids_picture_book_note, kids_colouring_prompt")
-        .order("week_number", { ascending: true });
+      // Public titles for all weeks + the paid kids body (RLS returns only the
+      // weeks this member may read: active + unlocked).
+      const [{ data: titles }, { data: body }] = await Promise.all([
+        (supabase as any).rpc("curriculum_public"),
+        (supabase as any).from("curriculum_weeks")
+          .select("week_number, kids_picture_book, kids_picture_book_note, kids_colouring_prompt"),
+      ]);
       if (!active) return;
-      setWeeks((data || []) as KidWeek[]);
+      setWeeks((titles || []).map((r: any) => ({
+        week_number: r.week_number, block_theme: r.block_theme, weekly_theme: r.weekly_theme, kids_title: r.kids_title,
+      })) as KidWeek[]);
+      const map: Record<number, KidContent> = {};
+      (body || []).forEach((r: any) => { map[r.week_number] = r; });
+      setContent(map);
       setLoading(false);
     })();
     return () => { active = false; };
@@ -82,25 +91,25 @@ const PortalKids = () => {
                   )}
                 </div>
 
-                {unlocked && (
+                {unlocked && (() => { const c = content[w.week_number]; return (
                   <div className="mt-4 space-y-3">
-                    {w.kids_picture_book && (
+                    {c?.kids_picture_book && (
                       <p className="text-sm text-foreground/80 font-body flex items-start gap-2">
                         <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
-                        <span><span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>{w.kids_picture_book}{w.kids_picture_book_note ? ` — ${w.kids_picture_book_note}` : ""}</span>
+                        <span><span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>{c.kids_picture_book}{c.kids_picture_book_note ? ` — ${c.kids_picture_book_note}` : ""}</span>
                       </p>
                     )}
-                    {w.kids_colouring_prompt && (
+                    {c?.kids_colouring_prompt && (
                       <div className="text-sm text-foreground/70 font-body font-light flex items-start gap-2">
                         <Palette size={14} className="text-primary mt-0.5 shrink-0" />
-                        <span><span className="portal-label text-foreground/40 mr-2">COLOURING PAGE</span>{w.kids_colouring_prompt}</span>
+                        <span><span className="portal-label text-foreground/40 mr-2">COLOURING PAGE</span>{c.kids_colouring_prompt}</span>
                       </div>
                     )}
                     <Link to="/portal/downloads" className="inline-block text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
                       Colouring PDFs →
                     </Link>
                   </div>
-                )}
+                ); })()}
               </motion.div>
             );
           })}
