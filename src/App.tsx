@@ -39,6 +39,7 @@ const PortalInsights = lazy(() => import("./pages/portal/PortalInsights"));
 const PortalDownloads = lazy(() => import("./pages/portal/PortalDownloads"));
 const PortalSettings = lazy(() => import("./pages/portal/PortalSettings"));
 const PortalProgress = lazy(() => import("./pages/portal/PortalProgress"));
+const PortalCheckIn = lazy(() => import("./pages/portal/PortalCheckIn"));
 const PortalAdmin = lazy(() => import("./pages/portal/PortalAdmin"));
 const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
@@ -133,6 +134,7 @@ const AppRoutes = () => (
       <Route path="/portal/downloads" element={<ProtectedRoute><PortalDownloads /></ProtectedRoute>} />
       <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
+      <Route path="/portal/checkin" element={<ProtectedRoute><PortalCheckIn /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
       <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
@@ -210,6 +212,7 @@ const TITLE_MAP: [string, string][] = [
   ["/portal/downloads", "Downloads · Mindcast Portal"],
   ["/portal/settings", "Settings · Mindcast Portal"],
   ["/portal/progress", "Progress · Mindcast Portal"],
+  ["/portal/checkin", "Check-In · Mindcast Portal"],
   ["/portal/login", "Member Login · Mindcast"],
   ["/mindcast-live/library", "Coursebook Library · Mindcast"],
   ["/mindcast-live/lesson", "Lesson · Mindcast"],
