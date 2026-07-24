@@ -122,6 +122,7 @@ const AppRoutes = () => (
       <Route path="/admin/moderation" element={<AdminRoute><AdminModeration /></AdminRoute>} />
       <Route path="/admin/households" element={<AdminOnlyRoute><AdminHouseholds /></AdminOnlyRoute>} />
       <Route path="/admin/membership" element={<AdminOnlyRoute><AdminMembership /></AdminOnlyRoute>} />
+      <Route path="/admin/program" element={<AdminOnlyRoute><AdminProgram /></AdminOnlyRoute>} />
 
       {/* Portal (life-group companion) */}
       <Route path="/portal/login" element={<PortalLogin />} />
