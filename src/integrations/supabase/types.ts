@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       bookmark_responses: {
         Row: {
           bookmark_id: string
@@ -229,6 +247,7 @@ export type Database = {
       }
       curriculum_weeks: {
         Row: {
+          activity_type: string
           adult_search_notes: string | null
           adult_source: string | null
           adult_video_title: string | null
@@ -249,6 +268,7 @@ export type Database = {
           weekly_theme: string
         }
         Insert: {
+          activity_type?: string
           adult_search_notes?: string | null
           adult_source?: string | null
           adult_video_title?: string | null
@@ -269,6 +289,7 @@ export type Database = {
           weekly_theme?: string
         }
         Update: {
+          activity_type?: string
           adult_search_notes?: string | null
           adult_source?: string | null
           adult_video_title?: string | null
@@ -813,6 +834,53 @@ export type Database = {
           },
         ]
       }
+      lesson_journal: {
+        Row: {
+          activity_response: string | null
+          created_at: string
+          id: string
+          life_group_notes: string | null
+          personal_notes: string | null
+          profile_id: string
+          reflection_answer: string | null
+          track: string
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          activity_response?: string | null
+          created_at?: string
+          id?: string
+          life_group_notes?: string | null
+          personal_notes?: string | null
+          profile_id: string
+          reflection_answer?: string | null
+          track?: string
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          activity_response?: string | null
+          created_at?: string
+          id?: string
+          life_group_notes?: string | null
+          personal_notes?: string | null
+          profile_id?: string
+          reflection_answer?: string | null
+          track?: string
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_journal_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mindcast_live_sessions: {
         Row: {
           ancient_wisdom_reframe: string | null
@@ -1070,7 +1138,9 @@ export type Database = {
           id: string
           is_active: boolean
           is_admin: boolean | null
+          kids_addon: boolean
           membership_status: string
+          membership_tier: string
           name: string
           nfc_id: string | null
           notify_practice_email: boolean
@@ -1092,7 +1162,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          kids_addon?: boolean
           membership_status?: string
+          membership_tier?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1114,7 +1186,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          kids_addon?: boolean
           membership_status?: string
+          membership_tier?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1445,6 +1519,7 @@ export type Database = {
           status: string
           stripe_customer_id: string
           stripe_subscription_id: string
+          tier: string | null
           updated_at: string
         }
         Insert: {
@@ -1460,6 +1535,7 @@ export type Database = {
           status: string
           stripe_customer_id: string
           stripe_subscription_id: string
+          tier?: string | null
           updated_at?: string
         }
         Update: {
@@ -1475,6 +1551,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string
           stripe_subscription_id?: string
+          tier?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1833,6 +1910,7 @@ export type Database = {
         Returns: boolean
       }
       is_household_member: { Args: { h: string }; Returns: boolean }
+      lesson_unlocked: { Args: { week_number: number }; Returns: boolean }
     }
     Enums: {
       app_role: "member" | "facilitator" | "admin"
