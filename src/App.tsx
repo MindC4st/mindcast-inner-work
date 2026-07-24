@@ -32,7 +32,6 @@ const GoalWall = lazy(() => import("./pages/display/GoalWall"));
 const WordCloud = lazy(() => import("./pages/display/WordCloud"));
 const About = lazy(() => import("./pages/About"));
 const Pilot = lazy(() => import("./pages/Pilot"));
-const PilotSuccess = lazy(() => import("./pages/PilotSuccess"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -166,7 +165,6 @@ const AppRoutes = () => (
       {/* Marketing */}
       <Route path="/about" element={<About />} />
       <Route path="/pilot" element={<Pilot />} />
-      <Route path="/pilot/success" element={<PilotSuccess />} />
       <Route path="/little-minds" element={<LittleMindsLanding />} />
       <Route path="/signal" element={<SignalLanding />} />
       <Route path="/connect" element={<ConnectLanding />} />

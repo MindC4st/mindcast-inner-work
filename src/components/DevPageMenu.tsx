@@ -15,7 +15,7 @@ type Group = { label: string; links: [string, string][] };
 const GROUPS: Group[] = [
   { label: "Public / Marketing", links: [
     ["/", "Home"], ["/demo", "Demo"], ["/about", "About"], ["/pilot", "Pilot"],
-    ["/pilot/success", "Pilot success"], ["/little-minds", "Little Minds"],
+    ["/little-minds", "Little Minds"],
     ["/signal", "Signal"], ["/connect", "Connect"], ["/auth", "Sign in"], ["/onboarding", "Onboarding"],
   ]},
   { label: "Portal (member)", links: [
