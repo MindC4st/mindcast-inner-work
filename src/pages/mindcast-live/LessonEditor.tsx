@@ -131,6 +131,11 @@ const LessonEditor = () => {
   const [active, setActive] = useState(0);
   const cleanRef = useRef<string>("");
 
+  // activity_type lives on curriculum_weeks (week-level, shared across tracks).
+  const [activityType, setActivityType] = useState<string>("reflection");
+  const activityCleanRef = useRef<string>("reflection");
+  const activityDirty = activityType !== activityCleanRef.current;
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -147,6 +152,21 @@ const LessonEditor = () => {
     })();
     return () => { cancelled = true; };
   }, [week, audience]);
+
+  // Week-level activity_type from curriculum_weeks (independent of track).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("curriculum_weeks").select("activity_type")
+        .eq("week_number", week).maybeSingle();
+      if (cancelled) return;
+      const t = data?.activity_type || "reflection";
+      setActivityType(t);
+      activityCleanRef.current = t;
+    })();
+    return () => { cancelled = true; };
+  }, [week]);
 
   const set = (key: keyof Draft, value: string | number) => {
     setDraft((d) => {
@@ -165,14 +185,22 @@ const LessonEditor = () => {
       .from("mindcast_live_sessions")
       .upsert(payload, { onConflict: "week_number,audience" })
       .select("id").maybeSingle();
+    // Persist the week-level activity_type (curriculum_weeks) when it changed.
+    let activityErr: any = null;
+    if (activityDirty) {
+      const r = await (supabase as any)
+        .from("curriculum_weeks").update({ activity_type: activityType }).eq("week_number", week);
+      activityErr = r.error;
+    }
     setSaving(false);
-    if (error) {
-      toast({ title: "Couldn't save", description: error.message, variant: "destructive" });
+    if (error || activityErr) {
+      toast({ title: "Couldn't save", description: (error || activityErr).message, variant: "destructive" });
       return;
     }
     const saved = { ...draft, id: data?.id ?? draft.id };
     setDraft(saved);
     cleanRef.current = JSON.stringify({ ...EMPTY(week, audience), ...saved });
+    activityCleanRef.current = activityType;
     setDirty(false);
     setSavedAt(new Date());
     toast({ title: "Saved", description: `Week ${week} · ${audience}` });
@@ -180,10 +208,10 @@ const LessonEditor = () => {
 
   // Warn before navigating away with unsaved edits.
   useEffect(() => {
-    const h = (e: BeforeUnloadEvent) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } };
+    const h = (e: BeforeUnloadEvent) => { if (dirty || activityDirty) { e.preventDefault(); e.returnValue = ""; } };
     window.addEventListener("beforeunload", h);
     return () => window.removeEventListener("beforeunload", h);
-  }, [dirty]);
+  }, [dirty, activityDirty]);
 
   const slide = SLIDES[active];
   const vid = useMemo(() => ytId(draft.video_link), [draft.video_link]);
@@ -276,6 +304,20 @@ const LessonEditor = () => {
                 )}
 
                 <div className="space-y-5">
+                  {/* Experiential Exercise slide: pick the live input widget (week-level). */}
+                  {slide.idx === 8 && (
+                    <label className="block">
+                      <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">Live activity type</span>
+                      <select value={activityType} onChange={(e) => setActivityType(e.target.value)}
+                        className="w-full max-w-xs rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20">
+                        <option value="wordcloud">Word cloud — one word each</option>
+                        <option value="poll">Poll / spectrum — vote or rate</option>
+                        <option value="reflection">Reflection — submit a line / open Q&amp;A</option>
+                        <option value="none">Private only — nothing on screen</option>
+                      </select>
+                      <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Drives the live in-session widget. Applies to all tracks for this week.</span>
+                    </label>
+                  )}
                   {slide.fields.map((f) => (
                     <FieldRow key={String(f.key)} field={f} value={draft[f.key]} onChange={(v) => set(f.key, v)} vid={f.kind === "video" ? vid : null} />
                   ))}
@@ -290,7 +332,7 @@ const LessonEditor = () => {
       <div className="sticky bottom-0 z-20 backdrop-blur-xl bg-[hsl(var(--ivory))]/85 border-t border-[hsl(var(--warm-border))]">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center gap-3">
           <span className="text-xs font-body text-[hsl(var(--navy-mid))] flex items-center gap-1.5">
-            {dirty ? (
+            {(dirty || activityDirty) ? (
               <><span className="w-2 h-2 rounded-full bg-[hsl(var(--bronze))] animate-pulse" /> Unsaved changes</>
             ) : savedAt ? (
               <><Check size={14} className="text-[hsl(var(--blue))]" /> Saved {savedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</>
@@ -298,7 +340,7 @@ const LessonEditor = () => {
               <>All changes saved</>
             )}
           </span>
-          <button onClick={save} disabled={saving || !dirty}
+          <button onClick={save} disabled={saving || (!dirty && !activityDirty)}
             className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-[hsl(var(--navy))] hover:bg-[hsl(var(--navy-mid))] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-body tracking-widest uppercase transition-all active:scale-95">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? "Saving…" : "Save changes"}
