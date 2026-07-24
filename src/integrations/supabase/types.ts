@@ -1070,6 +1070,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_admin: boolean | null
+          membership_status: string
           name: string
           nfc_id: string | null
           notify_practice_email: boolean
@@ -1077,6 +1078,7 @@ export type Database = {
           onboarding_complete: boolean | null
           opt_in_public_goals: boolean | null
           show_attendance_on_screen: boolean | null
+          stripe_customer_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1090,6 +1092,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          membership_status?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1097,6 +1100,7 @@ export type Database = {
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1110,6 +1114,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          membership_status?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1117,6 +1122,7 @@ export type Database = {
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1421,6 +1427,69 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          household_id: string | null
+          id: string
+          plan: string | null
+          price_id: string | null
+          profile_id: string | null
+          quantity: number
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          household_id?: string | null
+          id?: string
+          plan?: string | null
+          price_id?: string | null
+          profile_id?: string | null
+          quantity?: number
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          household_id?: string | null
+          id?: string
+          plan?: string | null
+          price_id?: string | null
+          profile_id?: string | null
+          quantity?: number
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
