@@ -33,6 +33,7 @@ const AdminLanding = () => {
   }, [user, loading]);
 
   const tiles = [
+    { label: "Program Schedule", icon: CalendarDays, to: "/admin/program", desc: "Set Week 1 date & timezone for unlocks" },
     { label: "Facilitate Live", icon: Clapperboard, to: "/mindcast-live/library", desc: "Run the Sunday session from the 52-week coursebook" },
     { label: "History", icon: History, to: "/admin/history", desc: "Review past sessions and data" },
     { label: "Framework", icon: Calendar, to: "/admin/framework", desc: "Edit the session running order" },
