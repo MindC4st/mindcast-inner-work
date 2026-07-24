@@ -37,6 +37,9 @@ surfaces, and only these three:
   `core_learning, youtube_url/title/runtime, reflective_question,
   interactive_activity, kids_picture_book(+_note), kids_colouring_prompt,
   inner_wisdom_alignment`. This is the **single source of truth** for lessons.
+  There is also a structured `activity_type` column
+  ('wordcloud'|'poll'|'reflection'|'none'), backfilled per week and editable in
+  the lesson editor — **read it to choose the live widget; do not parse the prose.**
 - `lesson_journal` (`profile_id, week_number, track` + `reflection_answer,
   activity_response, personal_notes, life_group_notes`) — private, owner-only,
   guardian-read.
@@ -100,10 +103,11 @@ surfaces, and only these three:
 - **Live input → journal:** `/live/:code` (LiveJoin) currently writes to
   `session_responses`; also upsert answers into `lesson_journal` so they persist
   to **Session History**.
-- Drive each week's **interactive activity** (word cloud / poll / open Q&A) off
-  `curriculum_weeks.interactive_activity`, reusing `session_responses` +
-  `featured_callbacks` (no new responses table). Verify the join code + activity
-  round-trip for all 52 weeks.
+- Drive each week's **interactive activity** off `curriculum_weeks.activity_type`
+  (wordcloud / poll / reflection / none) — render the matching live widget and
+  show `interactive_activity` as the on-screen description. Reuse
+  `session_responses` + `featured_callbacks` (no new responses table). Verify the
+  join code + activity round-trip for all 52 weeks.
 
 ### 4. Kids
 - Build the **Kid Sessions** view for a paying adult with `kids_addon` (the tile
