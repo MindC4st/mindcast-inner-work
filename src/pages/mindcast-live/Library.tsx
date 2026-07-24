@@ -19,7 +19,7 @@ const Library = () => {
     if (!user) return;
     (async () => {
       const [{ data: sessions }, { data: unl }, { data: comp }] = await Promise.all([
-        (supabase as any).from("mindcast_live_sessions").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
+        (supabase as any).from("mindcast_live_sessions_public").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
         (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         (supabase as any).from("lesson_completions").select("week_number").eq("user_id", user.id),
       ]);

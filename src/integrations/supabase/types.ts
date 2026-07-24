@@ -1894,7 +1894,87 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mindcast_live_sessions_public: {
+        Row: {
+          ancient_wisdom_reframe: string | null
+          audience: string | null
+          core_affirmation: string | null
+          core_concept: string | null
+          created_at: string | null
+          experiential_exercise: string | null
+          guided_reflection: string | null
+          id: string | null
+          journaling_prompt: string | null
+          opening_hook: string | null
+          phase: number | null
+          phase_name: string | null
+          session_title: string | null
+          signal_metaphor: string | null
+          teaching_points: string | null
+          theme_title: string | null
+          updated_at: string | null
+          video_backup_description: string | null
+          video_description: string | null
+          video_link: string | null
+          week_number: number | null
+          weekly_practice_mon: string | null
+          weekly_practice_sun: string | null
+          weekly_practice_wed: string | null
+        }
+        Insert: {
+          ancient_wisdom_reframe?: string | null
+          audience?: string | null
+          core_affirmation?: string | null
+          core_concept?: string | null
+          created_at?: string | null
+          experiential_exercise?: string | null
+          guided_reflection?: string | null
+          id?: string | null
+          journaling_prompt?: string | null
+          opening_hook?: string | null
+          phase?: number | null
+          phase_name?: string | null
+          session_title?: string | null
+          signal_metaphor?: string | null
+          teaching_points?: string | null
+          theme_title?: string | null
+          updated_at?: string | null
+          video_backup_description?: string | null
+          video_description?: string | null
+          video_link?: string | null
+          week_number?: number | null
+          weekly_practice_mon?: string | null
+          weekly_practice_sun?: string | null
+          weekly_practice_wed?: string | null
+        }
+        Update: {
+          ancient_wisdom_reframe?: string | null
+          audience?: string | null
+          core_affirmation?: string | null
+          core_concept?: string | null
+          created_at?: string | null
+          experiential_exercise?: string | null
+          guided_reflection?: string | null
+          id?: string | null
+          journaling_prompt?: string | null
+          opening_hook?: string | null
+          phase?: number | null
+          phase_name?: string | null
+          session_title?: string | null
+          signal_metaphor?: string | null
+          teaching_points?: string | null
+          theme_title?: string | null
+          updated_at?: string | null
+          video_backup_description?: string | null
+          video_description?: string | null
+          video_link?: string | null
+          week_number?: number | null
+          weekly_practice_mon?: string | null
+          weekly_practice_sun?: string | null
+          weekly_practice_wed?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       current_profile_id: { Args: never; Returns: string }

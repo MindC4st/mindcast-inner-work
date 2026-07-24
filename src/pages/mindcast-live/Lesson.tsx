@@ -43,7 +43,7 @@ const Lesson = () => {
     if (!user) return;
     (async () => {
       const [s, u, r, c, w] = await Promise.all([
-        (supabase as any).from("mindcast_live_sessions").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
+        (supabase as any).from("mindcast_live_sessions_public").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
         (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         (supabase as any).from("session_responses")
           .select("prompt_type, response_text")
