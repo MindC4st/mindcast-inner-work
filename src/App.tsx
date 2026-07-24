@@ -59,6 +59,7 @@ const AdminHouseholds = lazy(() => import("./pages/admin/AdminHouseholds"));
 const AdminMembership = lazy(() => import("./pages/admin/AdminMembership"));
 const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
 const Demo = lazy(() => import("./pages/Demo"));
+const AdminProgram = lazy(() => import("./pages/admin/AdminProgram"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -121,6 +122,7 @@ const AppRoutes = () => (
       <Route path="/admin/moderation" element={<AdminRoute><AdminModeration /></AdminRoute>} />
       <Route path="/admin/households" element={<AdminOnlyRoute><AdminHouseholds /></AdminOnlyRoute>} />
       <Route path="/admin/membership" element={<AdminOnlyRoute><AdminMembership /></AdminOnlyRoute>} />
+      <Route path="/admin/program" element={<AdminOnlyRoute><AdminProgram /></AdminOnlyRoute>} />
 
       {/* Portal (life-group companion) */}
       <Route path="/portal/login" element={<PortalLogin />} />
