@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string | null
+        }
+        Relationships: []
+      }
       bookmark_responses: {
         Row: {
           bookmark_id: string
@@ -229,6 +247,7 @@ export type Database = {
       }
       curriculum_weeks: {
         Row: {
+          activity_type: string
           adult_search_notes: string | null
           adult_source: string | null
           adult_video_title: string | null
@@ -249,6 +268,7 @@ export type Database = {
           weekly_theme: string
         }
         Insert: {
+          activity_type?: string
           adult_search_notes?: string | null
           adult_source?: string | null
           adult_video_title?: string | null
@@ -269,6 +289,7 @@ export type Database = {
           weekly_theme?: string
         }
         Update: {
+          activity_type?: string
           adult_search_notes?: string | null
           adult_source?: string | null
           adult_video_title?: string | null
@@ -492,6 +513,80 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      household_members: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          profile_id: string
+          role_in_household: string
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          profile_id: string
+          role_in_household?: string
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          profile_id?: string
+          role_in_household?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "household_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          payer_profile_id: string | null
+          stripe_customer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          payer_profile_id?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          payer_profile_id?: string | null
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "households_payer_profile_id_fkey"
+            columns: ["payer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       implementation_checkins: {
         Row: {
@@ -735,6 +830,53 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_journal: {
+        Row: {
+          activity_response: string | null
+          created_at: string
+          id: string
+          life_group_notes: string | null
+          personal_notes: string | null
+          profile_id: string
+          reflection_answer: string | null
+          track: string
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          activity_response?: string | null
+          created_at?: string
+          id?: string
+          life_group_notes?: string | null
+          personal_notes?: string | null
+          profile_id: string
+          reflection_answer?: string | null
+          track?: string
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          activity_response?: string | null
+          created_at?: string
+          id?: string
+          life_group_notes?: string | null
+          personal_notes?: string | null
+          profile_id?: string
+          reflection_answer?: string | null
+          track?: string
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_journal_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -996,6 +1138,9 @@ export type Database = {
           id: string
           is_active: boolean
           is_admin: boolean | null
+          kids_addon: boolean
+          membership_status: string
+          membership_tier: string
           name: string
           nfc_id: string | null
           notify_practice_email: boolean
@@ -1003,6 +1148,7 @@ export type Database = {
           onboarding_complete: boolean | null
           opt_in_public_goals: boolean | null
           show_attendance_on_screen: boolean | null
+          stripe_customer_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1016,6 +1162,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          kids_addon?: boolean
+          membership_status?: string
+          membership_tier?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1023,6 +1172,7 @@ export type Database = {
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1036,6 +1186,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          kids_addon?: boolean
+          membership_status?: string
+          membership_tier?: string
           name?: string
           nfc_id?: string | null
           notify_practice_email?: boolean
@@ -1043,6 +1196,7 @@ export type Database = {
           onboarding_complete?: boolean | null
           opt_in_public_goals?: boolean | null
           show_attendance_on_screen?: boolean | null
+          stripe_customer_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1347,6 +1501,72 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          household_id: string | null
+          id: string
+          plan: string | null
+          price_id: string | null
+          profile_id: string | null
+          quantity: number
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          tier: string | null
+          updated_at: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          household_id?: string | null
+          id?: string
+          plan?: string | null
+          price_id?: string | null
+          profile_id?: string | null
+          quantity?: number
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          tier?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          household_id?: string | null
+          id?: string
+          plan?: string | null
+          price_id?: string | null
+          profile_id?: string | null
+          quantity?: number
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          tier?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1677,6 +1897,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_profile_id: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1684,6 +1905,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_guardian_of_profile: {
+        Args: { target_profile: string }
+        Returns: boolean
+      }
+      is_household_member: { Args: { h: string }; Returns: boolean }
+      lesson_unlocked: { Args: { week_number: number }; Returns: boolean }
     }
     Enums: {
       app_role: "member" | "facilitator" | "admin"
