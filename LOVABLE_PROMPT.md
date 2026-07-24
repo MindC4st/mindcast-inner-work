@@ -22,6 +22,19 @@ self, inner spirit, internal dialogue, and belief system.* Keep all copy, prompt
 and generated text consistent with this. If you find any deity language in existing
 components or seed content, reframe it.
 
+### Consolidation already done — mindcast-live is the ONE live system
+The legacy admin session runner has been retired: `AdminSessions`,
+`AdminSessionEditor`, `AdminPresenter`, `AdminSessionRunner`, `AdminLive`,
+`SessionSlideshow`, and the portal-admin "Sessions"/"Live Mode" tabs are removed,
+and their old routes redirect to `/mindcast-live/library`. **Do not re-add them.**
+All live facilitation now runs through `mindcast-live` (`FacilitatorView` at
+`/mindcast-live/facilitate/:weekNumber`, reached from the coursebook Library). The
+display walls (`/display`, `/display/goals`, `/display/wordcloud`) are kept.
+
+`FacilitatorView` now already merges the `curriculum_weeks` lesson row over
+`mindcast_live_sessions` (YouTube URL, reflective question, interactive activity,
+inner-wisdom alignment) as fallbacks. Your job is to deepen that wiring per below.
+
 ### There are currently TWO content sources — reconcile them
 
 1. **`curriculum_weeks`** — the 52-week source of truth used by the **member portal**
