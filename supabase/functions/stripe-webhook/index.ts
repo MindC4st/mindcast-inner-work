@@ -46,6 +46,8 @@ async function syncSubscription(sub: Stripe.Subscription) {
   const householdId = (sub.metadata?.household_id as string) || null;
   const priceId = sub.items?.data?.[0]?.price?.id ?? null;
   const quantity = sub.items?.data?.[0]?.quantity ?? 1;
+  const tier = sub.metadata?.tier === "teen" ? "teen" : "adult";
+  const kidsAddon = sub.metadata?.kids_addon === "true";
 
   await admin.from("subscriptions").upsert(
     {
@@ -55,6 +57,7 @@ async function syncSubscription(sub: Stripe.Subscription) {
       stripe_subscription_id: sub.id,
       status: sub.status,
       plan: (sub.metadata?.plan as string) || null,
+      tier,
       price_id: priceId,
       quantity,
       current_period_end: sub.current_period_end
@@ -80,6 +83,16 @@ async function syncSubscription(sub: Stripe.Subscription) {
     }
   } else if (profileId) {
     await admin.from("profiles").update({ membership_status: status }).eq("id", profileId);
+  }
+
+  // Tier + kids add-on belong to the payer (the adult who bought them). An
+  // inactive subscription clears the tier so access lapses.
+  if (profileId) {
+    const active = status === "active" || status === "trialing";
+    await admin.from("profiles").update({
+      membership_tier: active ? tier : "none",
+      kids_addon: active ? kidsAddon : false,
+    }).eq("id", profileId);
   }
 }
 

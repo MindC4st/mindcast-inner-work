@@ -3,58 +3,58 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Download, Check, Facebook, Instagram, Linkedin, Mail, MessageCircle, Twitter } from "lucide-react";
 
-/* ── Asset content (Mindcast inner-work pilot, Taupō NZ) ────────────── */
+/* ── Asset content (Mindcast 52-week membership, Taupō NZ) ────────────── */
 
 const FACEBOOK_POST = `Something a bit different today.
 
-I've spent the last year quietly building something called Mindcast — a structured weekly practice for people who love podcasts and self-development but struggle to actually apply what they learn.
+I've spent the last year quietly building something called Mindcast — a facilitated 52-week journey for people who want more than another self-development app: real practice, real people, real change.
 
-Here's the honest truth: most of us consume incredible content — podcasts, books, TED talks — and forget 90% of it by Thursday. Mindcast changes that.
+Here's the honest truth: most of us consume incredible content and forget 90% of it by Thursday. Mindcast changes that by turning inner work into a weekly rhythm you actually keep.
 
 Every week you:
-🎧 Listen to a curated podcast episode
-📝 Work through a guided reflection worksheet
-💬 Meet face-to-face with a small group to discuss what landed
-🎯 Set one intentional commitment to implement that week
+🎬 Gather for a live Sunday session — one theme, on the big screen, together
+📝 Answer that week's reflection in your own private journal
+💬 Go deeper midweek in your Life Group
+🎯 Carry one small practice into your everyday life
 
-It's like a book club, but for podcasts — and it's built on the idea that we do better when we do it together.
+It runs across three tracks — adults, teens and children — so the whole family can grow alongside each other.
 
-I'm looking for 15 founding members to join our pilot group here in Taupō. You'll get the full 12-week experience at a special founding rate, and your feedback will shape what Mindcast becomes.
+Membership is open now here in Taupō. You move through all 52 weeks at your own pace, with a community walking it beside you.
 
 No experience needed. No guru energy. Just honest humans doing the inner work, together.
 
 Interested? Drop a comment or send me a message.
 
-#Mindcast #InnerWork #Taupō #PersonalGrowth #PodcastClub #NewZealand #CommunityFirst #MindcastNZ`;
+#Mindcast #InnerWork #Taupō #PersonalGrowth #NewZealand #CommunityFirst #MindcastNZ`;
 
-const INSTAGRAM_CAPTION = `What if you actually remembered — and used — the things you learn from podcasts?
+const INSTAGRAM_CAPTION = `What if you actually remembered — and lived — the things you learn?
 
-Mindcast is a weekly practice that turns passive listening into real change. You listen, reflect, discuss face-to-face, and commit to one thing each week.
+Mindcast is a facilitated 52-week journey that turns passive listening into real change. Each week: a live Sunday session, a private reflection, and a midweek Life Group.
 
-We're launching a pilot in Taupō with just 15 founding members. Special rate. Real community. No fluff.
+Adults, teens and kids each have their own track, so the whole family grows together.
 
 This isn't another app. It's a room full of people who show up for each other.
 
-Link in bio to learn more 🤍
+Link in bio to become a member 🤍
 
-#Mindcast #MindcastNZ #InnerWork #Taupō #PodcastClub #PersonalDevelopment #CommunityOverContent #NoticeNameRewire #NewZealand #WeeklyPractice #GroupGrowth #MindfulLiving #StructuredPractice #NZLife #FoundingMembers`;
+#Mindcast #MindcastNZ #InnerWork #Taupō #PersonalDevelopment #CommunityOverContent #NoticeNameRewire #NewZealand #WeeklyPractice #GroupGrowth #MindfulLiving #NZLife`;
 
 const STORY_SCRIPT = `SLIDE 1:
-You listen to podcasts every week.
-But how much do you actually use?
+You learn something powerful every week.
+But how much do you actually live?
 
 SLIDE 2:
-Most of us forget 90% of what we hear
+Most of us forget 90% of it
 by the end of the week.
 
 SLIDE 3:
 Mindcast changes that.
-Listen. Reflect. Discuss. Implement.
-A weekly practice with a real group.
+Gather. Reflect. Go deeper. Live it.
+A 52-week journey with a real community.
 
 SLIDE 4:
-We're starting a pilot in Taupō.
-Only 15 spots. Founding member rate.
+Live Sunday sessions in Taupō.
+Adults, teens and kids each have a track.
 
 SLIDE 5:
 Want in?
@@ -64,21 +64,21 @@ doing the work, together.`;
 
 const LINKEDIN_POST = `I've been thinking a lot about why smart, motivated people still struggle to change.
 
-It's not a knowledge problem — we have more access to brilliant ideas than ever. Podcasts, books, courses. The content is extraordinary.
+It's not a knowledge problem — we have more access to brilliant ideas than ever. The content is extraordinary.
 
-The problem is implementation. We listen alone, we forget fast, and we move on to the next episode without ever sitting with what we heard.
+The problem is implementation. We learn alone, we forget fast, and we move on without ever sitting with what we heard.
 
 That's why I built Mindcast.
 
-It's a structured weekly practice — part podcast club, part reflection group, part accountability circle. Every week, a small group listens to the same episode, works through a guided worksheet, meets face-to-face to discuss what landed, and commits to implementing one thing before the next session.
+It's a facilitated 52-week journey — part live gathering, part reflection practice, part accountability circle. Every week, a community meets for a live Sunday session on one theme, reflects privately in their own journal, and goes deeper together in a midweek Life Group. Adults, teens and children each have their own parallel track.
 
-The methodology is simple: Notice what's happening inside you. Name it out loud. Rewire one thing at a time. Evidence-based. Quietly radical.
+The methodology is simple: Notice what's happening inside you. Name it out loud. Rewire one thing at a time. Quietly radical.
 
-I'm launching a 12-week pilot here in Taupō, New Zealand, and I'm looking for 15 founding members. You'll get the full experience at a special founding rate, and your honest feedback will shape the future of Mindcast.
+Membership is open now here in Taupō, New Zealand — a full 52-week journey with a community walking it beside you.
 
 No self-help clichés. No guru energy. Just a room full of people committed to doing the inner work — together.
 
-If this sounds like something you've been looking for, I'd love to hear from you. Send me a message or comment below.
+If this sounds like something you've been looking for, I'd love to hear from you.
 
 — Ashleigh Carlson, Founder of Mindcast
 
@@ -88,9 +88,9 @@ const OUTREACH_DM = `Hey [NAME],
 
 I wanted to reach out personally because I think you'd be a great fit for something I'm building.
 
-It's called Mindcast — a weekly practice where a small group listens to the same podcast, works through a reflection worksheet, then meets face-to-face to discuss and set one commitment for the week.
+It's called Mindcast — a facilitated 52-week journey where a community meets for a live Sunday session, reflects privately through the week, and goes deeper together in a midweek Life Group.
 
-I'm putting together a pilot group of 15 people here in Taupō at a founding member rate. No pressure at all — just thought of you and wanted to share.
+Membership is open now here in Taupō, with tracks for adults, teens and kids. No pressure at all — just thought of you and wanted to share.
 
 Happy to tell you more if you're curious. Hope you're well!
 
@@ -102,36 +102,34 @@ Hi there,
 
 I wanted to share something I've been quietly working on.
 
-Mindcast is a structured weekly practice for people who love self-development but want more than just passive listening. Think of it as a book club for podcasts — built around a simple methodology: Notice. Name. Rewire.
+Mindcast is a facilitated 52-week journey for people who want more than passive self-development — built around a simple methodology: Notice. Name. Rewire.
 
-I'm launching a 12-week pilot in Taupō and looking for 15 founding members to join at a special rate. Here's what the experience includes:
+Membership is open now in Taupō. Here's what each week looks like:
 
-- A curated podcast episode each week
-- A guided reflection worksheet
-- Weekly face-to-face group discussion (Tuesdays)
-- A commitment framework to turn insight into action
+- A live Sunday session on one theme, together on the big screen
+- A private reflection you keep in your own journal
+- A midweek Life Group to go deeper
+- One small practice to carry into your everyday life
+- Parallel tracks for adults, teens and children
 - Access to the Mindcast member portal
-- A community of people doing honest inner work, together
 
 This isn't about fixing anyone. It's about creating a space where people can show up, reflect, and grow — at their own pace, with real support.
 
-If this resonates, I'd love to have you in the pilot. Just reply to this email or visit mindcast.co.nz/pilot to learn more.
+If this resonates, I'd love to have you join. Just reply to this email or visit mindcast.co.nz to learn more.
 
 Warm regards,
 Ashleigh Carlson
-Founder, Mindcast
+Founder, Mindcast`;
 
-P.S. Spots are limited to 15 people for this pilot — once they're gone, they're gone.`;
+const TWITTER_THREAD = `1/ You learn brilliant ideas every week. You nod along. And then… nothing changes. Sound familiar?
 
-const TWITTER_THREAD = `1/ You listen to podcasts every week. You hear brilliant ideas. You nod along. And then… nothing changes. Sound familiar?
+2/ Mindcast fixes that. A facilitated 52-week journey: a live Sunday session, a private reflection, and a midweek Life Group. Simple. Structured. Powerful.
 
-2/ Mindcast fixes that. Every week: one curated episode, a guided worksheet, a face-to-face group discussion, and one commitment to implement. Simple. Structured. Powerful.
+3/ It runs in Taupō, NZ, with parallel tracks for adults, teens and children — the whole family grows together.
 
-3/ We're launching a 12-week pilot in Taupō, NZ. 15 founding member spots at a special rate. Your feedback shapes what Mindcast becomes.
+4/ This is for anyone tired of consuming self-development content without actually developing. No guru energy. No fluff. Just honest humans doing the inner work.
 
-4/ This is for anyone who's tired of consuming self-development content without actually developing. No guru energy. No fluff. Just honest humans doing the inner work.
-
-5/ Want in? DM me or head to mindcast.co.nz/pilot. Spots are limited to 15. Let's do this together.`;
+5/ Want in? DM me or head to mindcast.co.nz. Let's do this together.`;
 
 /* ── Asset definitions ───────────────────────────────────────────────── */
 
@@ -189,7 +187,7 @@ const assets: Asset[] = [
     title: "Email Template",
     platform: "Email",
     description: "Full email with subject line, body, and PS. Ready to send.",
-    filename: "mindcast-pilot-email.txt",
+    filename: "mindcast-membership-email.txt",
     content: EMAIL_TEMPLATE,
     icon: <Mail className="w-4 h-4" />,
   },
@@ -284,10 +282,10 @@ const Marketing = () => (
     <section className="section-navy pt-32 pb-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
         <span className="inline-block text-[10px] tracking-[0.3em] uppercase text-cream/40 font-body mb-4">
-          Pilot Recruitment Kit
+          Membership Growth Kit
         </span>
         <h1 className="font-display text-4xl md:text-5xl text-cream tracking-tight mb-4">
-          Find Your First 15 Members
+          Grow Your Mindcast Community
         </h1>
         <p className="font-body text-cream/60 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
           Download and share these ready-to-go assets across Facebook, Instagram, LinkedIn and email.

@@ -22,18 +22,21 @@ const PLANS: { id: Plan; name: string; blurb: string; note: string }[] = [
 const ACTIVE = new Set(["active", "trialing"]);
 
 const PortalBilling = () => {
-  const { user, membershipStatus, loading: authLoading } = useAuth();
+  const { user, profile, membershipStatus, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [addKids, setAddKids] = useState(false);
 
   const isMember = ACTIVE.has(membershipStatus);
+  const isTeen = ((profile as any)?.age_group || "").toLowerCase() === "teen";
+  const tier = isTeen ? "teen" : "adult";
 
   const startCheckout = async (plan: Plan) => {
     if (!user) { navigate("/portal/login"); return; }
     setBusy(plan); setError(null);
     try {
-      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", { body: { plan } });
+      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", { body: { plan, tier, kidsAddon: addKids } });
       if (error) throw error;
       if ((data as any)?.url) { window.location.href = (data as any).url; return; }
       throw new Error((data as any)?.error || "Could not start checkout");
@@ -80,7 +83,7 @@ const PortalBilling = () => {
               </div>
               <div>
                 <p className="font-display text-lg tracking-wider text-foreground leading-none">MEMBERSHIP {membershipStatus.toUpperCase()}</p>
-                <p className="text-xs text-foreground/50 font-body mt-1">Thanks for being part of the pilot.</p>
+                <p className="text-xs text-foreground/50 font-body mt-1">Thanks for being a Mindcast member.</p>
               </div>
             </div>
             <button
@@ -109,6 +112,16 @@ const PortalBilling = () => {
           </div>
         )}
 
+        {!isMember && !isTeen && (
+          <label className="flex items-center gap-3 border border-foreground/10 rounded-sm p-4 mb-4 bg-foreground/[0.02] cursor-pointer hover:border-primary/40 transition-colors">
+            <input type="checkbox" checked={addKids} onChange={(e) => setAddKids(e.target.checked)} className="accent-primary w-4 h-4" />
+            <span className="flex-1">
+              <span className="block font-display text-base tracking-wider text-foreground">ADD A KIDS MEMBERSHIP</span>
+              <span className="block text-xs text-foreground/50 font-body mt-0.5">Unlocks the children's lessons and downloadable colouring pages for your family.</span>
+            </span>
+          </label>
+        )}
+
         {!isMember && (
           <div className="grid gap-4 sm:grid-cols-2">
             {PLANS.map((p) => (
@@ -126,6 +139,12 @@ const PortalBilling = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {!isMember && (
+          <p className="text-[11px] text-foreground/40 font-body mt-4">
+            You'll see the exact price{addKids ? " (including the kids membership)" : ""} before confirming at checkout. Cancel anytime.
+          </p>
         )}
 
         {error && <p className="text-sm text-destructive font-body mt-6">{error}</p>}

@@ -17,12 +17,28 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 
-const SLIDE_TITLES = [
-  "Title", "Voices from Last Week", "Signal Metaphor", "Ancient Wisdom", "Opening Hook",
-  "Core Concept", "Teaching Points", "Reflection 1", "Experiential Exercise",
-  "Guided Reflection", "Reflection 2", "Weekly Practices", "Video", "Affirmation",
-];
-const LAST_SLIDE = SLIDE_TITLES.length - 1; // 13
+// Data-driven deck: a session is an ordered list of slide "kinds", so the order
+// can change (and the video can flex position) without touching the renderer.
+// Confirmed order: wisdom -> metaphor + how-to-apply -> video (as supporting
+// evidence), with the video flexing to near the end when video_position='late'.
+type SlideKind =
+  | "title" | "voices" | "wisdom" | "metaphor" | "video"
+  | "core" | "reflect" | "activity" | "guided" | "practice" | "affirmation";
+
+const SLIDE_TITLE: Record<SlideKind, string> = {
+  title: "Title", voices: "Voices from Last Week", wisdom: "Inner Wisdom",
+  metaphor: "In Today's World", video: "Video", core: "Go Deeper",
+  reflect: "Reflect & Share", activity: "Together", guided: "Guided Reflection",
+  practice: "This Week's Practice", affirmation: "Affirmation",
+};
+
+const buildDeck = (videoPosition?: string | null): SlideKind[] => {
+  const open: SlideKind[] = ["title", "voices", "wisdom", "metaphor"];
+  const mid: SlideKind[] = ["core", "reflect", "activity", "guided", "practice"];
+  return videoPosition === "late"
+    ? [...open, ...mid, "video", "affirmation"]        // video as a closing story
+    : [...open, "video", ...mid, "affirmation"];       // video as early evidence
+};
 
 type Session = {
   id: string;
@@ -49,6 +65,7 @@ type Session = {
   video_backup_description: string;
   facilitator_notes: string;
   previous_week_callback: string;
+  video_position: string;
 };
 
 type Callback = {
@@ -95,7 +112,7 @@ const buildSession = (live: any, cur: any, wk: number, aud: string): Session | n
     theme_title: pick(base.theme_title, cur?.weekly_theme),
     audience: aud,
     core_concept: pick(base.core_concept, cur?.core_learning),
-    signal_metaphor: base.signal_metaphor || "",
+    signal_metaphor: pick(base.signal_metaphor, cur?.signal_metaphor),
     ancient_wisdom_reframe: pick(base.ancient_wisdom_reframe, cur?.inner_wisdom_alignment),
     session_title: pick(base.session_title, cur?.weekly_theme),
     opening_hook: base.opening_hook || "",
@@ -112,6 +129,7 @@ const buildSession = (live: any, cur: any, wk: number, aud: string): Session | n
     video_backup_description: base.video_backup_description || "",
     facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
     previous_week_callback: base.previous_week_callback || "",
+    video_position: base.video_position || cur?.video_position || "early",
   };
 };
 
@@ -146,6 +164,11 @@ const FacilitatorView = () => {
   const [renderStatus, setRenderStatus] = useState<string | null>(null);
   const [callbacks, setCallbacks] = useState<Callback[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // The ordered deck (flexes the video slot by video_position); `slide` indexes it.
+  const deck = useMemo(() => buildDeck(session?.video_position), [session?.video_position]);
+  const lastSlide = deck.length - 1;
+  const currentKind: SlideKind = deck[Math.min(slide, lastSlide)] ?? "title";
 
   // Persist code in URL
   useEffect(() => {
@@ -264,8 +287,8 @@ const FacilitatorView = () => {
   // Broadcast current prompt to audience
   useEffect(() => {
     if (!session) return;
-    const promptType = slide === 7 ? "journaling" : slide === 10 ? "reflection" : "idle";
-    const promptText = slide === 7 ? session.journaling_prompt : slide === 10 ? session.guided_reflection : "";
+    const promptType = currentKind === "reflect" ? "journaling" : "idle";
+    const promptText = currentKind === "reflect" ? session.journaling_prompt : "";
     const payload = { week, audience, slide, promptType, promptText, title: session.theme_title };
 
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
@@ -302,12 +325,8 @@ const FacilitatorView = () => {
 
   // Keyboard navigation
   const goNext = useCallback(() => {
-    if (slide === 6 && session) {
-      const total = splitPoints(session.teaching_points).length;
-      if (revealCount < total) { setRevealCount(c => c + 1); return; }
-    }
-    setSlide(s => Math.min(s + 1, LAST_SLIDE));
-  }, [slide, session, revealCount]);
+    setSlide(s => Math.min(s + 1, lastSlide));
+  }, [lastSlide]);
   const goPrev = useCallback(() => setSlide(s => Math.max(s - 1, 0)), []);
 
   const toggleFs = useCallback(async () => {
@@ -442,7 +461,7 @@ const FacilitatorView = () => {
 
   const liveBoard = responses.filter(r => !r.hidden && r.moderation_status === "approved");
   const pendingQueue = responses.filter(r => !r.hidden && (r.moderation_status === "pending" || r.moderation_status === null));
-  const onReflection = slide === 7 || slide === 10;
+  const onReflection = currentKind === "reflect";
   const joinUrl = `${window.location.origin}/live/${code}`;
 
   return (
@@ -488,7 +507,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer slide={slide} session={session} revealCount={revealCount} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} callbacks={callbacks} onSessionUpdate={setSession} />
+              <SlideRenderer kind={currentKind} session={session} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} callbacks={callbacks} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -552,11 +571,11 @@ const FacilitatorView = () => {
       <div className="flex items-center justify-between px-6 py-3 border-t border-[hsl(var(--ivory))]/10 z-30">
         <div className="flex items-center gap-2">
           <button onClick={goPrev} disabled={slide === 0} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronLeft size={18} /></button>
-          <button onClick={goNext} disabled={slide === LAST_SLIDE} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronRight size={18} /></button>
+          <button onClick={goNext} disabled={slide === lastSlide} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronRight size={18} /></button>
         </div>
         <div className="flex flex-col items-center">
-          <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLES[slide]}</span>
-          <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / {SLIDE_TITLES.length}</span>
+          <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLE[currentKind]}</span>
+          <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / {deck.length}</span>
         </div>
         <div className="flex items-center gap-2">
           {onReflection && (
@@ -593,9 +612,9 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4, renderStatus, callbacks, onSessionUpdate }: { slide: number; session: Session; revealCount: number; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; callbacks: Callback[]; onSessionUpdate: (s: Session) => void }) => {
-  switch (slide) {
-    case 0: return (
+const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus, callbacks, onSessionUpdate }: { kind: SlideKind; session: Session; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; callbacks: Callback[]; onSessionUpdate: (s: Session) => void }) => {
+  switch (kind) {
+    case "title": return (
       <WelcomeWall
         weekNumber={session.week_number}
         themeTitle={session.theme_title}
@@ -603,38 +622,34 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         phaseName={session.phase_name}
       />
     );
-    case 1: return (
+    case "voices": return (
       <VoicesLastWeekSlide
         callbacks={callbacks}
         weekNumber={session.week_number}
         intro={session.previous_week_callback}
       />
     );
-    case 2: return (
+    // Inner Wisdom — the timeless principle, the basis of the teaching.
+    case "wisdom": return (
+      <div className="max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Inner Wisdom</p>
+        <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed">{session.ancient_wisdom_reframe}</p>
+        </div>
+      </div>
+    );
+    // In Today's World — the metaphor makes the principle concrete + how to apply.
+    case "metaphor": return (
       <SignalMetaphorSlide
         text={session.signal_metaphor}
         mp4Url={renderedMp4}
         renderStatus={renderStatus}
       />
     );
-    case 3: return (
+    // Go Deeper — unpack the topic.
+    case "core": return (
       <div className="max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Ancient Wisdom</p>
-        <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed">{session.ancient_wisdom_reframe}</p>
-        </div>
-      </div>
-    );
-    case 4: return (
-      <div className="text-center max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Opening Hook</p>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="font-serif text-3xl md:text-4xl text-[hsl(var(--ivory))] leading-snug">{session.opening_hook}</motion.p>
-      </div>
-    );
-    case 5: return (
-      <div className="max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Core Concept</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Go Deeper</p>
         <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
           {session.core_concept.split(/\n+/).filter(Boolean).map((para, i) => (
             <p key={i} className="text-[hsl(var(--ivory))]/90 text-xl md:text-2xl font-body leading-relaxed">{para}</p>
@@ -642,41 +657,21 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 6: {
-      const points = splitPoints(session.teaching_points);
-      return (
-        <div className="max-w-5xl w-full">
-          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Teaching Points</p>
-          <div className="space-y-5">
-            {points.slice(0, revealCount).map((p, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                className="flex gap-5 items-start">
-                <span className="font-display text-[hsl(var(--blue))] text-4xl leading-none w-12 shrink-0">{i + 1}</span>
-                <p className="text-[hsl(var(--ivory))]/90 text-lg md:text-xl font-body leading-relaxed flex-1">{p.replace(/^\d+\.\s*/, "")}</p>
-              </motion.div>
-            ))}
-          </div>
-          {revealCount < points.length && (
-            <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-8">→ Press space for next point ({revealCount} of {points.length})</p>
-          )}
-        </div>
-      );
-    }
-    case 7: return (
+    case "reflect": return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
         <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
           className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-10">"{session.journaling_prompt}"</motion.p>
         <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
           <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
-          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">Join at <span className="text-[hsl(var(--bronze))] font-bold">{joinUrl.replace(/^https?:\/\//, "")}</span></span>
+          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">Join at <span className="text-[hsl(var(--bronze))] font-bold">{joinUrl.replace(/^https?:\/\//, "")}</span> · code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.2em]">{code}</span></span>
         </div>
       </div>
     );
-    case 8: return (
+    case "activity": return (
       <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />
     );
-    case 9: return (
+    case "guided": return (
       <div className="max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
         <div className="border-l-2 border-[hsl(var(--blue))] pl-8 py-4">
@@ -684,18 +679,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 10: return (
-      <div className="text-center max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Share Your Reflection</p>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="font-serif text-3xl md:text-4xl text-[hsl(var(--ivory))] leading-snug mb-10">"{session.guided_reflection.split(/[?.]/)[0]}?"</motion.p>
-        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
-          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
-          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">Code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.3em]">{code}</span></span>
-        </div>
-      </div>
-    );
-    case 11: return (
+    case "practice": return (
       <div className="max-w-6xl w-full">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
         <div className="grid md:grid-cols-3 gap-5">
@@ -712,7 +696,8 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         </div>
       </div>
     );
-    case 12: return (
+    // Video — supporting evidence / how-to / personal story (position flexes).
+    case "video": return (
       <VideoSlide
         link={session.video_link}
         description={session.video_description}
@@ -725,7 +710,7 @@ const SlideRenderer = ({ slide, session, revealCount, joinUrl, code, renderedMp4
         }}
       />
     );
-    case 13: return (
+    case "affirmation": return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-10">Affirmation</p>
         <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }}
@@ -935,7 +920,7 @@ const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; a
   // ---------- Default (instructions + timer) view ----------
   return (
     <div className="max-w-5xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Experiential Exercise</p>
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
       <div className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
         <div className="space-y-3">
           {steps.map((s, i) => (
@@ -986,7 +971,7 @@ const SignalMetaphorSlide = ({
   if (mp4Url) {
     return (
       <div className="max-w-5xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">The Signal</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">In Today's World</p>
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
           <video src={mp4Url} controls className="w-full h-full" />
         </div>
@@ -1001,7 +986,7 @@ const SignalMetaphorSlide = ({
   if (rendering) {
     return (
       <div className="max-w-5xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">The Signal</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">In Today's World</p>
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex flex-col items-center justify-center bg-[hsl(var(--ivory))]/[0.03] gap-3">
           <div className="w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse" />
           <p className="text-[hsl(var(--ivory))]/60 text-xs font-body tracking-widest uppercase">Rendering session video…</p>
@@ -1018,7 +1003,7 @@ const SignalMetaphorSlide = ({
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--bronze))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
       <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
         className="relative max-w-4xl text-center px-8">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">The Signal</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">In Today's World</p>
         <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--ivory))] leading-snug italic">"{text}"</p>
       </motion.blockquote>
     </div>

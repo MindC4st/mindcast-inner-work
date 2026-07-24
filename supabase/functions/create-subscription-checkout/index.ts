@@ -9,7 +9,10 @@
 // Env (never hardcode price ids):
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
 //   STRIPE_SECRET_KEY
-//   STRIPE_PRICE_MONTHLY, STRIPE_PRICE_TERMLY
+//   STRIPE_PRICE_MONTHLY, STRIPE_PRICE_TERMLY        (base / adult default)
+//   Optional per-tier overrides + kids add-on:
+//   STRIPE_PRICE_ADULT_MONTHLY/_TERMLY, STRIPE_PRICE_TEEN_MONTHLY/_TERMLY,
+//   STRIPE_PRICE_KIDS_ADDON
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
@@ -44,10 +47,13 @@ const safeOrigin = (raw: string | null): string => {
   }
 };
 
-const priceForPlan = (plan: string): string | null => {
-  if (plan === "monthly") return Deno.env.get("STRIPE_PRICE_MONTHLY") || null;
-  if (plan === "termly") return Deno.env.get("STRIPE_PRICE_TERMLY") || null;
-  return null;
+// Resolve the base price for the chosen tier + plan, falling back to the
+// generic monthly/termly price when no tier-specific override is set.
+const priceForTier = (tier: string, plan: string): string | null => {
+  const P = plan.toUpperCase();
+  const generic = Deno.env.get(`STRIPE_PRICE_${P}`) || null;
+  if (tier === "teen") return Deno.env.get(`STRIPE_PRICE_TEEN_${P}`) || generic;
+  return Deno.env.get(`STRIPE_PRICE_ADULT_${P}`) || generic;
 };
 
 serve(async (req) => {
@@ -70,9 +76,14 @@ serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const plan = String(body.plan || "monthly");
+    const tier = body.tier === "teen" ? "teen" : "adult";
+    const kidsAddon = body.kidsAddon === true || body.kidsAddon === "true";
     const quantity = Math.max(1, Math.min(20, Number(body.quantity) || 1));
-    const price = priceForPlan(plan);
-    if (!price) return json({ error: `No price configured for plan '${plan}'` }, 400);
+    const price = priceForTier(tier, plan);
+    if (!price) return json({ error: `No price configured for tier '${tier}' plan '${plan}'` }, 400);
+    // Optional kids add-on line item (a paying adult buying a kids membership).
+    const kidsPrice = kidsAddon ? (Deno.env.get("STRIPE_PRICE_KIDS_ADDON") || null) : null;
+    if (kidsAddon && !kidsPrice) return json({ error: "Kids add-on selected but STRIPE_PRICE_KIDS_ADDON is not configured" }, 400);
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -112,25 +123,23 @@ serve(async (req) => {
     }
 
     const origin = safeOrigin(req.headers.get("origin"));
+    const meta = {
+      profile_id: profile?.id ?? "",
+      household_id: household?.household_id ?? "",
+      plan,
+      tier,
+      kids_addon: kidsAddon ? "true" : "false",
+    };
+    const line_items = [{ price, quantity }, ...(kidsPrice ? [{ price: kidsPrice, quantity: 1 }] : [])];
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      line_items: [{ price, quantity }],
+      line_items,
       mode: "subscription",
       allow_promotion_codes: true,
       success_url: `${origin}/portal/settings?membership=success`,
       cancel_url: `${origin}/membership?canceled=true`,
-      subscription_data: {
-        metadata: {
-          profile_id: profile?.id ?? "",
-          household_id: household?.household_id ?? "",
-          plan,
-        },
-      },
-      metadata: {
-        profile_id: profile?.id ?? "",
-        household_id: household?.household_id ?? "",
-        plan,
-      },
+      subscription_data: { metadata: meta },
+      metadata: meta,
     });
 
     return json({ url: session.url });
