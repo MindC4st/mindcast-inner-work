@@ -6,6 +6,17 @@ import PortalLayout from "@/components/portal/PortalLayout";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+// Fetch a signed URL for a week's colouring PDF from the private bucket and open
+// it. Returns false if it isn't uploaded yet (so we can show "coming soon").
+const openColouringPdf = async (week: number): Promise<boolean> => {
+  const path = `week-${String(week).padStart(2, "0")}.pdf`;
+  const { data, error } = await (supabase as any).storage.from("colouring").createSignedUrl(path, 120);
+  if (error || !data?.signedUrl) return false;
+  window.open(data.signedUrl, "_blank", "noopener");
+  return true;
+};
 
 // Kids view for a paying adult with the kids add-on. Kids never log in — the
 // adult accesses the Child-track lessons and downloadable colouring pages here.
@@ -105,9 +116,11 @@ const PortalKids = () => {
                         <span><span className="portal-label text-foreground/40 mr-2">COLOURING PAGE</span>{c.kids_colouring_prompt}</span>
                       </div>
                     )}
-                    <Link to="/portal/downloads" className="inline-block text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
-                      Colouring PDFs →
-                    </Link>
+                    <button
+                      onClick={async () => { const ok = await openColouringPdf(w.week_number); if (!ok) toast({ title: "Colouring page coming soon", description: "This week's PDF hasn't been uploaded yet." }); }}
+                      className="inline-flex items-center gap-1.5 text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
+                      <Palette size={12} /> Download colouring page
+                    </button>
                   </div>
                 ); })()}
               </motion.div>
