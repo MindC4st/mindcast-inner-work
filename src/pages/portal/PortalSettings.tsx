@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useWebPush } from "@/hooks/useWebPush";
-import { Bell, BellOff, Mail } from "lucide-react";
+import { Bell, BellOff, Mail, AlertTriangle, Loader2 } from "lucide-react";
 
 type DisplayMode = "full" | "first_initial" | "anonymous";
 
@@ -16,7 +17,11 @@ const previewFor = (first: string, last: string, mode: DisplayMode): string => {
 };
 
 const PortalSettings = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [name, setName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -38,6 +43,22 @@ const PortalSettings = () => {
   }, [profile]);
 
   const preview = useMemo(() => previewFor(firstName, lastName, liveMode), [firstName, lastName, liveMode]);
+
+  const handleDelete = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("delete-account", { body: {} });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({ title: "Account deleted", description: "Your account and data have been removed." });
+      await signOut();
+      navigate("/");
+    } catch (e: any) {
+      setDeleting(false);
+      toast({ title: "Couldn't delete account", description: e?.message ?? "Please try again or contact us.", variant: "destructive" });
+    }
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -267,6 +288,53 @@ const PortalSettings = () => {
           >
             {saving ? "SAVING..." : "SAVE CHANGES"}
           </button>
+
+          {/* Danger zone — permanent account + data deletion */}
+          <div className="mt-12 pt-8 border-t border-destructive/20">
+            <h2 className="portal-heading text-xl text-destructive mb-1 flex items-center gap-2">
+              <AlertTriangle size={16} /> Delete account
+            </h2>
+            <p className="text-sm text-muted-foreground font-body font-light mb-4 max-w-md">
+              Permanently deletes your account, your private journal, and your data,
+              and ends any membership. This cannot be undone.
+            </p>
+            {!confirmDelete ? (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="border border-destructive/40 text-destructive px-5 py-2.5 text-[11px] tracking-[0.2em] font-body hover:bg-destructive/5 transition-colors"
+              >
+                DELETE MY ACCOUNT
+              </button>
+            ) : (
+              <div className="border border-destructive/30 bg-destructive/5 rounded-sm p-5 max-w-md">
+                <p className="text-sm text-foreground font-body mb-3">
+                  Type <strong>DELETE</strong> to confirm.
+                </p>
+                <input
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="w-full bg-transparent border-b border-foreground/15 text-foreground text-sm font-body px-0 py-2 mb-4 focus:border-destructive/50 focus:outline-none"
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting || confirmText.trim().toUpperCase() !== "DELETE"}
+                    className="flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-2.5 text-[11px] tracking-[0.2em] font-body hover:bg-destructive/90 transition-colors disabled:opacity-40"
+                  >
+                    {deleting ? <><Loader2 size={13} className="animate-spin" /> DELETING…</> : "PERMANENTLY DELETE"}
+                  </button>
+                  <button
+                    onClick={() => { setConfirmDelete(false); setConfirmText(""); }}
+                    disabled={deleting}
+                    className="text-[11px] tracking-[0.2em] font-body text-muted-foreground hover:text-foreground"
+                  >
+                    CANCEL
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </motion.div>
     </PortalLayout>

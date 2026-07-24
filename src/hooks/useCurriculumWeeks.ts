@@ -31,23 +31,17 @@ const resolve = (row: any, track: Track): CurriculumWeek => {
     track === "teen" ? row.teen_video_title :
     track === "child" ? row.kids_title :
     row.adult_video_title;
-  const source =
-    track === "teen" ? row.teen_source :
-    track === "child" ? row.kids_format :
-    row.adult_source;
-  const notes =
-    track === "teen" ? row.teen_search_notes :
-    track === "child" ? row.kids_theme_notes :
-    row.adult_search_notes;
   return {
-    id: row.id,
+    id: String(row.week_number),
     week_number: row.week_number,
     block_number: row.block_number,
     block_theme: row.block_theme,
     weekly_theme: row.weekly_theme,
     title,
-    source,
-    notes,
+    // The list only needs titles/themes; the paid body (video, notes) is fetched
+    // per-week behind RLS on the week page.
+    source: null,
+    notes: row.core_learning ?? null,
   };
 };
 
@@ -59,10 +53,9 @@ export const useCurriculumWeeks = (track: Track) => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("curriculum_weeks")
-        .select("*")
-        .order("week_number", { ascending: true });
+      // Public browse (titles + description for all weeks) — bypasses the paid
+      // RLS on curriculum_weeks so the padlocked future weeks still list.
+      const { data } = await (supabase as any).rpc("curriculum_public");
       if (cancelled) return;
       setWeeks((data || []).map((r: any) => resolve(r, track)));
       setLoading(false);
