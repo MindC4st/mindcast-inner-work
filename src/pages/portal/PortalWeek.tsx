@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen } from "lucide-react";
+import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, Lightbulb } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,8 @@ type CurriculumRow = {
   week_number: number; block_theme: string | null; weekly_theme: string | null;
   core_learning: string | null; youtube_url: string | null; youtube_title: string | null;
   reflective_question: string | null; interactive_activity: string | null;
-  inner_wisdom_alignment: string | null; adult_video_title: string | null;
+  inner_wisdom_alignment: string | null; signal_metaphor: string | null;
+  adult_video_title: string | null;
   teen_video_title: string | null; kids_title: string | null;
   kids_picture_book: string | null; kids_picture_book_note: string | null;
   kids_colouring_prompt: string | null;
@@ -139,13 +140,26 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
       </section>
     )}
 
-    {row?.inner_wisdom_alignment && (
-      <section className="mb-10 portal-card p-5 md:p-6 flex gap-3">
-        <Sparkles size={16} className="text-primary shrink-0 mt-0.5" />
-        <div>
-          <p className="portal-label text-foreground/40 mb-1">INNER WISDOM</p>
-          <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{row.inner_wisdom_alignment}</p>
-        </div>
+    {(row?.inner_wisdom_alignment || row?.signal_metaphor) && (
+      <section className="mb-10 portal-card p-5 md:p-6 space-y-4">
+        {row?.inner_wisdom_alignment && (
+          <div className="flex gap-3">
+            <Sparkles size={16} className="text-primary shrink-0 mt-0.5" />
+            <div>
+              <p className="portal-label text-foreground/40 mb-1">INNER WISDOM</p>
+              <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{row.inner_wisdom_alignment}</p>
+            </div>
+          </div>
+        )}
+        {row?.signal_metaphor && (
+          <div className="flex gap-3 pt-4 border-t border-foreground/[0.06]">
+            <Lightbulb size={16} className="text-primary shrink-0 mt-0.5" />
+            <div>
+              <p className="portal-label text-foreground/40 mb-1">IN TODAY'S WORLD</p>
+              <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{row.signal_metaphor}</p>
+            </div>
+          </div>
+        )}
       </section>
     )}
 
