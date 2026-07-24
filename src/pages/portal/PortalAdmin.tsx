@@ -1,17 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Settings, Users, Radio, Download } from "lucide-react";
+import { Users, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import SessionManager from "@/components/admin/SessionManager";
 import MemberManager from "@/components/admin/MemberManager";
-import LiveSessionMode from "@/components/admin/LiveSessionMode";
 import ExportReports from "@/components/admin/ExportReports";
 
 const TABS = [
-  { key: "sessions", label: "SESSIONS", icon: Settings },
   { key: "members", label: "MEMBERS", icon: Users },
-  { key: "live", label: "LIVE MODE", icon: Radio },
   { key: "export", label: "EXPORT", icon: Download },
 ] as const;
 
@@ -19,7 +16,7 @@ type Tab = typeof TABS[number]["key"];
 
 const PortalAdmin = () => {
   const { role } = useAuth();
-  const [tab, setTab] = useState<Tab>("sessions");
+  const [tab, setTab] = useState<Tab>("members");
 
   if (role !== "facilitator") {
     return <PortalLayout><p className="text-muted-foreground">Access denied. Facilitators only.</p></PortalLayout>;
@@ -48,10 +45,15 @@ const PortalAdmin = () => {
           ))}
         </div>
 
-        {tab === "sessions" && <SessionManager />}
         {tab === "members" && <MemberManager />}
-        {tab === "live" && <LiveSessionMode />}
         {tab === "export" && <ExportReports />}
+
+        <div className="mt-10 pt-6 border-t border-primary/10">
+          <p className="text-[11px] tracking-widest text-primary/40 mb-2">RUNNING A SESSION?</p>
+          <Link to="/mindcast-live/library" className="text-sm text-primary underline underline-offset-4">
+            Open the 52-week coursebook to facilitate live →
+          </Link>
+        </div>
       </motion.div>
     </PortalLayout>
   );

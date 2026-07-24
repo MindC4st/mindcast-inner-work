@@ -15,15 +15,10 @@ const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const AdminLanding = lazy(() => import("./pages/AdminLanding"));
-const AdminSessions = lazy(() => import("./pages/admin/AdminSessions"));
-const AdminSessionEditor = lazy(() => import("./pages/admin/AdminSessionEditor"));
 const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
-const AdminLive = lazy(() => import("./pages/admin/AdminLive"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
 const AdminKids = lazy(() => import("./pages/admin/AdminKids"));
 const AdminMembers = lazy(() => import("./pages/admin/AdminMembers"));
-const AdminPresenter = lazy(() => import("./pages/admin/AdminPresenter"));
-const AdminSessionRunner = lazy(() => import("./pages/admin/AdminSessionRunner"));
 const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
 const AdminEmailReminders = lazy(() => import("./pages/admin/AdminEmailReminders"));
 const WorkbookRouter = lazy(() => import("./pages/WorkbookRouter"));
@@ -116,15 +111,10 @@ const AppRoutes = () => (
 
       {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminLanding /></AdminRoute>} />
-      <Route path="/admin/sessions" element={<AdminRoute><AdminSessions /></AdminRoute>} />
-      <Route path="/admin/sessions/:id" element={<AdminRoute><AdminSessionEditor /></AdminRoute>} />
       <Route path="/admin/history" element={<AdminRoute><AdminHistory /></AdminRoute>} />
-      <Route path="/admin/live" element={<AdminRoute><AdminLive /></AdminRoute>} />
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
       <Route path="/admin/kids" element={<AdminRoute><AdminKids /></AdminRoute>} />
       <Route path="/admin/members" element={<AdminRoute><AdminMembers /></AdminRoute>} />
-      <Route path="/admin/present/:id" element={<AdminRoute><AdminPresenter /></AdminRoute>} />
-      <Route path="/admin/session-runner" element={<AdminRoute><AdminSessionRunner /></AdminRoute>} />
       <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
       <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
       <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
@@ -183,6 +173,12 @@ const AppRoutes = () => (
       <Route path="/resources" element={<Navigate to="/" replace />} />
       <Route path="/membership" element={<Navigate to="/pilot" replace />} />
       <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
+      {/* Legacy admin session runner retired — consolidated onto mindcast-live */}
+      <Route path="/admin/sessions" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/sessions/:id" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/live" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/present/:id" element={<Navigate to="/mindcast-live/library" replace />} />
+      <Route path="/admin/session-runner" element={<Navigate to="/mindcast-live/library" replace />} />
       <Route path="/dashboard" element={<Navigate to="/portal/dashboard" replace />} />
       <Route path="/checkin" element={<Navigate to="/portal/dashboard" replace />} />
       <Route path="/join" element={<Navigate to="/live" replace />} />

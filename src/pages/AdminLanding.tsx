@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Radio, History, Users, Baby, Clapperboard, ClipboardList, Mail, Home, CalendarClock, CreditCard, MessageSquare, Nfc } from "lucide-react";
+import { Calendar, History, Users, Baby, Clapperboard, ClipboardList, Mail, Home, CalendarClock, CreditCard, MessageSquare, Nfc } from "lucide-react";
 
 const AdminLanding = () => {
   const { user, loading } = useAuth();
@@ -33,13 +33,11 @@ const AdminLanding = () => {
   }, [user, loading]);
 
   const tiles = [
-    { label: "Session Planning", icon: Calendar, to: "/admin/sessions", desc: "Plan and manage weekly sessions" },
-    { label: "Live Session", icon: Radio, to: "/admin/live", desc: "Run the live session experience" },
+    { label: "Facilitate Live", icon: Clapperboard, to: "/mindcast-live/library", desc: "Run the Sunday session from the 52-week coursebook" },
     { label: "History", icon: History, to: "/admin/history", desc: "Review past sessions and data" },
     { label: "Framework", icon: Calendar, to: "/admin/framework", desc: "Edit the session running order" },
     { label: "Kids Planning", icon: Baby, to: "/admin/kids", desc: "Plan children's programme" },
     { label: "Members", icon: Users, to: "/admin/members", desc: "Manage members and NFC IDs" },
-    { label: "Session Runner", icon: Clapperboard, to: "/admin/session-runner", desc: "Run live sessions on TV" },
     { label: "Pilot Applications", icon: ClipboardList, to: "/admin/applications", desc: "Review pilot intake answers" },
     { label: "Email Reminders", icon: Mail, to: "/admin/emails", desc: "View and send weekly reminders" },
     { label: "Scheduling", icon: CalendarClock, to: "/admin/scheduling", desc: "Schedule parallel adult/teen/child tracks" },

@@ -78,6 +78,43 @@ const DENIAL_PRESETS = [
 
 const genCode = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random() * 31)]).join("");
 
+// The live slide content lives in mindcast_live_sessions, but the 52-week CSV
+// lesson fields (YouTube URL, reflective question, interactive activity, and the
+// deity-free inner-wisdom alignment) live in curriculum_weeks. Merge the
+// curriculum row in as a fallback so the CSV lessons drive the live session and
+// any week that exists only in curriculum_weeks still renders.
+const pick = (a: any, b: any): string => (a && String(a).trim() ? String(a) : (b ? String(b) : "")) || "";
+const buildSession = (live: any, cur: any, wk: number, aud: string): Session | null => {
+  if (!live && !cur) return null;
+  const base: any = live || {};
+  return {
+    id: base.id || `curriculum-${wk}-${aud}`,
+    week_number: wk,
+    phase: base.phase ?? cur?.block_number ?? 0,
+    phase_name: pick(base.phase_name, cur?.block_theme),
+    theme_title: pick(base.theme_title, cur?.weekly_theme),
+    audience: aud,
+    core_concept: pick(base.core_concept, cur?.core_learning),
+    signal_metaphor: base.signal_metaphor || "",
+    ancient_wisdom_reframe: pick(base.ancient_wisdom_reframe, cur?.inner_wisdom_alignment),
+    session_title: pick(base.session_title, cur?.weekly_theme),
+    opening_hook: base.opening_hook || "",
+    teaching_points: base.teaching_points || "",
+    experiential_exercise: pick(base.experiential_exercise, cur?.interactive_activity),
+    guided_reflection: pick(base.guided_reflection, cur?.reflective_question),
+    journaling_prompt: pick(base.journaling_prompt, cur?.reflective_question),
+    weekly_practice_mon: base.weekly_practice_mon || "",
+    weekly_practice_wed: base.weekly_practice_wed || "",
+    weekly_practice_sun: base.weekly_practice_sun || "",
+    core_affirmation: base.core_affirmation || "",
+    video_link: pick(base.video_link, cur?.youtube_url),
+    video_description: pick(base.video_description, cur?.youtube_title),
+    video_backup_description: base.video_backup_description || "",
+    facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
+    previous_week_callback: base.previous_week_callback || "",
+  };
+};
+
 const splitPoints = (text: string): string[] => {
   if (!text) return [];
   const numbered = text.split(/\n?\s*\d+\.\s+/).filter(Boolean);
@@ -119,16 +156,16 @@ const FacilitatorView = () => {
     }
   }, []);
 
-  // Load session
+  // Load session — merge the live slide content with the 52-week CSV lesson row.
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
-        .from("mindcast_live_sessions")
-        .select("*")
-        .eq("week_number", week)
-        .eq("audience", audience)
-        .maybeSingle();
-      setSession(data as Session | null);
+      const [{ data: live }, { data: cur }] = await Promise.all([
+        (supabase as any).from("mindcast_live_sessions").select("*")
+          .eq("week_number", week).eq("audience", audience).maybeSingle(),
+        (supabase as any).from("curriculum_weeks").select("*")
+          .eq("week_number", week).maybeSingle(),
+      ]);
+      setSession(buildSession(live, cur, week, audience));
       setRevealCount(1);
     })();
   }, [week, audience]);
