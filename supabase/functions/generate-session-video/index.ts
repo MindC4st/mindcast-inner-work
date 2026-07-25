@@ -1,11 +1,14 @@
 // generate-session-video — Hybrid video pipeline
 //
 // Pipeline:
-//   1. Claude builds an 8-shot storyboard JSON from `film_script_2min`
-//   2. ElevenLabs synthesises a narration MP3
+//   1. Gemini builds an 8-shot storyboard JSON from `film_script_2min`,
+//      enriched with imagery from `signal_metaphor`.
+//   2. ElevenLabs synthesises a narration MP3 from the film script.
 //   3. Storyboard PDF (jsPDF) and narration MP3 are uploaded to the
 //      `worksheets` storage bucket (public URLs).
 //   4. Pexels Video API is queried per scene for a matching stock clip.
+//      The `signal_metaphor` guides the visual search so scenes reflect
+//      metaphorical imagery, not just generic stock footage.
 //   5. A Shotstack render job is submitted asynchronously with a webhook
 //      pointing back to the `shotstack-webhook` function. We return
 //      immediately with the render id; the webhook finalises the row.
@@ -15,9 +18,9 @@
 // MP4 and writes it back to `public.worksheets.video_mp4_url`.
 //
 // Required env (set via Supabase Edge Function secrets):
-//   ANTHROPIC_API_KEY       — Claude API
+//   GOOGLE_AI_API_KEY       — Gemini API (storyboard generation)
 //   ELEVENLABS_API_KEY      — ElevenLabs (narration)
-//   ELEVENLABS_VOICE_ID     — optional, defaults to Rachel
+//   ELEVENLABS_VOICE_ID     — optional, defaults to Kylee (NZ accent)
 //   PEXELS_API_KEY          — Pexels stock video search (free key)
 //   SHOTSTACK_API_KEY       — Shotstack render
 //   SHOTSTACK_ENV           — optional: "stage" (default) or "v1" (prod)
@@ -37,7 +40,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CLAUDE_MODEL = "claude-sonnet-4-5";
+const GEMINI_MODEL = "gemini-2.0-flash";
 const DEFAULT_VOICE = "pcKdPWtbF6bM9o7NHjCI"; // ElevenLabs "Kylee" — English (NZ accent)
 
 type Scene = {
@@ -60,8 +63,8 @@ const requireEnv = (name: string) => {
   return v;
 };
 
-const callClaudeStoryboard = async (filmScript: string, themeTitle: string, signalMetaphor?: string): Promise<Scene[]> => {
-  const ANTHROPIC_API_KEY = requireEnv("ANTHROPIC_API_KEY");
+const callGeminiStoryboard = async (filmScript: string, themeTitle: string, signalMetaphor?: string): Promise<Scene[]> => {
+  const GOOGLE_AI_API_KEY = requireEnv("GOOGLE_AI_API_KEY");
   const systemPrompt =
     "You are a film storyboard generator for a contemplative mental-wellness podcast called Mindcast. " +
     "Given a 2-minute spoken-word script, return an 8-shot storyboard as valid JSON with the schema: " +
@@ -74,24 +77,27 @@ const callClaudeStoryboard = async (filmScript: string, themeTitle: string, sign
     : '';
   const userPrompt = `THEME: ${themeTitle}\n\nSCRIPT:\n${filmScript}${metaphorGuidance}`;
 
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GOOGLE_AI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        generationConfig: {
+          response_mime_type: "application/json",
+          temperature: 0.7,
+          maxOutputTokens: 2000,
+        },
+      }),
     },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    }),
-  });
+  );
 
-  if (!r.ok) throw new Error(`Anthropic ${r.status}: ${await r.text()}`);
+  if (!r.ok) throw new Error(`Gemini ${r.status}: ${await r.text()}`);
   const data = await r.json();
-  const text: string = data?.content?.[0]?.text ?? "";
+  const text: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  if (!text) throw new Error("Gemini returned empty response");
   const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```\s*$/i, "").trim();
   let parsed: { scenes?: Scene[] };
   try {
@@ -365,8 +371,8 @@ serve(async (req) => {
     if (!session) return json({ error: "Session not found" }, 404);
     if (!session.film_script_2min) return json({ error: "film_script_2min is empty for this week + audience" }, 400);
 
-    // 1. Storyboard from Claude (signal_metaphor guides visual direction)
-    const scenes = await callClaudeStoryboard(
+    // 1. Storyboard from Gemini (signal_metaphor guides visual direction)
+    const scenes = await callGeminiStoryboard(
       session.film_script_2min,
       session.theme_title || "Mindcast",
       session.signal_metaphor
