@@ -60,7 +60,7 @@ const requireEnv = (name: string) => {
   return v;
 };
 
-const callClaudeStoryboard = async (filmScript: string, themeTitle: string): Promise<Scene[]> => {
+const callClaudeStoryboard = async (filmScript: string, themeTitle: string, signalMetaphor?: string): Promise<Scene[]> => {
   const ANTHROPIC_API_KEY = requireEnv("ANTHROPIC_API_KEY");
   const systemPrompt =
     "You are a film storyboard generator for a contemplative mental-wellness podcast called Mindcast. " +
@@ -69,7 +69,10 @@ const callClaudeStoryboard = async (filmScript: string, themeTitle: string): Pro
     "Total duration must sum to ~120 seconds. `visuals` is a one-sentence cinematic description. " +
     "`search_keywords` is 2–4 concrete, filmable nouns suitable for searching a stock video library (Pexels). " +
     "Tone: calm, serious, evocative. No people speaking on camera. Return JSON only, no prose.";
-  const userPrompt = `THEME: ${themeTitle}\n\nSCRIPT:\n${filmScript}`;
+  const metaphorGuidance = signalMetaphor
+    ? `\nThe session has a SIGNAL METAPHOR — a vivid, everyday image that embodies the lesson's core insight. Use this metaphor to inform the visual direction of each scene in a subtle, atmospheric way.\n\nSIGNAL METAPHOR:\n${signalMetaphor}\n\nFor each scene's \`search_keywords\`, include concrete nouns from the signal metaphor (e.g. broadcast tower, compass, river, phone, stars) blended with the script's literal content — so the video carries the metaphorical thread visually.`
+    : '';
+  const userPrompt = `THEME: ${themeTitle}\n\nSCRIPT:\n${filmScript}${metaphorGuidance}`;
 
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -356,14 +359,18 @@ serve(async (req) => {
     // Load lesson
     const { data: session, error: sErr } = await supa
       .from("mindcast_live_sessions")
-      .select("week_number, theme_title, film_script_2min, core_affirmation")
+      .select("week_number, theme_title, film_script_2min, signal_metaphor, core_affirmation")
       .eq("week_number", week_number).eq("audience", audience).maybeSingle();
     if (sErr) throw sErr;
     if (!session) return json({ error: "Session not found" }, 404);
     if (!session.film_script_2min) return json({ error: "film_script_2min is empty for this week + audience" }, 400);
 
-    // 1. Storyboard from Claude
-    const scenes = await callClaudeStoryboard(session.film_script_2min, session.theme_title || "Mindcast");
+    // 1. Storyboard from Claude (signal_metaphor guides visual direction)
+    const scenes = await callClaudeStoryboard(
+      session.film_script_2min,
+      session.theme_title || "Mindcast",
+      session.signal_metaphor
+    );
 
     // 2. Render storyboard PDF
     const pdfBytes = renderStoryboardPDF(session.theme_title || "Mindcast", week_number, audience, scenes);
