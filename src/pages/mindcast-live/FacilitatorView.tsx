@@ -818,7 +818,7 @@ const ReturnToIntentionSlide = ({
             <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
               <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
                 {weekNumber === 1
-                  ? '"Find someone you don't know and share what you hope to find here."'
+                  ? '"Find someone you do not know and share what you hope to find here."'
                   : '"What did you notice? Share briefly with someone beside you."'}
               </p>
             </div>
