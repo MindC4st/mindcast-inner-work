@@ -29,7 +29,7 @@ const Lesson = () => {
   const { weekNumber } = useParams();
   const week = parseInt(weekNumber || "1", 10);
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, isStaff } = useAuth();
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">("Adult");
   const [session, setSession] = useState<Session | null>(null);
   const [unlocked, setUnlocked] = useState<number[]>([]);
@@ -44,7 +44,8 @@ const Lesson = () => {
     (async () => {
       const [s, u, r, c, w] = await Promise.all([
         (supabase as any).from("mindcast_live_sessions_public").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
-        (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
+        // Staff bypass — skip unlocked_lessons check, all weeks are unlocked
+        isStaff ? Promise.resolve({ data: null }) : (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         (supabase as any).from("session_responses")
           .select("prompt_type, response_text")
           .eq("user_id", user.id)
@@ -62,16 +63,24 @@ const Lesson = () => {
           .maybeSingle(),
       ]);
       setSession(s.data);
-      const ids = (u.data || []).map((r: any) => r.week_number).sort((a: number, b: number) => a - b);
-      setUnlocked(ids);
-      setIsUnlocked(ids.includes(week));
+      // Staff: bypass unlock check, always unlocked
+      if (isStaff) {
+        setIsUnlocked(true);
+        const allWeeks: number[] = [];
+        for (let i = 1; i <= 52; i++) allWeeks.push(i);
+        setUnlocked(allWeeks);
+      } else {
+        const ids = (u.data || []).map((r: any) => r.week_number).sort((a: number, b: number) => a - b);
+        setUnlocked(ids);
+        setIsUnlocked(ids.includes(week));
+      }
       const responseMap: Record<string, string> = {};
       (r.data || []).forEach((row: ResponseRow) => { responseMap[row.prompt_type] = row.response_text; });
       setSavedResponses(responseMap);
       setCompleted(!!c.data);
       setRenderedMp4(w.data?.video_mp4_url || null);
     })();
-  }, [week, audience, user]);
+  }, [week, audience, user, isStaff]);
 
   if (isUnlocked === false) {
     return (

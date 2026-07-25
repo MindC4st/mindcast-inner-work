@@ -158,7 +158,7 @@ const FacilitatorView = () => {
   const week = parseInt(weekNumber || "1", 10);
   const [search, setSearch] = useSearchParams();
   const navigate = useNavigate();
-  const { user, role } = useAuth();
+  const { user, role, isStaff } = useAuth();
 
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">(
     (search.get("a") as any) || "Adult"
@@ -251,7 +251,12 @@ const FacilitatorView = () => {
 
   // Load unlocked state — count rows for this week across members. The
   // facilitator considers a lesson "unlocked" when at least one member has it.
+  // Staff bypass — admin/facilitator always has full access.
   useEffect(() => {
+    if (isStaff) {
+      setUnlocked(true);
+      return;
+    }
     (async () => {
       const { count } = await (supabase as any)
         .from("unlocked_lessons")
@@ -259,7 +264,7 @@ const FacilitatorView = () => {
         .eq("week_number", week);
       setUnlocked((count ?? 0) > 0);
     })();
-  }, [week]);
+  }, [week, isStaff]);
 
   // Load + subscribe responses (public only — private submissions stay hidden
   // from the live feed even though RLS lets facilitators read them).
@@ -360,10 +365,10 @@ const FacilitatorView = () => {
     return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("fullscreenchange", onFs); };
   }, [goNext, goPrev, toggleFs]);
 
-  const isFacilitator = role === "facilitator";
+  const isFacilitator = role === "facilitator" || role === "admin";
 
   const handleUnlock = async () => {
-    if (!isFacilitator) { toast({ title: "Facilitators only" }); return; }
+    if (!isFacilitator && !isStaff) { toast({ title: "Facilitators only" }); return; }
     if (unlocked) return;
     // Fan out: one unlock row per member profile so each user sees their own
     // unlock state. Upserts on (user_id, week_number).
@@ -434,7 +439,7 @@ const FacilitatorView = () => {
   };
 
   const handleGenerateVideo = async () => {
-    if (!isFacilitator) { toast({ title: "Facilitators only" }); return; }
+    if (!isFacilitator && !isStaff) { toast({ title: "Facilitators only" }); return; }
     setGeneratingVideo(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-session-video", {

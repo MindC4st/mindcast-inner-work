@@ -8,8 +8,8 @@ import { toast } from "@/hooks/use-toast";
 type Row = { week_number: number; theme_title: string; phase_name: string; session_title: string };
 
 const Library = () => {
-  const { user, role } = useAuth();
-  const isFacilitator = role === "facilitator";
+  const { user, role, isStaff } = useAuth();
+  const isFacilitator = isStaff;
   const [weeks, setWeeks] = useState<Row[]>([]);
   const [unlocked, setUnlocked] = useState<Set<number>>(new Set());
   const [completed, setCompleted] = useState<Set<number>>(new Set());
@@ -20,7 +20,7 @@ const Library = () => {
     (async () => {
       const [{ data: sessions }, { data: unl }, { data: comp }] = await Promise.all([
         (supabase as any).from("mindcast_live_sessions_public").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
-        (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
+        isStaff ? Promise.resolve({ data: [] }) : (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         (supabase as any).from("lesson_completions").select("week_number").eq("user_id", user.id),
       ]);
       const map = new Map<number, Row>();
@@ -30,10 +30,15 @@ const Library = () => {
         all.push(map.get(i) || { week_number: i, theme_title: "", phase_name: "", session_title: "" });
       }
       setWeeks(all);
-      setUnlocked(new Set((unl || []).map((u: any) => u.week_number)));
+      // Staff bypass — all 52 weeks unlocked
+      if (isStaff) {
+        setUnlocked(new Set(Array.from({ length: 52 }, (_, i) => i + 1)));
+      } else {
+        setUnlocked(new Set((unl || []).map((u: any) => u.week_number)));
+      }
       setCompleted(new Set((comp || []).map((c: any) => c.week_number)));
     })();
-  }, [user]);
+  }, [user, isStaff]);
 
   const unlockedCount = unlocked.size;
   const completedCount = completed.size;
