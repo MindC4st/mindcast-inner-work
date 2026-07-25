@@ -1955,10 +1955,8 @@ export type Database = {
           phase_name: string | null
           session_title: string | null
           signal_metaphor: string | null
-          teaching_points: string | null
           theme_title: string | null
           updated_at: string | null
-          video_backup_description: string | null
           video_description: string | null
           video_link: string | null
           week_number: number | null
@@ -1981,10 +1979,8 @@ export type Database = {
           phase_name?: string | null
           session_title?: string | null
           signal_metaphor?: string | null
-          teaching_points?: string | null
           theme_title?: string | null
           updated_at?: string | null
-          video_backup_description?: string | null
           video_description?: string | null
           video_link?: string | null
           week_number?: number | null
@@ -2007,10 +2003,8 @@ export type Database = {
           phase_name?: string | null
           session_title?: string | null
           signal_metaphor?: string | null
-          teaching_points?: string | null
           theme_title?: string | null
           updated_at?: string | null
-          video_backup_description?: string | null
           video_description?: string | null
           video_link?: string | null
           week_number?: number | null
