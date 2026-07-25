@@ -61,6 +61,8 @@ const AdminMembership = lazy(() => import("./pages/admin/AdminMembership"));
 const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
 const Demo = lazy(() => import("./pages/Demo"));
 const AdminProgram = lazy(() => import("./pages/admin/AdminProgram"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminLifeGroups = lazy(() => import("./pages/admin/AdminLifeGroups"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,6 +114,8 @@ const AppRoutes = () => (
 
       {/* Admin */}
       <Route path="/admin" element={<AdminRoute><AdminLanding /></AdminRoute>} />
+      <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/life-groups" element={<AdminRoute><AdminLifeGroups /></AdminRoute>} />
       <Route path="/admin/history" element={<AdminRoute><AdminHistory /></AdminRoute>} />
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
       <Route path="/admin/kids" element={<AdminRoute><AdminKids /></AdminRoute>} />
@@ -223,7 +227,8 @@ const TITLE_MAP: [string, string][] = [
   ["/mindcast-live/lesson", "Lesson · Mindcast"],
   ["/mindcast-live/facilitate", "Facilitate · Mindcast"],
   ["/mindcast-live/edit", "Edit Lesson · Mindcast"],
-  ["/admin", "Admin · Mindcast"],
+  ["/admin/dashboard", "Dashboard · Admin"],
+  ["/admin/life-groups", "Life Groups · Admin"],
   ["/workbook", "Workbook · Mindcast"],
   ["/dashboard", "Dashboard · Mindcast"],
   ["/checkin", "Check In · Mindcast"],

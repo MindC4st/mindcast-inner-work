@@ -117,7 +117,25 @@ const PortalSettings = () => {
 
           <div>
             <label className="portal-label block mb-2">MEMBERSHIP</label>
-            <p className="text-sm text-foreground/50 font-body font-light py-3">Pilot — Term 1 2026</p>
+            <p className="text-sm text-foreground/50 font-body font-light py-3">
+              {(() => {
+                const tier = (profile as any)?.membership_tier || "none";
+                const status = (profile as any)?.membership_status || "none";
+                const bundle = (profile as any)?.membership_bundle;
+                if (tier === "none" || status === "none") return "No active membership";
+                const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+                const statusLabel = status === "active" ? "Active" : status === "trialing" ? "Trial" : status === "past_due" ? "Past Due" : status === "paused" ? "Paused" : status === "lapsed" ? "Lapsed" : status.replace("_", " ");
+                let detail = `${tierLabel} — ${statusLabel}`;
+                if (bundle && typeof bundle === "object") {
+                  const parts = [];
+                  if ((bundle as any).adults) parts.push(`${(bundle as any).adults} Adult${(bundle as any).adults > 1 ? "s" : ""}`);
+                  if ((bundle as any).teens) parts.push(`${(bundle as any).teens} Teen${(bundle as any).teens > 1 ? "s" : ""}`);
+                  if ((bundle as any).children) parts.push(`${(bundle as any).children} Child${(bundle as any).children > 1 ? "ren" : ""}`);
+                  if (parts.length > 0) detail += ` (${parts.join(", ")})`;
+                }
+                return detail;
+              })()}
+            </p>
           </div>
 
           <button

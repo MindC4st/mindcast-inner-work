@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
+import mindcastBuilding from "@/assets/mindcast-building.png";
 
 
 const values = [
@@ -50,6 +51,33 @@ const About = () => (
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
               So I built the room.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* The Room */}
+    <section className="section-cream py-24">
+      <div className="container mx-auto px-6 max-w-4xl">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="overflow-hidden rounded-sm">
+            <img src={mindcastBuilding} alt="Mindcast venue" className="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <div>
+            <h2 className="heading-display text-4xl text-navy mb-6">THE ROOM</h2>
+            <p className="text-navy/70 font-body text-sm leading-relaxed mb-4">
+              Mindcast is being designed as a permanent space — a building purpose-built
+              for weekly gatherings. A 120-seat theatre for Sunday sessions. Glass-walled
+              breakout rooms for Tuesday Life Groups. A cafe to linger in beforehand.
+              An indoor playground so parents can stay present while kids play within view.
+            </p>
+            <p className="text-navy/70 font-body text-sm leading-relaxed mb-4">
+              Every element — from the auditorium stage to the breakout room acoustics —
+              is designed to hold the rhythm: Reflect, Gather, Commit.
+            </p>
+            <p className="text-navy/40 font-body text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-serif)" }}>
+              "I didn't invent the wisdom. I just built the room."
             </p>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, History, Users, Baby, Clapperboard, ClipboardList, Mail, Home, CalendarClock, CreditCard, MessageSquare, Nfc, CalendarDays } from "lucide-react";
+import { Calendar, History, Users, Baby, Clapperboard, ClipboardList, Mail, Home, CalendarClock, CreditCard, MessageSquare, Nfc, CalendarDays, LayoutDashboard } from "lucide-react";
 
 const AdminLanding = () => {
   const { user, loading } = useAuth();
@@ -33,6 +33,7 @@ const AdminLanding = () => {
   }, [user, loading]);
 
   const tiles = [
+    { label: "Dashboard", icon: LayoutDashboard, to: "/admin/dashboard", desc: "Member registrations, status & attendance" },
     { label: "Program Schedule", icon: CalendarDays, to: "/admin/program", desc: "Set Week 1 date & timezone for unlocks" },
     { label: "Facilitate Live", icon: Clapperboard, to: "/mindcast-live/library", desc: "Run the Sunday session from the 52-week coursebook" },
     { label: "History", icon: History, to: "/admin/history", desc: "Review past sessions and data" },

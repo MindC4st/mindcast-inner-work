@@ -12,6 +12,7 @@ import childColouring from "@/assets/home-child-colouring.jpg";
 import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
 import lifeGroup from "@/assets/home-life-group.jpg";
 import founderPortrait from "@/assets/founder-portrait.jpg";
+import mindcastBuilding from "@/assets/mindcast-building.png";
 import logoNavLight from "@/assets/logo-cream.png";
 import { useAuth } from "@/contexts/AuthContext";
 import Footer from "@/components/Footer";
@@ -563,6 +564,70 @@ const RhythmSection = () => {
   );
 };
 
+/* ─── VENUE — THE BUILDING ─── */
+const VenueSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".venue-image", {
+        opacity: 0, y: 40, duration: 1, ease: "power2.out",
+        scrollTrigger: { trigger: sectionRef.current, start: "top 70%" },
+      });
+      gsap.from(".venue-copy > *", {
+        opacity: 0, y: 30, duration: 0.7, stagger: 0.12, ease: "power2.out",
+        scrollTrigger: { trigger: sectionRef.current, start: "top 70%" },
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
+
+  const spaces = [
+    { label: "THEATRE", desc: "120-seat auditorium with stage and LED wall" },
+    { label: "BREAKOUT ROOMS", desc: "Glass-walled rooms for 15-person Life Groups" },
+    { label: "CAFE", desc: "Espresso, communal tables, pre-session gathering" },
+    { label: "INDOOR PLAYGROUND", desc: "Soft-play and climbing — visible from the cafe" },
+  ];
+
+  return (
+    <section ref={sectionRef} className="section-cream grain-overlay relative py-24 md:py-32">
+      <div className="container mx-auto px-6">
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <span className="text-[11px] tracking-[0.25em] font-body font-bold text-primary block mb-4">THE VENUE</span>
+          <h2 className="font-display text-navy text-[42px] md:text-[64px] leading-[0.95] tracking-[0.02em] uppercase mb-6">
+            A SPACE BUILT FOR FOLLOW-THROUGH
+          </h2>
+          <p className="font-body text-navy/70 text-[16px] md:text-[17px] leading-relaxed">
+            Every detail designed so Sunday gatherings and Tuesday Life Groups
+            have a permanent, purpose-built home — theatre, breakout rooms, cafe,
+            and a playground so parents can stay present.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center max-w-5xl mx-auto">
+          <div className="venue-image overflow-hidden aspect-[4/3]">
+            <img src={mindcastBuilding} alt="Mindcast venue — theatre, breakout rooms, cafe, playground" className="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <div className="venue-copy grid grid-cols-2 gap-4">
+            {spaces.map((s) => (
+              <div key={s.label} className="border-l-2 border-primary/40 pl-4 py-2">
+                <div className="text-[10px] tracking-[0.2em] font-body text-primary/60 mb-1 uppercase">{s.label}</div>
+                <div className="font-display text-navy text-[16px] leading-snug tracking-wide">{s.desc}</div>
+              </div>
+            ))}
+            <div className="col-span-2 mt-4 pt-4 border-t border-navy/10">
+              <p className="font-body text-navy/60 text-[14px] leading-relaxed italic" style={{ fontFamily: "var(--font-serif)" }}>
+                "The structure was the container that made everything else possible."
+              </p>
+              <p className="text-[10px] tracking-[0.2em] font-body text-primary mt-2 uppercase">Ashleigh Carlson · Founder</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 /* ─── VISION QUOTE ─── */
 const VisionQuote = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -669,6 +734,7 @@ const Home = () => {
       <GatheringSection />
       <TracksSection />
       <RhythmSection />
+      <VenueSection />
       <VisionQuote />
       <FinalCTA />
       <Footer />

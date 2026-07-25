@@ -29,7 +29,7 @@ const GROUPS: Group[] = [
     ["/mindcast-live/facilitate/1", "Facilitate (1)"], ["/b/SAMPLE", "Bracelet tap (sample)"],
   ]},
   { label: "Admin", links: [
-    ["/admin", "Admin home"], ["/admin/history", "History"],
+    ["/admin", "Admin home"], ["/admin/dashboard", "Dashboard"], ["/admin/life-groups", "Life Groups"], ["/admin/history", "History"],
     ["/admin/framework", "Framework"], ["/admin/kids", "Kids"],
     ["/admin/members", "Members"],
     ["/admin/applications", "Applications"], ["/admin/emails", "Emails"], ["/admin/kiosk", "Kiosk"],
