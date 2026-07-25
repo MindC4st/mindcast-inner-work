@@ -1,24 +1,26 @@
 // generate-coloring-page — on-demand coloring page generation
 // POST { week_number }  →  generates PNG + PDF, stores in Supabase Storage
 //
-// Uses Google Imagen 3 via the Gemini API key.
+// Uses Gemini 2.0 Flash with native image generation (inline image output).
 // PDF is built by wrapping the PNG into a single-page PDF (pdf-lib on Deno).
 
-import "jsr:@std/dotenv/load";
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
   PDFDocument,
   rgb,
   StandardFonts,
-} from "https://cdn.skypack.dev/pdf-lib@1.17.1?dts";
-import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
+} from "npm:pdf-lib";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY")!;
-const IMAGEN_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict";
+// Use Gemini 2.0 Flash with native image generation (inline image output)
+// Try multiple model names for image generation — fall back gracefully
+const GEMINI_MODELS = [
+  "gemini-2.0-flash-exp",
+  "gemini-1.5-flash",
+];
 
 serve(async (req: Request) => {
   // CORS
@@ -64,47 +66,63 @@ serve(async (req: Request) => {
       prompt = `Black and white coloring page for children, simple clear outlines, large open spaces, no shading. Theme: "${lesson.theme_title}". Topic: "${lesson.signal_metaphor}". Clean line art suitable for crayons.`;
     }
 
-    // 3. Call Imagen 3 API
-    const imagenRes = await fetch(IMAGEN_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": GOOGLE_AI_API_KEY,
+    // 3. Try Gemini models for image generation (fallback chain)
+    const geminiBody = {
+      contents: [{
+        parts: [{ text: prompt }],
+      }],
+      generationConfig: {
+        responseModalities: ["Text", "Image"],
       },
-      body: JSON.stringify({
-        instances: [{ prompt }],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: "1:1",
-          personGeneration: "dont_allow",
-        },
-      }),
-    });
+    };
 
-    if (!imagenRes.ok) {
-      const errBody = await imagenRes.text();
+    let imageB64: string | null = null;
+    let lastError: string = "";
+
+    for (const model of GEMINI_MODELS) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`;
+
+      const geminiRes = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geminiBody),
+      });
+
+      if (!geminiRes.ok) {
+        lastError = `${model}: ${geminiRes.status} ${await geminiRes.text()}`;
+        continue;
+      }
+
+      const geminiData = await geminiRes.json();
+      const candidate = geminiData.candidates?.[0];
+      if (!candidate?.content?.parts) {
+        lastError = `${model}: no parts in response`;
+        continue;
+      }
+
+      // Find the inline image part
+      for (const part of candidate.content.parts) {
+        if (part.inlineData?.data && part.inlineData?.mimeType?.startsWith("image/")) {
+          imageB64 = part.inlineData.data;
+          break;
+        }
+      }
+
+      if (imageB64) break;
+      lastError = `${model}: no image in response parts`;
+    }
+
+    if (!imageB64) {
       return new Response(
         JSON.stringify({
-          error: "Imagen API error",
-          status: imagenRes.status,
-          body: errBody,
+          error: "No image generated — all Gemini models failed",
+          detail: lastError,
         }),
         { status: 502, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    const imagenData = await imagenRes.json();
-    const prediction = imagenData.predictions?.[0];
-    if (!prediction?.bytesBase64Encoded) {
-      return new Response(
-        JSON.stringify({ error: "No image returned from Imagen", raw: imagenData }),
-        { status: 502, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    const imageBytes = Uint8Array.from(atob(prediction.bytesBase64Encoded), (c) =>
-      c.charCodeAt(0)
-    );
+    const imageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
 
     // 4. Upload PNG to storage
     const pngPath = `coloring/week-${week_number}/coloring-page.png`;

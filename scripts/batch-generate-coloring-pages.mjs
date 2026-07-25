@@ -25,8 +25,8 @@ const supabase = SUPABASE_SERVICE_ROLE_KEY
   ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
   : null;
 
-const IMAGEN_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict";
+// Gemini models to try for image generation (first success wins)
+const GEMINI_MODELS = ["gemini-2.0-flash-exp", "gemini-1.5-flash"];
 
 // ── 1. Parse the child CSV ──────────────────────────────────────────────
 function parseCsv(text) {
@@ -145,37 +145,48 @@ async function generateAll() {
     process.stdout.write(`  Week ${week}: generating... `);
 
     try {
-      // Call Imagen API
-      const res = await fetch(IMAGEN_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": GOOGLE_AI_API_KEY,
-        },
-        body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: "1:1",
-            personGeneration: "dont_allow",
-          },
-        }),
+      // Try Gemini models for image generation (fallback chain)
+      const geminiBody = JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseModalities: ["Text", "Image"] },
       });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.log(`❌ Imagen error ${res.status}: ${errText.substring(0, 150)}`);
+      let imageB64 = null;
+      let lastError = "";
+
+      for (const model of GEMINI_MODELS) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: geminiBody,
+        });
+
+        if (!res.ok) {
+          lastError = `${model}: ${res.status} ${(await res.text()).substring(0, 100)}`;
+          continue;
+        }
+
+        const data = await res.json();
+        const candidate = data.candidates?.[0];
+        if (candidate?.content?.parts) {
+          for (const part of candidate.content.parts) {
+            if (part.inlineData?.data && part.inlineData?.mimeType?.startsWith("image/")) {
+              imageB64 = part.inlineData.data;
+              break;
+            }
+          }
+        }
+        if (imageB64) break;
+        lastError = `${model}: no image in response`;
+      }
+
+      if (!imageB64) {
+        console.log(`❌ All Gemini models failed: ${lastError.substring(0, 150)}`);
         continue;
       }
 
-      const data = await res.json();
-      const b64 = data.predictions?.[0]?.bytesBase64Encoded;
-      if (!b64) {
-        console.log("❌ No image in response");
-        continue;
-      }
-
-      const imgBuf = Buffer.from(b64, "base64");
+      const imgBuf = Buffer.from(imageB64, "base64");
       const pngFile = `${tmpDir}/week-${week}.png`;
 
       // Save PNG locally
