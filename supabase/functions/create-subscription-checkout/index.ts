@@ -1,18 +1,19 @@
 // create-subscription-checkout — starts a RECURRING membership Checkout.
 //
-// Unlike create-pilot-checkout (one-time), this is mode: "subscription".
-// The caller must be authenticated (verify_jwt = true); we resolve their
-// profile, reuse-or-create their Stripe customer, and open a Checkout session
-// for the requested plan. Household billing is supported via `quantity`
-// (one payer covering several linked child profiles) and household_id metadata.
+// NEW MODEL (Jul 2026): Multi-tier, multi-line-item family subscriptions.
+// Frontend sends { plan, adults, teens, children } instead of the old
+// single-tier model. The function builds one Checkout session with separate
+// line items for each member type, conditionally applies the FAMILY15 coupon
+// when the cart contains 2+ adults + at least 1 teen OR child, and records the
+// bundle composition in subscription metadata.
 //
-// Env (never hardcode price ids):
-//   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
+// Env (set on Supabase project from Stripe Dashboard price IDs):
+//   STRIPE_PRICE_ADULT_MONTHLY, STRIPE_PRICE_ADULT_ANNUAL
+//   STRIPE_PRICE_TEEN_MONTHLY,  STRIPE_PRICE_TEEN_ANNUAL
+//   STRIPE_PRICE_CHILD_MONTHLY, STRIPE_PRICE_CHILD_ANNUAL
+//   STRIPE_FAMILY_COUPON_ID     (e.g. "FAMILY15")
 //   STRIPE_SECRET_KEY
-//   STRIPE_PRICE_MONTHLY, STRIPE_PRICE_TERMLY        (base / adult default)
-//   Optional per-tier overrides + kids add-on:
-//   STRIPE_PRICE_ADULT_MONTHLY/_TERMLY, STRIPE_PRICE_TEEN_MONTHLY/_TERMLY,
-//   STRIPE_PRICE_KIDS_ADDON
+//   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
@@ -47,14 +48,16 @@ const safeOrigin = (raw: string | null): string => {
   }
 };
 
-// Resolve the base price for the chosen tier + plan, falling back to the
-// generic monthly/termly price when no tier-specific override is set.
-const priceForTier = (tier: string, plan: string): string | null => {
-  const P = plan.toUpperCase();
-  const generic = Deno.env.get(`STRIPE_PRICE_${P}`) || null;
-  if (tier === "teen") return Deno.env.get(`STRIPE_PRICE_TEEN_${P}`) || generic;
-  return Deno.env.get(`STRIPE_PRICE_ADULT_${P}`) || generic;
-};
+/** Get the price ID for a tier + plan from env vars. */
+function priceId(tier: string, plan: string): string | null {
+  const key = `STRIPE_PRICE_${tier.toUpperCase()}_${plan === "annual" ? "ANNUAL" : "MONTHLY"}`;
+  const id = Deno.env.get(key);
+  if (!id) console.error(`Missing env var: ${key}`);
+  return id ?? null;
+}
+
+/** Clamp a quantity to a sane range. */
+const clamp = (n: number) => Math.max(0, Math.min(20, Number(n) || 0));
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -64,7 +67,7 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization") || "";
     if (!authHeader.startsWith("Bearer ")) return json({ error: "Not authenticated" }, 401);
 
-    // Resolve the caller from their JWT.
+    // Resolve caller from JWT
     const anon = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -75,22 +78,41 @@ serve(async (req) => {
     const user = userRes.user;
 
     const body = await req.json().catch(() => ({}));
-    const plan = String(body.plan || "monthly");
-    const tier = body.tier === "teen" ? "teen" : "adult";
-    const kidsAddon = body.kidsAddon === true || body.kidsAddon === "true";
-    const quantity = Math.max(1, Math.min(20, Number(body.quantity) || 1));
-    const price = priceForTier(tier, plan);
-    if (!price) return json({ error: `No price configured for tier '${tier}' plan '${plan}'` }, 400);
-    // Optional kids add-on line item (a paying adult buying a kids membership).
-    const kidsPrice = kidsAddon ? (Deno.env.get("STRIPE_PRICE_KIDS_ADDON") || null) : null;
-    if (kidsAddon && !kidsPrice) return json({ error: "Kids add-on selected but STRIPE_PRICE_KIDS_ADDON is not configured" }, 400);
+    const plan = body.plan === "annual" ? "annual" : "monthly";
+    const adults = clamp(body.adults);
+    const teens = clamp(body.teens);
+    const children = clamp(body.children);
 
+    // Must have at least one member
+    if (adults + teens + children < 1) {
+      return json({ error: "Must select at least one membership" }, 400);
+    }
+
+    // Build line items — only include tiers that have qty > 0
+    const tiers: { tier: string; qty: number }[] = [];
+    if (adults > 0) tiers.push({ tier: "adult", qty: adults });
+    if (teens > 0) tiers.push({ tier: "teen", qty: teens });
+    if (children > 0) tiers.push({ tier: "child", qty: children });
+
+    const line_items: { price: string; quantity: number }[] = [];
+    for (const t of tiers) {
+      const pid = priceId(t.tier, plan);
+      if (!pid) return json({ error: `No price configured for ${t.tier} (${plan})` }, 400);
+      line_items.push({ price: pid, quantity: t.qty });
+    }
+
+    // Conditional family discount: 2+ adults AND (≥1 teen OR ≥1 child)
+    const familyDiscount = adults >= 2 && (teens >= 1 || children >= 1);
+    const discountCoupon = familyDiscount
+      ? (Deno.env.get("STRIPE_FAMILY_COUPON_ID") || null)
+      : null;
+
+    // Build subscription metadata describing the bundle
     const admin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    // Look up the caller's profile (id + any existing Stripe customer + household).
     const { data: profile } = await admin
       .from("profiles")
       .select("id, email, stripe_customer_id")
@@ -108,8 +130,6 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Reuse or create the Stripe customer, and remember it on the profile so
-    // the webhook and billing portal can find it again.
     let customerId = profile?.stripe_customer_id || undefined;
     const email = (profile?.email || user.email || "").toLowerCase();
     if (!customerId) {
@@ -123,26 +143,39 @@ serve(async (req) => {
     }
 
     const origin = safeOrigin(req.headers.get("origin"));
-    const meta = {
+
+    // Bundle metadata — the webhook uses these to derive access for household members
+    const bundleMeta = {
       profile_id: profile?.id ?? "",
       household_id: household?.household_id ?? "",
       plan,
-      tier,
-      kids_addon: kidsAddon ? "true" : "false",
+      adults: String(adults),
+      teens: String(teens),
+      children: String(children),
+      family_discount: familyDiscount ? "true" : "false",
     };
-    const line_items = [{ price, quantity }, ...(kidsPrice ? [{ price: kidsPrice, quantity: 1 }] : [])];
-    const session = await stripe.checkout.sessions.create({
+
+    const sessionParams: any = {
       customer: customerId,
       line_items,
       mode: "subscription",
-      allow_promotion_codes: true,
       success_url: `${origin}/portal/settings?membership=success`,
       cancel_url: `${origin}/membership?canceled=true`,
-      subscription_data: { metadata: meta },
-      metadata: meta,
-    });
+      subscription_data: { metadata: bundleMeta },
+      metadata: bundleMeta,
+    };
 
-    return json({ url: session.url });
+    // Apply discount coupon if eligible
+    if (discountCoupon) {
+      sessionParams.discounts = [{ coupon: discountCoupon }];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    return json({
+      url: session.url,
+      family_discount_applied: familyDiscount,
+    });
   } catch (e: any) {
     return json({ error: e?.message ?? String(e) }, 500);
   }

@@ -1,11 +1,12 @@
 // stripe-webhook — single source of truth for membership status.
 //
-// Stripe POSTs subscription lifecycle events here. We verify the signature,
-// upsert public.subscriptions, and mirror a coarse membership_status onto the
-// payer's profile so the app can gate cheaply.
+// Handles the NEW multi-tier model (Jul 2026). Instead of a single tier +
+// kids_addon, subscriptions now have multiple line items (adult, teen, child)
+// with quantities. The webhook extracts the bundle composition from metadata
+// or line item prices, upserts public.subscriptions, and mirrors membership
+// status onto all household members.
 //
-// verify_jwt MUST be false for this function (Stripe has no Supabase JWT); we
-// authenticate the request with the Stripe webhook signature instead.
+// verify_jwt MUST be false; signature verification via stripe-signature header.
 //
 // Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
 //      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
@@ -21,6 +22,62 @@ const admin = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
 );
+
+/** Determine which tier a price ID corresponds to by looking at its metadata. */
+async function resolveTier(priceId: string): Promise<string> {
+  try {
+    const price = await stripe.prices.retrieve(priceId);
+    const meta = price.metadata as Record<string, string>;
+    return meta?.tier || "adult"; // default to adult
+  } catch {
+    return "adult";
+  }
+}
+
+/** Parse the bundle from metadata, falling back to inspecting line items. */
+async function parseBundle(sub: Stripe.Subscription): Promise<{
+  adults: number;
+  teens: number;
+  children: number;
+  familyDiscount: boolean;
+  plan: string;
+}> {
+  const meta = sub.metadata as Record<string, string>;
+
+  // Preferred: metadata written at checkout time
+  const adults = parseInt(meta?.adults || "0", 10);
+  const teens = parseInt(meta?.teens || "0", 10);
+  const children = parseInt(meta?.children || "0", 10);
+  const plan = meta?.plan || "monthly";
+
+  // If metadata has explicit bundle counts, use them
+  if (adults > 0 || teens > 0 || children > 0) {
+    return {
+      adults, teens, children,
+      familyDiscount: meta?.family_discount === "true",
+      plan,
+    };
+  }
+
+  // Fallback: inspect each line item's price metadata
+  const items = sub.items?.data || [];
+  let ad = 0, te = 0, ch = 0;
+  for (const item of items) {
+    const pid = item.price?.id;
+    const qty = item.quantity ?? 1;
+    if (!pid) continue;
+    const tier = await resolveTier(pid);
+    if (tier === "teen") te += qty;
+    else if (tier === "child") ch += qty;
+    else ad += qty;
+  }
+
+  return {
+    adults: ad, teens: te, children: ch,
+    familyDiscount: ad >= 2 && (te >= 1 || ch >= 1),
+    plan,
+  };
+}
 
 // Map a raw Stripe subscription status to the profiles.membership_status enum.
 const toMembershipStatus = (s: string): string => {
@@ -42,13 +99,16 @@ const toMembershipStatus = (s: string): string => {
 };
 
 async function syncSubscription(sub: Stripe.Subscription) {
-  const profileId = (sub.metadata?.profile_id as string) || null;
-  const householdId = (sub.metadata?.household_id as string) || null;
-  const priceId = sub.items?.data?.[0]?.price?.id ?? null;
-  const quantity = sub.items?.data?.[0]?.quantity ?? 1;
-  const tier = sub.metadata?.tier === "teen" ? "teen" : "adult";
-  const kidsAddon = sub.metadata?.kids_addon === "true";
+  const meta = sub.metadata as Record<string, string>;
+  const profileId = meta?.profile_id || null;
+  const householdId = meta?.household_id || null;
+  const bundle = await parseBundle(sub);
 
+  // Aggregate: derive a "tier" from the bundle for backward compat with
+  // profiles.membership_tier (use the highest tier present)
+  const highestTier = bundle.children > 0 ? "child" : bundle.teens > 0 ? "teen" : "adult";
+
+  // Upsert the subscriptions record with bundle details
   await admin.from("subscriptions").upsert(
     {
       profile_id: profileId,
@@ -56,10 +116,14 @@ async function syncSubscription(sub: Stripe.Subscription) {
       stripe_customer_id: String(sub.customer),
       stripe_subscription_id: sub.id,
       status: sub.status,
-      plan: (sub.metadata?.plan as string) || null,
-      tier,
-      price_id: priceId,
-      quantity,
+      plan: bundle.plan,
+      tier: highestTier,
+      price_id: sub.items?.data?.[0]?.price?.id ?? null,
+      quantity: 1,
+      bundle_adults: bundle.adults,
+      bundle_teens: bundle.teens,
+      bundle_children: bundle.children,
+      family_discount: bundle.familyDiscount,
       current_period_end: sub.current_period_end
         ? new Date(sub.current_period_end * 1000).toISOString()
         : null,
@@ -69,8 +133,7 @@ async function syncSubscription(sub: Stripe.Subscription) {
     { onConflict: "stripe_subscription_id" },
   );
 
-  // Mirror status onto the payer profile (and every household member's profile
-  // so children inherit access from the household subscription).
+  // Mirror status onto every household member
   const status = toMembershipStatus(sub.status);
   if (householdId) {
     const { data: members } = await admin
@@ -85,13 +148,15 @@ async function syncSubscription(sub: Stripe.Subscription) {
     await admin.from("profiles").update({ membership_status: status }).eq("id", profileId);
   }
 
-  // Tier + kids add-on belong to the payer (the adult who bought them). An
-  // inactive subscription clears the tier so access lapses.
+  // Update payer profile with bundle-aware tier info
   if (profileId) {
     const active = status === "active" || status === "trialing";
     await admin.from("profiles").update({
-      membership_tier: active ? tier : "none",
-      kids_addon: active ? kidsAddon : false,
+      membership_tier: active ? highestTier : "none",
+      membership_bundle: active
+        ? JSON.stringify({ adults: bundle.adults, teens: bundle.teens, children: bundle.children })
+        : null,
+      family_discount: active ? bundle.familyDiscount : false,
     }).eq("id", profileId);
   }
 }
@@ -124,7 +189,7 @@ serve(async (req) => {
         const s = event.data.object as Stripe.Checkout.Session;
         if (s.mode === "subscription" && s.subscription) {
           const sub = await stripe.subscriptions.retrieve(String(s.subscription));
-          // Carry Checkout metadata onto the subscription if Stripe didn't.
+          // Carry checkout metadata onto the subscription if Stripe didn't copy it
           sub.metadata = { ...(s.metadata as any), ...(sub.metadata as any) };
           await syncSubscription(sub);
         }
@@ -139,7 +204,6 @@ serve(async (req) => {
         break;
       }
       default:
-        // Ignore unrelated events.
         break;
     }
     return new Response(JSON.stringify({ received: true }), {
