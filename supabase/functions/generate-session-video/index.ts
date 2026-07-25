@@ -19,10 +19,10 @@
 //
 // Required env (set via Supabase Edge Function secrets):
 //   GOOGLE_AI_API_KEY       — Gemini API (storyboard generation)
-//   ELEVENLABS_API_KEY      — ElevenLabs (narration)
+//   ELEVENLABS_API          — ElevenLabs (narration)
 //   ELEVENLABS_VOICE_ID     — optional, defaults to Kylee (NZ accent)
-//   PEXELS_API_KEY          — Pexels stock video search (free key)
-//   SHOTSTACK_API_KEY       — Shotstack render
+//   PEXELS_API              — Pexels stock video search (free key)
+//   SHOTSTACK_API           — Shotstack render
 //   SHOTSTACK_ENV           — optional: "stage" (default) or "v1" (prod)
 //   SHOTSTACK_WEBHOOK_URL   — optional: override; otherwise derived from SUPABASE_URL
 //   SUPABASE_URL            — auto-injected
@@ -112,7 +112,7 @@ const callGeminiStoryboard = async (filmScript: string, themeTitle: string, sign
 };
 
 const callElevenLabsNarration = async (script: string): Promise<Uint8Array> => {
-  const ELEVENLABS_API_KEY = requireEnv("ELEVENLABS_API_KEY");
+  const ELEVENLABS_API_KEY = requireEnv("ELEVENLABS_API");
   const voiceId = Deno.env.get("ELEVENLABS_VOICE_ID") || DEFAULT_VOICE;
   const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: "POST",
@@ -194,7 +194,7 @@ const stripScriptForNarration = (text: string) =>
 type PexelsVideo = { url: string; width: number; height: number };
 
 const searchPexelsVideo = async (query: string): Promise<PexelsVideo | null> => {
-  const PEXELS_API_KEY = requireEnv("PEXELS_API_KEY");
+  const PEXELS_API_KEY = requireEnv("PEXELS_API");
   // Trim aggressive punctuation, keep first ~6 words for relevance.
   const q = query.replace(/[^\w\s]/g, " ").split(/\s+/).filter(Boolean).slice(0, 6).join(" ");
   const url = `https://api.pexels.com/videos/search?per_page=3&orientation=landscape&query=${encodeURIComponent(q)}`;
@@ -225,7 +225,7 @@ const submitShotstackRender = async (params: {
   brollUrls: (string | null)[];
   webhookUrl: string;
 }): Promise<string> => {
-  const SHOTSTACK_API_KEY = requireEnv("SHOTSTACK_API_KEY");
+  const SHOTSTACK_API_KEY = requireEnv("SHOTSTACK_API");
   const SHOTSTACK_ENV = Deno.env.get("SHOTSTACK_ENV") || "stage";
   const totalDuration = params.scenes.reduce((s, sc) => s + sc.duration_sec, 0);
 
