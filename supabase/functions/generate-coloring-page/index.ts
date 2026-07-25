@@ -17,9 +17,12 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY")!;
 // Use Gemini 2.0 Flash with native image generation (inline image output)
 // Try multiple model names for image generation — fall back gracefully
+// Gemini-native image models accessible via Gemini API key (AIza...)
+// gemini-2.5-flash-image (Nano Banana) — ~500 free images/day
+// gemini-3.1-flash-image-preview (Nano Banana 2) — newest, same API
 const GEMINI_MODELS = [
-  "gemini-2.0-flash-exp",
-  "gemini-1.5-flash",
+  "gemini-2.5-flash-image",
+  "gemini-3.1-flash-image-preview",
 ];
 
 serve(async (req: Request) => {

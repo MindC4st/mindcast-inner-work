@@ -26,7 +26,7 @@ const supabase = SUPABASE_SERVICE_ROLE_KEY
   : null;
 
 // Gemini models to try for image generation (first success wins)
-const GEMINI_MODELS = ["gemini-2.0-flash-exp", "gemini-1.5-flash"];
+const GEMINI_MODELS = ["gemini-2.5-flash-image", "gemini-3.1-flash-image-preview"];
 
 // ── 1. Parse the child CSV ──────────────────────────────────────────────
 function parseCsv(text) {
