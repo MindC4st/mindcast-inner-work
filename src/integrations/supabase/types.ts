@@ -253,19 +253,34 @@ export type Database = {
           adult_video_title: string | null
           block_number: number
           block_theme: string
+          core_learning: string | null
           created_at: string
           id: string
+          inner_wisdom_alignment: string | null
+          interactive_activity: string | null
           kids_activity_type: string | null
+          kids_colouring_prompt: string | null
           kids_format: string | null
+          kids_picture_book: string | null
+          kids_picture_book_note: string | null
+          kids_signal_metaphor: string | null
           kids_theme_notes: string | null
           kids_title: string | null
           pdf_reference: string | null
+          reflective_question: string | null
+          signal_metaphor: string | null
           teen_search_notes: string | null
+          teen_signal_metaphor: string | null
           teen_source: string | null
           teen_video_title: string | null
           updated_at: string
+          video_position: string
           week_number: number
           weekly_theme: string
+          workbook_activity: string | null
+          youtube_runtime: string | null
+          youtube_title: string | null
+          youtube_url: string | null
         }
         Insert: {
           activity_type?: string
@@ -274,19 +289,34 @@ export type Database = {
           adult_video_title?: string | null
           block_number: number
           block_theme?: string
+          core_learning?: string | null
           created_at?: string
           id?: string
+          inner_wisdom_alignment?: string | null
+          interactive_activity?: string | null
           kids_activity_type?: string | null
+          kids_colouring_prompt?: string | null
           kids_format?: string | null
+          kids_picture_book?: string | null
+          kids_picture_book_note?: string | null
+          kids_signal_metaphor?: string | null
           kids_theme_notes?: string | null
           kids_title?: string | null
           pdf_reference?: string | null
+          reflective_question?: string | null
+          signal_metaphor?: string | null
           teen_search_notes?: string | null
+          teen_signal_metaphor?: string | null
           teen_source?: string | null
           teen_video_title?: string | null
           updated_at?: string
+          video_position?: string
           week_number: number
           weekly_theme?: string
+          workbook_activity?: string | null
+          youtube_runtime?: string | null
+          youtube_title?: string | null
+          youtube_url?: string | null
         }
         Update: {
           activity_type?: string
@@ -295,19 +325,34 @@ export type Database = {
           adult_video_title?: string | null
           block_number?: number
           block_theme?: string
+          core_learning?: string | null
           created_at?: string
           id?: string
+          inner_wisdom_alignment?: string | null
+          interactive_activity?: string | null
           kids_activity_type?: string | null
+          kids_colouring_prompt?: string | null
           kids_format?: string | null
+          kids_picture_book?: string | null
+          kids_picture_book_note?: string | null
+          kids_signal_metaphor?: string | null
           kids_theme_notes?: string | null
           kids_title?: string | null
           pdf_reference?: string | null
+          reflective_question?: string | null
+          signal_metaphor?: string | null
           teen_search_notes?: string | null
+          teen_signal_metaphor?: string | null
           teen_source?: string | null
           teen_video_title?: string | null
           updated_at?: string
+          video_position?: string
           week_number?: number
           weekly_theme?: string
+          workbook_activity?: string | null
+          youtube_runtime?: string | null
+          youtube_title?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
@@ -1978,6 +2023,19 @@ export type Database = {
     }
     Functions: {
       current_profile_id: { Args: never; Returns: string }
+      curriculum_public: {
+        Args: { p_week?: number }
+        Returns: {
+          adult_video_title: string
+          block_number: number
+          block_theme: string
+          core_learning: string
+          kids_title: string
+          teen_video_title: string
+          week_number: number
+          weekly_theme: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1985,6 +2043,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_active_member: { Args: never; Returns: boolean }
       is_guardian_of_profile: {
         Args: { target_profile: string }
         Returns: boolean
