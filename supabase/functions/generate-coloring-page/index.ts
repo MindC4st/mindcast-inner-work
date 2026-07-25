@@ -149,16 +149,17 @@ serve(async (req: Request) => {
       .getPublicUrl(pngPath);
     const coloringPageUrl = pngPublic.publicUrl;
 
-    // 5. Build PDF from the PNG image
+    // 5. Build PDF from the PNG image — LANDSCAPE A4, full-bleed
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595.28, 841.89]); // A4 portrait
+    // A4 landscape: 297mm × 210mm → 841.89 × 595.28 points
+    const page = pdfDoc.addPage([841.89, 595.28]);
 
     // Embed the PNG
     let pngImage;
     try {
       pngImage = await pdfDoc.embedPng(imageBytes);
     } catch {
-      // If pdf-lib can't embed the PNG directly (e.g. CMYK), fall back to JPEG
+      // If pdf-lib can't embed the PNG directly (e.g. CMYK), return PNG URL
       return new Response(
         JSON.stringify({
           error: "PDF generation from PNG failed — image format may be incompatible",
@@ -169,28 +170,32 @@ serve(async (req: Request) => {
       );
     }
 
-    // Scale image to fit A4 with margins
-    const margin = 40;
-    const maxWidth = page.getWidth() - margin * 2;
-    const maxHeight = page.getHeight() - margin * 2;
-    const scale = Math.min(
-      maxWidth / pngImage.width,
-      maxHeight / pngImage.height,
-    );
+    // Scale image to fill the full landscape page (minimal margin)
+    const margin = 16;
+    const maxW = page.getWidth() - margin * 2;
+    const maxH = page.getHeight() - margin * 2;
+    // Use Math.max() so the image fills as much of the page as possible
+    // while still being fully visible (contain, not cover)
+    const scale = Math.min(maxW / pngImage.width, maxH / pngImage.height);
     const scaledW = pngImage.width * scale;
     const scaledH = pngImage.height * scale;
     const x = (page.getWidth() - scaledW) / 2;
     const y = (page.getHeight() - scaledH) / 2;
 
-    page.drawImage(pngImage, { x, y, width: scaledW, height: scaledH });
+    page.drawImage(pngImage, {
+      x,
+      y,
+      width: scaledW,
+      height: scaledH,
+    });
 
-    // Add footer label
+    // Footer label
     const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
     page.drawText(
       `Coloring Page — Week ${week_number}: ${lesson.theme_title || ""}`,
       {
         x: margin,
-        y: 20,
+        y: margin - 6,
         size: 8,
         font: helvetica,
         color: rgb(0.5, 0.5, 0.5),
