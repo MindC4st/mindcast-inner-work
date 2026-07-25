@@ -27,6 +27,8 @@ type Props = {
   themeTitle: string;
   sessionTitle: string;
   phaseName: string;
+  joinCode?: string;
+  joinUrl?: string;
 };
 
 /** Pluck a stable float in [0,1) from a string id via a small DJB2-style hash. */
@@ -97,7 +99,7 @@ const FloatingName = ({ checkIn }: { checkIn: CheckIn }) => {
   );
 };
 
-export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName }: Props) => {
+export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, joinCode, joinUrl }: Props) => {
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
 
   // Load recent (last 4h) + subscribe to new inserts.
@@ -157,6 +159,19 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName }:
             : `${checkIns.length} in the room`}
         </p>
       </div>
+
+      {/* Join code badge — bottom-left, always visible */}
+      {joinCode && (
+        <div className="absolute bottom-8 left-8 z-30 flex flex-col items-start gap-1">
+          <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase">Join Code</p>
+          <p className="font-display text-4xl md:text-5xl tracking-[0.3em] text-[hsl(var(--ivory))]/90">{joinCode}</p>
+          {joinUrl && (
+            <p className="text-[hsl(var(--ivory))]/40 text-[10px] font-body mt-1">
+              {joinUrl.replace(/^https?:\/\//, "")}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Floating names — above the title layer. */}
       <div className="absolute inset-0 z-20">

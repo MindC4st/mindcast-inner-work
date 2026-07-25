@@ -21,23 +21,24 @@ import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 // can change (and the video can flex position) without touching the renderer.
 // Confirmed order: wisdom -> metaphor + how-to-apply -> video (as supporting
 // evidence), with the video flexing to near the end when video_position='late'.
+// Restructured facilitator deck sequence matching the home page vision:
+// Title (with Check In + join code) → Return to Your Intention → Inner Wisdom →
+// In Today's World (Metaphor + Apply) → Video (Evidence) → Go Deeper →
+// Reflect & Share → Together (Activity) → Guided Reflection → This Week's Practice
 type SlideKind =
-  | "title" | "voices" | "wisdom" | "metaphor" | "video"
-  | "core" | "reflect" | "activity" | "guided" | "practice" | "affirmation";
+  | "title" | "intention" | "wisdom" | "metaphor" | "video"
+  | "core" | "reflect" | "activity" | "guided" | "practice";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
-  title: "Title", voices: "Voices from Last Week", wisdom: "Inner Wisdom",
+  title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
   metaphor: "In Today's World", video: "Video", core: "Go Deeper",
   reflect: "Reflect & Share", activity: "Together", guided: "Guided Reflection",
-  practice: "This Week's Practice", affirmation: "Affirmation",
+  practice: "This Week's Practice",
 };
 
-const buildDeck = (videoPosition?: string | null): SlideKind[] => {
-  const open: SlideKind[] = ["title", "voices", "wisdom", "metaphor"];
-  const mid: SlideKind[] = ["core", "reflect", "activity", "guided", "practice"];
-  return videoPosition === "late"
-    ? [...open, ...mid, "video", "affirmation"]        // video as a closing story
-    : [...open, "video", ...mid, "affirmation"];       // video as early evidence
+const buildDeck = (): SlideKind[] => {
+  return ["title", "intention", "wisdom", "metaphor", "video",
+          "core", "reflect", "activity", "guided", "practice"];
 };
 
 type Session = {
@@ -165,8 +166,8 @@ const FacilitatorView = () => {
   const [callbacks, setCallbacks] = useState<Callback[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // The ordered deck (flexes the video slot by video_position); `slide` indexes it.
-  const deck = useMemo(() => buildDeck(session?.video_position), [session?.video_position]);
+  // The ordered deck; `slide` indexes it.
+  const deck = useMemo(() => buildDeck(), []);
   const lastSlide = deck.length - 1;
   const currentKind: SlideKind = deck[Math.min(slide, lastSlide)] ?? "title";
 
@@ -507,7 +508,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer kind={currentKind} session={session} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} callbacks={callbacks} onSessionUpdate={setSession} />
+              <SlideRenderer kind={currentKind} session={session} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -612,7 +613,7 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus, callbacks, onSessionUpdate }: { kind: SlideKind; session: Session; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; callbacks: Callback[]; onSessionUpdate: (s: Session) => void }) => {
+const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
   switch (kind) {
     case "title": return (
       <WelcomeWall
@@ -620,13 +621,16 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         themeTitle={session.theme_title}
         sessionTitle={session.session_title}
         phaseName={session.phase_name}
+        joinCode={code}
+        joinUrl={joinUrl}
       />
     );
-    case "voices": return (
-      <VoicesLastWeekSlide
-        callbacks={callbacks}
+    case "intention": return (
+      <ReturnToIntentionSlide
+        previousWeekCallback={session.previous_week_callback}
         weekNumber={session.week_number}
-        intro={session.previous_week_callback}
+        sessionTitle={session.session_title}
+        themeTitle={session.theme_title}
       />
     );
     // Inner Wisdom — the timeless principle, the basis of the teaching.
@@ -710,13 +714,6 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         }}
       />
     );
-    case "affirmation": return (
-      <div className="text-center max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-10">Affirmation</p>
-        <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, ease: "easeOut" }}
-          className="font-serif text-4xl md:text-6xl text-[hsl(var(--ivory))] leading-snug italic">"{session.core_affirmation}"</motion.p>
-      </div>
-    );
     default: return null;
   }
 };
@@ -784,52 +781,74 @@ const PendingCard = ({
 };
 
 /**
- * Voices from Last Week — sits between Title and Signal Metaphor.
- * Data comes from `featured_callbacks` populated by the Sun 9am cron.
- * Empty state (e.g. Week 1, or no approved public responses) gracefully
- * shows a welcome card instead of an empty grid.
+ * Return to Your Intention — replaces "Voices from Last Week".
+ * Prompts participants to open their workbook to the intention they set
+ * seven days ago. Guides them through reflection questions and a brief
+ * pair-share / group popcorning moment.
  */
-const VoicesLastWeekSlide = ({
-  callbacks, weekNumber, intro,
-}: { callbacks: Callback[]; weekNumber: number; intro: string }) => {
-  if (callbacks.length === 0) {
+const ReturnToIntentionSlide = ({
+  previousWeekCallback, weekNumber, sessionTitle, themeTitle,
+}: { previousWeekCallback: string; weekNumber: number; sessionTitle: string; themeTitle: string }) => {
+  // Week 1 — no previous intention to return to
+  if (weekNumber === 1 || !previousWeekCallback) {
     return (
-      <div className="text-center max-w-3xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Voices from Last Week</p>
-        <p className="font-serif italic text-2xl md:text-3xl text-[hsl(var(--ivory))]/80 leading-snug">
-          {weekNumber === 1
-            ? "This is where it starts. Welcome to the room — your voice joins the wall from next week."
-            : "Nothing made the wall this week — but the room is still listening."}
-        </p>
+      <div className="max-w-4xl text-center">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Return to Your Intention</p>
+        <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed mb-6">
+            {weekNumber === 1
+              ? "This is your first session — there's no intention to return to yet. Take a moment to introduce yourself to someone new. What brought you here today?"
+              : "Open your workbook to the intention you wrote seven days ago."}
+          </p>
+          <div className="space-y-4 text-left max-w-2xl mx-auto">
+            <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
+              <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
+                {weekNumber === 1
+                  ? '"What intention would you like to set for your first session together?"'
+                  : '"Did you do it?"'}
+              </p>
+            </div>
+            <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
+              <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
+                {weekNumber === 1
+                  ? '"Who are you and what does being here mean to you right now?"'
+                  : '"What got in the way?"'}
+              </p>
+            </div>
+            <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
+              <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
+                {weekNumber === 1
+                  ? '"Find someone you don't know and share what you hope to find here."'
+                  : '"What did you notice? Share briefly with someone beside you."'}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl w-full">
-      <div className="text-center mb-6">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Voices from Last Week</p>
-        {intro && (
-          <p className="font-serif italic text-lg md:text-xl text-[hsl(var(--ivory))]/80 leading-snug max-w-2xl mx-auto">
-            {intro}
-          </p>
-        )}
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[70vh] overflow-y-auto pr-1">
-        {callbacks.map((c, i) => (
-          <motion.div
-            key={c.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: Math.min(i * 0.04, 0.6), duration: 0.5 }}
-            className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-4"
-          >
-            <p className="text-[hsl(var(--ivory))]/90 font-serif text-sm leading-relaxed italic">"{c.response_text}"</p>
-            <p className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase mt-2">
-              — {c.display_name}
-            </p>
-          </motion.div>
-        ))}
+    <div className="max-w-4xl text-center">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Return to Your Intention</p>
+      <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
+        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed mb-6">
+          Open your workbook to the intention you wrote seven days ago.
+        </p>
+        <p className="font-serif text-xl md:text-2xl text-[hsl(var(--bronze))]/80 italic mb-8">
+          "{previousWeekCallback}"
+        </p>
+        <div className="space-y-4 text-left max-w-2xl mx-auto">
+          <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
+            <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">"Did you do it?"</p>
+          </div>
+          <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
+            <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">"What got in the way?"</p>
+          </div>
+          <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
+            <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">"What did you notice? Share briefly with someone beside you."</p>
+          </div>
+        </div>
       </div>
     </div>
   );
