@@ -21,24 +21,32 @@ import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 // can change (and the video can flex position) without touching the renderer.
 // Confirmed order: wisdom -> metaphor + how-to-apply -> video (as supporting
 // evidence), with the video flexing to near the end when video_position='late'.
-// Restructured facilitator deck sequence matching the home page vision:
-// Title (with Check In + join code) → Return to Your Intention → Inner Wisdom →
-// In Today's World (Metaphor + Apply) → Video (Evidence) → Go Deeper →
+// Facilitator deck sequence:
+// Check In → Return to Your Intention → Inner Wisdom → In Today's World →
+// [Video (Evidence)] → [Coloring Activity (Child only)] → Go Deeper →
 // Reflect & Share → Together (Activity) → Guided Reflection → This Week's Practice
 type SlideKind =
   | "title" | "intention" | "wisdom" | "metaphor" | "video"
-  | "core" | "reflect" | "activity" | "guided" | "practice";
+  | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
   title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
-  metaphor: "In Today's World", video: "Video", core: "Go Deeper",
-  reflect: "Reflect & Share", activity: "Together", guided: "Guided Reflection",
-  practice: "This Week's Practice",
+  metaphor: "In Today's World", video: "Video", coloring: "Coloring Activity",
+  core: "Go Deeper", reflect: "Reflect & Share", activity: "Together",
+  guided: "Guided Reflection", practice: "This Week's Practice",
 };
 
-const buildDeck = (): SlideKind[] => {
-  return ["title", "intention", "wisdom", "metaphor", "video",
-          "core", "reflect", "activity", "guided", "practice"];
+const buildDeck = (audience?: string): SlideKind[] => {
+  const base: SlideKind[] = [
+    "title", "intention", "wisdom", "metaphor", "video",
+    "core", "reflect", "activity", "guided", "practice",
+  ];
+  // Insert coloring slide after video for Child sessions
+  if (audience === "Child") {
+    const idx = base.indexOf("video");
+    base.splice(idx + 1, 0, "coloring");
+  }
+  return base;
 };
 
 type Session = {
@@ -67,6 +75,8 @@ type Session = {
   facilitator_notes: string;
   previous_week_callback: string;
   video_position: string;
+  coloring_page_url: string | null;
+  coloring_pdf_url: string | null;
 };
 
 type Callback = {
@@ -131,6 +141,8 @@ const buildSession = (live: any, cur: any, wk: number, aud: string): Session | n
     facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
     previous_week_callback: base.previous_week_callback || "",
     video_position: base.video_position || cur?.video_position || "early",
+    coloring_page_url: base.coloring_page_url || null,
+    coloring_pdf_url: base.coloring_pdf_url || null,
   };
 };
 
@@ -167,7 +179,7 @@ const FacilitatorView = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // The ordered deck; `slide` indexes it.
-  const deck = useMemo(() => buildDeck(), []);
+  const deck = useMemo(() => buildDeck(session?.audience), [session?.audience]);
   const lastSlide = deck.length - 1;
   const currentKind: SlideKind = deck[Math.min(slide, lastSlide)] ?? "title";
 
@@ -714,8 +726,92 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         }}
       />
     );
+    case "coloring": return (
+      <ColoringActivitySlide
+        coloringPageUrl={session.coloring_page_url}
+        coloringPdfUrl={session.coloring_pdf_url}
+        weekNumber={session.week_number}
+        themeTitle={session.theme_title}
+        sessionTitle={session.session_title}
+      />
+    );
     default: return null;
   }
+};
+
+/**
+ * Coloring Activity — shown only for Child audience.
+ * Displays the coloring page image on screen + download button for the PDF.
+ */
+const ColoringActivitySlide = ({
+  coloringPageUrl, coloringPdfUrl, weekNumber, themeTitle, sessionTitle,
+}: {
+  coloringPageUrl: string | null;
+  coloringPdfUrl: string | null;
+  weekNumber: number;
+  themeTitle: string;
+  sessionTitle: string;
+}) => {
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  // No coloring page yet — show placeholder
+  if (!coloringPageUrl) {
+    return (
+      <div className="text-center max-w-2xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Coloring Activity</p>
+        <div className="border border-dashed border-[hsl(var(--ivory))]/20 rounded-sm p-16 flex flex-col items-center gap-4">
+          <div className="w-24 h-24 rounded-full bg-[hsl(var(--ivory))]/[0.04] flex items-center justify-center">
+            <span className="text-4xl text-[hsl(var(--ivory))]/20">🖍️</span>
+          </div>
+          <p className="font-serif text-xl text-[hsl(var(--ivory))]/50 italic">
+            Coloring page not yet generated for this session.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-6 max-w-4xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">
+        Coloring Activity — Week {weekNumber}
+      </p>
+      <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 -mt-3">
+        {themeTitle}: {sessionTitle}
+      </p>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative w-full max-w-lg"
+      >
+        {!imgLoaded && (
+          <div className="aspect-square bg-[hsl(var(--ivory))]/[0.02] animate-pulse rounded-sm" />
+        )}
+        <img
+          src={coloringPageUrl}
+          alt={`Coloring page for week ${weekNumber}`}
+          className={`w-full rounded-sm shadow-lg ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
+          onLoad={() => setImgLoaded(true)}
+        />
+      </motion.div>
+
+      {coloringPdfUrl && (
+        <a
+          href={coloringPdfUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary inline-flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download PDF
+        </a>
+      )}
+    </div>
+  );
 };
 
 const PendingCard = ({
