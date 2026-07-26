@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadWorksheetPdf, WorksheetSession } from "@/lib/generateWorksheetPdf";
+import { toast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -105,9 +107,26 @@ const PortalDownloads = () => {
     downloadWorksheetPdf(session);
   };
 
-  // Open coloring page PDF
-  const handleOpenColoring = (url: string) => {
-    window.open(url, "_blank", "noopener");
+  // Download coloring page as a lightweight A4 landscape PDF
+  const handleDownloadColoring = async (imageUrl: string, weekNumber: number) => {
+    try {
+      const res = await fetch(imageUrl);
+      if (!res.ok) throw new Error("Failed to load image");
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+        const W = doc.internal.pageSize.getWidth();
+        const H = doc.internal.pageSize.getHeight();
+        const margin = 6;
+        doc.addImage(dataUrl, "PNG", margin, margin, W - margin * 2, H - margin * 2);
+        doc.save(`mindcast-coloring-week-${String(weekNumber).padStart(2, "0")}.pdf`);
+      };
+      reader.readAsDataURL(blob);
+    } catch (e: any) {
+      toast({ title: "Download failed", description: e?.message ?? "Could not generate PDF", variant: "destructive" });
+    }
   };
 
   // Is a given week unlocked for this audience?
@@ -293,19 +312,19 @@ const PortalDownloads = () => {
                             </button>
 
                             {/* Coloring page (Child only) */}
-                            {audience === "Child" && (
+                            {audience === "Child" && coloringImageUrl && (
                               <button
-                                onClick={() => unlocked && coloringImageUrl && handleOpenColoring(coloringImageUrl)}
+                                onClick={() => unlocked && handleDownloadColoring(coloringImageUrl, item.week_number)}
                                 disabled={!unlocked}
                                 className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
                                   unlocked
                                     ? "border border-primary/30 text-primary hover:bg-primary/[0.06]"
                                     : "border border-foreground/[0.06] text-muted-foreground/30 cursor-not-allowed"
                                 }`}
-                                title={unlocked ? "Download colouring page" : "Locked until session"}
+                                title={unlocked ? "Download colouring page (PDF)" : "Locked until session"}
                               >
                                 <Palette size={12} strokeWidth={1.5} />
-                                Colouring Page
+                                Colouring PDF
                               </button>
                             )}
                           </div>
