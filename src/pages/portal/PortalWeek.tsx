@@ -28,6 +28,8 @@ type CurriculumRow = {
 };
 
 type WorksheetRow = {
+  signal_metaphor: string | null;
+  ancient_wisdom_reframe: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
   weekly_practice_mon: string | null;
@@ -69,7 +71,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         (supabase as any).rpc("curriculum_public", { p_week: weekNum }),
         (supabase as any).from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
         (supabase as any).from("mindcast_live_sessions").select(
-          "journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation"
+          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
@@ -158,9 +160,11 @@ const LockedPanel = ({ icon, title, body, cta }: { icon: React.ReactNode; title:
 const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow }: {
   weekNum: number; track: string; row: CurriculumRow | null; vid: string | null; kidsAddon: boolean; profileId: string | null; wsRow: WorksheetRow | null;
 }) => {
-  // Show the metaphor for the member's track (child content shows via the kids view).
+  // Prefer mindcast_live_sessions content over curriculum_weeks where available
+  const wisdomText = wsRow?.ancient_wisdom_reframe || row?.inner_wisdom_alignment;
   const metaphor = track === "Teen" ? row?.teen_signal_metaphor
-    : track === "Child" ? row?.kids_signal_metaphor : row?.signal_metaphor;
+    : track === "Child" ? row?.kids_signal_metaphor
+    : wsRow?.signal_metaphor || row?.signal_metaphor;
   return (
   <>
     {vid && (
@@ -174,14 +178,14 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
       </section>
     )}
 
-    {(row?.inner_wisdom_alignment || metaphor) && (
+    {(wisdomText || metaphor) && (
       <section className="mb-10 portal-card p-5 md:p-6 space-y-4">
-        {row?.inner_wisdom_alignment && (
+        {wisdomText && (
           <div className="flex gap-3">
             <Sparkles size={16} className="text-primary shrink-0 mt-0.5" />
             <div>
               <p className="portal-label text-foreground/40 mb-1">INNER WISDOM</p>
-              <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{row.inner_wisdom_alignment}</p>
+              <p className="text-sm text-foreground/80 font-body font-light leading-relaxed">{wisdomText}</p>
             </div>
           </div>
         )}
