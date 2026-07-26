@@ -87,6 +87,12 @@ const PortalWeeks = () => {
         <p className="text-sm text-foreground/40 font-body mb-4">No weeks data returned. The database may be empty or RLS is blocking the query.</p>
       )}
 
+      {!loading && (
+        <p className="text-[10px] text-foreground/30 font-mono mb-4">
+          Debug: isAdmin={String(isAdmin)} adminFallback={String(adminFallback)} role={String(role)} is_admin={(profile as any)?.is_admin} isMember={String(isMember)}
+        </p>
+      )}
+
       <div className="space-y-3">
         {weeks.map((w) => {
           const hasContent = !!w.title;
