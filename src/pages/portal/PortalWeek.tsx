@@ -27,12 +27,22 @@ type CurriculumRow = {
   kids_colouring_prompt: string | null;
 };
 
+type WorksheetRow = {
+  journaling_prompt: string | null;
+  experiential_exercise: string | null;
+  weekly_practice_mon: string | null;
+  weekly_practice_wed: string | null;
+  weekly_practice_sun: string | null;
+  core_affirmation: string | null;
+};
+
 const WeekView = ({ weekNum }: { weekNum: number }) => {
   const { profile, role, user } = useAuth();
   const { isMember, track, kidsAddon } = useEntitlement();
   const { isUnlocked, unlockDate, loading: schedLoading } = useProgramSchedule();
   const [row, setRow] = useState<CurriculumRow | null>(null);
   const [pub, setPub] = useState<any>(null);
+  const [wsRow, setWsRow] = useState<WorksheetRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminFallback, setAdminFallback] = useState(false);
 
@@ -55,13 +65,17 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
       setLoading(true);
       // Header (title + description) is public; the paid body only returns rows
       // RLS lets this member read (active + unlocked), else null.
-      const [{ data: pubRows }, { data: content }] = await Promise.all([
+      const [{ data: pubRows }, { data: content }, { data: wsData }] = await Promise.all([
         (supabase as any).rpc("curriculum_public", { p_week: weekNum }),
         (supabase as any).from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
+        (supabase as any).from("mindcast_live_sessions").select(
+          "journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation"
+        ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
       setPub(Array.isArray(pubRows) ? pubRows[0] ?? null : null);
       setRow(content as CurriculumRow | null);
+      setWsRow(wsData as WorksheetRow | null);
       setLoading(false);
     })();
     return () => { active = false; };
@@ -121,7 +135,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
               : "This week unlocks once the program start date is set."}
           />
         ) : (
-          <UnlockedContent weekNum={weekNum} track={track} row={row} vid={vid} kidsAddon={kidsAddon} profileId={(profile as any)?.id ?? null} />
+          <UnlockedContent weekNum={weekNum} track={track} row={row} vid={vid} kidsAddon={kidsAddon} profileId={(profile as any)?.id ?? null} wsRow={wsRow} />
         )}
       </div>
     </PortalLayout>
@@ -141,8 +155,8 @@ const LockedPanel = ({ icon, title, body, cta }: { icon: React.ReactNode; title:
   </div>
 );
 
-const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
-  weekNum: number; track: string; row: CurriculumRow | null; vid: string | null; kidsAddon: boolean; profileId: string | null;
+const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow }: {
+  weekNum: number; track: string; row: CurriculumRow | null; vid: string | null; kidsAddon: boolean; profileId: string | null; wsRow: WorksheetRow | null;
 }) => {
   // Show the metaphor for the member's track (child content shows via the kids view).
   const metaphor = track === "Teen" ? row?.teen_signal_metaphor
@@ -183,10 +197,10 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
       </section>
     )}
 
-    {row?.interactive_activity && (
+    {(row?.interactive_activity || wsRow?.experiential_exercise) && (
       <section className="mb-10">
         <h2 className="portal-heading text-lg text-foreground mb-2 flex items-center gap-2"><BookOpen size={16} /> This week's activity</h2>
-        <p className="text-sm text-foreground/70 font-body font-light leading-relaxed">{row.interactive_activity}</p>
+        <p className="text-sm text-foreground/70 font-body font-light leading-relaxed">{wsRow?.experiential_exercise || row?.interactive_activity}</p>
       </section>
     )}
 
@@ -201,15 +215,15 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId }: {
     )}
 
     {profileId && track !== "Child" && (
-      <JournalPanel weekNum={weekNum} track={track} profileId={profileId} reflectiveQuestion={row?.reflective_question || ""} />
+      <JournalPanel weekNum={weekNum} track={track} profileId={profileId} wsRow={wsRow} />
     )}
   </>
   );
 };
 
 // Private per-week journal (lesson_journal). Owner-only + guardian-read RLS.
-const JournalPanel = ({ weekNum, track, profileId, reflectiveQuestion }: {
-  weekNum: number; track: string; profileId: string; reflectiveQuestion: string;
+const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
+  weekNum: number; track: string; profileId: string; wsRow: WorksheetRow | null;
 }) => {
   const [j, setJ] = useState({ reflection_answer: "", activity_response: "", personal_notes: "", life_group_notes: "" });
   const [loading, setLoading] = useState(true);
@@ -255,13 +269,59 @@ const JournalPanel = ({ weekNum, track, profileId, reflectiveQuestion }: {
 
   if (loading) return <div className="py-8 flex justify-center"><Loader2 size={18} className="animate-spin text-muted-foreground" /></div>;
 
+  const reflectionLabel = wsRow?.journaling_prompt
+    ? `REFLECTION · ${wsRow.journaling_prompt}`
+    : "REFLECTION";
+  const activityLabel = wsRow?.experiential_exercise
+    ? `ACTIVITY · ${wsRow.experiential_exercise}`
+    : "FROM THE ACTIVITY";
+  const practiceMon = wsRow?.weekly_practice_mon;
+  const practiceWed = wsRow?.weekly_practice_wed;
+  const practiceSun = wsRow?.weekly_practice_sun;
+  const affirmation = wsRow?.core_affirmation;
+
   return (
     <section className="mb-12 portal-card p-6 md:p-8 border-2 border-foreground/10">
       <h2 className="portal-heading text-lg text-foreground mb-1 flex items-center gap-2"><PenLine size={16} /> My journal</h2>
       <p className="text-xs text-muted-foreground font-body font-light mb-6">Private to you. Only a linked guardian can read a child's entries.</p>
+
+      {/* Weekly practice prompts (from worksheet) */}
+      {(practiceMon || practiceWed || practiceSun) && (
+        <div className="mb-6 p-4 border border-primary/10 bg-primary/[0.03] rounded-sm">
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary mb-3">This Week's Practice</p>
+          <div className="space-y-2">
+            {practiceMon && (
+              <div className="flex gap-2 text-xs font-body text-foreground/70">
+                <span className="text-primary font-bold shrink-0 w-8">Mon</span>
+                <span>{practiceMon}</span>
+              </div>
+            )}
+            {practiceWed && (
+              <div className="flex gap-2 text-xs font-body text-foreground/70">
+                <span className="text-primary font-bold shrink-0 w-8">Wed</span>
+                <span>{practiceWed}</span>
+              </div>
+            )}
+            {practiceSun && (
+              <div className="flex gap-2 text-xs font-body text-foreground/70">
+                <span className="text-primary font-bold shrink-0 w-8">Sun</span>
+                <span>{practiceSun}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {affirmation && (
+        <div className="mb-6 p-4 border border-dashed border-primary/20 rounded-sm text-center">
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary/60 mb-1">This Week's Affirmation</p>
+          <p className="text-sm font-serif italic text-foreground/80 leading-relaxed">"{affirmation}"</p>
+        </div>
+      )}
+
       <div className="space-y-6">
-        {field("reflection_answer", reflectiveQuestion ? `REFLECTION · ${reflectiveQuestion}` : "REFLECTION", "Your answer to this week's question…", 4)}
-        {field("activity_response", "FROM THE ACTIVITY", "What you took from the interactive activity…")}
+        {field("reflection_answer", reflectionLabel, "Your answer to this week's question…", 4)}
+        {field("activity_response", activityLabel, "What you took from the interactive activity…")}
         {field("personal_notes", "SUNDAY NOTES", "Anything else from the session…")}
         {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Group…")}
       </div>
