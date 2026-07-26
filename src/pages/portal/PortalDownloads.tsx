@@ -113,6 +113,15 @@ const PortalDownloads = () => {
   // Is a given week unlocked for this audience?
   const weekIsUnlocked = (week: number) => isAdmin || isUnlocked(week);
 
+  // Build coloring page URL from storage (PNG are at coloring/week-{n}/coloring-page.png)
+  const coloringUrlFor = (week: number): string | null => {
+    const match = items.find(i => i.week_number === week);
+    if (match?.coloring_page_url) return match.coloring_page_url;
+    // Fallback: construct from known storage path
+    const baseUrl = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/worksheets";
+    return `${baseUrl}/coloring/week-${week}/coloring-page.png`;
+  };
+
   // Date string for when a week unlocks
   const formatUnlockDate = (week: number) => {
     const d = unlockDate(week);
@@ -200,8 +209,7 @@ const PortalDownloads = () => {
                   {sorted.map((item) => {
                     const unlocked = weekIsUnlocked(item.week_number);
                     const opensOn = formatUnlockDate(item.week_number);
-                    const hasColoring = !!item.coloring_pdf_url;
-                    const hasWorksheet = true; // Always available via client-side generation
+                    const coloringImageUrl = audience === "Child" ? coloringUrlFor(item.week_number) : null;
 
                     return (
                       <motion.div
@@ -286,26 +294,19 @@ const PortalDownloads = () => {
 
                             {/* Coloring page (Child only) */}
                             {audience === "Child" && (
-                              hasColoring ? (
-                                <button
-                                  onClick={() => unlocked && handleOpenColoring(item.coloring_pdf_url!)}
-                                  disabled={!unlocked}
-                                  className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
-                                    unlocked
-                                      ? "border border-primary/30 text-primary hover:bg-primary/[0.06]"
-                                      : "border border-foreground/[0.06] text-muted-foreground/30 cursor-not-allowed"
-                                  }`}
-                                  title={unlocked ? "Download colouring page (PDF)" : "Locked until session"}
-                                >
-                                  <Palette size={12} strokeWidth={1.5} />
-                                  Colouring Page
-                                </button>
-                              ) : (
-                                <span className="inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm border border-dashed border-foreground/[0.06] text-muted-foreground/30">
-                                  <Palette size={12} strokeWidth={1.5} />
-                                  No Colouring
-                                </span>
-                              )
+                              <button
+                                onClick={() => unlocked && coloringImageUrl && handleOpenColoring(coloringImageUrl)}
+                                disabled={!unlocked}
+                                className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
+                                  unlocked
+                                    ? "border border-primary/30 text-primary hover:bg-primary/[0.06]"
+                                    : "border border-foreground/[0.06] text-muted-foreground/30 cursor-not-allowed"
+                                }`}
+                                title={unlocked ? "Download colouring page" : "Locked until session"}
+                              >
+                                <Palette size={12} strokeWidth={1.5} />
+                                Colouring Page
+                              </button>
                             )}
                           </div>
                         </div>
