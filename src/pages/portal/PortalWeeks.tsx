@@ -2,19 +2,27 @@ import { Link } from "react-router-dom";
 import { Lock, PlayCircle, Clock, CheckCircle2, Shield } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCurriculumWeeks, trackForAgeGroup } from "@/hooks/useCurriculumWeeks";
+import { trackForAgeGroup } from "@/hooks/useCurriculumWeeks";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 
+type Week = {
+  week_number: number;
+  title: string | null;
+  block_theme: string | null;
+  source: string | null;
+};
+
 const PortalWeeks = () => {
   const { profile, role, user } = useAuth();
   const track = trackForAgeGroup((profile as any)?.age_group);
-  const { weeks, loading } = useCurriculumWeeks(track);
   const { isUnlocked, unlockDate, currentWeek } = useProgramSchedule();
   const { isMember } = useEntitlement();
   const [adminFallback, setAdminFallback] = useState(false);
+  const [weeks, setWeeks] = useState<Week[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
 
@@ -28,6 +36,32 @@ const PortalWeeks = () => {
       if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
     })();
   }, [user, isAdmin]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      // Direct table query — for admins, RLS (with has_role fallback) allows full access.
+      // curriculum_public RPC is SECURITY DEFINER and also works.
+      const { data } = await (supabase as any)
+        .from("curriculum_weeks")
+        .select("week_number, block_theme, adult_video_title, teen_video_title, kids_title, core_learning")
+        .order("week_number", { ascending: true });
+      if (cancelled) return;
+      const rows = (data || []).map((r: any) => ({
+        week_number: r.week_number,
+        block_theme: r.block_theme,
+        title:
+          track === "teen" ? r.teen_video_title :
+          track === "child" ? r.kids_title :
+          r.adult_video_title,
+        source: r.core_learning || null,
+      }));
+      setWeeks(rows);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [track, isAdmin]);
 
   return (
     <PortalLayout>
@@ -46,6 +80,11 @@ const PortalWeeks = () => {
 
       {loading && (
         <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
+      )}
+
+      {/* Debug: show what we got */}
+      {!loading && weeks.length === 0 && (
+        <p className="text-sm text-foreground/40 font-body mb-4">No weeks data returned. The database may be empty or RLS is blocking the query.</p>
       )}
 
       <div className="space-y-3">
