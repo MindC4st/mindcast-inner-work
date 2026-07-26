@@ -35,13 +35,26 @@ const AUDIENCES = ["Adult", "Teen", "Child"] as const;
 // ── Component ──────────────────────────────────────────────────────────────
 
 const PortalDownloads = () => {
-  const { role, profile } = useAuth();
+  const { user, role, profile } = useAuth();
   const { isUnlocked, unlockDate } = useProgramSchedule();
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">("Adult");
   const [items, setItems] = useState<DownloadItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [adminFallback, setAdminFallback] = useState(false);
 
-  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true;
+  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
+
+  // Direct DB fallback — catches cases where AuthContext isn't ready or lacks the flag
+  useEffect(() => {
+    if (!user || isAdmin) return;
+    (async () => {
+      const [{ data: roleRow }, { data: profileRow }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
+        supabase.from("profiles").select("is_admin").eq("user_id", user.id).single(),
+      ]);
+      if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
+    })();
+  }, [user, isAdmin]);
 
   // Fetch all sessions for the selected audience
   useEffect(() => {
