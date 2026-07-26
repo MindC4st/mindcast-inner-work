@@ -39,7 +39,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
   const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
 
   useEffect(() => {
-    if (!user || isAdmin) return;
+    if (!user) return;
     (async () => {
       const [{ data: roleRow }, { data: profileRow }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
@@ -47,7 +47,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
       ]);
       if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
     })();
-  }, [user, isAdmin]);
+  }, [user]);
 
   useEffect(() => {
     let active = true;

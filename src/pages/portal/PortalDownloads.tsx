@@ -46,7 +46,7 @@ const PortalDownloads = () => {
 
   // Direct DB fallback — catches cases where AuthContext isn't ready or lacks the flag
   useEffect(() => {
-    if (!user || isAdmin) return;
+    if (!user) return;
     (async () => {
       const [{ data: roleRow }, { data: profileRow }] = await Promise.all([
         supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
@@ -54,7 +54,7 @@ const PortalDownloads = () => {
       ]);
       if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
     })();
-  }, [user, isAdmin]);
+  }, [user]);
 
   // Fetch all sessions for the selected audience
   useEffect(() => {
