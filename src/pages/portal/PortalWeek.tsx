@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, Lightbulb } from "lucide-react";
+import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, Lightbulb, Shield } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,12 +28,26 @@ type CurriculumRow = {
 };
 
 const WeekView = ({ weekNum }: { weekNum: number }) => {
-  const { profile } = useAuth();
+  const { profile, role, user } = useAuth();
   const { isMember, track, kidsAddon } = useEntitlement();
   const { isUnlocked, unlockDate, loading: schedLoading } = useProgramSchedule();
-  const [row, setRow] = useState<CurriculumRow | null>(null);   // paid body (RLS-gated)
-  const [pub, setPub] = useState<any>(null);                    // public header (title/desc)
+  const [row, setRow] = useState<CurriculumRow | null>(null);
+  const [pub, setPub] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [adminFallback, setAdminFallback] = useState(false);
+
+  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
+
+  useEffect(() => {
+    if (!user || isAdmin) return;
+    (async () => {
+      const [{ data: roleRow }, { data: profileRow }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
+        supabase.from("profiles").select("is_admin").eq("user_id", user.id).single(),
+      ]);
+      if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
+    })();
+  }, [user, isAdmin]);
 
   useEffect(() => {
     let active = true;
@@ -68,7 +82,8 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
   const heading = title || pub?.weekly_theme || "Session coming soon";
   const blockTheme = pub?.block_theme as string | undefined;
   const coreLearning = pub?.core_learning as string | undefined;
-  const unlocked = isUnlocked(weekNum);
+  const unlocked = isAdmin || isUnlocked(weekNum);
+  const effectiveMember = isAdmin || isMember;
   const opensOn = unlockDate(weekNum);
   const vid = row?.youtube_url ? extractVideoId(row.youtube_url) : null;
 
@@ -90,7 +105,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
           )}
         </section>
 
-        {!isMember ? (
+        {!effectiveMember ? (
           <LockedPanel
             icon={<Lock size={22} />}
             title="Members only"

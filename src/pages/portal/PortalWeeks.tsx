@@ -1,29 +1,47 @@
 import { Link } from "react-router-dom";
-import { Lock, PlayCircle, Clock, CheckCircle2 } from "lucide-react";
+import { Lock, PlayCircle, Clock, CheckCircle2, Shield } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurriculumWeeks, trackForAgeGroup } from "@/hooks/useCurriculumWeeks";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
-
-// Full 52-week grid. Pulls from `curriculum_weeks` (adult/teen/child columns
-// resolved by track). Each week shows its live state — open / opens-on / members
-// only — from the program schedule + membership. Rows always link to the week
-// page, which renders the matching gate.
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 const PortalWeeks = () => {
-  const { profile } = useAuth();
+  const { profile, role, user } = useAuth();
   const track = trackForAgeGroup((profile as any)?.age_group);
   const { weeks, loading } = useCurriculumWeeks(track);
   const { isUnlocked, unlockDate, currentWeek } = useProgramSchedule();
   const { isMember } = useEntitlement();
+  const [adminFallback, setAdminFallback] = useState(false);
+
+  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
+
+  useEffect(() => {
+    if (!user || isAdmin) return;
+    (async () => {
+      const [{ data: roleRow }, { data: profileRow }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
+        supabase.from("profiles").select("is_admin").eq("user_id", user.id).single(),
+      ]);
+      if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
+    })();
+  }, [user, isAdmin]);
 
   return (
     <PortalLayout>
-      <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Coursebook</p>
-      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-2">MY SESSIONS</h1>
+      <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">
+        {isAdmin && <Shield size={13} className="inline mr-1.5" />}
+        Coursebook
+      </p>
+      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-2">
+        {isAdmin ? "ALL SESSIONS" : "MY SESSIONS"}
+      </h1>
       <p className="text-sm text-muted-foreground mb-8 font-body">
-        All 52 weeks of the {track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track.
+        {isAdmin
+          ? `Admin view — all 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track are unlocked.`
+          : `All 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track.`}
       </p>
 
       {loading && (
@@ -46,11 +64,12 @@ const PortalWeeks = () => {
               </div>
             );
           }
-          const unlocked = isUnlocked(w.week_number);
+          const unlocked = isAdmin || isUnlocked(w.week_number);
+          const effectiveMember = isAdmin || isMember;
           const isCurrent = currentWeek === w.week_number;
           const opensOn = unlockDate(w.week_number);
           let status: { icon: JSX.Element; label: string; cls: string };
-          if (!isMember) status = { icon: <Lock size={13} />, label: "Members only", cls: "text-foreground/40" };
+          if (!effectiveMember) status = { icon: <Lock size={13} />, label: "Members only", cls: "text-foreground/40" };
           else if (unlocked) status = { icon: <PlayCircle size={16} strokeWidth={1.5} />, label: isCurrent ? "This week" : "Open", cls: "text-primary" };
           else status = { icon: <Clock size={13} />, label: opensOn ? `Opens ${opensOn.toLocaleDateString(undefined, { day: "numeric", month: "short" })}` : "Opens soon", cls: "text-foreground/40" };
 
@@ -62,7 +81,7 @@ const PortalWeeks = () => {
                   <p className="text-[10px] font-body uppercase tracking-widest text-primary/70 mb-1">
                     Week {w.week_number}{w.block_theme ? ` · ${w.block_theme}` : ""}
                   </p>
-                  <h2 className={`font-display text-base md:text-lg tracking-wider line-clamp-1 ${unlocked && isMember ? "text-foreground" : "text-foreground/60"}`}>
+                  <h2 className={`font-display text-base md:text-lg tracking-wider line-clamp-1 ${unlocked && effectiveMember ? "text-foreground" : "text-foreground/60"}`}>
                     {w.title!.toUpperCase()}
                   </h2>
                   {w.source && <p className="text-xs text-muted-foreground mt-1 font-body line-clamp-1">{w.source}</p>}
