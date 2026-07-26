@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, ChevronDown, ChevronRight, CheckCircle2, PauseCircle,
   Clock, AlertTriangle, XCircle, UserCheck, Users, CalendarCheck,
@@ -68,7 +67,6 @@ const TierLabel = ({ tier }: { tier: string }) => {
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [members, setMembers] = useState<Member[]>([]);
   const [checkIns, setCheckIns] = useState<CheckInRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,18 +78,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate("/"); return; }
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["facilitator", "admin"])
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) {
-          toast({ title: "Access denied", variant: "destructive" });
-          navigate("/");
-        }
-      });
   }, [user, authLoading]);
 
   useEffect(() => {

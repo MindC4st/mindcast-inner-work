@@ -1,36 +1,7 @@
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 import { Calendar, History, Users, Baby, Clapperboard, ClipboardList, Mail, Home, CalendarClock, CreditCard, MessageSquare, Nfc, CalendarDays, LayoutDashboard } from "lucide-react";
 
 const AdminLanding = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      navigate("/");
-      return;
-    }
-    // Check staff role via user_roles (never trust profiles.is_admin — it's user-writable).
-    // Facilitators run sessions; admins additionally manage members/payments.
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["facilitator", "admin"])
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) {
-          toast({ title: "Access denied", description: "You don't have access to that page.", variant: "destructive" });
-          navigate("/");
-        }
-      });
-  }, [user, loading]);
 
   const tiles = [
     { label: "Dashboard", icon: LayoutDashboard, to: "/admin/dashboard", desc: "Member registrations, status & attendance" },

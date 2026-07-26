@@ -35,13 +35,13 @@ const AUDIENCES = ["Adult", "Teen", "Child"] as const;
 // ── Component ──────────────────────────────────────────────────────────────
 
 const PortalDownloads = () => {
-  const { role } = useAuth();
+  const { role, profile } = useAuth();
   const { isUnlocked, unlockDate } = useProgramSchedule();
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">("Adult");
   const [items, setItems] = useState<DownloadItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = role === "admin" || role === "facilitator";
+  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true;
 
   // Fetch all sessions for the selected audience
   useEffect(() => {
@@ -230,18 +230,20 @@ const PortalDownloads = () => {
                               )}
                             </div>
 
-                            {/* Lock / unlock indicator */}
-                            <div className="shrink-0">
-                              {unlocked ? (
-                                <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
-                                  <Unlock size={14} className="text-green-600" />
-                                </div>
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-muted/30 flex items-center justify-center">
-                                  <Lock size={14} className="text-muted-foreground/40" />
-                                </div>
-                              )}
-                            </div>
+                            {/* Lock / unlock indicator — hidden for admins */}
+                            {!isAdmin && (
+                              <div className="shrink-0">
+                                {unlocked ? (
+                                  <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                                    <Unlock size={14} className="text-green-600" />
+                                  </div>
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-muted/30 flex items-center justify-center">
+                                    <Lock size={14} className="text-muted-foreground/40" />
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           {/* Unlock date (if locked) */}
@@ -304,7 +306,7 @@ const PortalDownloads = () => {
         </div>
       )}
 
-      {/* Admin info banner */}
+      {/* Non-admin info banner */}
       {!isAdmin && !loading && (
         <div className="mt-10 p-4 border border-amber-500/20 bg-amber-500/[0.04] rounded-sm">
           <div className="flex items-start gap-2">

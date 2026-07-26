@@ -276,15 +276,6 @@ const AdminLifeGroups = () => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) return;
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["facilitator", "admin"])
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) toast({ title: "Access denied", variant: "destructive" });
-      });
   }, [user, authLoading]);
 
   const fetchData = useCallback(async () => {
