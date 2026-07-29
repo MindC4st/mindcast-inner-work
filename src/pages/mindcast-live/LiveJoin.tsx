@@ -10,9 +10,11 @@ type LiveState = {
   week: number;
   audience: string;
   slide: number;
-  promptType: "journaling" | "reflection" | "intention" | "intention_review" | "idle";
+  promptType: "journaling" | "reflection" | "intention" | "intention_review" | "activity" | "idle";
   promptText: string;
   title: string;
+  activityType?: string | null;
+  activityOptions?: string[];
 };
 
 type DisplayMode = "full" | "first_initial" | "anonymous";
@@ -171,6 +173,51 @@ const LiveJoin = () => {
       return;
     }
 
+    // Live activity ("Together" slide). Word clouds are free text, so each word
+    // is auto-screened before it can reach the screen; poll votes come from the
+    // facilitator's own option list, so there is nothing to review.
+    if (state.promptType === "activity") {
+      const kind = (state.activityType || "reflection").toLowerCase();
+      const value = response.trim().slice(0, 60);
+      setSubmitting(true);
+
+      let status: "approved" | "pending" = "approved";
+      if (kind === "wordcloud") {
+        try {
+          const { data: mod } = await supabase.functions.invoke("moderate-content", { body: { text: value } });
+          status = (mod as any)?.approved === false ? "pending" : "approved";
+        } catch {
+          // If the screener is unavailable, hold it for a human rather than
+          // risking unmoderated text on the big screen.
+          status = "pending";
+        }
+      }
+
+      const { data: actRow, error: actErr } = await (supabase as any)
+        .from("session_responses")
+        .insert({
+          session_code: sessionCode,
+          week_number: state.week,
+          audience_type: state.audience,
+          user_id: user.id,
+          display_name: displayMode === "anonymous" ? "Anonymous" : displayName,
+          response_text: value,
+          prompt_type: "activity",
+          is_public: true,
+          show_name: false,          // the wall shows the words, not who said them
+          moderation_status: status,
+        })
+        .select("id")
+        .maybeSingle();
+      setSubmitting(false);
+      if (actErr) { toast({ title: "Couldn't submit", description: actErr.message }); return; }
+      setSubmittedFor(`${state.slide}`);
+      setSubmittedRowId(actRow?.id ?? null);
+      setModerationStatus(status);
+      setResponse("");
+      return;
+    }
+
     setSubmitting(true);
     const { data, error } = await (supabase as any)
       .from("session_responses")
@@ -267,7 +314,10 @@ const LiveJoin = () => {
     );
   }
 
-  const activePrompt = state && (state.promptType === "journaling" || state.promptType === "reflection" || state.promptType === "intention");
+  const activePrompt = state && (state.promptType === "journaling" || state.promptType === "reflection" || state.promptType === "intention" || state.promptType === "activity");
+  const isActivity = state?.promptType === "activity";
+  const activityKind = (state?.activityType || "reflection").toLowerCase();
+  const pollOptions = state?.activityOptions ?? [];
   const isIntentionPrompt = state?.promptType === "intention";
   const alreadySubmitted = submittedFor === `${state?.slide}`;
   const isSpectator = mode === "spectator";
@@ -374,8 +424,46 @@ const LiveJoin = () => {
             )
           ) : (
             <motion.div key={`prompt-${state.slide}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-3">{isIntentionPrompt ? "Before you leave" : "Reflect"}</p>
-              <p className="font-serif italic text-2xl text-[hsl(var(--navy))] leading-snug mb-6">"{state.promptText}"</p>
+              <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-3">
+                {isIntentionPrompt ? "Before you leave" : isActivity ? "Together" : "Reflect"}
+              </p>
+              {state.promptText && (
+                <p className={`text-[hsl(var(--navy))] leading-snug mb-6 ${isActivity ? "font-body text-base" : "font-serif italic text-2xl"}`}>
+                  {isActivity ? state.promptText : `"${state.promptText}"`}
+                </p>
+              )}
+
+              {/* Poll — tap one of the facilitator's options. */}
+              {isActivity && activityKind === "poll" && pollOptions.length > 0 ? (
+                <div className="space-y-2 mb-5">
+                  {pollOptions.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setResponse(opt)}
+                      className={`w-full text-left px-4 py-3 rounded-sm border font-body text-base transition-colors ${
+                        response === opt
+                          ? "border-[hsl(var(--blue))] bg-[hsl(var(--blue))]/10 text-[hsl(var(--navy))]"
+                          : "border-[hsl(var(--warm-border))] bg-white text-[hsl(var(--navy))]/80 hover:border-[hsl(var(--blue))]/50"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              ) : isActivity && activityKind === "wordcloud" ? (
+                <>
+                  <input
+                    value={response}
+                    onChange={e => setResponse(e.target.value.slice(0, 24))}
+                    placeholder="One word…"
+                    className="w-full px-4 py-3 border border-[hsl(var(--warm-border))] rounded-sm font-body text-xl text-center text-[hsl(var(--navy))] focus:outline-none focus:border-[hsl(var(--blue))]"
+                  />
+                  <p className="text-[10px] text-[hsl(var(--navy-mid))]/60 font-body mt-1 mb-4 text-center">
+                    Your word joins the wall — your name is not shown.
+                  </p>
+                </>
+              ) : (
+              <>
               <textarea value={response} onChange={e => setResponse(e.target.value.slice(0, 300))}
                 placeholder={isIntentionPrompt ? "One specific thing I will do this week…" : "Type your response…"}
                 rows={5}
@@ -383,17 +471,25 @@ const LiveJoin = () => {
               <div className="flex justify-between text-[10px] text-[hsl(var(--navy-mid))]/60 font-body mt-1 mb-4">
                 <span>{response.length}/300</span>
               </div>
+              </>
+              )}
 
               <div className="space-y-3 mb-5">
                 {isIntentionPrompt ? (
                   <p className="text-[hsl(var(--navy-mid))]/70 font-body text-xs px-1">
                     Private to you. It goes in your coursebook and comes back next Sunday.
                   </p>
+                ) : isActivity ? (
+                  <p className="text-[hsl(var(--navy-mid))]/70 font-body text-xs px-1">
+                    {activityKind === "poll"
+                      ? "Your choice is counted in the room's totals — no names shown."
+                      : "Your word joins the wall anonymously."}
+                  </p>
                 ) : (
                   <Toggle label="Share on screen" value={shareOnScreen} onChange={setShareOnScreen} />
                 )}
 
-                <div className={`px-3 py-2.5 bg-white border border-[hsl(var(--warm-border))] rounded-sm ${isIntentionPrompt ? "hidden" : ""}`}>
+                <div className={`px-3 py-2.5 bg-white border border-[hsl(var(--warm-border))] rounded-sm ${isIntentionPrompt || isActivity ? "hidden" : ""}`}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[hsl(var(--navy))] font-body text-sm">Shown as</span>
                     <span className="text-[hsl(var(--navy))] font-body text-sm font-medium">

@@ -133,8 +133,10 @@ const LessonEditor = () => {
 
   // activity_type lives on curriculum_weeks (week-level, shared across tracks).
   const [activityType, setActivityType] = useState<string>("reflection");
+  const [activityOptions, setActivityOptions] = useState<string>("");
+  const activityOptionsCleanRef = useRef<string>("");
   const activityCleanRef = useRef<string>("reflection");
-  const activityDirty = activityType !== activityCleanRef.current;
+  const activityDirty = activityType !== activityCleanRef.current || activityOptions !== activityOptionsCleanRef.current;
 
   useEffect(() => {
     let cancelled = false;
@@ -158,12 +160,15 @@ const LessonEditor = () => {
     let cancelled = false;
     (async () => {
       const { data } = await (supabase as any)
-        .from("curriculum_weeks").select("activity_type")
+        .from("curriculum_weeks").select("activity_type, activity_options")
         .eq("week_number", week).maybeSingle();
       if (cancelled) return;
       const t = data?.activity_type || "reflection";
       setActivityType(t);
       activityCleanRef.current = t;
+      const o = data?.activity_options || "";
+      setActivityOptions(o);
+      activityOptionsCleanRef.current = o;
     })();
     return () => { cancelled = true; };
   }, [week]);
@@ -189,7 +194,7 @@ const LessonEditor = () => {
     let activityErr: any = null;
     if (activityDirty) {
       const r = await (supabase as any)
-        .from("curriculum_weeks").update({ activity_type: activityType }).eq("week_number", week);
+        .from("curriculum_weeks").update({ activity_type: activityType, activity_options: activityOptions }).eq("week_number", week);
       activityErr = r.error;
     }
     setSaving(false);
@@ -201,6 +206,7 @@ const LessonEditor = () => {
     setDraft(saved);
     cleanRef.current = JSON.stringify({ ...EMPTY(week, audience), ...saved });
     activityCleanRef.current = activityType;
+    activityOptionsCleanRef.current = activityOptions;
     setDirty(false);
     setSavedAt(new Date());
     toast({ title: "Saved", description: `Week ${week} · ${audience}` });
@@ -316,6 +322,15 @@ const LessonEditor = () => {
                         <option value="none">Private only — nothing on screen</option>
                       </select>
                       <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Drives the live in-session widget. Applies to all tracks for this week.</span>
+                    </label>
+                  )}
+                  {slide.idx === 8 && activityType === "poll" && (
+                    <label className="block">
+                      <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">Poll options — one per line</span>
+                      <textarea rows={5} value={activityOptions} onChange={(e) => setActivityOptions(e.target.value)}
+                        placeholder={"Social feeds\nPeople I know\nFamily"}
+                        className="w-full rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20 resize-y leading-relaxed" />
+                      <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Members tap one of these. Fixed options mean nothing needs moderating on screen.</span>
                     </label>
                   )}
                   {slide.fields.map((f) => (

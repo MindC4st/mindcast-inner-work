@@ -98,6 +98,7 @@ type Response = {
   created_at: string;
   hidden: boolean;
   moderation_status: "pending" | "approved" | "denied" | null;
+  prompt_type?: string | null;
 };
 
 // Mindcast-tone presets — moderators can pick one or write their own.
@@ -144,6 +145,8 @@ const buildSession = (live: any, cur: any, wk: number, aud: string): Session | n
     facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
     previous_week_callback: base.previous_week_callback || "",
     video_position: base.video_position || cur?.video_position || "early",
+    activity_type: (cur?.activity_type || base.activity_type || "reflection"),
+    activity_options: (cur?.activity_options || ""),
     coloring_page_url: base.coloring_page_url || null,
     coloring_pdf_url: base.coloring_pdf_url || null,
   };
@@ -276,7 +279,7 @@ const FacilitatorView = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("session_responses")
-        .select("id, display_name, response_text, show_name, is_public, created_at, hidden, moderation_status")
+        .select("id, display_name, response_text, show_name, is_public, created_at, hidden, moderation_status, prompt_type")
         .eq("session_code", code)
         .eq("is_public", true)
         .in("moderation_status", ["pending", "approved"])
@@ -312,12 +315,21 @@ const FacilitatorView = () => {
       currentKind === "reflect" ? "journaling"
       : currentKind === "commitment" ? "intention"
       : currentKind === "intention" ? "intention_review"
+      : currentKind === "activity" ? "activity"
       : "idle";
     const promptText =
       currentKind === "reflect" ? session.journaling_prompt
       : currentKind === "commitment" ? "What is the one specific thing you will do this week?"
+      : currentKind === "activity" ? (session.experiential_exercise || "")
       : "";
-    const payload = { week, audience, slide, promptType, promptText, title: session.theme_title };
+    const payload = {
+      week, audience, slide, promptType, promptText, title: session.theme_title,
+      // The live widget config, so each member's phone shows the right input.
+      activityType: currentKind === "activity" ? (session.activity_type || "reflection") : null,
+      activityOptions: currentKind === "activity"
+        ? (session.activity_options || "").split(/\r?\n/).map((o: string) => o.trim()).filter(Boolean)
+        : [],
+    };
 
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
     const sendState = () => ch.send({ type: "broadcast", event: "state", payload });
@@ -535,7 +547,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer kind={currentKind} session={session} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
+              <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -640,7 +652,7 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
+const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
   switch (kind) {
     case "title": return (
       <WelcomeWall
@@ -699,9 +711,23 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         </div>
       </div>
     );
-    case "activity": return (
-      <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />
-    );
+    case "activity": {
+      // Only approved, visible submissions from this slide feed the screen.
+      const activityResponses = responses.filter(
+        r => r.prompt_type === "activity" && !r.hidden && r.moderation_status === "approved",
+      );
+      const type = (session.activity_type || "reflection").toLowerCase();
+      const options = (session.activity_options || "")
+        .split(/\r?\n/).map(o => o.trim()).filter(Boolean);
+
+      if (type === "wordcloud") {
+        return <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
+      }
+      if (type === "poll" && options.length > 0) {
+        return <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
+      }
+      return <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
+    }
     case "guided": return (
       <div className="max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
@@ -871,6 +897,115 @@ const ColoringActivitySlide = ({
           Download PDF
         </a>
       )}
+    </div>
+  );
+};
+
+/**
+ * Live word cloud — words members send from their phones, sized by how many
+ * people chose the same one. Free text, so every word has already been through
+ * moderation before it reaches here (see the moderate-content function).
+ */
+const WordCloudSlide = ({ text, responses }: { text: string; responses: Response[] }) => {
+  const words = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const r of responses) {
+      for (const raw of (r.response_text || "").split(/[,\s]+/)) {
+        const w = raw.trim().toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, "");
+        if (w.length < 2 || w.length > 24) continue;
+        counts.set(w, (counts.get(w) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 60);
+  }, [responses]);
+
+  const max = words[0]?.[1] ?? 1;
+
+  return (
+    <div className="max-w-6xl w-full text-center">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Together</p>
+      {text && <p className="text-[hsl(var(--ivory))]/60 font-body text-sm mb-8 max-w-3xl mx-auto">{text}</p>}
+      {words.length === 0 ? (
+        <p className="text-[hsl(var(--ivory))]/40 font-body text-lg py-16">Waiting for the room…</p>
+      ) : (
+        <div className="flex flex-wrap items-baseline justify-center gap-x-6 gap-y-3 py-6">
+          <AnimatePresence>
+            {words.map(([word, n]) => {
+              // Scale 1.15rem → 4.5rem by relative frequency.
+              const size = 1.15 + (n / max) * 3.35;
+              const opacity = 0.55 + (n / max) * 0.45;
+              return (
+                <motion.span
+                  key={word}
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  className="font-display tracking-wide text-[hsl(var(--ivory))] leading-none"
+                  style={{ fontSize: `${size}rem` }}
+                  title={`${n}`}
+                >
+                  {word}
+                </motion.span>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+      <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-6">
+        {responses.length} {responses.length === 1 ? "voice" : "voices"}
+      </p>
+    </div>
+  );
+};
+
+/**
+ * Live poll — members tap one of the facilitator's own options, so there is no
+ * free text on screen and nothing to moderate.
+ */
+const PollSlide = ({ text, options, responses }: { text: string; options: string[]; responses: Response[] }) => {
+  const tally = useMemo(() => {
+    const counts = new Map<string, number>(options.map(o => [o.toLowerCase(), 0]));
+    for (const r of responses) {
+      const key = (r.response_text || "").trim().toLowerCase();
+      if (counts.has(key)) counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return options.map(o => ({ option: o, count: counts.get(o.toLowerCase()) ?? 0 }));
+  }, [options, responses]);
+
+  const total = tally.reduce((n, t) => n + t.count, 0);
+  const max = Math.max(1, ...tally.map(t => t.count));
+
+  return (
+    <div className="max-w-4xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3 text-center">Together</p>
+      {text && <p className="text-[hsl(var(--ivory))]/60 font-body text-sm mb-8 text-center">{text}</p>}
+      <div className="space-y-4">
+        {tally.map(({ option, count }) => {
+          const pct = total === 0 ? 0 : Math.round((count / total) * 100);
+          return (
+            <div key={option}>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <span className="font-body text-lg md:text-xl text-[hsl(var(--ivory))]/90">{option}</span>
+                <span className="font-display text-xl text-[hsl(var(--blue))] tabular-nums">{pct}%</span>
+              </div>
+              <div className="h-4 rounded-sm bg-[hsl(var(--ivory))]/[0.07] overflow-hidden">
+                <motion.div
+                  className="h-full bg-[hsl(var(--blue))]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(count / max) * 100}%` }}
+                  transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-8 text-center">
+        {total} {total === 1 ? "response" : "responses"}
+      </p>
     </div>
   );
 };
