@@ -56,7 +56,7 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
 8. **Live interactive widgets** — the word-cloud/poll aggregation driven by
    `activity_type` (data is in; the on-screen aggregation UI is the remaining
    build; best done against the live app).
-8. **Native app-store wrapping** (Capacitor) + store submissions — see
+9. **Native app-store wrapping** (Capacitor) + store submissions — see
    [06](06_app_store_checklist.md).
 
 ---
