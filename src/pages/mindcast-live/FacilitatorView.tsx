@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
+import { resolveColouringUrl } from "@/lib/colouringUrl";
 
 // Data-driven deck: a session is an ordered list of slide "kinds", so the order
 // can change (and the video can flex position) without touching the renderer.
@@ -803,6 +804,14 @@ const ColoringActivitySlide = ({
   const [imgLoaded, setImgLoaded] = useState(false);
 
   // No coloring page yet — show placeholder
+  // The stored value is a path in the private `colouring` bucket; sign it.
+  const [signedSrc, setSignedSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let on = true;
+    resolveColouringUrl(coloringPageUrl).then(u => { if (on) setSignedSrc(u); });
+    return () => { on = false; };
+  }, [coloringPageUrl]);
+
   if (!coloringPageUrl) {
     return (
       <div className="text-center max-w-2xl">
@@ -838,7 +847,7 @@ const ColoringActivitySlide = ({
           <div className="aspect-square bg-[hsl(var(--ivory))]/[0.02] animate-pulse rounded-sm" />
         )}
         <img
-          src={coloringPageUrl}
+          src={signedSrc ?? undefined}
           alt={`Coloring page for week ${weekNumber}`}
           className={`w-full rounded-sm shadow-lg ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
           onLoad={() => setImgLoaded(true)}
@@ -847,10 +856,14 @@ const ColoringActivitySlide = ({
 
       {coloringPdfUrl && (
         <a
-          href={coloringPdfUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-primary inline-flex items-center gap-2"
+          href="#"
+          onClick={async (e) => {
+            e.preventDefault();
+            const u = await resolveColouringUrl(coloringPdfUrl);
+            if (u) window.open(u, "_blank", "noopener");
+            else toast({ title: "Couldn't open the colouring PDF" });
+          }}
+          className="btn-primary inline-flex items-center gap-2 cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

@@ -35,3 +35,7 @@ verify_jwt = false
 # Public uptime probe.
 [functions.health]
 verify_jwt = false
+
+# Staff-only: spends money on image generation. Role is checked in the function.
+[functions.generate-coloring-page]
+verify_jwt = true
