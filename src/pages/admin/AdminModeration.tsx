@@ -17,38 +17,9 @@ type Resp = {
   created_at: string;
 };
 
-type WallItem = { id: string; table: "workbook_entries" | "check_ins"; text: string; created_at: string };
-
 const AdminModeration = () => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Resp[]>([]);
-  const [wall, setWall] = useState<WallItem[]>([]);
-
-  // The legacy display walls (/display/wordcloud, /display/goals) now fail
-  // closed — nothing projects until it's approved here.
-  const loadWall = async () => {
-    const [{ data: words }, { data: goals }] = await Promise.all([
-      (supabase as any).from("workbook_entries")
-        .select("id, leaving_word, created_at")
-        .eq("share_leaving_word", true).eq("leaving_word_status", "pending")
-        .not("leaving_word", "is", null).order("created_at", { ascending: false }).limit(100),
-      (supabase as any).from("check_ins")
-        .select("id, goal_update, checked_in_at")
-        .eq("share_goal_publicly", true).eq("goal_status", "pending")
-        .not("goal_update", "is", null).order("checked_in_at", { ascending: false }).limit(100),
-    ]);
-    setWall([
-      ...(words || []).map((w: any) => ({ id: w.id, table: "workbook_entries" as const, text: w.leaving_word, created_at: w.created_at })),
-      ...(goals || []).map((g: any) => ({ id: g.id, table: "check_ins" as const, text: g.goal_update, created_at: g.checked_in_at })),
-    ]);
-  };
-
-  const decideWall = async (item: WallItem, status: "approved" | "denied") => {
-    const column = item.table === "workbook_entries" ? "leaving_word_status" : "goal_status";
-    const { error } = await (supabase as any).from(item.table).update({ [column]: status }).eq("id", item.id);
-    if (error) toast({ title: "Couldn't update", description: error.message, variant: "destructive" });
-    else setWall((w) => w.filter((x) => !(x.id === item.id && x.table === item.table)));
-  };
 
   const load = async () => {
     const { data } = await (supabase as any)
@@ -80,8 +51,6 @@ const AdminModeration = () => {
     else setRows((r) => r.filter((x) => x.id !== id));
   };
 
-  useEffect(() => { loadWall(); }, []);
-
   const pending = rows.filter((r) => !r.hidden && r.moderation_status === "pending");
   const decided = rows.filter((r) => r.hidden || r.moderation_status !== "pending");
 
@@ -99,35 +68,7 @@ const AdminModeration = () => {
         <h1 className="font-display text-3xl md:text-4xl tracking-wider mb-2">Q&amp;A MODERATION</h1>
         <p className="text-foreground/50 text-sm font-body mb-8">Shared responses awaiting a decision update live.</p>
 
-        {/* Legacy display walls — fail closed, so approve here to project. */}
         <div className="flex items-baseline gap-2 mb-3">
-          <h2 className="font-display text-base tracking-wider">DISPLAY WALLS</h2>
-          <span className="text-[10px] font-body uppercase tracking-widest text-foreground/40">({wall.length})</span>
-        </div>
-        <p className="text-foreground/40 text-xs font-body mb-3">
-          Words and goals members chose to share. Nothing reaches the projector until approved.
-        </p>
-        {wall.length === 0 && (
-          <p className="text-foreground/40 text-sm font-body border border-foreground/10 rounded-sm py-6 text-center mb-10">Nothing waiting.</p>
-        )}
-        {wall.map((w) => (
-          <div key={`${w.table}-${w.id}`} className="border border-foreground/10 rounded-sm p-4 mb-2 bg-foreground/[0.02]">
-            <div className="flex justify-between items-center text-[10px] font-body uppercase tracking-widest text-foreground/40 mb-2">
-              <span>{w.table === "workbook_entries" ? "Word cloud" : "Goal wall"}</span>
-            </div>
-            <p className="text-sm font-body text-foreground mb-3">{w.text}</p>
-            <div className="flex gap-2">
-              <button onClick={() => decideWall(w, "approved")} className="flex items-center gap-1.5 text-[10px] font-body font-semibold tracking-widest uppercase bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm px-3 py-2">
-                <Check size={12} /> Approve
-              </button>
-              <button onClick={() => decideWall(w, "denied")} className="flex items-center gap-1.5 text-[10px] font-body font-semibold tracking-widest uppercase border border-foreground/20 hover:border-foreground/40 rounded-sm px-3 py-2">
-                <EyeOff size={12} /> Hold
-              </button>
-            </div>
-          </div>
-        ))}
-
-        <div className="flex items-baseline gap-2 mb-3 mt-10">
           <h2 className="font-display text-base tracking-wider">PENDING</h2>
           <span className="text-[10px] font-body uppercase tracking-widest text-foreground/40">({pending.length})</span>
         </div>

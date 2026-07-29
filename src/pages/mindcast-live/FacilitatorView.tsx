@@ -80,6 +80,9 @@ type Session = {
   video_position: string;
   coloring_page_url: string | null;
   coloring_pdf_url: string | null;
+  // Which live widget the Together slide runs, and the poll's choices.
+  activity_type: string;
+  activity_options: string;
 };
 
 type Callback = {

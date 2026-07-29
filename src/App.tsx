@@ -23,8 +23,6 @@ const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplications
 const AdminEmailReminders = lazy(() => import("./pages/admin/AdminEmailReminders"));
 const WorkbookRouter = lazy(() => import("./pages/WorkbookRouter"));
 const WelcomeWall = lazy(() => import("./pages/display/WelcomeWall"));
-const GoalWall = lazy(() => import("./pages/display/GoalWall"));
-const WordCloud = lazy(() => import("./pages/display/WordCloud"));
 const About = lazy(() => import("./pages/About"));
 const Pilot = lazy(() => import("./pages/Pilot"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
@@ -156,8 +154,9 @@ const AppRoutes = () => (
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
-      <Route path="/display/goals" element={<GoalWall />} />
-      <Route path="/display/wordcloud" element={<WordCloud />} />
+      {/* Retired: superseded by the moderated word cloud on the Together slide. */}
+      <Route path="/display/goals" element={<Navigate to="/display" replace />} />
+      <Route path="/display/wordcloud" element={<Navigate to="/display" replace />} />
 
       {/* Marketing */}
       <Route path="/about" element={<About />} />
