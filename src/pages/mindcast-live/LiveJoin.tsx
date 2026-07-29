@@ -10,7 +10,7 @@ type LiveState = {
   week: number;
   audience: string;
   slide: number;
-  promptType: "journaling" | "reflection" | "idle";
+  promptType: "journaling" | "reflection" | "intention" | "intention_review" | "idle";
   promptText: string;
   title: string;
 };
@@ -65,6 +65,9 @@ const LiveJoin = () => {
   const [submitting, setSubmitting] = useState(false);
   const [moderationStatus, setModerationStatus] = useState<"pending" | "approved" | "denied" | null>(null);
   const [denialReason, setDenialReason] = useState<string>("");
+  // Loop-back: the member's own intention from last week, shown on their phone
+  // during the opening "Return to Your Intention" slide. Private to them.
+  const [lastIntention, setLastIntention] = useState<string | null>(null);
 
   // Once we know who they are (or that they're not signed in), auto-pick a
   // mode. A signed-in member skips the gate; an anon visitor sees the gate.
@@ -122,6 +125,21 @@ const LiveJoin = () => {
     return () => { supabase.removeChannel(ch); };
   }, [joined, sessionCode, submittedRowId]);
 
+  // When the facilitator is on the opening intention slide, fetch this member's
+  // own intention from the previous week (never anyone else's — the RPC is
+  // scoped to the caller).
+  useEffect(() => {
+    if (!user || state?.promptType !== "intention_review" || !state?.week) return;
+    const prevWeek = state.week - 1;
+    if (prevWeek < 1) { setLastIntention(null); return; }
+    (supabase as any)
+      .rpc("my_intention_for_week", { p_week: prevWeek, p_track: state.audience || "Adult" })
+      .then(({ data }: { data: any }) => {
+        const row = Array.isArray(data) ? data[0] : data;
+        setLastIntention((row?.weekly_intention || "").trim() || null);
+      }, () => setLastIntention(null));
+  }, [user, state?.promptType, state?.week, state?.audience]);
+
   // Persist a display-mode change back to the profile so it's the new default.
   const updateDisplayMode = async (next: DisplayMode) => {
     setDisplayMode(next);
@@ -131,6 +149,28 @@ const LiveJoin = () => {
 
   const submit = async () => {
     if (!state || !response.trim() || !user) return;
+
+    // Closing "intention" prompt: the one thing they'll do this week. Private by
+    // design — saved only to their own journal so it can be read back next
+    // Sunday. Never written to session_responses (nothing on the big screen).
+    if (state.promptType === "intention") {
+      const pid = (profile as any)?.id;
+      if (!pid) { toast({ title: "Couldn't save", description: "Profile not ready — try again." }); return; }
+      setSubmitting(true);
+      const { error: intErr } = await (supabase as any).from("lesson_journal").upsert(
+        { profile_id: pid, week_number: state.week, track: state.audience, weekly_intention: response.trim().slice(0, 2000) },
+        { onConflict: "profile_id,week_number,track" },
+      );
+      setSubmitting(false);
+      if (intErr) { toast({ title: "Couldn't save your intention", description: intErr.message }); return; }
+      setSubmittedFor(`${state.slide}`);
+      setSubmittedRowId(null);
+      setModerationStatus("approved");
+      setResponse("");
+      toast({ title: "Intention saved", description: "It'll be waiting for you next Sunday." });
+      return;
+    }
+
     setSubmitting(true);
     const { data, error } = await (supabase as any)
       .from("session_responses")
@@ -227,7 +267,8 @@ const LiveJoin = () => {
     );
   }
 
-  const activePrompt = state && (state.promptType === "journaling" || state.promptType === "reflection");
+  const activePrompt = state && (state.promptType === "journaling" || state.promptType === "reflection" || state.promptType === "intention");
+  const isIntentionPrompt = state?.promptType === "intention";
   const alreadySubmitted = submittedFor === `${state?.slide}`;
   const isSpectator = mode === "spectator";
 
@@ -264,6 +305,23 @@ const LiveJoin = () => {
                   ? "Only members can share reflections. You can still follow along here."
                   : "A prompt will appear when it's time to share."}
               </p>
+
+              {/* Loop-back: your own intention from last Sunday */}
+              {!isSpectator && state.promptType === "intention_review" && (
+                <div className="mt-8 text-left border border-[hsl(var(--blue))]/30 bg-[hsl(var(--blue))]/[0.06] rounded-sm p-5">
+                  <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-2">Your intention last week</p>
+                  {lastIntention ? (
+                    <>
+                      <p className="font-serif italic text-xl text-[hsl(var(--navy))] leading-snug">"{lastIntention}"</p>
+                      <p className="text-[hsl(var(--navy-mid))]/70 font-body text-sm mt-4">Did you do it? What got in the way?</p>
+                    </>
+                  ) : (
+                    <p className="text-[hsl(var(--navy-mid))]/70 font-body text-sm">
+                      No intention saved from last week — you can set one at the end of today's session.
+                    </p>
+                  )}
+                </div>
+              )}
             </motion.div>
           ) : isSpectator ? (
             <motion.div key="spectator-prompt" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -316,10 +374,10 @@ const LiveJoin = () => {
             )
           ) : (
             <motion.div key={`prompt-${state.slide}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-3">Reflect</p>
+              <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.4em] font-body uppercase mb-3">{isIntentionPrompt ? "Before you leave" : "Reflect"}</p>
               <p className="font-serif italic text-2xl text-[hsl(var(--navy))] leading-snug mb-6">"{state.promptText}"</p>
               <textarea value={response} onChange={e => setResponse(e.target.value.slice(0, 300))}
-                placeholder="Type your response…"
+                placeholder={isIntentionPrompt ? "One specific thing I will do this week…" : "Type your response…"}
                 rows={5}
                 className="w-full px-4 py-3 border border-[hsl(var(--warm-border))] rounded-sm font-body text-[hsl(var(--navy))] resize-none focus:outline-none focus:border-[hsl(var(--blue))]" />
               <div className="flex justify-between text-[10px] text-[hsl(var(--navy-mid))]/60 font-body mt-1 mb-4">
@@ -327,9 +385,15 @@ const LiveJoin = () => {
               </div>
 
               <div className="space-y-3 mb-5">
-                <Toggle label="Share on screen" value={shareOnScreen} onChange={setShareOnScreen} />
+                {isIntentionPrompt ? (
+                  <p className="text-[hsl(var(--navy-mid))]/70 font-body text-xs px-1">
+                    Private to you. It goes in your coursebook and comes back next Sunday.
+                  </p>
+                ) : (
+                  <Toggle label="Share on screen" value={shareOnScreen} onChange={setShareOnScreen} />
+                )}
 
-                <div className="px-3 py-2.5 bg-white border border-[hsl(var(--warm-border))] rounded-sm">
+                <div className={`px-3 py-2.5 bg-white border border-[hsl(var(--warm-border))] rounded-sm ${isIntentionPrompt ? "hidden" : ""}`}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[hsl(var(--navy))] font-body text-sm">Shown as</span>
                     <span className="text-[hsl(var(--navy))] font-body text-sm font-medium">

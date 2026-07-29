@@ -27,19 +27,21 @@ import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 // Reflect & Share → Together (Activity) → Guided Reflection → This Week's Practice
 type SlideKind =
   | "title" | "intention" | "wisdom" | "metaphor" | "video"
-  | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice";
+  | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice"
+  | "commitment";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
   title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
   metaphor: "In Today's World", video: "Video", coloring: "Coloring Activity",
   core: "Go Deeper", reflect: "Reflect & Share", activity: "Together",
   guided: "Guided Reflection", practice: "This Week's Practice",
+  commitment: "Your Intention for the Week",
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
   const base: SlideKind[] = [
     "title", "intention", "wisdom", "metaphor", "video",
-    "core", "reflect", "activity", "guided", "practice",
+    "core", "reflect", "activity", "guided", "practice", "commitment",
   ];
   // Insert coloring slide after video for Child sessions
   if (audience === "Child") {
@@ -305,8 +307,15 @@ const FacilitatorView = () => {
   // Broadcast current prompt to audience
   useEffect(() => {
     if (!session) return;
-    const promptType = currentKind === "reflect" ? "journaling" : "idle";
-    const promptText = currentKind === "reflect" ? session.journaling_prompt : "";
+    const promptType =
+      currentKind === "reflect" ? "journaling"
+      : currentKind === "commitment" ? "intention"
+      : currentKind === "intention" ? "intention_review"
+      : "idle";
+    const promptText =
+      currentKind === "reflect" ? session.journaling_prompt
+      : currentKind === "commitment" ? "What is the one specific thing you will do this week?"
+      : "";
     const payload = { week, audience, slide, promptType, promptText, title: session.theme_title };
 
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
@@ -700,21 +709,55 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         </div>
       </div>
     );
-    case "practice": return (
-      <div className="max-w-6xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
-        <div className="grid md:grid-cols-3 gap-5">
-          {[
-            { day: "Mon", text: session.weekly_practice_mon },
-            { day: "Wed", text: session.weekly_practice_wed },
-            { day: "Sun", text: session.weekly_practice_sun },
-          ].map(({ day, text }) => (
-            <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
-              <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
-              <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+    case "practice": {
+      // Only show days that actually have a practice — many weeks have none,
+      // and three empty boxes read as a broken slide.
+      const days = [
+        { day: "Mon", text: session.weekly_practice_mon },
+        { day: "Wed", text: session.weekly_practice_wed },
+        { day: "Sun", text: session.weekly_practice_sun },
+      ].filter(d => (d.text || "").trim().length > 0);
+      return (
+        <div className="max-w-6xl w-full">
+          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
+          {days.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-5">
+              {days.map(({ day, text }) => (
+                <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
+                  <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
+                  <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            // Fallback: carry the week's metaphor "Today: ..." action into the room.
+            <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-relaxed text-center max-w-3xl mx-auto">
+              {session.signal_metaphor || "Carry this week's practice into your everyday life."}
+            </p>
+          )}
         </div>
+      );
+    }
+    // Closing slide — the member writes the one thing they'll do this week.
+    // This is the half of the loop the opening "Return to Your Intention" slide
+    // depends on: what's written here comes back next Sunday.
+    case "commitment": return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Before You Leave</p>
+        <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+          Write down one specific thing you will do this week.
+        </motion.p>
+        <p className="text-[hsl(var(--ivory))]/60 font-body text-lg mb-10">
+          It goes in your workbook — and it comes back with you next Sunday.
+        </p>
+        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
+          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
+          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">
+            Add it in the app · code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.3em]">{code}</span>
+          </span>
+        </div>
+        <p className="text-[hsl(var(--ivory))]/30 text-[11px] font-body tracking-widest uppercase mt-6">Private to you — it is not shown on screen</p>
       </div>
     );
     // Video — supporting evidence / how-to / personal story (position flexes).
