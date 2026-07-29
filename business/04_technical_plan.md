@@ -48,7 +48,12 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
    favour of the moderated FacilitatorView wall.
 6. **Kids colouring PDFs** → the private `colouring` bucket + download button are
    **built**; just **upload the PDFs** (`week-01.pdf` … `week-52.pdf`) when ready.
-7. **Live interactive widgets** — the word-cloud/poll aggregation driven by
+7. **Attendance notifications to guardians** — a *left early* state on check-in,
+   an absence sweep run a set time after the session starts, and an SMS provider
+   (e.g. Twilio) to send the present / absent / left-early messages described in
+   [07 Session Operations](07_session_operations.md). Needs an account + per-message
+   budget.
+8. **Live interactive widgets** — the word-cloud/poll aggregation driven by
    `activity_type` (data is in; the on-screen aggregation UI is the remaining
    build; best done against the live app).
 8. **Native app-store wrapping** (Capacitor) + store submissions — see
