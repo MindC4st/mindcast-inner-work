@@ -39,13 +39,16 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
 3. **Apply all migrations** to your Supabase (`supabase db push`) — this turns on
    the paywall RLS, tiers, schedule, and `activity_type`.
 4. **Set the program start date** at `/admin/program`.
-5. **Moderation before on-screen — one gap to close.** The **facilitator live
-   board is correctly gated** (only `approved` submissions display). But the two
-   **legacy display walls** (`/display/wordcloud`, `/display/goals`) pull
-   *opt-in-but-un-moderated* member shares (`workbook_entries.leaving_word`,
-   `check_ins.goal_update`). Before you rely on those walls (or submit to app
-   stores), add the same approve-before-show gate to them, or retire them in
-   favour of the moderated FacilitatorView wall.
+5. **Moderation before on-screen — closed.** Everything user-written that can
+   reach a screen is now approve-before-show: the Mindcast Live wall (already
+   gated), the new Together word cloud (auto-screened via `moderate-content`,
+   held for a human if that's unavailable), and the two **legacy display walls**
+   (`/display/wordcloud`, `/display/goals`), which now **fail closed** and have
+   an approval queue in `/admin/moderation`. The arrival Welcome Wall shows
+   profile names, not free text, so it needs no moderation.
+   **Still worth deciding:** those two legacy walls are tied to the retired
+   `sessions` table and are superseded by the Together word cloud — consider
+   retiring them rather than maintaining two paths.
 6. **Kids colouring PDFs** → the private `colouring` bucket + download button are
    **built**; just **upload the PDFs** (`week-01.pdf` … `week-52.pdf`) when ready.
 7. **Attendance notifications — built; needs an SMS account.** The schema,

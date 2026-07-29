@@ -34,7 +34,7 @@ const WordCloud = () => {
   useEffect(() => {
     if (!session) return;
     const fetch = async () => {
-      const { data } = await supabase.from("workbook_entries").select("leaving_word").eq("session_id", session.id).eq("share_leaving_word", true).not("leaving_word", "is", null);
+      const { data } = await supabase.from("workbook_entries").select("leaving_word").eq("session_id", session.id).eq("share_leaving_word", true).eq("leaving_word_status", "approved").not("leaving_word", "is", null);
       setWords((data || []).map((d: any) => d.leaving_word).filter(Boolean));
     };
     fetch();

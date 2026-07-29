@@ -24,7 +24,7 @@ const GoalWall = () => {
   useEffect(() => {
     if (!session) return;
     const fetch = async () => {
-      const { data } = await supabase.from("check_ins").select("*").eq("session_id", session.id).eq("share_goal_publicly", true).not("goal_update", "is", null).order("checked_in_at", { ascending: false });
+      const { data } = await supabase.from("check_ins").select("*").eq("session_id", session.id).eq("share_goal_publicly", true).eq("goal_status", "approved").not("goal_update", "is", null).order("checked_in_at", { ascending: false });
       setGoals(data || []);
     };
     fetch();
