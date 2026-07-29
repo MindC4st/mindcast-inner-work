@@ -13,7 +13,11 @@ const TRACKS = ["Adult", "Teen", "Child"] as const;
 const Kiosk = () => {
   const [track, setTrack] = useState<(typeof TRACKS)[number] | "">("");
   const [scanning, setScanning] = useState(false);
-  const [last, setLast] = useState<{ name: string; at: number } | null>(null);
+  const [last, setLast] = useState<{ name: string; at: number; leaving?: boolean } | null>(null);
+  // Arriving = normal check-in. Leaving = the same bracelet scanned on the way
+  // out (teens collect their phone here anyway); marks them left early and
+  // notifies the linked adult. See business/07_session_operations.md.
+  const [action, setAction] = useState<"checkin" | "left_early">("checkin");
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const support = nfcSupport();
@@ -24,11 +28,11 @@ const Kiosk = () => {
       try {
         const nfc_id = await readNfcId(abortRef.current.signal);
         const { data, error } = await supabase.functions.invoke("nfc-checkin", {
-          body: { nfc_id, source: "kiosk", track: track || undefined },
+          body: { nfc_id, source: "kiosk", track: track || undefined, action },
         });
         if (error) throw error;
         if ((data as any)?.error) setError((data as any).error);
-        else if ((data as any)?.display_name) setLast({ name: (data as any).display_name, at: Date.now() });
+        else if ((data as any)?.display_name) setLast({ name: (data as any).display_name, at: Date.now(), leaving: action === "left_early" });
       } catch (e: any) {
         if (e?.message === "cancelled") break;
         setError(e?.message ?? "Scan failed");
@@ -51,6 +55,15 @@ const Kiosk = () => {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
+  // The scan loop closes over `action`; restart it when the mode changes.
+  useEffect(() => {
+    if (!scanning) return;
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    loop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [action]);
+
   return (
     <div className="min-h-screen bg-navy text-cream flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-md text-center">
@@ -61,11 +74,33 @@ const Kiosk = () => {
         </div>
 
         <h1 className="font-display text-4xl md:text-5xl tracking-wider text-cream mb-3">
-          {scanning ? "TAP TO CHECK IN" : "CHECK-IN KIOSK"}
+          {scanning ? (action === "left_early" ? "TAP TO SIGN OUT" : "TAP TO CHECK IN") : "CHECK-IN KIOSK"}
         </h1>
-        <p className="text-cream/60 text-sm font-body leading-relaxed mb-8">
-          Hold a member's bracelet to the reader. Each tap posts to the Welcome Wall.
+        <p className="text-cream/60 text-sm font-body leading-relaxed mb-6">
+          {action === "left_early"
+            ? "Scanning a bracelet marks that member as having left early. Their linked adult is notified."
+            : "Hold a member's bracelet to the reader. Each tap posts to the Welcome Wall."}
         </p>
+
+        {/* Arriving / leaving */}
+        <div className="inline-flex gap-1 mb-6 p-1 rounded-sm border border-cream/15">
+          {([
+            { key: "checkin", label: "Arriving" },
+            { key: "left_early", label: "Leaving early" },
+          ] as const).map((m) => (
+            <button
+              key={m.key}
+              onClick={() => setAction(m.key)}
+              className={`px-4 py-2 rounded-sm text-[10px] font-body font-semibold uppercase tracking-widest transition-colors ${
+                action === m.key
+                  ? (m.key === "left_early" ? "bg-[hsl(var(--bronze))] text-navy" : "bg-primary text-primary-foreground")
+                  : "text-cream/60 hover:text-cream"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
 
         <div className="flex justify-center gap-2 mb-8">
           {TRACKS.map((t) => (
@@ -84,9 +119,16 @@ const Kiosk = () => {
         </div>
 
         {last && (
-          <div className="mb-6 border border-primary/40 bg-primary/10 rounded-sm py-4 flex items-center justify-center gap-2">
-            <Check className="h-5 w-5 text-primary" strokeWidth={1.5} />
-            <span className="font-display text-lg tracking-wider text-cream">{last.name.toUpperCase()}</span>
+          <div className={`mb-6 border rounded-sm py-4 flex flex-col items-center justify-center gap-1 ${
+            last.leaving ? "border-[hsl(var(--bronze))]/50 bg-[hsl(var(--bronze))]/10" : "border-primary/40 bg-primary/10"
+          }`}>
+            <div className="flex items-center gap-2">
+              <Check className={`h-5 w-5 ${last.leaving ? "text-[hsl(var(--bronze))]" : "text-primary"}`} strokeWidth={1.5} />
+              <span className="font-display text-lg tracking-wider text-cream">{last.name.toUpperCase()}</span>
+            </div>
+            {last.leaving && (
+              <span className="text-cream/50 text-[10px] font-body tracking-widest uppercase">Signed out · adult notified</span>
+            )}
           </div>
         )}
 

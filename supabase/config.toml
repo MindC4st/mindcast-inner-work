@@ -39,3 +39,8 @@ verify_jwt = false
 # Staff-only: spends money on image generation. Role is checked in the function.
 [functions.generate-coloring-page]
 verify_jwt = true
+
+# Attendance notifications to linked guardians. Called by the kiosk/facilitator
+# (service role) and by a scheduled absence sweep — not directly by members.
+[functions.attendance-notify]
+verify_jwt = false
