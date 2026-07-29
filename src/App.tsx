@@ -53,6 +53,7 @@ const LiveJoin = lazy(() => import("./pages/mindcast-live/LiveJoin"));
 const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
 const LessonEditor = lazy(() => import("./pages/mindcast-live/LessonEditor"));
+const CoursebookPrint = lazy(() => import("./pages/mindcast-live/CoursebookPrint"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
 const AdminScheduling = lazy(() => import("./pages/admin/AdminScheduling"));
@@ -151,6 +152,7 @@ const AppRoutes = () => (
       <Route path="/mindcast-live/lesson/:weekNumber" element={<ProtectedRoute><MindcastLesson /></ProtectedRoute>} />
       <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
       <Route path="/mindcast-live/edit/:weekNumber" element={<AdminRoute><LessonEditor /></AdminRoute>} />
+      <Route path="/mindcast-live/coursebook" element={<AdminRoute><CoursebookPrint /></AdminRoute>} />
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
@@ -223,6 +225,7 @@ const TITLE_MAP: [string, string][] = [
   ["/mindcast-live/lesson", "Lesson · Mindcast"],
   ["/mindcast-live/facilitate", "Facilitate · Mindcast"],
   ["/mindcast-live/edit", "Edit Lesson · Mindcast"],
+  ["/mindcast-live/coursebook", "Coursebook (Print) · Mindcast"],
   ["/admin", "Admin · Mindcast"],
   ["/workbook", "Workbook · Mindcast"],
   ["/dashboard", "Dashboard · Mindcast"],
