@@ -136,11 +136,15 @@ young person's whereabouts without having to ask.
   problem.
 - Delivery is SMS-first (parents read texts), with email fallback.
 
-**Technical note:** the check-in data already exists (`check_ins`, the NFC
-bracelet flow). What remains is (a) a *left early* state, (b) an absence sweep a
-set time after the session starts, and (c) an SMS provider — see
-[04 Technical Plan](04_technical_plan.md). SMS requires an account (e.g. Twilio)
-and per-message cost; budget a few cents per message in [02](02_financial_forecast.md).
+**Technical note — this is built.** Arrival fires from the NFC check-in; a
+member is marked out by scanning the same bracelet at the kiosk in *Leaving
+early* mode (they're collecting their phone there anyway); the absence sweep runs
+on demand. Every message is logged for audit, and a guardian can see the record
+in the portal. Two setup steps remain: add an **SMS account** (Twilio env vars —
+until then messages are logged as *skipped*, so you can rehearse the whole flow
+for free) and **schedule the absence sweep** ~20–30 min after the session starts.
+Guardians need a phone number on their profile. Budget a few cents per message in
+[02](02_financial_forecast.md).
 
 ---
 

@@ -48,11 +48,14 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
    favour of the moderated FacilitatorView wall.
 6. **Kids colouring PDFs** → the private `colouring` bucket + download button are
    **built**; just **upload the PDFs** (`week-01.pdf` … `week-52.pdf`) when ready.
-7. **Attendance notifications to guardians** — a *left early* state on check-in,
-   an absence sweep run a set time after the session starts, and an SMS provider
-   (e.g. Twilio) to send the present / absent / left-early messages described in
-   [07 Session Operations](07_session_operations.md). Needs an account + per-message
-   budget.
+7. **Attendance notifications — built; needs an SMS account.** The schema,
+   the `attendance-notify` function (present / absent-sweep / left-early), the
+   check-in hook and the kiosk *Leaving early* toggle are all in. Two things
+   remain, both config: (a) set `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` /
+   `TWILIO_FROM` (until then every message is logged as `skipped`, so you can
+   test the flow with no account), and (b) schedule the absence sweep to POST
+   `{"event":"absent_sweep"}` ~20–30 min after the session starts (Supabase
+   cron). Guardians need a `phone` on their profile.
 8. **Live interactive widgets** — the word-cloud/poll aggregation driven by
    `activity_type` (data is in; the on-screen aggregation UI is the remaining
    build; best done against the live app).
