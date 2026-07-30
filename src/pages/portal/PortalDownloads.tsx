@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadWorksheetPdf, WorksheetSession } from "@/lib/generateWorksheetPdf";
+import { resolveColouringUrl } from "@/lib/colouringUrl";
+import { toast } from "@/hooks/use-toast";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -93,7 +95,14 @@ const PortalDownloads = () => {
   };
 
   // Open coloring page PDF
-  const handleOpenColoring = (url: string) => {
+  const handleOpenColoring = async (stored: string) => {
+    // Stored value is a path in the private `colouring` bucket (legacy rows may
+    // still hold an absolute URL). Mint a short-lived signed URL to open it.
+    const url = await resolveColouringUrl(stored);
+    if (!url) {
+      toast({ title: "Couldn't open colouring page", description: "It may not be available for your membership yet." });
+      return;
+    }
     window.open(url, "_blank", "noopener");
   };
 

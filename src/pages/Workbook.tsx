@@ -130,7 +130,6 @@ const Workbook = () => {
         <h2 className="font-display text-2xl font-bold text-foreground mb-2">You're done.</h2>
         <p className="text-foreground/30 font-body text-sm mb-8">Your workbook is saved.</p>
         <div className="flex flex-col gap-3">
-          <a href={`/display/wordcloud?session=${session.id}`} className="text-foreground/30 text-xs font-body hover:text-foreground/50 transition-colors">View this week's word cloud →</a>
           <button onClick={() => navigate("/dashboard")} className="text-foreground/20 text-xs font-body hover:text-foreground/40 transition-colors">Back to dashboard</button>
         </div>
       </div>
@@ -220,11 +219,7 @@ const Workbook = () => {
       return (
         <div className="space-y-6">
           <input value={entry.leaving_word || ""} onChange={(e) => updateField("leaving_word", e.target.value)} className="w-full bg-transparent border-b border-foreground/10 text-foreground font-body text-lg py-3 text-center focus:outline-none focus:border-foreground/25 placeholder:text-foreground/10" placeholder="one word" autoFocus />
-          <p className="text-foreground/20 text-[10px] font-body text-center">Submit this to the word cloud on your phone before you leave</p>
-          <label className="flex items-center justify-center gap-3 cursor-pointer">
-            <input type="checkbox" checked={entry.share_leaving_word !== false} onChange={(e) => updateField("share_leaving_word", e.target.checked ? "true" : "false")} className="accent-white" />
-            <span className="text-foreground/30 text-xs font-body">Add to tonight's group word cloud</span>
-          </label>
+          <p className="text-foreground/20 text-[10px] font-body text-center">Kept in your workbook. The room's live word cloud runs from the session screen.</p>
         </div>
       );
     }

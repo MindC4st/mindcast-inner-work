@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Lock, Unlock, Play, Presentation, Film, Pencil } from "lucide-react";
+import { Lock, Unlock, Play, Presentation, Film, Pencil, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -85,6 +85,13 @@ const Library = () => {
             >
               <Film size={13} />{bulkRunning ? "Queueing…" : "Generate all videos"}
             </button>
+          )}
+          {isFacilitator && (
+            <Link to="/mindcast-live/coursebook"
+              title="Printable coursebook — includes each week's workbook activity"
+              className="self-start flex items-center gap-2 px-4 py-2 border border-[hsl(var(--navy))]/25 hover:border-[hsl(var(--navy))]/60 text-[hsl(var(--navy))] text-[11px] font-body tracking-widest uppercase rounded-sm">
+              <BookOpen size={13} />Print coursebook
+            </Link>
           )}
         </div>
 

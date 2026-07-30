@@ -20,7 +20,11 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
 - **Membership + tiers** schema (adult/teen/kids add-on), Stripe **subscription
   checkout + webhook**, and a **program schedule** (weeks unlock 9:30am Sundays).
 - **Server-side paywall** (content is RLS-gated — not just hidden in the UI).
-- **Check-in → Welcome Wall**, **Q&A moderation**, display walls.
+- **Check-in → Welcome Wall**, **Q&A moderation**, display walls (all
+  approve-before-show).
+- **Live Together widgets** — word cloud + poll, driven by `activity_type`.
+- **Weekly intention loop** — captured at the close, read back the next Sunday.
+- **Attendance notifications** to linked guardians (present / absent / left early).
 - **Account & data deletion** — an in-app "Delete my account" flow (Settings) +
   a `delete-account` edge function that cancels any Stripe subscription, deletes
   personal data, and removes the auth user. *(Fulfils the privacy-policy promise
@@ -39,19 +43,33 @@ worker; and a **Capacitor** scaffold for native wrapping. NFC check-in is wired.
 3. **Apply all migrations** to your Supabase (`supabase db push`) — this turns on
    the paywall RLS, tiers, schedule, and `activity_type`.
 4. **Set the program start date** at `/admin/program`.
-5. **Moderation before on-screen — one gap to close.** The **facilitator live
-   board is correctly gated** (only `approved` submissions display). But the two
-   **legacy display walls** (`/display/wordcloud`, `/display/goals`) pull
-   *opt-in-but-un-moderated* member shares (`workbook_entries.leaving_word`,
-   `check_ins.goal_update`). Before you rely on those walls (or submit to app
-   stores), add the same approve-before-show gate to them, or retire them in
-   favour of the moderated FacilitatorView wall.
+5. **Moderation before on-screen — closed.** Everything user-written that can
+   reach a screen is now approve-before-show: the Mindcast Live wall (already
+   gated), the new Together word cloud (auto-screened via `moderate-content`,
+   held for a human if that's unavailable), and the two **legacy display walls**
+   (`/display/wordcloud`, `/display/goals`), which now **fail closed** and have
+   an approval queue in `/admin/moderation`. The arrival Welcome Wall shows
+   profile names, not free text, so it needs no moderation.
+   **Still worth deciding:** those two legacy walls are tied to the retired
+   `sessions` table and are superseded by the Together word cloud — consider
+   retiring them rather than maintaining two paths.
 6. **Kids colouring PDFs** → the private `colouring` bucket + download button are
    **built**; just **upload the PDFs** (`week-01.pdf` … `week-52.pdf`) when ready.
-7. **Live interactive widgets** — the word-cloud/poll aggregation driven by
-   `activity_type` (data is in; the on-screen aggregation UI is the remaining
-   build; best done against the live app).
-8. **Native app-store wrapping** (Capacitor) + store submissions — see
+7. **Attendance notifications — built; needs an SMS account.** The schema,
+   the `attendance-notify` function (present / absent-sweep / left-early), the
+   check-in hook and the kiosk *Leaving early* toggle are all in. Two things
+   remain, both config: (a) set `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` /
+   `TWILIO_FROM` (until then every message is logged as `skipped`, so you can
+   test the flow with no account), and (b) schedule the absence sweep to POST
+   `{"event":"absent_sweep"}` ~20–30 min after the session starts (Supabase
+   cron). Guardians need a `phone` on their profile.
+8. **Live interactive widgets — built.** The Together slide now renders a live
+   word cloud (words sized by how many people chose the same one) or a live poll
+   (animated tallies) based on `activity_type`, with the matching input on each
+   member's phone. Poll choices are authored per week in the lesson editor.
+   Remaining: a real run-through with a few phones to check pacing and legibility
+   from the back of the room.
+9. **Native app-store wrapping** (Capacitor) + store submissions — see
    [06](06_app_store_checklist.md).
 
 ---

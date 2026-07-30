@@ -19,6 +19,7 @@ Start at the top and work down.
 | 04 | [Technical Plan](04_technical_plan.md) | What's built, what's left, moving off Lovable → own Supabase + Vercel |
 | 05 | [HR & Safeguarding Plan](05_hr_and_safeguarding.md) | Recruiting, vetting, contracts, training, moving off volunteers |
 | 06 | [App Store Launch Checklist](06_app_store_checklist.md) | Apple/Google review, disclosures, moderation, privacy |
+| 07 | [Session Operations](07_session_operations.md) | Running the room — phones/lockers, leaving mid-session, attendance notifications |
 | L1 | [legal/ Disclaimer & Participation Terms](legal/01_disclaimer_and_participation_terms.md) | "I'm not a doctor" + educational-purpose cover |
 | L2 | [legal/ Content IP & Licensing](legal/02_content_ip_and_licensing.md) | Protect your lessons; licence to other cities |
 | L3 | [legal/ Safeguarding, Ethics & Anti-Cult Charter](legal/03_safeguarding_ethics_anticult.md) | The document that proves this is a healthy community |
