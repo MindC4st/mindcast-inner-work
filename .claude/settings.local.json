@@ -36,3 +36,16 @@
     ]
   }
 }
+{
+  "extraKnownMarketplaces": {
+    "everything-claude-code": {
+      "source": {
+        "source": "github",
+        "repo": "grantashl1-commits/mindcast-inner-work"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "everything-claude-code@everything-claude-code": true
+  }
+}
