@@ -37,7 +37,7 @@ const GROUPS: Group[] = [
     ["/admin/membership", "Membership"], ["/marketing", "Marketing"],
   ]},
   { label: "Displays / Legal", links: [
-    ["/display", "Welcome wall"], ["/display/goals", "Goal wall"], ["/display/wordcloud", "Word cloud"],
+    ["/display", "Welcome wall"],
     ["/terms", "Terms"], ["/privacy", "Privacy"], ["/refund", "Refund"], ["/safeguarding", "Safeguarding"],
   ]},
 ];

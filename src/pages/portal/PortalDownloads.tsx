@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadWorksheetPdf, WorksheetSession } from "@/lib/generateWorksheetPdf";
+import { resolveColouringUrl } from "@/lib/colouringUrl";
 import { toast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 
@@ -107,9 +108,22 @@ const PortalDownloads = () => {
     downloadWorksheetPdf(session);
   };
 
-  // Download coloring page as a lightweight A4 landscape PDF
-  const handleDownloadColoring = async (imageUrl: string, weekNumber: number) => {
+  // Download coloring page as a lightweight A4 landscape PDF.
+  //
+  // The stored value is a PNG path in the PRIVATE `colouring` bucket (legacy
+  // rows may still hold an absolute public URL). Resolve it to a short-lived
+  // signed URL first — only staff or an active member with the kids add-on can
+  // mint one — then render that PNG into the PDF.
+  const handleDownloadColoring = async (stored: string, weekNumber: number) => {
     try {
+      const imageUrl = await resolveColouringUrl(stored);
+      if (!imageUrl) {
+        toast({
+          title: "Couldn't open colouring page",
+          description: "It may not be available for your membership yet.",
+        });
+        return;
+      }
       const res = await fetch(imageUrl);
       if (!res.ok) throw new Error("Failed to load image");
       const blob = await res.blob();
@@ -132,14 +146,15 @@ const PortalDownloads = () => {
   // Is a given week unlocked for this audience?
   const weekIsUnlocked = (week: number) => isAdmin || isUnlocked(week);
 
-  // Build coloring page URL from storage (PNG are at coloring/week-{n}/coloring-page.png)
-  const coloringUrlFor = (week: number): string | null => {
-    const match = items.find(i => i.week_number === week);
-    if (match?.coloring_page_url) return match.coloring_page_url;
-    // Fallback: construct from known storage path
-    const baseUrl = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/worksheets";
-    return `${baseUrl}/coloring/week-${week}/coloring-page.png`;
-  };
+  // The stored colouring-page value for a week, or null if there isn't one.
+  //
+  // There is deliberately NO constructed fallback here. The old fallback built a
+  // public `worksheets` bucket URL, which handed out paid kids content to anyone
+  // who could guess the path — a paywall bypass. Colouring pages now live in the
+  // private `colouring` bucket and are only reachable through a signed URL, so a
+  // week with nothing stored simply has nothing to offer.
+  const coloringUrlFor = (week: number): string | null =>
+    items.find(i => i.week_number === week)?.coloring_page_url ?? null;
 
   // Date string for when a week unlocks
   const formatUnlockDate = (week: number) => {

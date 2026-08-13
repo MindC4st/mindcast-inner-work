@@ -39,6 +39,39 @@ serve(async (req: Request) => {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+  // --- Authorisation -------------------------------------------------------
+  // This function spends money (Gemini image generation) and writes with the
+  // service-role key, so it must be staff-only. Resolve the caller from their
+  // JWT and require a facilitator/admin role.
+  const authHeader = req.headers.get("Authorization") || "";
+  if (!authHeader.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Not authenticated" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+  const token = authHeader.replace("Bearer ", "");
+  const { data: userRes, error: userErr } = await supabase.auth.getUser(token);
+  if (userErr || !userRes?.user) {
+    return new Response(JSON.stringify({ error: "Not authenticated" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+  const { data: roleRow } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userRes.user.id)
+    .in("role", ["facilitator", "admin"])
+    .maybeSingle();
+  if (!roleRow) {
+    return new Response(JSON.stringify({ error: "Facilitators only" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+  // -------------------------------------------------------------------------
+
   try {
     const { week_number } = await req.json();
     if (!week_number || typeof week_number !== "number") {
@@ -128,9 +161,9 @@ serve(async (req: Request) => {
     const imageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
 
     // 4. Upload PNG to storage
-    const pngPath = `coloring/week-${week_number}/coloring-page.png`;
+    const pngPath = `week-${String(week_number).padStart(2, "0")}/coloring-page.png`;
     const { error: pngUploadError } = await supabase.storage
-      .from("worksheets")
+      .from("colouring")
       .upload(pngPath, imageBytes, {
         contentType: "image/png",
         upsert: true,
@@ -144,10 +177,9 @@ serve(async (req: Request) => {
       });
     }
 
-    const { data: pngPublic } = supabase.storage
-      .from("worksheets")
-      .getPublicUrl(pngPath);
-    const coloringPageUrl = pngPublic.publicUrl;
+    // Store the storage PATH; readers mint a short-lived signed URL, which is
+    // what keeps this behind the kids membership.
+    const coloringPageUrl = pngPath;
 
     // 5. Build PDF from the PNG image — LANDSCAPE A4, full-bleed
     const pdfDoc = await PDFDocument.create();
@@ -205,9 +237,9 @@ serve(async (req: Request) => {
     const pdfBytes = await pdfDoc.save();
 
     // 6. Upload PDF to storage
-    const pdfPath = `coloring/week-${week_number}/coloring-page.pdf`;
+    const pdfPath = `week-${String(week_number).padStart(2, "0")}/coloring-page.pdf`;
     const { error: pdfUploadError } = await supabase.storage
-      .from("worksheets")
+      .from("colouring")
       .upload(pdfPath, pdfBytes, {
         contentType: "application/pdf",
         upsert: true,
@@ -221,10 +253,8 @@ serve(async (req: Request) => {
       });
     }
 
-    const { data: pdfPublic } = supabase.storage
-      .from("worksheets")
-      .getPublicUrl(pdfPath);
-    const coloringPdfUrl = pdfPublic.publicUrl;
+    // Path, not a public URL — see the PNG note above.
+    const coloringPdfUrl = pdfPath;
 
     // 7. Update the lesson record
     const { error: updateError } = await supabase

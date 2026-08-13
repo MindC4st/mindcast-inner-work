@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
+import { resolveColouringUrl } from "@/lib/colouringUrl";
 
 // Data-driven deck: a session is an ordered list of slide "kinds", so the order
 // can change (and the video can flex position) without touching the renderer.
@@ -27,19 +28,21 @@ import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 // Reflect & Share → Together (Activity) → Guided Reflection → This Week's Practice
 type SlideKind =
   | "title" | "intention" | "wisdom" | "metaphor" | "video"
-  | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice";
+  | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice"
+  | "commitment";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
   title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
   metaphor: "In Today's World", video: "Video", coloring: "Coloring Activity",
   core: "Go Deeper", reflect: "Reflect & Share", activity: "Together",
   guided: "Guided Reflection", practice: "This Week's Practice",
+  commitment: "Your Intention for the Week",
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
   const base: SlideKind[] = [
     "title", "intention", "wisdom", "metaphor", "video",
-    "core", "reflect", "activity", "guided", "practice",
+    "core", "reflect", "activity", "guided", "practice", "commitment",
   ];
   // Insert coloring slide after video for Child sessions
   if (audience === "Child") {
@@ -77,6 +80,9 @@ type Session = {
   video_position: string;
   coloring_page_url: string | null;
   coloring_pdf_url: string | null;
+  // Which live widget the Together slide runs, and the poll's choices.
+  activity_type: string;
+  activity_options: string;
 };
 
 type Callback = {
@@ -95,6 +101,7 @@ type Response = {
   created_at: string;
   hidden: boolean;
   moderation_status: "pending" | "approved" | "denied" | null;
+  prompt_type?: string | null;
 };
 
 // Mindcast-tone presets — moderators can pick one or write their own.
@@ -141,6 +148,8 @@ const buildSession = (live: any, cur: any, wk: number, aud: string): Session | n
     facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
     previous_week_callback: base.previous_week_callback || "",
     video_position: base.video_position || cur?.video_position || "early",
+    activity_type: (cur?.activity_type || base.activity_type || "reflection"),
+    activity_options: (cur?.activity_options || ""),
     coloring_page_url: base.coloring_page_url || null,
     coloring_pdf_url: base.coloring_pdf_url || null,
   };
@@ -273,7 +282,7 @@ const FacilitatorView = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("session_responses")
-        .select("id, display_name, response_text, show_name, is_public, created_at, hidden, moderation_status")
+        .select("id, display_name, response_text, show_name, is_public, created_at, hidden, moderation_status, prompt_type")
         .eq("session_code", code)
         .eq("is_public", true)
         .in("moderation_status", ["pending", "approved"])
@@ -305,9 +314,25 @@ const FacilitatorView = () => {
   // Broadcast current prompt to audience
   useEffect(() => {
     if (!session) return;
-    const promptType = currentKind === "reflect" ? "journaling" : "idle";
-    const promptText = currentKind === "reflect" ? session.journaling_prompt : "";
-    const payload = { week, audience, slide, promptType, promptText, title: session.theme_title };
+    const promptType =
+      currentKind === "reflect" ? "journaling"
+      : currentKind === "commitment" ? "intention"
+      : currentKind === "intention" ? "intention_review"
+      : currentKind === "activity" ? "activity"
+      : "idle";
+    const promptText =
+      currentKind === "reflect" ? session.journaling_prompt
+      : currentKind === "commitment" ? "What is the one specific thing you will do this week?"
+      : currentKind === "activity" ? (session.experiential_exercise || "")
+      : "";
+    const payload = {
+      week, audience, slide, promptType, promptText, title: session.theme_title,
+      // The live widget config, so each member's phone shows the right input.
+      activityType: currentKind === "activity" ? (session.activity_type || "reflection") : null,
+      activityOptions: currentKind === "activity"
+        ? (session.activity_options || "").split(/\r?\n/).map((o: string) => o.trim()).filter(Boolean)
+        : [],
+    };
 
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
     const sendState = () => ch.send({ type: "broadcast", event: "state", payload });
@@ -525,7 +550,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer kind={currentKind} session={session} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
+              <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -630,7 +655,7 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
+const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
   switch (kind) {
     case "title": return (
       <WelcomeWall
@@ -689,9 +714,23 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         </div>
       </div>
     );
-    case "activity": return (
-      <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />
-    );
+    case "activity": {
+      // Only approved, visible submissions from this slide feed the screen.
+      const activityResponses = responses.filter(
+        r => r.prompt_type === "activity" && !r.hidden && r.moderation_status === "approved",
+      );
+      const type = (session.activity_type || "reflection").toLowerCase();
+      const options = (session.activity_options || "")
+        .split(/\r?\n/).map(o => o.trim()).filter(Boolean);
+
+      if (type === "wordcloud") {
+        return <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
+      }
+      if (type === "poll" && options.length > 0) {
+        return <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
+      }
+      return <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
+    }
     case "guided": return (
       <div className="max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
@@ -700,21 +739,55 @@ const SlideRenderer = ({ kind, session, joinUrl, code, renderedMp4, renderStatus
         </div>
       </div>
     );
-    case "practice": return (
-      <div className="max-w-6xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
-        <div className="grid md:grid-cols-3 gap-5">
-          {[
-            { day: "Mon", text: session.weekly_practice_mon },
-            { day: "Wed", text: session.weekly_practice_wed },
-            { day: "Sun", text: session.weekly_practice_sun },
-          ].map(({ day, text }) => (
-            <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
-              <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
-              <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+    case "practice": {
+      // Only show days that actually have a practice — many weeks have none,
+      // and three empty boxes read as a broken slide.
+      const days = [
+        { day: "Mon", text: session.weekly_practice_mon },
+        { day: "Wed", text: session.weekly_practice_wed },
+        { day: "Sun", text: session.weekly_practice_sun },
+      ].filter(d => (d.text || "").trim().length > 0);
+      return (
+        <div className="max-w-6xl w-full">
+          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
+          {days.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-5">
+              {days.map(({ day, text }) => (
+                <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
+                  <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
+                  <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            // Fallback: carry the week's metaphor "Today: ..." action into the room.
+            <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-relaxed text-center max-w-3xl mx-auto">
+              {session.signal_metaphor || "Carry this week's practice into your everyday life."}
+            </p>
+          )}
         </div>
+      );
+    }
+    // Closing slide — the member writes the one thing they'll do this week.
+    // This is the half of the loop the opening "Return to Your Intention" slide
+    // depends on: what's written here comes back next Sunday.
+    case "commitment": return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Before You Leave</p>
+        <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+          Write down one specific thing you will do this week.
+        </motion.p>
+        <p className="text-[hsl(var(--ivory))]/60 font-body text-lg mb-10">
+          It goes in your workbook — and it comes back with you next Sunday.
+        </p>
+        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
+          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
+          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">
+            Add it in the app · code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.3em]">{code}</span>
+          </span>
+        </div>
+        <p className="text-[hsl(var(--ivory))]/30 text-[11px] font-body tracking-widest uppercase mt-6">Private to you — it is not shown on screen</p>
       </div>
     );
     // Video — supporting evidence / how-to / personal story (position flexes).
@@ -760,6 +833,14 @@ const ColoringActivitySlide = ({
   const [imgLoaded, setImgLoaded] = useState(false);
 
   // No coloring page yet — show placeholder
+  // The stored value is a path in the private `colouring` bucket; sign it.
+  const [signedSrc, setSignedSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let on = true;
+    resolveColouringUrl(coloringPageUrl).then(u => { if (on) setSignedSrc(u); });
+    return () => { on = false; };
+  }, [coloringPageUrl]);
+
   if (!coloringPageUrl) {
     return (
       <div className="text-center max-w-2xl">
@@ -795,7 +876,7 @@ const ColoringActivitySlide = ({
           <div className="aspect-square bg-[hsl(var(--ivory))]/[0.02] animate-pulse rounded-sm" />
         )}
         <img
-          src={coloringPageUrl}
+          src={signedSrc ?? undefined}
           alt={`Coloring page for week ${weekNumber}`}
           className={`w-full rounded-sm shadow-lg ${imgLoaded ? "opacity-100" : "opacity-0 absolute inset-0"}`}
           onLoad={() => setImgLoaded(true)}
@@ -804,10 +885,14 @@ const ColoringActivitySlide = ({
 
       {coloringPdfUrl && (
         <a
-          href={coloringPdfUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-primary inline-flex items-center gap-2"
+          href="#"
+          onClick={async (e) => {
+            e.preventDefault();
+            const u = await resolveColouringUrl(coloringPdfUrl);
+            if (u) window.open(u, "_blank", "noopener");
+            else toast({ title: "Couldn't open the colouring PDF" });
+          }}
+          className="btn-primary inline-flex items-center gap-2 cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -815,6 +900,115 @@ const ColoringActivitySlide = ({
           Download PDF
         </a>
       )}
+    </div>
+  );
+};
+
+/**
+ * Live word cloud — words members send from their phones, sized by how many
+ * people chose the same one. Free text, so every word has already been through
+ * moderation before it reaches here (see the moderate-content function).
+ */
+const WordCloudSlide = ({ text, responses }: { text: string; responses: Response[] }) => {
+  const words = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const r of responses) {
+      for (const raw of (r.response_text || "").split(/[,\s]+/)) {
+        const w = raw.trim().toLowerCase().replace(/[^\p{L}\p{N}'-]/gu, "");
+        if (w.length < 2 || w.length > 24) continue;
+        counts.set(w, (counts.get(w) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 60);
+  }, [responses]);
+
+  const max = words[0]?.[1] ?? 1;
+
+  return (
+    <div className="max-w-6xl w-full text-center">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Together</p>
+      {text && <p className="text-[hsl(var(--ivory))]/60 font-body text-sm mb-8 max-w-3xl mx-auto">{text}</p>}
+      {words.length === 0 ? (
+        <p className="text-[hsl(var(--ivory))]/40 font-body text-lg py-16">Waiting for the room…</p>
+      ) : (
+        <div className="flex flex-wrap items-baseline justify-center gap-x-6 gap-y-3 py-6">
+          <AnimatePresence>
+            {words.map(([word, n]) => {
+              // Scale 1.15rem → 4.5rem by relative frequency.
+              const size = 1.15 + (n / max) * 3.35;
+              const opacity = 0.55 + (n / max) * 0.45;
+              return (
+                <motion.span
+                  key={word}
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  className="font-display tracking-wide text-[hsl(var(--ivory))] leading-none"
+                  style={{ fontSize: `${size}rem` }}
+                  title={`${n}`}
+                >
+                  {word}
+                </motion.span>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+      <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-6">
+        {responses.length} {responses.length === 1 ? "voice" : "voices"}
+      </p>
+    </div>
+  );
+};
+
+/**
+ * Live poll — members tap one of the facilitator's own options, so there is no
+ * free text on screen and nothing to moderate.
+ */
+const PollSlide = ({ text, options, responses }: { text: string; options: string[]; responses: Response[] }) => {
+  const tally = useMemo(() => {
+    const counts = new Map<string, number>(options.map(o => [o.toLowerCase(), 0]));
+    for (const r of responses) {
+      const key = (r.response_text || "").trim().toLowerCase();
+      if (counts.has(key)) counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return options.map(o => ({ option: o, count: counts.get(o.toLowerCase()) ?? 0 }));
+  }, [options, responses]);
+
+  const total = tally.reduce((n, t) => n + t.count, 0);
+  const max = Math.max(1, ...tally.map(t => t.count));
+
+  return (
+    <div className="max-w-4xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3 text-center">Together</p>
+      {text && <p className="text-[hsl(var(--ivory))]/60 font-body text-sm mb-8 text-center">{text}</p>}
+      <div className="space-y-4">
+        {tally.map(({ option, count }) => {
+          const pct = total === 0 ? 0 : Math.round((count / total) * 100);
+          return (
+            <div key={option}>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <span className="font-body text-lg md:text-xl text-[hsl(var(--ivory))]/90">{option}</span>
+                <span className="font-display text-xl text-[hsl(var(--blue))] tabular-nums">{pct}%</span>
+              </div>
+              <div className="h-4 rounded-sm bg-[hsl(var(--ivory))]/[0.07] overflow-hidden">
+                <motion.div
+                  className="h-full bg-[hsl(var(--blue))]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(count / max) * 100}%` }}
+                  transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-8 text-center">
+        {total} {total === 1 ? "response" : "responses"}
+      </p>
     </div>
   );
 };

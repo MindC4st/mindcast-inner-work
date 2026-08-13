@@ -229,7 +229,8 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
 const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   weekNum: number; track: string; profileId: string; wsRow: WorksheetRow | null;
 }) => {
-  const [j, setJ] = useState({ reflection_answer: "", activity_response: "", personal_notes: "", life_group_notes: "" });
+  const [j, setJ] = useState({ reflection_answer: "", activity_response: "", personal_notes: "", life_group_notes: "", weekly_intention: "" });
+  const [lastIntention, setLastIntention] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -238,13 +239,21 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
     let active = true;
     (async () => {
       const { data } = await (supabase as any)
-        .from("lesson_journal").select("reflection_answer, activity_response, personal_notes, life_group_notes")
+        .from("lesson_journal").select("reflection_answer, activity_response, personal_notes, life_group_notes, weekly_intention")
         .eq("profile_id", profileId).eq("week_number", weekNum).eq("track", track).maybeSingle();
       if (!active) return;
       if (data) setJ({
         reflection_answer: data.reflection_answer || "", activity_response: data.activity_response || "",
         personal_notes: data.personal_notes || "", life_group_notes: data.life_group_notes || "",
+        weekly_intention: data.weekly_intention || "",
       });
+      // Loop-back: what they committed to last week.
+      if (weekNum > 1) {
+        const { data: prev } = await (supabase as any)
+          .rpc("my_intention_for_week", { p_week: weekNum - 1, p_track: track });
+        const row = Array.isArray(prev) ? prev[0] : prev;
+        if (active) setLastIntention((row?.weekly_intention || "").trim() || null);
+      }
       setLoading(false);
     })();
     return () => { active = false; };
@@ -289,6 +298,16 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       <h2 className="portal-heading text-lg text-foreground mb-1 flex items-center gap-2"><PenLine size={16} /> My journal</h2>
       <p className="text-xs text-muted-foreground font-body font-light mb-6">Private to you. Only a linked guardian can read a child's entries.</p>
 
+      {/* The accountability loop: every session opens by returning to the
+          intention set seven days ago. */}
+      {lastIntention && (
+        <div className="mb-6 border border-primary/25 bg-primary/[0.05] rounded-sm p-4">
+          <p className="portal-label text-foreground/40 mb-1">LAST WEEK YOU SAID</p>
+          <p className="text-sm text-foreground/85 font-body italic">"{lastIntention}"</p>
+          <p className="text-xs text-muted-foreground font-body mt-2">Did you do it? What got in the way?</p>
+        </div>
+      )}
+
       {/* Weekly practice prompts (from worksheet) */}
       {(practiceMon || practiceWed || practiceSun) && (
         <div className="mb-6 p-4 border border-primary/10 bg-primary/[0.03] rounded-sm">
@@ -324,6 +343,7 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       )}
 
       <div className="space-y-6">
+        {field("weekly_intention", "MY INTENTION THIS WEEK · one specific thing I will do", "e.g. I'll put my phone in another room after 9pm…", 3)}
         {field("reflection_answer", reflectionLabel, "Your answer to this week's question…", 4)}
         {field("activity_response", activityLabel, "What you took from the interactive activity…")}
         {field("personal_notes", "SUNDAY NOTES", "Anything else from the session…")}
