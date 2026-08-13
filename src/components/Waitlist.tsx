@@ -1,14 +1,28 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Waitlist = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && name) setSubmitted(true);
+    if (!email || !name || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    const { error: insertError } = await supabase
+      .from("waitlist")
+      .insert({ email: email.trim(), name: name.trim(), source: "home" });
+    setSubmitting(false);
+    if (insertError) {
+      setError("Something went wrong — please try again.");
+      return;
+    }
+    setSubmitted(true);
   };
 
   return (
@@ -68,9 +82,10 @@ const Waitlist = () => {
               required
               className="w-full bg-transparent border-2 border-cream/30 text-cream px-6 py-4 text-sm tracking-widest placeholder:text-cream/30 focus:border-cream focus:outline-none transition-colors"
             />
-            <button type="submit" className="btn-filled w-full text-xs">
-              JOIN THE FOUNDING COMMUNITY
+            <button type="submit" disabled={submitting} className="btn-filled w-full text-xs disabled:opacity-60">
+              {submitting ? "JOINING..." : "JOIN THE FOUNDING COMMUNITY"}
             </button>
+            {error && <p className="text-red-400 text-xs tracking-wide">{error}</p>}
             <p className="text-cream/30 text-xs tracking-wide">No spam. Just MINDCAST.</p>
           </motion.form>
         )}

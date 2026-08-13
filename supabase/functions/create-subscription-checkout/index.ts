@@ -159,8 +159,8 @@ serve(async (req) => {
       customer: customerId,
       line_items,
       mode: "subscription",
-      success_url: `${origin}/portal/settings?membership=success`,
-      cancel_url: `${origin}/membership?canceled=true`,
+      success_url: `${origin}/portal/billing?membership=success`,
+      cancel_url: `${origin}/portal/billing?canceled=true`,
       subscription_data: { metadata: bundleMeta },
       metadata: bundleMeta,
     };

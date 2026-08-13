@@ -4,19 +4,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Check, ArrowLeft } from "lucide-react";
 
-// Authenticated membership management. Logged-in members pick a plan and are
-// sent to Stripe Checkout (mode: subscription); existing members manage/cancel
-// via the Stripe billing portal. Status mirrors profile.membership_status,
-// which the stripe-webhook keeps in sync.
+// Authenticated membership management. Logged-in members build a household
+// bundle (adults / teens / children), pick a billing cadence, and are sent to
+// Stripe Checkout (mode: subscription); existing members manage/cancel via the
+// Stripe billing portal. Status mirrors profile.membership_status, which the
+// stripe-webhook keeps in sync.
+//
+// Contract with create-subscription-checkout (Jul 2026 family-bundle model):
+//   body = { plan: "monthly" | "annual", adults, teens, children }
+// FAMILY15 discount is applied server-side when 2+ adults and ≥1 teen/child.
 //
 // Brand-aligned to `/` and `/demo`: ivory background, Bebas plan names,
 // Montserrat body, single primary CTA per card.
 
-type Plan = "monthly" | "termly";
+type Plan = "monthly" | "annual";
 
 const PLANS: { id: Plan; name: string; blurb: string; note: string }[] = [
   { id: "monthly", name: "MONTHLY", blurb: "Rolling monthly membership.", note: "Cancel anytime." },
-  { id: "termly", name: "TERMLY", blurb: "Pay per term — best value for regular attendance.", note: "Renews each term." },
+  { id: "annual", name: "ANNUAL", blurb: "Pay for the year — best value for regular attendance.", note: "Renews yearly." },
 ];
 
 const ACTIVE = new Set(["active", "trialing"]);
@@ -26,17 +31,26 @@ const PortalBilling = () => {
   const navigate = useNavigate();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [addKids, setAddKids] = useState(false);
 
   const isMember = ACTIVE.has(membershipStatus);
   const isTeen = ((profile as any)?.age_group || "").toLowerCase() === "teen";
-  const tier = isTeen ? "teen" : "adult";
+
+  // Household bundle. Default to one membership matching the signed-in member.
+  const [adults, setAdults] = useState(isTeen ? 0 : 1);
+  const [teens, setTeens] = useState(isTeen ? 1 : 0);
+  const [children, setChildren] = useState(0);
+
+  const totalSeats = adults + teens + children;
+  const familyDiscount = adults >= 2 && (teens >= 1 || children >= 1);
 
   const startCheckout = async (plan: Plan) => {
     if (!user) { navigate("/portal/login"); return; }
+    if (totalSeats < 1) { setError("Select at least one membership."); return; }
     setBusy(plan); setError(null);
     try {
-      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", { body: { plan, tier, kidsAddon: addKids } });
+      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", {
+        body: { plan, adults, teens, children },
+      });
       if (error) throw error;
       if ((data as any)?.url) { window.location.href = (data as any).url; return; }
       throw new Error((data as any)?.error || "Could not start checkout");
@@ -112,14 +126,48 @@ const PortalBilling = () => {
           </div>
         )}
 
-        {!isMember && !isTeen && (
-          <label className="flex items-center gap-3 border border-foreground/10 rounded-sm p-4 mb-4 bg-foreground/[0.02] cursor-pointer hover:border-primary/40 transition-colors">
-            <input type="checkbox" checked={addKids} onChange={(e) => setAddKids(e.target.checked)} className="accent-primary w-4 h-4" />
-            <span className="flex-1">
-              <span className="block font-display text-base tracking-wider text-foreground">ADD A KIDS MEMBERSHIP</span>
-              <span className="block text-xs text-foreground/50 font-body mt-0.5">Unlocks the children's lessons and downloadable colouring pages for your family.</span>
-            </span>
-          </label>
+        {!isMember && (
+          <div className="border border-foreground/10 rounded-sm p-5 mb-6 bg-foreground/[0.02]">
+            <p className="font-display text-base tracking-wider text-foreground mb-1">YOUR HOUSEHOLD</p>
+            <p className="text-xs text-foreground/50 font-body mb-4">
+              Choose how many memberships you need. Children don't get logins — a child membership unlocks the kids' lessons and colouring pages for your family.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {([
+                { label: "ADULTS", value: adults, set: setAdults },
+                { label: "TEENS (13–17)", value: teens, set: setTeens },
+                { label: "CHILDREN", value: children, set: setChildren },
+              ] as const).map((row) => (
+                <div key={row.label} className="border border-foreground/10 rounded-sm p-3 flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-body font-semibold tracking-widest text-foreground/60">{row.label}</span>
+                  <span className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      aria-label={`Fewer ${row.label.toLowerCase()}`}
+                      onClick={() => row.set(Math.max(0, row.value - 1))}
+                      className="w-7 h-7 border border-foreground/20 rounded-sm text-foreground/70 hover:border-primary/60 hover:text-primary"
+                    >
+                      −
+                    </button>
+                    <span className="font-display text-lg w-6 text-center">{row.value}</span>
+                    <button
+                      type="button"
+                      aria-label={`More ${row.label.toLowerCase()}`}
+                      onClick={() => row.set(Math.min(20, row.value + 1))}
+                      className="w-7 h-7 border border-foreground/20 rounded-sm text-foreground/70 hover:border-primary/60 hover:text-primary"
+                    >
+                      +
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
+            {familyDiscount && (
+              <p className="text-[11px] font-body text-primary mt-3">
+                Family discount applies — it will show automatically at checkout.
+              </p>
+            )}
+          </div>
         )}
 
         {!isMember && (
@@ -131,7 +179,7 @@ const PortalBilling = () => {
                 <p className="text-[10px] font-body uppercase tracking-widest text-foreground/40 mt-2 mb-5">{p.note}</p>
                 <button
                   onClick={() => startCheckout(p.id)}
-                  disabled={busy === p.id}
+                  disabled={busy === p.id || totalSeats < 1}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-[11px] font-body font-semibold tracking-widest uppercase py-3 rounded-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {busy === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : `Choose ${p.name}`}
@@ -143,7 +191,7 @@ const PortalBilling = () => {
 
         {!isMember && (
           <p className="text-[11px] text-foreground/40 font-body mt-4">
-            You'll see the exact price{addKids ? " (including the kids membership)" : ""} before confirming at checkout. Cancel anytime.
+            You'll see the exact price for your household before confirming at checkout. Cancel anytime.
           </p>
         )}
 

@@ -82,14 +82,9 @@ const PortalWeeks = () => {
         <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
       )}
 
-      {/* Debug: show what we got */}
       {!loading && weeks.length === 0 && (
-        <p className="text-sm text-foreground/40 font-body mb-4">No weeks data returned. The database may be empty or RLS is blocking the query.</p>
-      )}
-
-      {!loading && (
-        <p className="text-[10px] text-foreground/30 font-mono mb-4">
-          Debug: isAdmin={String(isAdmin)} adminFallback={String(adminFallback)} role={String(role)} is_admin={(profile as any)?.is_admin} isMember={String(isMember)}
+        <p className="text-sm text-foreground/40 font-body mb-4">
+          The coursebook isn't available right now. Please try again shortly.
         </p>
       )}
 

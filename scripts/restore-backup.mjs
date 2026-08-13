@@ -3,8 +3,15 @@ import { decompress } from '@mongodb-js/zstd';
 import { createClient } from '@supabase/supabase-js';
 
 const BACKUP_PATH = process.argv[2] || 'C:\\Users\\grant\\Downloads\\mindcast-inner-work_260724.backup';
-const SUPABASE_URL = 'https://pjyelgogdsuiugaudecc.supabase.co';
-const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeWVsZ29nZHN1aXVnYXVkZWNjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Mzc3MDg3NCwiZXhwIjoyMDk5MzQ2ODc0fQ.t9d3FdZc1Oa7Kx8JfwD8cFC-QS-lmoBIwrZReRHGxJM';
+// Never hardcode credentials here. Provide them via environment variables:
+//   SUPABASE_URL=https://<project-ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=... node scripts/restore-backup.mjs <backup-file>
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('Missing SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY environment variables.');
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
