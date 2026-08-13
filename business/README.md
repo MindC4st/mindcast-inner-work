@@ -23,6 +23,7 @@ Start at the top and work down.
 | 08 | [Launch Readiness](08_launch_readiness.md) | Content audit across all 52 weeks × 3 tracks + go/no-go |
 | 09 | [Franchise Architecture](09_franchise_architecture.md) | Licensing to other cities: multi-tenancy, code structure, security, analytics |
 | 10 | [Video Sourcing Worklist](10_video_sourcing_worklist.md) | The 58 weeks that reuse a video + how to replace and verify them |
+| 11 | [Video Sourcing Sheet](11_video_sourcing_sheet.md) | Every week × track with its theme and a blank to drop a URL against ([CSV](../exports/VIDEO-SOURCING-SHEET.csv)) |
 | L1 | [legal/ Disclaimer & Participation Terms](legal/01_disclaimer_and_participation_terms.md) | "I'm not a doctor" + educational-purpose cover |
 | L2 | [legal/ Content IP & Licensing](legal/02_content_ip_and_licensing.md) | Protect your lessons; licence to other cities |
 | L3 | [legal/ Safeguarding, Ethics & Anti-Cult Charter](legal/03_safeguarding_ethics_anticult.md) | The document that proves this is a healthy community |
