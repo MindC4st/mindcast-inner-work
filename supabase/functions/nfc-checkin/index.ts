@@ -165,6 +165,10 @@ serve(async (req) => {
 
     return json({ ok: true, display_name: displayName, welcome_name: welcomeName, track });
   } catch (e: any) {
-    return json({ error: e?.message ?? String(e) }, 500);
+    // This endpoint is public and unauthenticated, so the raw error (Postgres
+    // messages, column names, constraint names) must not go back over the wire.
+    // Log it where staff can read it; tell the caller only that it failed.
+    console.error("nfc-checkin failed:", e);
+    return json({ error: "Check-in failed. Please see a facilitator." }, 500);
   }
 });

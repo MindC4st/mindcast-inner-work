@@ -12,16 +12,35 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { describeFunctionError } from "@/lib/functionError";
 import { useAuth } from "@/contexts/AuthContext";
 import { Check, Loader2, Lock, Nfc } from "lucide-react";
 import { db } from "@/lib/db";
 
 type State =
   | { status: "loading" }
-  | { status: "error"; message: string }
+  | { status: "error"; heading: string; message: string }
   | { status: "welcome"; displayName: string; welcomeName: string };
 
 const EPHEMERAL_KEY = "mindcast_ephemeral_session";
+
+// What each failure actually means at the door. Anything unmapped keeps the
+// generic heading, so a new failure mode never masquerades as a bad bracelet.
+const TAP_ERRORS: Record<number, { heading: string; message: string }> = {
+  400: {
+    heading: "BRACELET NOT RECOGNISED",
+    message: "That link is missing its bracelet code. Try tapping again, or ask a facilitator to check you in.",
+  },
+  404: {
+    heading: "BRACELET NOT LINKED",
+    message:
+      "This bracelet works, but it isn't linked to a member yet. A facilitator can link it in Admin → Members, then tap again.",
+  },
+  429: {
+    heading: "TOO MANY TAPS",
+    message: "Give it a moment and tap again.",
+  },
+};
 
 const BraceletTap = () => {
   const { token } = useParams();
@@ -38,7 +57,10 @@ const BraceletTap = () => {
   // Fire the check-in once. We don't gate on auth — the bracelet token IS
   // the identifier; the kiosk endpoint just records who tapped.
   useEffect(() => {
-    if (!token) { setState({ status: "error", message: "Missing bracelet token" }); return; }
+    if (!token) {
+      setState({ ...TAP_ERRORS[400], status: "error" });
+      return;
+    }
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke("nfc-checkin", {
@@ -53,7 +75,18 @@ const BraceletTap = () => {
           welcomeName: d?.welcome_name || d?.display_name || "Member",
         });
       } catch (e: unknown) {
-        setState({ status: "error", message: e instanceof Error && e.message ? e.message : "Unknown bracelet" });
+        // Recover the function's real status and body — invoke() reports every
+        // non-2xx as the same opaque message otherwise.
+        const failure = await describeFunctionError(
+          e,
+          Object.fromEntries(Object.entries(TAP_ERRORS).map(([s, v]) => [s, v.message])),
+          "We couldn't check you in. Please see a facilitator at the door.",
+        );
+        setState({
+          status: "error",
+          heading: TAP_ERRORS[failure.status]?.heading ?? "CHECK-IN FAILED",
+          message: failure.message,
+        });
       }
     })();
   }, [token]);
@@ -120,7 +153,7 @@ const BraceletTap = () => {
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
         <div className="max-w-sm text-center">
           <p className="text-primary text-xs tracking-[0.5em] font-body uppercase mb-3">Mindcast LIVE</p>
-          <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">BRACELET NOT RECOGNISED</h1>
+          <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">{state.heading}</h1>
           <p className="font-body text-sm text-[hsl(var(--navy-mid))] mb-6">{state.message}</p>
           <Link to="/" className="text-primary text-xs tracking-widest uppercase font-body border-b border-primary/40">
             Back to home
