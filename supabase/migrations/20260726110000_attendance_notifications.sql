@@ -22,6 +22,7 @@ ALTER TABLE public.check_ins
 --    from present/absent pings while keeping left-early.)
 -- ---------------------------------------------------------------------------
 ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS phone text,
   ADD COLUMN IF NOT EXISTS notify_sms boolean NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS notify_attendance_present boolean NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS notify_attendance_absent  boolean NOT NULL DEFAULT true;

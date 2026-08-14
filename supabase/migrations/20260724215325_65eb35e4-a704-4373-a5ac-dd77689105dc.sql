@@ -1,11 +1,12 @@
 
--- Grant admin (and ensure facilitator) role to admin@mindcast.co.nz
+-- Grant admin (and ensure facilitator) role to admin@mindcast.co.nz (resolved by
+-- email so the id survives a project restore where auth.users ids differ).
 INSERT INTO public.user_roles (user_id, role)
-VALUES ('3f001b14-fbd0-4260-b082-b12715f7a010', 'admin'::app_role)
+SELECT id, 'admin'::app_role FROM auth.users WHERE email = 'admin@mindcast.co.nz'
 ON CONFLICT (user_id, role) DO NOTHING;
 
 INSERT INTO public.user_roles (user_id, role)
-VALUES ('3f001b14-fbd0-4260-b082-b12715f7a010', 'facilitator'::app_role)
+SELECT id, 'facilitator'::app_role FROM auth.users WHERE email = 'admin@mindcast.co.nz'
 ON CONFLICT (user_id, role) DO NOTHING;
 
 -- Update signup trigger fn to also auto-grant admin/facilitator for admin@mindcast.co.nz
