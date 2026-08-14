@@ -806,6 +806,7 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         question2={session.video_question_2}
         weekNumber={session.week_number}
         audience={session.audience}
+        transcript={session.video_transcript}
         onQuestionsGenerated={async (q1, q2) => {
           if (!String(session.id).startsWith("curriculum-")) {
             const { error } = await (supabase as any).from("mindcast_live_sessions")
@@ -1387,11 +1388,11 @@ const SignalMetaphorSlide = ({
 };
 
 const VideoSlide = ({
-  link, description, backup, question1, question2, weekNumber, audience, onQuestionsGenerated, onUpdateLink,
+  link, description, backup, question1, question2, weekNumber, audience, transcript, onQuestionsGenerated, onUpdateLink,
 }: {
   link: string; description: string; backup: string;
   question1: string; question2: string;
-  weekNumber: number; audience: string;
+  weekNumber: number; audience: string; transcript: string;
   onQuestionsGenerated: (q1: string, q2: string) => void | Promise<void>;
   onUpdateLink: (newLink: string) => void | Promise<void>;
 }) => {
@@ -1401,13 +1402,16 @@ const VideoSlide = ({
   const [draft, setDraft] = useState(link || "");
   const [saving, setSaving] = useState(false);
   const [generatingQ, setGeneratingQ] = useState(false);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [transcriptDraft, setTranscriptDraft] = useState(transcript || "");
   useEffect(() => { setDraft(link || ""); }, [link]);
+  useEffect(() => { setTranscriptDraft(transcript || ""); }, [transcript]);
 
   const generateQuestions = async () => {
     setGeneratingQ(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-video-questions", {
-        body: { week_number: weekNumber, audience },
+        body: { week_number: weekNumber, audience, transcript: transcriptDraft.trim() || undefined },
       });
       if (error) {
         let detail = error.message;
@@ -1445,6 +1449,9 @@ const VideoSlide = ({
         <button onClick={() => setEditing(e => !e)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
           {editing ? "Cancel" : "Replace URL"}
         </button>
+        <button onClick={() => setShowTranscript(t => !t)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
+          {showTranscript ? "Hide transcript" : "Transcript"}
+        </button>
         <button onClick={generateQuestions} disabled={generatingQ || !link} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1 disabled:opacity-40">
           {generatingQ ? "Generating…" : "Generate questions"}
         </button>
@@ -1460,6 +1467,17 @@ const VideoSlide = ({
           <button onClick={save} disabled={saving} className="px-4 py-2 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm disabled:opacity-50">
             {saving ? "Saving…" : "Save"}
           </button>
+        </div>
+      )}
+      {showTranscript && (
+        <div className="mb-4">
+          <textarea
+            value={transcriptDraft}
+            onChange={e => setTranscriptDraft(e.target.value)}
+            placeholder="Paste the video transcript here — Generate questions uses it (and saves it) to build the two reflective questions from the transcript and this week's theme."
+            rows={6}
+            className="w-full bg-[hsl(var(--ivory))]/5 border border-[hsl(var(--ivory))]/20 rounded-sm px-3 py-2 text-[hsl(var(--ivory))] text-sm font-body"
+          />
         </div>
       )}
       {ytId ? (

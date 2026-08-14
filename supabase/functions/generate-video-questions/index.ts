@@ -88,7 +88,7 @@ serve(async (req) => {
   // -------------------------------------------------------------------------
 
   try {
-    const { week_number, audience = "Adult" } = await req.json();
+    const { week_number, audience = "Adult", transcript: providedTranscript } = await req.json();
     if (!week_number || typeof week_number !== "number") {
       return new Response(JSON.stringify({ error: "week_number is required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -115,8 +115,18 @@ serve(async (req) => {
       });
     }
 
-    // 1. Transcript — reuse a stored one if we already have it, else fetch.
+    // 1. Transcript — a pasted one wins, else reuse a stored one, else fetch.
     let transcript = (lesson.video_transcript || "").trim();
+    if (typeof providedTranscript === "string" && providedTranscript.trim()) {
+      transcript = providedTranscript.trim();
+      // Persist the pasted transcript so the next generation (or the lesson
+      // editor) reuses it without needing the YouTube caption fetch.
+      await supabase
+        .from("mindcast_live_sessions")
+        .update({ video_transcript: transcript })
+        .eq("week_number", week_number)
+        .eq("audience", audience);
+    }
     let videoTitle = lesson.video_description || "";
     if (!transcript) {
       const fetched = await fetchTranscript(lesson.video_link);
@@ -163,23 +173,26 @@ Return ONLY valid JSON:
   "question_2": "..."
 }`;
 
-    const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
-    if (!GOOGLE_AI_API_KEY) throw new Error("GOOGLE_AI_API_KEY is not configured");
+    const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
+    if (!DEEPSEEK_API_KEY) throw new Error("DEEPSEEK_API_KEY is not configured");
 
-    const aiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: [
-            { role: "user", parts: [{ text: `Video title: ${videoTitle}\n\nTranscript:\n${transcript}\n\nGenerate the two reflective questions.` }] },
-          ],
-          generationConfig: { response_mime_type: "application/json", temperature: 0.7, maxOutputTokens: 512 },
-        }),
+    const aiResponse = await fetch("https://api.deepseek.com/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Video title: ${videoTitle}\n\nTranscript:\n${transcript}\n\nGenerate the two reflective questions.` },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 512,
+      }),
+    });
 
     if (!aiResponse.ok) {
       const body = await aiResponse.text();
@@ -190,7 +203,7 @@ Return ONLY valid JSON:
     }
 
     const aiData = await aiResponse.json();
-    const raw = aiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const raw = aiData?.choices?.[0]?.message?.content || "";
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("AI returned no parseable questions");
     const parsed = JSON.parse(jsonMatch[0]);
