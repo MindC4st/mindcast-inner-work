@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
+import AmbientVideo from "@/components/AmbientVideo";
 import mindcastBuilding from "@/assets/mindcast-building.png";
 
 
@@ -33,7 +34,7 @@ const About = () => (
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           <div className="w-full h-[32rem] overflow-hidden rounded-sm">
-            <video src="/videos/women_with_notepad.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            <AmbientVideo src="/videos/women_with_notepad.mp4" className="w-full h-full object-cover" />
           </div>
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
@@ -110,7 +111,7 @@ const About = () => (
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             <div className="w-full h-[28rem] overflow-hidden rounded-sm">
-              <video src="/videos/founder_on_couch.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" />
+              <AmbientVideo src="/videos/founder_on_couch.mp4" className="w-full h-full object-cover" />
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
@@ -151,15 +152,10 @@ const About = () => (
 
     {/* Our Relationship With AI */}
     <section className="section-navy py-24 relative overflow-hidden">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
+      <AmbientVideo
+        src="/videos/hero-loop.mp4"
         className="absolute inset-0 w-full h-full object-cover opacity-15"
-      >
-        <source src="/videos/hero-loop.mp4" type="video/mp4" />
-      </video>
+      />
       <div className="absolute inset-0 bg-[hsl(var(--primary))]/85" />
       <div className="container mx-auto px-6 relative z-10 max-w-3xl">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-3xl sm:text-4xl md:text-5xl text-center mb-4 leading-[1.1]">
@@ -207,7 +203,7 @@ const About = () => (
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
           The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō.
         </motion.p>
-        <motion.a href="/pilot" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+        <motion.a href="/membership" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
           BECOME A MEMBER &rarr;
         </motion.a>
       </div>

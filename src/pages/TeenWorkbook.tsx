@@ -38,7 +38,7 @@ const TeenWorkbook = () => {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { navigate("/auth"); return; }
+    if (!user) { navigate("/portal/login"); return; }
     if (!profile) return; // journal rows are keyed on profiles.id
     supabase.from("sessions").select("*").eq("status", "active").limit(1).maybeSingle().then(({ data }) => {
       if (data) {

@@ -291,7 +291,7 @@ const LiveJoin = () => {
           </p>
 
           <Link
-            to={`/auth?redirect=${encodeURIComponent(redirectPath)}`}
+            to={`/portal/login?redirect=${encodeURIComponent(redirectPath)}`}
             className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] text-white font-body text-sm tracking-widest uppercase py-3 rounded-sm transition-colors"
           >
             <LogIn size={14} /> Sign in to join
@@ -382,7 +382,7 @@ const LiveJoin = () => {
                   This prompt is for members to answer in their coursebook. You can sit with it in the room — or sign in to share.
                 </p>
                 <Link
-                  to={`/auth?redirect=${encodeURIComponent(`/live/${sessionCode}`)}`}
+                  to={`/portal/login?redirect=${encodeURIComponent(`/live/${sessionCode}`)}`}
                   className="text-[hsl(var(--blue))] font-body text-xs tracking-widest uppercase border-b border-[hsl(var(--blue))]/40 hover:border-[hsl(var(--blue))]"
                 >
                   Sign in to share

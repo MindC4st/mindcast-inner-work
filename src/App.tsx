@@ -12,7 +12,6 @@ import DevPageMenu from "@/components/DevPageMenu";
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
 // jspdf) stay inside the chunks of the pages that use them.
 const Home = lazy(() => import("./pages/Home"));
-const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const AdminConsole = lazy(() => import("./pages/admin/AdminConsole"));
 const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
@@ -24,7 +23,7 @@ const AdminEmailReminders = lazy(() => import("./pages/admin/AdminEmailReminders
 const WorkbookRouter = lazy(() => import("./pages/WorkbookRouter"));
 const WelcomeWall = lazy(() => import("./pages/display/WelcomeWall"));
 const About = lazy(() => import("./pages/About"));
-const Pilot = lazy(() => import("./pages/Pilot"));
+const Membership = lazy(() => import("./pages/Membership"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -103,12 +102,20 @@ const AdminOnlyRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// A permanent redirect for a retired path. Unlike <Navigate to="/path">, this
+// carries the query string over — /auth?redirect=/live/ABC has to keep its
+// redirect through the move to the portal sign-in.
+const LegacyRedirect = ({ to }: { to: string }) => {
+  const { search } = useLocation();
+  return <Navigate to={`${to}${search}`} replace />;
+};
+
 const AppRoutes = () => (
   <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/demo" element={<Demo />} />
-      <Route path="/auth" element={<Auth />} />
+      <Route path="/auth" element={<LegacyRedirect to="/portal/login" />} />
       <Route path="/onboarding" element={<Onboarding />} />
 
       {/* Admin */}
@@ -164,7 +171,8 @@ const AppRoutes = () => (
 
       {/* Marketing */}
       <Route path="/about" element={<About />} />
-      <Route path="/pilot" element={<Pilot />} />
+      <Route path="/membership" element={<Membership />} />
+      <Route path="/pilot" element={<LegacyRedirect to="/membership" />} />
       <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
 
       {/* Legal */}
@@ -182,7 +190,6 @@ const AppRoutes = () => (
       <Route path="/little-minds" element={<Navigate to="/" replace />} />
       <Route path="/signal" element={<Navigate to="/" replace />} />
       <Route path="/connect" element={<Navigate to="/" replace />} />
-      <Route path="/membership" element={<Navigate to="/pilot" replace />} />
       <Route path="/sessions" element={<Navigate to="/portal/weeks" replace />} />
       {/* Legacy admin session runner retired — consolidated onto mindcast-live */}
       <Route path="/admin/sessions" element={<Navigate to="/mindcast-live/library" replace />} />
@@ -237,7 +244,7 @@ const TITLE_MAP: [string, string][] = [
   ["/checkin", "Check In · Mindcast"],
   ["/join", "Join a Session · Mindcast"],
   ["/live", "Live Session · Mindcast"],
-  ["/pilot", "Founding Pilot · Mindcast"],
+  ["/membership", "Membership · Mindcast"],
   ["/about", "About · Mindcast"],
   ["/auth", "Sign In · Mindcast"],
   ["/terms", "Terms of Use · Mindcast"],

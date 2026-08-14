@@ -60,11 +60,11 @@ const ComingSoon = () => {
             className="mt-12 flex gap-4 justify-center"
           >
             <Link
-              to="/pilot"
+              to="/membership"
               className="text-xs font-display font-extrabold tracking-[0.2em] bg-cream text-navy py-3 px-8 hover:bg-cream/90 transition-colors"
               style={{ color: "hsl(210,56%,14%)" }}
             >
-              JOIN THE PILOT
+              BECOME A MEMBER
             </Link>
             <Link
               to="/"

@@ -18,7 +18,7 @@ const Footer = () => (
           <h4 className="text-cream/60 text-[11px] tracking-[0.15em] font-body font-bold mb-4">EXPLORE</h4>
           <div className="flex flex-col gap-2">
             <Link to="/about" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">About</Link>
-            <Link to="/pilot" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Membership</Link>
+            <Link to="/membership" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Membership</Link>
             <Link to="/portal/login" className="text-cream/30 text-xs font-body hover:text-cream/60 transition-colors">Member Sign In</Link>
           </div>
         </div>

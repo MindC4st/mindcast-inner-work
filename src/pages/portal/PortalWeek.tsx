@@ -155,7 +155,7 @@ const LockedPanel = ({ icon, title, body, cta }: { icon: React.ReactNode; title:
     <h2 className="heading-display text-lg text-foreground mb-2">{title}</h2>
     <p className="text-sm text-muted-foreground font-body font-light max-w-sm mx-auto leading-relaxed">{body}</p>
     {cta && (
-      <Link to="/pilot" className="inline-block mt-6 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors">
+      <Link to="/membership" className="inline-block mt-6 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors">
         BECOME A MEMBER
       </Link>
     )}

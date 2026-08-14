@@ -177,14 +177,42 @@ const HeroSection = () => {
           COMING SOON · AOTEAROA NEW ZEALAND
         </motion.span>
 
-        <h1 className="font-display text-cream text-[52px] sm:text-[76px] md:text-[104px] lg:text-[132px] uppercase leading-[0.9] tracking-[0.02em]">
-          {"TUNE INTO".split(" ").map((w, i) => (
-            <span key={`a${i}`} className="hero-word inline-block mr-[0.2em]">{w}</span>
-          ))}
-          <br />
-          {"YOUR INNER SELF.".split(" ").map((w, i) => (
-            <span key={`b${i}`} className="hero-word inline-block mr-[0.2em]">{w}</span>
-          ))}
+        {/* Brand banner: the wordmark and the promise as one clickable lockup.
+            aria-label carries the whole thing, because the visible text is the
+            logo image plus words split into animated spans — read on its own
+            that markup announces as one run-together string. */}
+        <h1 className="leading-none">
+          <Link
+            to="/"
+            aria-label="Mindcast — tune into your inner self"
+            className="group inline-flex flex-col items-center gap-4 md:gap-6"
+          >
+            {/* Deliberately NOT a .hero-word: the GSAP `from` tween that
+                staggers the words gets interrupted on this element and leaves a
+                dead translateY behind, dropping the logo on top of the tagline.
+                framer-motion drives it instead, matching the badge above. */}
+            <motion.img
+              src={logoNavLight}
+              alt=""
+              aria-hidden="true"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.7, ease: "easeOut" }}
+              className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto transition-transform duration-500 group-hover:scale-[1.03]"
+            />
+            <span
+              aria-hidden="true"
+              className="hidden sm:block h-px w-16 md:w-24 bg-cream/30 transition-all duration-500 group-hover:w-32 group-hover:bg-cream/50"
+            />
+            <span
+              aria-hidden="true"
+              className="font-display text-cream text-[34px] sm:text-[52px] md:text-[68px] lg:text-[84px] uppercase leading-[0.95] tracking-[0.02em]"
+            >
+              {"TUNE INTO YOUR INNER SELF.".split(" ").map((w, i) => (
+                <span key={i} className="hero-word inline-block mr-[0.2em]">{w}</span>
+              ))}
+            </span>
+          </Link>
         </h1>
 
         <p className="hero-sub mt-8 text-[15px] md:text-[17px] font-body max-w-2xl mx-auto leading-relaxed" style={{ color: "#e6f1f8" }}>

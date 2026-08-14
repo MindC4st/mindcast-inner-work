@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,21 @@ const PortalLogin = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Where to land after signing in. This is the single sign-in screen now, so
+  // it has to honour the ?redirect= that the live-session join links send —
+  // otherwise a member tapping "sign in to join" ends up on the dashboard
+  // instead of in the session they were trying to reach.
+  //
+  // Only same-site paths are accepted: an attacker-supplied absolute URL here
+  // would be an open redirect, and "//evil.com" is a protocol-relative URL, not
+  // a local path.
+  const rawRedirect = searchParams.get("redirect") || "";
+  const redirectTo =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/portal/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,14 +38,14 @@ const PortalLogin = () => {
     if (error) {
       toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
     } else {
-      navigate("/portal/dashboard");
+      navigate(redirectTo);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}${redirectTo}`,
     });
     setGoogleLoading(false);
     if (error) {
@@ -64,7 +79,6 @@ const PortalLogin = () => {
             <img src={logoLight} alt="Mindcast" className="h-12 mx-auto" />
             <div className="w-8 h-px bg-cream/20 mx-auto mt-4" />
             <h1 className="font-display text-lg tracking-[0.3em] text-cream/80 mt-5">MEMBER PORTAL</h1>
-            <p className="text-[10px] tracking-[0.2em] text-cream/40 font-body mt-1.5">PILOT — TERM 1 2026</p>
           </div>
 
           {/* Form */}
@@ -134,12 +148,12 @@ const PortalLogin = () => {
 
           {/* Access note */}
           <div className="mt-10 text-center">
-            <p className="text-cream/25 text-[10px] font-body font-light leading-relaxed">
-              Portal access is available to registered pilot members only.
+            <p className="text-cream/40 text-[11px] font-body font-light leading-relaxed">
+              The portal is for Mindcast members.
             </p>
-            <Link to="/pilot" className="text-[10px] tracking-[0.1em] text-cream/40 hover:text-cream/60 font-body transition-colors mt-1 inline-block">
-              To join the pilot, visit mindcast.co.nz/pilot →
-            </Link>
+            <a href="/membership" className="text-[11px] tracking-[0.1em] text-cream/60 hover:text-cream font-body transition-colors mt-1 inline-block underline underline-offset-4">
+              Become a member →
+            </a>
           </div>
         </motion.div>
       </div>

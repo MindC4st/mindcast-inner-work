@@ -25,7 +25,7 @@ const INCLUDED = [
   { icon: Home, text: "Household membership — one payer, the whole family" },
 ];
 
-const Pilot = () => (
+const Membership = () => (
   <>
     <Navbar />
 
@@ -103,4 +103,4 @@ const Pilot = () => (
   </>
 );
 
-export default Pilot;
+export default Membership;
