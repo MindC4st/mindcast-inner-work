@@ -1392,14 +1392,11 @@ const VideoSlide = ({ link, description, backup, question1, question2 }: {
           <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video set for this session yet</p>
         </div>
       )}
-      <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>
-      {backup && <p className="text-[hsl(var(--ivory))]/30 text-xs font-body mt-2 text-center italic">Backup: {backup}</p>}
-
       {(question1 || question2) && (
         <div className="mt-6 grid md:grid-cols-2 gap-4">
           {[question1, question2].filter(Boolean).map((q, i) => (
             <div key={i} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-4 bg-[hsl(var(--ivory))]/[0.03]">
-              <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase mb-2">Reflect while you watch · Q{i + 1}</p>
+              <p className="text-[hsl(var(--bronze))] text-[11px] tracking-[0.2em] font-body mb-2">Reflective Question {i + 1}:</p>
               <p className="text-[hsl(var(--ivory))]/90 font-serif italic text-base leading-relaxed">"{q}"</p>
             </div>
           ))}
