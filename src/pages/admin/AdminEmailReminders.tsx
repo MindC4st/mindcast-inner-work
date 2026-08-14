@@ -5,7 +5,7 @@ import { ArrowLeft, Mail, Send, CheckCircle, XCircle, Loader2 } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const AdminEmailReminders = () => {
+const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
   const [logs, setLogs] = useState<any[]>([]);
   const [cohorts, setCohorts] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -47,14 +47,16 @@ const AdminEmailReminders = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1E35] text-[#F5F1E8]">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-[#0F1E35] text-[#F5F1E8]`}>
       <div className="container max-w-4xl mx-auto px-6 py-12">
+        {!embedded && (
         <Link
           to="/admin"
           className="inline-flex items-center gap-2 text-[10px] tracking-[0.15em] uppercase opacity-50 hover:opacity-100 transition mb-8"
         >
           <ArrowLeft size={12} /> Back to Admin
         </Link>
+        )}
 
         <div className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-3">

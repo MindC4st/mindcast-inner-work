@@ -16,7 +16,7 @@ const TZ_OPTIONS = [
   "UTC",
 ];
 
-const AdminProgram = () => {
+const AdminProgram = ({ embedded = false }: { embedded?: boolean }) => {
   const { toast } = useToast();
   const [startDate, setStartDate] = useState("");
   const [tz, setTz] = useState("Pacific/Auckland");
@@ -72,13 +72,15 @@ const AdminProgram = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
+      {!embedded && (
       <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-foreground/[0.06]">
         <Link to="/" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
         <Link to="/admin" className="flex items-center gap-2 text-[10px] tracking-[0.12em] font-body text-foreground/40 hover:text-foreground/70">
           <ArrowLeft size={12} /> ADMIN
         </Link>
       </nav>
+      )}
 
       <div className="max-w-2xl mx-auto px-6 pt-10 pb-16">
         <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Admin</p>

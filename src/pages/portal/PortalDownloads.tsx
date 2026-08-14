@@ -25,6 +25,8 @@ type DownloadItem = {
   coloring_pdf_url: string | null;    // PDF for download
   // For building the WorksheetSession
   signal_metaphor: string | null;
+  video_question_1: string | null;
+  video_question_2: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
   weekly_practice_mon: string | null;
@@ -68,7 +70,8 @@ const PortalDownloads = () => {
         .from("mindcast_live_sessions")
         .select(
           "week_number, audience, phase_name, theme_title, session_title, " +
-          "signal_metaphor, journaling_prompt, experiential_exercise, " +
+          "signal_metaphor, video_question_1, video_question_2, " +
+          "journaling_prompt, experiential_exercise, " +
           "weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, " +
           "core_affirmation, coloring_page_url, coloring_pdf_url"
         )
@@ -94,6 +97,8 @@ const PortalDownloads = () => {
     session_title: item.session_title || undefined,
     audience: item.audience,
     signal_metaphor: item.signal_metaphor || undefined,
+    video_question_1: item.video_question_1 || undefined,
+    video_question_2: item.video_question_2 || undefined,
     journaling_prompt: item.journaling_prompt || undefined,
     experiential_exercise: item.experiential_exercise || undefined,
     weekly_practice_mon: item.weekly_practice_mon || undefined,

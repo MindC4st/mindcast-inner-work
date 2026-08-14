@@ -19,7 +19,7 @@ type Row = {
 
 const TRACKS = ["Adult", "Teen", "Child"] as const;
 
-const AdminScheduling = () => {
+const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [form, setForm] = useState({ session_date: "", track: "Adult", week_number: 1, room: "", session_code: "" });
@@ -60,11 +60,13 @@ const AdminScheduling = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
+      {!embedded && (
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/admin" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
         <Link to="/admin" className="text-sm text-foreground/50 hover:text-foreground">← Admin</Link>
       </nav>
+      )}
       <div className="max-w-3xl mx-auto px-6 pt-10">
         <h1 className="font-display text-2xl font-bold mb-6">Session scheduling</h1>
 

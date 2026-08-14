@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
 import AdminApplications from "@/components/admin/AdminApplications";
 
-const AdminApplicationsPage = () => {
+const AdminApplicationsPage = ({ embedded = false }: { embedded?: boolean }) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -29,7 +29,8 @@ const AdminApplicationsPage = () => {
   }, [user, loading]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
+      {!embedded && (
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-foreground">MINDCAST</Link>
         <Link to="/admin" className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-xs tracking-widest font-body transition-colors">
@@ -37,6 +38,7 @@ const AdminApplicationsPage = () => {
           ADMIN
         </Link>
       </nav>
+      )}
       <div className="max-w-4xl mx-auto px-6 pt-8 pb-16">
         <AdminApplications />
       </div>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Search, ChevronDown, ChevronUp } from "lucide-react";
 
-const AdminHistory = () => {
+const AdminHistory = ({ embedded = false }: { embedded?: boolean }) => {
   const [sessions, setSessions] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [ageFilter, setAgeFilter] = useState("all");
@@ -31,12 +31,14 @@ const AdminHistory = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
+      {!embedded && (
       <nav className="flex items-center px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
           <ArrowLeft size={12} /> ADMIN
         </Link>
       </nav>
+      )}
 
       <div className="max-w-4xl mx-auto px-6 pt-8">
         <h1 className="font-display text-2xl font-bold text-foreground mb-8">Session History</h1>

@@ -49,7 +49,7 @@ function extractVideoId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-const AdminKids = () => {
+const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session");
   const [session, setSession] = useState<any>(null);
@@ -117,7 +117,8 @@ const AdminKids = () => {
   const labelClass = "text-[10px] font-body text-foreground/30 uppercase tracking-[0.1em] block mb-2";
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
+      {!embedded && (
       <nav className="flex items-center justify-between px-6 md:px-12 py-5">
         <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
           <ArrowLeft size={12} /> ADMIN
@@ -136,6 +137,7 @@ const AdminKids = () => {
           </select>
         )}
       </nav>
+      )}
 
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
         <h1 className="font-display text-2xl font-bold text-foreground mb-8">Kids Session Planning</h1>

@@ -75,6 +75,9 @@ type Session = {
   video_link: string;
   video_description: string;
   video_backup_description: string;
+  video_transcript: string;
+  video_question_1: string;
+  video_question_2: string;
   facilitator_notes: string;
   previous_week_callback: string;
   video_position: string;
@@ -145,6 +148,9 @@ const buildSession = (live: any, cur: any, wk: number, aud: string): Session | n
     video_link: pick(base.video_link, cur?.youtube_url),
     video_description: pick(base.video_description, cur?.youtube_title),
     video_backup_description: base.video_backup_description || "",
+    video_transcript: base.video_transcript || "",
+    video_question_1: base.video_question_1 || "",
+    video_question_2: base.video_question_2 || "",
     facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
     previous_week_callback: base.previous_week_callback || "",
     video_position: base.video_position || cur?.video_position || "early",
@@ -796,6 +802,18 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         link={session.video_link}
         description={session.video_description}
         backup={session.video_backup_description}
+        question1={session.video_question_1}
+        question2={session.video_question_2}
+        weekNumber={session.week_number}
+        audience={session.audience}
+        onQuestionsGenerated={async (q1, q2) => {
+          if (!String(session.id).startsWith("curriculum-")) {
+            const { error } = await (supabase as any).from("mindcast_live_sessions")
+              .update({ video_question_1: q1, video_question_2: q2 }).eq("id", session.id);
+            if (error) { toast({ title: "Could not save questions", description: error.message, variant: "destructive" }); return; }
+          }
+          onSessionUpdate({ ...session, video_question_1: q1, video_question_2: q2 });
+        }}
         onUpdateLink={async (newLink) => {
           const { error } = await (supabase as any).from("mindcast_live_sessions").update({ video_link: newLink }).eq("id", session.id);
           if (error) { toast({ title: "Could not save video", description: error.message, variant: "destructive" }); return; }
@@ -811,6 +829,12 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         weekNumber={session.week_number}
         themeTitle={session.theme_title}
         sessionTitle={session.session_title}
+        onGenerated={async () => {
+          const { data } = await (supabase as any).from("mindcast_live_sessions")
+            .select("coloring_page_url, coloring_pdf_url")
+            .eq("week_number", session.week_number).eq("audience", "Child").maybeSingle();
+          if (data) onSessionUpdate({ ...session, coloring_page_url: data.coloring_page_url, coloring_pdf_url: data.coloring_pdf_url });
+        }}
       />
     );
     default: return null;
@@ -822,15 +846,43 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
  * Displays the coloring page image on screen + download button for the PDF.
  */
 const ColoringActivitySlide = ({
-  coloringPageUrl, coloringPdfUrl, weekNumber, themeTitle, sessionTitle,
+  coloringPageUrl, coloringPdfUrl, weekNumber, themeTitle, sessionTitle, onGenerated,
 }: {
   coloringPageUrl: string | null;
   coloringPdfUrl: string | null;
   weekNumber: number;
   themeTitle: string;
   sessionTitle: string;
+  onGenerated?: () => void | Promise<void>;
 }) => {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  // On-demand generation — pulls the lesson fields server-side to build the
+  // image prompt, so it always reflects the current lesson content.
+  const generate = async () => {
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-coloring-page", {
+        body: { week_number: weekNumber },
+      });
+      if (error) {
+        let detail = error.message;
+        try {
+          const ctx = (error as { context?: { json: () => Promise<{ error?: string }> } }).context;
+          if (ctx) { const body = await ctx.json(); if (body?.error) detail = body.error; }
+        } catch { /* keep message */ }
+        throw new Error(detail);
+      }
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Colouring page ready" });
+      await onGenerated?.();
+    } catch (e: any) {
+      toast({ title: "Colouring generation failed", description: e.message, variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   // No coloring page yet — show placeholder
   // The stored value is a path in the private `colouring` bucket; sign it.
@@ -852,6 +904,10 @@ const ColoringActivitySlide = ({
           <p className="font-serif text-xl text-[hsl(var(--ivory))]/50 italic">
             Coloring page not yet generated for this session.
           </p>
+          <button onClick={generate} disabled={generating}
+            className="mt-2 flex items-center gap-2 px-4 py-2 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm disabled:opacity-50">
+            {generating ? "Generating…" : "Generate colouring page"}
+          </button>
         </div>
       </div>
     );
@@ -884,21 +940,27 @@ const ColoringActivitySlide = ({
       </motion.div>
 
       {coloringPdfUrl && (
-        <a
-          href="#"
-          onClick={async (e) => {
-            e.preventDefault();
-            const u = await resolveColouringUrl(coloringPdfUrl);
-            if (u) window.open(u, "_blank", "noopener");
-            else toast({ title: "Couldn't open the colouring PDF" });
-          }}
-          className="btn-primary inline-flex items-center gap-2 cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Download PDF
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="#"
+            onClick={async (e) => {
+              e.preventDefault();
+              const u = await resolveColouringUrl(coloringPdfUrl);
+              if (u) window.open(u, "_blank", "noopener");
+              else toast({ title: "Couldn't open the colouring PDF" });
+            }}
+            className="btn-primary inline-flex items-center gap-2 cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Download PDF
+          </a>
+          <button onClick={generate} disabled={generating}
+            className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-3 py-2 disabled:opacity-40">
+            {generating ? "Generating…" : "Regenerate"}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -1324,13 +1386,46 @@ const SignalMetaphorSlide = ({
   );
 };
 
-const VideoSlide = ({ link, description, backup, onUpdateLink }: { link: string; description: string; backup: string; onUpdateLink: (newLink: string) => void | Promise<void> }) => {
+const VideoSlide = ({
+  link, description, backup, question1, question2, weekNumber, audience, onQuestionsGenerated, onUpdateLink,
+}: {
+  link: string; description: string; backup: string;
+  question1: string; question2: string;
+  weekNumber: number; audience: string;
+  onQuestionsGenerated: (q1: string, q2: string) => void | Promise<void>;
+  onUpdateLink: (newLink: string) => void | Promise<void>;
+}) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(link || "");
   const [saving, setSaving] = useState(false);
+  const [generatingQ, setGeneratingQ] = useState(false);
   useEffect(() => { setDraft(link || ""); }, [link]);
+
+  const generateQuestions = async () => {
+    setGeneratingQ(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-video-questions", {
+        body: { week_number: weekNumber, audience },
+      });
+      if (error) {
+        let detail = error.message;
+        try {
+          const ctx = (error as { context?: { json: () => Promise<{ error?: string }> } }).context;
+          if (ctx) { const body = await ctx.json(); if (body?.error) detail = body.error; }
+        } catch { /* keep message */ }
+        throw new Error(detail);
+      }
+      if (data?.error) throw new Error(data.error);
+      await onQuestionsGenerated(data.video_question_1 || "", data.video_question_2 || "");
+      toast({ title: "Reflective questions ready" });
+    } catch (e: any) {
+      toast({ title: "Question generation failed", description: e.message, variant: "destructive" });
+    } finally {
+      setGeneratingQ(false);
+    }
+  };
 
   const save = async () => {
     const trimmed = draft.trim();
@@ -1350,6 +1445,9 @@ const VideoSlide = ({ link, description, backup, onUpdateLink }: { link: string;
         <button onClick={() => setEditing(e => !e)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
           {editing ? "Cancel" : "Replace URL"}
         </button>
+        <button onClick={generateQuestions} disabled={generatingQ || !link} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1 disabled:opacity-40">
+          {generatingQ ? "Generating…" : "Generate questions"}
+        </button>
       </div>
       {editing && (
         <div className="mb-4 flex gap-2">
@@ -1366,7 +1464,7 @@ const VideoSlide = ({ link, description, backup, onUpdateLink }: { link: string;
       )}
       {ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
-          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
@@ -1375,6 +1473,17 @@ const VideoSlide = ({ link, description, backup, onUpdateLink }: { link: string;
       )}
       <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>
       {backup && <p className="text-[hsl(var(--ivory))]/30 text-xs font-body mt-2 text-center italic">Backup: {backup}</p>}
+
+      {(question1 || question2) && (
+        <div className="mt-6 grid md:grid-cols-2 gap-4">
+          {[question1, question2].filter(Boolean).map((q, i) => (
+            <div key={i} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-4 bg-[hsl(var(--ivory))]/[0.03]">
+              <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase mb-2">Reflect while you watch · Q{i + 1}</p>
+              <p className="text-[hsl(var(--ivory))]/90 font-serif italic text-base leading-relaxed">"{q}"</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

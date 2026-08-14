@@ -39,6 +39,8 @@ type WorksheetRow = {
   core_affirmation: string | null;
   video_link: string | null;
   video_description: string | null;
+  video_question_1: string | null;
+  video_question_2: string | null;
 };
 
 const WeekView = ({ weekNum }: { weekNum: number }) => {
@@ -74,7 +76,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         (supabase as any).rpc("curriculum_public", { p_week: weekNum }),
         (supabase as any).from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
         (supabase as any).from("mindcast_live_sessions").select(
-          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description"
+          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description, video_question_1, video_question_2"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
@@ -238,7 +240,11 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
 const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   weekNum: number; track: string; profileId: string; wsRow: WorksheetRow | null;
 }) => {
-  const [j, setJ] = useState({ reflection_answer: "", activity_response: "", personal_notes: "", life_group_notes: "", weekly_intention: "" });
+  const [j, setJ] = useState({
+    video_question_1_response: "", video_question_2_response: "",
+    reflection_answer: "", activity_response: "", personal_notes: "", life_group_notes: "", weekly_intention: "",
+  });
+  const videoQs = { q1: wsRow?.video_question_1 || "", q2: wsRow?.video_question_2 || "" };
   const [lastIntention, setLastIntention] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -248,10 +254,11 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
     let active = true;
     (async () => {
       const { data } = await (supabase as any)
-        .from("lesson_journal").select("reflection_answer, activity_response, personal_notes, life_group_notes, weekly_intention")
+        .from("lesson_journal").select("video_question_1_response, video_question_2_response, reflection_answer, activity_response, personal_notes, life_group_notes, weekly_intention")
         .eq("profile_id", profileId).eq("week_number", weekNum).eq("track", track).maybeSingle();
       if (!active) return;
       if (data) setJ({
+        video_question_1_response: data.video_question_1_response || "", video_question_2_response: data.video_question_2_response || "",
         reflection_answer: data.reflection_answer || "", activity_response: data.activity_response || "",
         personal_notes: data.personal_notes || "", life_group_notes: data.life_group_notes || "",
         weekly_intention: data.weekly_intention || "",
@@ -317,9 +324,21 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
         </div>
       )}
 
+      {/* Journal fields follow the slide order: Video → Reflect & Share →
+          Together → notes, then Practice + Affirmation, then the intention
+          they carry into the week (the closing commitment slide). */}
+      <div className="space-y-6">
+        {videoQs.q1 && field("video_question_1_response", `WHILE YOU WATCH · ${videoQs.q1}`, "Your answer while watching the video…", 3)}
+        {videoQs.q2 && field("video_question_2_response", `WHILE YOU WATCH · ${videoQs.q2}`, "Your answer while watching the video…", 3)}
+        {field("reflection_answer", reflectionLabel, "Your answer to this week's question…", 4)}
+        {field("activity_response", activityLabel, "What you took from the interactive activity…")}
+        {field("personal_notes", "SUNDAY NOTES", "Anything else from the session…")}
+        {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Group…")}
+      </div>
+
       {/* Weekly practice prompts (from worksheet) */}
       {(practiceMon || practiceWed || practiceSun) && (
-        <div className="mb-6 p-4 border border-primary/10 bg-primary/[0.03] rounded-sm">
+        <div className="mt-6 p-4 border border-primary/10 bg-primary/[0.03] rounded-sm">
           <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary mb-3">This Week's Practice</p>
           <div className="space-y-2">
             {practiceMon && (
@@ -345,18 +364,14 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       )}
 
       {affirmation && (
-        <div className="mb-6 p-4 border border-dashed border-primary/20 rounded-sm text-center">
+        <div className="mt-6 p-4 border border-dashed border-primary/20 rounded-sm text-center">
           <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary/60 mb-1">This Week's Affirmation</p>
           <p className="text-sm font-serif italic text-foreground/80 leading-relaxed">"{affirmation}"</p>
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-6 mt-6">
         {field("weekly_intention", "MY INTENTION THIS WEEK · one specific thing I will do", "e.g. I'll put my phone in another room after 9pm…", 3)}
-        {field("reflection_answer", reflectionLabel, "Your answer to this week's question…", 4)}
-        {field("activity_response", activityLabel, "What you took from the interactive activity…")}
-        {field("personal_notes", "SUNDAY NOTES", "Anything else from the session…")}
-        {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Group…")}
       </div>
       <button onClick={save} disabled={saving}
         className="mt-6 flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-60">

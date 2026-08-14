@@ -13,7 +13,7 @@ const DEFAULT_FRAMEWORK = [
   { name: "The Close", duration: 5, description: "Word cloud builds on screen as members submit their leaving word. One brief closing thought from the facilitator. See you next week." },
 ];
 
-const AdminFramework = () => {
+const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
   const [steps, setSteps] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [activeSession, setActiveSession] = useState<any>(null);
@@ -72,7 +72,7 @@ const AdminFramework = () => {
   const inputClass = "bg-transparent border-b border-foreground/10 text-foreground font-body text-sm py-2 px-1 focus:outline-none focus:border-foreground/25 transition-colors placeholder:text-foreground/15";
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
       {/* Print-only run sheet */}
       <div className="hidden print:block print:bg-white print:text-black p-8" ref={printRef}>
         <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET</h1>
@@ -106,6 +106,7 @@ const AdminFramework = () => {
 
       {/* Screen UI */}
       <div className="print:hidden">
+        {!embedded && (
         <nav className="flex items-center justify-between px-6 md:px-12 py-5">
           <Link to="/admin" className="flex items-center gap-2 text-foreground/30 text-[10px] tracking-[0.12em] font-body hover:text-foreground/50">
             <ArrowLeft size={12} /> ADMIN
@@ -114,6 +115,7 @@ const AdminFramework = () => {
             <Printer size={14} /> Print run sheet
           </button>
         </nav>
+        )}
 
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
           <h1 className="font-display text-2xl font-bold text-foreground mb-8">Session Framework</h1>

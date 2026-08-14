@@ -64,7 +64,7 @@ const TierLabel = ({ tier }: { tier: string }) => {
   );
 };
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>([]);
@@ -153,8 +153,9 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
       {/* Header */}
+      {!embedded && (
       <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-foreground/[0.06]">
         <Link to="/" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
         <div className="flex items-center gap-4">
@@ -166,6 +167,7 @@ const AdminDashboard = () => {
           </Link>
         </div>
       </nav>
+      )}
 
       <div className="max-w-5xl mx-auto px-6 pt-10 pb-16">
         <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Admin</p>

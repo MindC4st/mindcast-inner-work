@@ -34,6 +34,9 @@ type Draft = {
   video_link: string;
   video_description: string;
   video_backup_description: string;
+  video_transcript: string;
+  video_question_1: string;
+  video_question_2: string;
   core_affirmation: string;
   facilitator_notes: string;
 };
@@ -86,10 +89,13 @@ const SLIDES: SlideDef[] = [
     { key: "weekly_practice_wed", label: "Wednesday", kind: "area", rows: 2 },
     { key: "weekly_practice_sun", label: "Sunday", kind: "area", rows: 2 },
   ]},
-  { idx: 12, title: "Video", blurb: "Swap the YouTube video and its captions.", fields: [
+  { idx: 12, title: "Video", blurb: "Swap the YouTube video and its captions. The two reflective questions show under the video and in the journal + worksheet.", fields: [
     { key: "video_link", label: "YouTube URL", kind: "video", hint: "Paste any YouTube link — watch, share, or embed." },
     { key: "video_description", label: "Caption", kind: "area", rows: 2 },
     { key: "video_backup_description", label: "Backup caption", kind: "area", rows: 2 },
+    { key: "video_transcript", label: "Video transcript", kind: "area", rows: 6, hint: "Paste the transcript — the generate-questions button on the facilitator screen uses it." },
+    { key: "video_question_1", label: "Reflective question 1 (from the video)", kind: "area", rows: 2 },
+    { key: "video_question_2", label: "Reflective question 2 (into their week)", kind: "area", rows: 2 },
   ]},
   { idx: 13, title: "Affirmation", blurb: "Closing affirmation.", fields: [
     { key: "core_affirmation", label: "Affirmation", kind: "area", rows: 3 },
@@ -104,7 +110,9 @@ const EMPTY = (week: number, audience: string): Draft => ({
   previous_week_callback: "", signal_metaphor: "", ancient_wisdom_reframe: "", opening_hook: "",
   core_concept: "", teaching_points: "", journaling_prompt: "", experiential_exercise: "",
   guided_reflection: "", weekly_practice_mon: "", weekly_practice_wed: "", weekly_practice_sun: "",
-  video_link: "", video_description: "", video_backup_description: "", core_affirmation: "",
+  video_link: "", video_description: "", video_backup_description: "",
+  video_transcript: "", video_question_1: "", video_question_2: "",
+  core_affirmation: "",
   facilitator_notes: "",
 });
 
