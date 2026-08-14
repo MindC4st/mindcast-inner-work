@@ -42,9 +42,20 @@ const AdminMembers = () => {
   const saveNfc = async () => {
     if (!selected) return;
     setSaving(true);
-    await supabase.from("profiles").update({ nfc_id: nfcId || null }).eq("id", selected.id);
-    setMembers((prev) => prev.map((m) => m.id === selected.id ? { ...m, nfc_id: nfcId || null } : m));
+    const { data, error } = await supabase.functions.invoke("assign-nfc", {
+      body: { profile_id: selected.id, nfc_id: nfcId || null },
+    });
     setSaving(false);
+    if (error) {
+      toast({ title: "Could not update NFC ID", description: error.message, variant: "destructive" });
+      return;
+    }
+    const d = data as any;
+    if (d?.error) {
+      toast({ title: "Could not update NFC ID", description: d.error, variant: "destructive" });
+      return;
+    }
+    setMembers((prev) => prev.map((m) => m.id === selected.id ? { ...m, nfc_id: nfcId || null } : m));
     setSelected(null);
     toast({ title: "NFC ID updated" });
   };
