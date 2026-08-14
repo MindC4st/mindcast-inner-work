@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { readNfcId, nfcSupport } from "@/lib/nfc";
+import { describeFunctionError } from "@/lib/functionError";
 import { Nfc, Check, AlertCircle } from "lucide-react";
 
 // Staff kiosk check-in. Full-screen brand-aligned surface — dark navy, giant
@@ -35,7 +36,21 @@ const Kiosk = () => {
         else if ((data as any)?.display_name) setLast({ name: (data as any).display_name, at: Date.now(), leaving: action === "left_early" });
       } catch (e: any) {
         if (e?.message === "cancelled") break;
-        setError(e?.message ?? "Scan failed");
+        // invoke() reports every non-2xx identically, so pull out the real
+        // status — at the door, "not linked yet" and "server unreachable" need
+        // very different responses from the facilitator.
+        const failure = await describeFunctionError(
+          e,
+          {
+            400: "That bracelet didn't send a readable code. Try scanning again.",
+            404: action === "left_early"
+              ? "No check-in found for today — this member hasn't been scanned in yet."
+              : "Bracelet not linked to a member yet. Link it in Admin → Members, then scan again.",
+            429: "Scanning too fast — wait a moment, then try again.",
+          },
+          "Scan failed",
+        );
+        setError(failure.message);
       }
     }
   };
