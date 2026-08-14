@@ -25,6 +25,7 @@ type CurriculumRow = {
   teen_video_title: string | null; kids_title: string | null;
   kids_picture_book: string | null; kids_picture_book_note: string | null;
   kids_colouring_prompt: string | null;
+  kids_source: string | null; kids_game: string | null;
 };
 
 type WorksheetRow = {
@@ -36,6 +37,8 @@ type WorksheetRow = {
   weekly_practice_wed: string | null;
   weekly_practice_sun: string | null;
   core_affirmation: string | null;
+  video_link: string | null;
+  video_description: string | null;
 };
 
 const WeekView = ({ weekNum }: { weekNum: number }) => {
@@ -71,7 +74,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         (supabase as any).rpc("curriculum_public", { p_week: weekNum }),
         (supabase as any).from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
         (supabase as any).from("mindcast_live_sessions").select(
-          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation"
+          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
@@ -101,7 +104,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
   const unlocked = isAdmin || isUnlocked(weekNum);
   const effectiveMember = isAdmin || isMember;
   const opensOn = unlockDate(weekNum);
-  const vid = row?.youtube_url ? extractVideoId(row.youtube_url) : null;
+  const vid = wsRow?.video_link ? extractVideoId(wsRow.video_link) : (row?.youtube_url ? extractVideoId(row.youtube_url) : null);
 
   return (
     <PortalLayout>
@@ -170,11 +173,11 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
     {vid && (
       <section className="mb-10">
         <div className="aspect-video bg-foreground/5 overflow-hidden rounded-sm">
-          <iframe src={`https://www.youtube.com/embed/${vid}?rel=0`} title={row?.youtube_title || "Session video"}
+          <iframe src={`https://www.youtube.com/embed/${vid}?rel=0`} title={wsRow?.video_description || row?.youtube_title || "Session video"}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen className="w-full h-full border-0" />
         </div>
-        {row?.youtube_title && <p className="text-xs text-muted-foreground font-body mt-2">{row.youtube_title}</p>}
+        {(wsRow?.video_description || row?.youtube_title) && <p className="text-xs text-muted-foreground font-body mt-2">{wsRow?.video_description || row?.youtube_title}</p>}
       </section>
     )}
 
@@ -209,12 +212,18 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
     )}
 
     {/* Child-track extras (for the kids view) */}
-    {track === "Child" && (row?.kids_picture_book || row?.kids_colouring_prompt) && (
+    {track === "Child" && (row?.kids_picture_book || row?.kids_colouring_prompt || row?.kids_game) && (
       <section className="mb-10 portal-card p-5 md:p-6">
         {row?.kids_picture_book && (
           <p className="text-sm text-foreground/80 font-body mb-1"><span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>{row.kids_picture_book}</p>
         )}
         {row?.kids_picture_book_note && <p className="text-xs text-muted-foreground font-body font-light">{row.kids_picture_book_note}</p>}
+        {row?.kids_game && (
+          <div className="pt-4 mt-2 border-t border-foreground/[0.06]">
+            <p className="portal-label text-foreground/40 mb-1">GROUP GAME</p>
+            <p className="text-sm text-foreground/70 font-body font-light leading-relaxed">{row.kids_game}</p>
+          </div>
+        )}
       </section>
     )}
 

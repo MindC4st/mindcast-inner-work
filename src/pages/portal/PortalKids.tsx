@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Lock, Baby, Palette, BookOpen, Clock } from "lucide-react";
+import { Lock, Baby, Palette, BookOpen, Clock, Play } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
@@ -26,7 +26,7 @@ type KidWeek = {
   week_number: number; block_theme: string | null; weekly_theme: string | null;
   kids_title: string | null;
 };
-type KidContent = { kids_picture_book: string | null; kids_picture_book_note: string | null; kids_colouring_prompt: string | null };
+type KidContent = { kids_picture_book: string | null; kids_picture_book_note: string | null; kids_colouring_prompt: string | null; kids_source: string | null; kids_game: string | null };
 
 const PortalKids = () => {
   const { isMember, kidsAddon } = useEntitlement();
@@ -43,7 +43,7 @@ const PortalKids = () => {
       const [{ data: titles }, { data: body }] = await Promise.all([
         (supabase as any).rpc("curriculum_public"),
         (supabase as any).from("curriculum_weeks")
-          .select("week_number, kids_picture_book, kids_picture_book_note, kids_colouring_prompt"),
+          .select("week_number, kids_picture_book, kids_picture_book_note, kids_colouring_prompt, kids_source, kids_game"),
       ]);
       if (!active) return;
       setWeeks((titles || []).map((r: any) => ({
@@ -114,6 +114,18 @@ const PortalKids = () => {
                       <div className="text-sm text-foreground/70 font-body font-light flex items-start gap-2">
                         <Palette size={14} className="text-primary mt-0.5 shrink-0" />
                         <span><span className="portal-label text-foreground/40 mr-2">COLOURING PAGE</span>{c.kids_colouring_prompt}</span>
+                      </div>
+                    )}
+                    {c?.kids_source && (
+                      <a href={c.kids_source} target="_blank" rel="noreferrer noopener"
+                         className="inline-flex items-center gap-1.5 text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
+                        <Play size={12} /> Watch this week's video
+                      </a>
+                    )}
+                    {c?.kids_game && (
+                      <div className="text-sm text-foreground/70 font-body font-light flex items-start gap-2">
+                        <Clock size={14} className="text-primary mt-0.5 shrink-0" />
+                        <span><span className="portal-label text-foreground/40 mr-2">GROUP GAME</span>{c.kids_game}</span>
                       </div>
                     )}
                     <button
