@@ -33,11 +33,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserData = async (userId: string) => {
     const [profileRes, roleRes, cohortRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", userId).single(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).limit(1).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", userId),
       supabase.from("cohort_members").select("cohort_id").eq("user_id", userId).limit(1).maybeSingle(),
     ]);
     if (profileRes.data) setProfile(profileRes.data);
-    if (roleRes.data) setRole(roleRes.data.role);
+    if (roleRes.data && roleRes.data.length) {
+      // A user can hold several roles (member + facilitator + admin). Pick the
+      // highest privilege so an admin with a leftover 'member' row isn't
+      // downgraded to a plain member by an unordered .limit(1).
+      const roles = roleRes.data.map((r: any) => r.role as string);
+      const highest = roles.includes("admin") ? "admin"
+        : roles.includes("facilitator") ? "facilitator"
+        : (roles[0] ?? null);
+      setRole(highest as "member" | "facilitator" | "admin" | null);
+    }
     if (cohortRes.data) setCohortId(cohortRes.data.cohort_id);
   };
 

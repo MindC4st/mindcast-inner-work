@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard } from "lucide-react";
 import logoLight from "@/assets/logo-cream.png";
 
 const NAV_ITEMS = [
@@ -22,7 +22,7 @@ const BOTTOM_TAB_ITEMS = [
 ];
 
 const PortalLayout = ({ children }: { children: ReactNode }) => {
-  const { profile, signOut, role } = useAuth();
+  const { profile, signOut, isStaff } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -95,7 +95,22 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           Group View
         </Link>
 
-        {role === "facilitator" && (
+        {isStaff && (
+          <Link
+            to="/mindcast-live/library"
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 mb-0.5 text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+              isActive("/mindcast-live")
+                ? "bg-primary-foreground/[0.08] text-primary-foreground"
+                : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+            }`}
+          >
+            <Clapperboard size={15} strokeWidth={1.5} />
+            Facilitate
+          </Link>
+        )}
+
+        {isStaff && (
           <Link
             to="/portal/admin"
             onClick={() => setSidebarOpen(false)}

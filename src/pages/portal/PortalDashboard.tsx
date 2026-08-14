@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   UserCheck, PlayCircle, History, Baby, Users, Download, TrendingUp,
-  Settings, ArrowRight, Radio, KeyRound, X,
+  Settings, ArrowRight, Radio, KeyRound, X, Clapperboard,
 } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,7 +27,7 @@ type Tile = {
 };
 
 const PortalDashboard = () => {
-  const { profile } = useAuth();
+  const { profile, isStaff } = useAuth();
   const navigate = useNavigate();
   const track = trackForAgeGroup((profile as any)?.age_group);
   const isTeen = track === "Teen";
@@ -79,8 +79,17 @@ const PortalDashboard = () => {
     if (!isTeen && hasKids) {
       base.splice(3, 0, { key: "kids", title: "Kid Sessions", subtitle: "Kids lessons & colouring pages", icon: Baby, to: "/portal/kids", badge: "KIDS" });
     }
+    // Facilitators and admins get a launcher to run the live session deck.
+    if (isStaff) {
+      base.unshift({
+        key: "facilitate", title: "Facilitate", icon: Clapperboard,
+        subtitle: weekNo ? `Open the live session deck for Week ${weekNo}` : "Open the coursebook to run a session",
+        to: weekNo ? `/mindcast-live/facilitate/${weekNo}` : "/mindcast-live/library",
+        accent: true,
+      });
+    }
     return base;
-  }, [liveCode, hasKids, isTeen]);
+  }, [liveCode, hasKids, isTeen, isStaff, weekNo]);
 
   return (
     <PortalLayout>
