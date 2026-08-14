@@ -4,6 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid,
 } from "recharts";
 import { CheckCircle2, PenLine, Users } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type CheckIn = { checked_in_at: string; track: string | null };
 type Completion = { week_number: number; audience_type: string | null };
@@ -20,7 +21,7 @@ const mondayOf = (d: Date): Date => {
 };
 
 const Stat = ({ icon: Icon, label, value, tone }: {
-  icon: any; label: string; value: string | number; tone?: string;
+  icon: LucideIcon; label: string; value: string | number; tone?: string;
 }) => (
   <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
     <div className="flex items-center gap-2 mb-3">

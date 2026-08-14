@@ -14,7 +14,7 @@ import DevPageMenu from "@/components/DevPageMenu";
 const Home = lazy(() => import("./pages/Home"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
-const AdminLanding = lazy(() => import("./pages/AdminLanding"));
+const AdminConsole = lazy(() => import("./pages/admin/AdminConsole"));
 const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
 const AdminKids = lazy(() => import("./pages/admin/AdminKids"));
@@ -112,7 +112,7 @@ const AppRoutes = () => (
       <Route path="/onboarding" element={<Onboarding />} />
 
       {/* Admin */}
-      <Route path="/admin" element={<AdminRoute><AdminLanding /></AdminRoute>} />
+      <Route path="/admin" element={<AdminRoute><AdminConsole /></AdminRoute>} />
       <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       <Route path="/admin/life-groups" element={<AdminRoute><AdminLifeGroups /></AdminRoute>} />
       <Route path="/admin/history" element={<AdminRoute><AdminHistory /></AdminRoute>} />

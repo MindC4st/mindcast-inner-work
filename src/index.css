@@ -157,17 +157,22 @@
   /* Portal — premium guided experience */
   .portal-bg {
     background-color: hsl(var(--ivory));
+    background-image:
+      radial-gradient(circle at 85% -10%, hsl(var(--blue-light) / 0.4) 0%, transparent 45%),
+      radial-gradient(circle at -10% 100%, hsl(var(--blue) / 0.07) 0%, transparent 40%);
+    background-attachment: fixed;
   }
   .portal-card {
-    @apply bg-card backdrop-blur-sm rounded-xl shadow-sm border border-foreground/[0.06];
+    @apply bg-card/90 backdrop-blur-sm rounded-xl border border-foreground/[0.07];
+    box-shadow: 0 1px 2px rgb(10 17 32 / 0.04), 0 12px 32px -16px rgb(10 17 32 / 0.1);
   }
   .portal-heading {
     font-family: var(--font-display);
-    @apply text-foreground font-bold tracking-tight;
+    @apply text-foreground font-bold tracking-[0.06em];
   }
   .portal-label {
     font-family: var(--font-body);
-    @apply text-[11px] tracking-[0.12em] uppercase text-muted-foreground font-medium;
+    @apply text-[11px] tracking-[0.18em] uppercase text-muted-foreground font-medium;
   }
   .portal-divider {
     @apply border-t border-foreground/[0.06];

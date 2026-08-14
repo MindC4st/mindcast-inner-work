@@ -5,6 +5,7 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 import { CreditCard, Baby, TrendingUp, Activity } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 type Profile = { membership_status: string | null; kids_addon: boolean | null; created_at: string };
 
@@ -16,7 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
   none: "#1E293B",
 };
 
-const Card = ({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) => (
+const Card = ({ icon: Icon, label, value, sub }: { icon: LucideIcon; label: string; value: string | number; sub?: string }) => (
   <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
     <div className="flex items-center gap-2 mb-3">
       <Icon size={14} className="text-[#3585AF]" />

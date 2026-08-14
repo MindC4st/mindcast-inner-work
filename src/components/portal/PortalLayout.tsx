@@ -55,12 +55,13 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
               key={item.to}
               to={item.to}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 mb-0.5 text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+              className={`relative flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
                 active
                   ? "bg-primary-foreground/[0.08] text-primary-foreground"
                   : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
               }`}
             >
+              {active && <span className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-full bg-[hsl(var(--blue-light))]" />}
               <item.icon size={15} strokeWidth={1.5} />
               {item.label}
             </Link>
@@ -72,7 +73,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
         <Link
           to="/portal/downloads"
           onClick={() => setSidebarOpen(false)}
-          className={`flex items-center gap-3 px-4 py-3 mb-0.5 text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+          className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
             isActive("/portal/downloads")
               ? "bg-primary-foreground/[0.08] text-primary-foreground"
               : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
@@ -85,7 +86,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
         <Link
           to="/portal/group"
           onClick={() => setSidebarOpen(false)}
-          className={`flex items-center gap-3 px-4 py-3 mb-0.5 text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+          className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
             isActive("/portal/group")
               ? "bg-primary-foreground/[0.08] text-primary-foreground"
               : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
@@ -99,7 +100,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           <Link
             to="/mindcast-live/library"
             onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-4 py-3 mb-0.5 text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+            className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
               isActive("/mindcast-live")
                 ? "bg-primary-foreground/[0.08] text-primary-foreground"
                 : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
@@ -114,7 +115,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           <Link
             to="/portal/admin"
             onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-4 py-3 mb-0.5 text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+            className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
               isActive("/portal/admin")
                 ? "bg-primary-foreground/[0.08] text-primary-foreground"
                 : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
@@ -147,13 +148,13 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-primary text-primary-foreground flex-col transition-transform duration-300 hidden lg:flex">
+      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-[hsl(var(--navy))] text-primary-foreground flex-col transition-transform duration-300 hidden lg:flex">
         <SidebarContent />
       </aside>
 
       {/* Mobile sidebar drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-primary text-primary-foreground flex flex-col transition-transform duration-300 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[hsl(var(--navy))] text-primary-foreground flex flex-col transition-transform duration-300 lg:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -169,7 +170,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       {/* Main content */}
       <main className="flex-1 min-h-screen pb-20 lg:pb-0">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center justify-between px-5 py-4 bg-primary text-primary-foreground sticky top-0 z-30">
+        <div className="lg:hidden flex items-center justify-between px-5 py-4 bg-[hsl(var(--navy))] text-primary-foreground sticky top-0 z-30">
           <Link to="/"><img src={logoLight} alt="Mindcast" className="h-6" /></Link>
           <button
             onClick={() => setSidebarOpen(true)}
@@ -185,7 +186,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       </main>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-primary border-t border-primary-foreground/[0.06] safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[hsl(var(--navy))]/95 backdrop-blur-md border-t border-primary-foreground/[0.06] safe-area-bottom">
         <div className="flex items-stretch">
           {BOTTOM_TAB_ITEMS.map((item) => {
             const active = isActive(item.to);
