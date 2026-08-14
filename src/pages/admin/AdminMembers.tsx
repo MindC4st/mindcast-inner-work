@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import QRCode from "react-qr-code";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, X, Copy, Shuffle, Check } from "lucide-react";
+import { ArrowLeft, X, Copy, Shuffle, Check, Nfc } from "lucide-react";
 
 /**
  * Generate a URL-safe ~10-char token (base62) for a member's bracelet.
@@ -37,6 +37,27 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
   const openMember = (m: any) => {
     setSelected(m);
     setNfcId(m.nfc_id || "");
+  };
+
+  // One-click per row: reuse the member's existing token, or generate + assign
+  // a fresh one, then open the modal with the copyable bracelet URL.
+  const rowBracelet = async (m: any) => {
+    if (m.nfc_id) { openMember(m); return; }
+    const t = newBraceletToken();
+    setSaving(true);
+    const { data, error } = await supabase.functions.invoke("assign-nfc", {
+      body: { profile_id: m.id, nfc_id: t },
+    });
+    setSaving(false);
+    const d = data as any;
+    if (error || d?.error) {
+      toast({ title: "Could not assign bracelet", description: error?.message || d?.error, variant: "destructive" });
+      return;
+    }
+    const updated = { ...m, nfc_id: t };
+    setMembers((prev) => prev.map((x) => (x.id === m.id ? updated : x)));
+    openMember(updated);
+    toast({ title: "Bracelet token generated", description: "Copy the URL and write it to the tag with NFC Tools." });
   };
 
   const saveNfc = async () => {
@@ -83,6 +104,7 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
                 <th className="pb-3 pr-4">Email</th>
                 <th className="pb-3 pr-4">Age Group</th>
                 <th className="pb-3 pr-4">NFC ID</th>
+                <th className="pb-3 pr-4">Bracelet</th>
                 <th className="pb-3">Joined</th>
               </tr>
             </thead>
@@ -97,6 +119,15 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
                   <td className="py-3 pr-4 text-foreground/40">{m.email || "—"}</td>
                   <td className="py-3 pr-4 text-foreground/40">{m.age_group || "—"}</td>
                   <td className="py-3 pr-4 text-foreground/40 font-mono text-xs">{m.nfc_id || "—"}</td>
+                  <td className="py-3 pr-4">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); void rowBracelet(m); }}
+                      disabled={saving}
+                      className="flex items-center gap-1.5 text-[10px] font-body tracking-widest uppercase border border-foreground/15 rounded-sm px-2 py-1 text-foreground/50 hover:text-foreground hover:border-foreground/30 transition-colors disabled:opacity-40"
+                    >
+                      <Nfc size={11} /> {m.nfc_id ? "Bracelet link" : "Generate token"}
+                    </button>
+                  </td>
                   <td className="py-3 text-foreground/20">{new Date(m.created_at).toLocaleDateString()}</td>
                 </tr>
               ))}
@@ -168,7 +199,7 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
                         Most NFC writer apps accept the URL directly. Some can scan this QR code as the source.
                       </p>
                       <p className="text-foreground/30 text-[10px] font-body mt-2 leading-relaxed">
-                        On tap: <span className="text-foreground/60">member → dashboard, staff tablet → check-in card, signed-out → sign in.</span>
+                        On tap: "Welcome, &lt;name&gt;" + a one-time password on a new phone; remembered phones open the portal straight away. Anyone who finds a lost bracelet sees the owner's name.
                       </p>
                     </div>
                   </div>

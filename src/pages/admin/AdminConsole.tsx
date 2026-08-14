@@ -24,6 +24,7 @@ const AdminInsights = lazy(() => import("@/components/admin/console/AdminInsight
 const AdminProfile = lazy(() => import("@/components/admin/console/AdminProfile"));
 const AdminDownloadsTab = lazy(() => import("@/components/admin/console/AdminDownloadsTab"));
 const FacilitateTab = lazy(() => import("@/components/admin/console/FacilitateTab"));
+const BraceletStudio = lazy(() => import("@/components/admin/console/BraceletStudio"));
 
 type TabId =
   | "dashboard" | "sessions" | "progress" | "profile" | "insights"
@@ -55,6 +56,7 @@ const MEMBERSHIP_SUBTABS = [
   { id: "applications", label: "Applications" },
   { id: "members", label: "Members" },
   { id: "households", label: "Households" },
+  { id: "bracelets", label: "Bracelets" },
 ] as const;
 
 const Fallback = () => (
@@ -111,6 +113,7 @@ const AdminConsole = () => {
           {membershipSub === "applications" && <AdminApplicationsPage embedded />}
           {membershipSub === "members" && <AdminMembers embedded />}
           {membershipSub === "households" && <AdminHouseholds embedded />}
+          {membershipSub === "bracelets" && <BraceletStudio />}
         </div>
       );
       default: return null;

@@ -51,6 +51,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // A bracelet unlock with "stay signed in" unticked marks the visit
+    // ephemeral: the next app open starts signed-out so tapping the bracelet
+    // asks for the password again (the device is not remembered).
+    if (localStorage.getItem("mindcast_ephemeral_session") === "1") {
+      localStorage.removeItem("mindcast_ephemeral_session");
+      supabase.auth.signOut();
+    }
     // IMPORTANT: do NOT `await` supabase queries directly inside
     // onAuthStateChange — it deadlocks the auth client and `loading`
     // never flips to false. Defer with setTimeout(0).

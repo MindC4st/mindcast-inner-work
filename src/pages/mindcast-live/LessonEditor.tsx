@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Check, Loader2, Youtube, Save, AlertCircle, Play } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Youtube, Save, AlertCircle, Play, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -220,6 +220,34 @@ const LessonEditor = () => {
     toast({ title: "Saved", description: `Week ${week} · ${audience}` });
   };
 
+  const [generatingQ, setGeneratingQ] = useState(false);
+  const generateQuestions = async () => {
+    if (generatingQ) return;
+    setGeneratingQ(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-video-questions", {
+        body: { week_number: week, audience },
+      });
+      if (error) {
+        let detail = error.message;
+        try {
+          const ctx = (error as { context?: { json: () => Promise<{ error?: string }> } }).context;
+          if (ctx) { const b = await ctx.json(); if (b?.error) detail = b.error; }
+        } catch { /* keep message */ }
+        throw new Error(detail);
+      }
+      if (data?.error) throw new Error(data.error);
+      set("video_transcript", data.video_transcript || draft.video_transcript);
+      set("video_question_1", data.video_question_1 || "");
+      set("video_question_2", data.video_question_2 || "");
+      toast({ title: "Questions drafted", description: "Review the fields above, then save." });
+    } catch (e) {
+      toast({ title: "Question generation failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    } finally {
+      setGeneratingQ(false);
+    }
+  };
+
   // Warn before navigating away with unsaved edits.
   useEffect(() => {
     const h = (e: BeforeUnloadEvent) => { if (dirty || activityDirty) { e.preventDefault(); e.returnValue = ""; } };
@@ -344,6 +372,20 @@ const LessonEditor = () => {
                   {slide.fields.map((f) => (
                     <FieldRow key={String(f.key)} field={f} value={draft[f.key]} onChange={(v) => set(f.key, v)} vid={f.kind === "video" ? vid : null} />
                   ))}
+                  {slide.idx === 12 && (
+                    <div className="rounded-xl border border-[hsl(var(--blue))]/30 bg-[hsl(var(--blue-light))]/20 p-4">
+                      <p className="text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-2">Reflective questions · DeepSeek</p>
+                      <p className="text-[13px] font-body text-[hsl(var(--navy-mid))] mb-3">
+                        Uses the transcript above — or fetches it from YouTube when empty — plus this week's theme to draft the two
+                        "Reflect while you watch" questions. Nothing changes on the facilitation screen until you save.
+                      </p>
+                      <button onClick={generateQuestions} disabled={generatingQ}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--navy))] text-white text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy-mid))] transition-colors disabled:opacity-40">
+                        {generatingQ ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                        {generatingQ ? "Generating…" : "Generate questions"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.section>
             </AnimatePresence>

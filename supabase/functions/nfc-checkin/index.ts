@@ -86,6 +86,10 @@ serve(async (req) => {
 
     const mode = ((profile as any).live_display_mode as DisplayMode) || "first_initial";
     const displayName = computeDisplayName(profile, mode);
+    // Always the member's first name + last initial — the tap page greets the
+    // owner by name so a lost bracelet can be identified without logging in
+    // (independent of the on-screen welcome-wall privacy mode).
+    const welcomeName = computeDisplayName(profile, "first_initial");
     const isAnonymous = mode === "anonymous";
 
     // --- Leaving the room -------------------------------------------------
@@ -99,9 +103,9 @@ serve(async (req) => {
         .order("checked_in_at", { ascending: false })
         .limit(1);
       const row = todays?.[0];
-      if (!row) return json({ error: "No check-in found for today", display_name: displayName }, 404);
+      if (!row) return json({ error: "No check-in found for today", display_name: displayName, welcome_name: welcomeName }, 404);
       if (row.left_early_at) {
-        return json({ ok: true, deduped: true, action, display_name: displayName });
+        return json({ ok: true, deduped: true, action, display_name: displayName, welcome_name: welcomeName });
       }
       const { error: upErr } = await supa
         .from("check_ins")
@@ -119,7 +123,7 @@ serve(async (req) => {
         });
       } catch { /* best-effort */ }
 
-      return json({ ok: true, action, display_name: displayName });
+      return json({ ok: true, action, display_name: displayName, welcome_name: welcomeName });
     }
     // -----------------------------------------------------------------------
 
@@ -133,7 +137,7 @@ serve(async (req) => {
       .gt("checked_in_at", fiveMinAgo)
       .limit(1);
     if (recent && recent.length > 0) {
-      return json({ ok: true, deduped: true, display_name: displayName });
+      return json({ ok: true, deduped: true, display_name: displayName, welcome_name: welcomeName });
     }
 
     const { error: insErr } = await supa.from("check_ins").insert({
@@ -159,7 +163,7 @@ serve(async (req) => {
       });
     } catch { /* notification is best-effort */ }
 
-    return json({ ok: true, display_name: displayName, track });
+    return json({ ok: true, display_name: displayName, welcome_name: welcomeName, track });
   } catch (e: any) {
     return json({ error: e?.message ?? String(e) }, 500);
   }

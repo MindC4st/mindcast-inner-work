@@ -797,6 +797,8 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
       </div>
     );
     // Video — supporting evidence / how-to / personal story (position flexes).
+    // Presentation-only: URL / transcript / question generation live in the
+    // lesson editor, never on the facilitation screen.
     case "video": return (
       <VideoSlide
         link={session.video_link}
@@ -804,23 +806,6 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         backup={session.video_backup_description}
         question1={session.video_question_1}
         question2={session.video_question_2}
-        weekNumber={session.week_number}
-        audience={session.audience}
-        transcript={session.video_transcript}
-        onQuestionsGenerated={async (q1, q2) => {
-          if (!String(session.id).startsWith("curriculum-")) {
-            const { error } = await (supabase as any).from("mindcast_live_sessions")
-              .update({ video_question_1: q1, video_question_2: q2 }).eq("id", session.id);
-            if (error) { toast({ title: "Could not save questions", description: error.message, variant: "destructive" }); return; }
-          }
-          onSessionUpdate({ ...session, video_question_1: q1, video_question_2: q2 });
-        }}
-        onUpdateLink={async (newLink) => {
-          const { error } = await (supabase as any).from("mindcast_live_sessions").update({ video_link: newLink }).eq("id", session.id);
-          if (error) { toast({ title: "Could not save video", description: error.message, variant: "destructive" }); return; }
-          onSessionUpdate({ ...session, video_link: newLink });
-          toast({ title: "Video updated" });
-        }}
       />
     );
     case "coloring": return (
@@ -1387,106 +1372,24 @@ const SignalMetaphorSlide = ({
   );
 };
 
-const VideoSlide = ({
-  link, description, backup, question1, question2, weekNumber, audience, transcript, onQuestionsGenerated, onUpdateLink,
-}: {
-  link: string; description: string; backup: string;
-  question1: string; question2: string;
-  weekNumber: number; audience: string; transcript: string;
-  onQuestionsGenerated: (q1: string, q2: string) => void | Promise<void>;
-  onUpdateLink: (newLink: string) => void | Promise<void>;
+const VideoSlide = ({ link, description, backup, question1, question2 }: {
+  link: string; description: string; backup: string; question1: string; question2: string;
 }) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(link || "");
-  const [saving, setSaving] = useState(false);
-  const [generatingQ, setGeneratingQ] = useState(false);
-  const [showTranscript, setShowTranscript] = useState(false);
-  const [transcriptDraft, setTranscriptDraft] = useState(transcript || "");
-  useEffect(() => { setDraft(link || ""); }, [link]);
-  useEffect(() => { setTranscriptDraft(transcript || ""); }, [transcript]);
-
-  const generateQuestions = async () => {
-    setGeneratingQ(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-video-questions", {
-        body: { week_number: weekNumber, audience, transcript: transcriptDraft.trim() || undefined },
-      });
-      if (error) {
-        let detail = error.message;
-        try {
-          const ctx = (error as { context?: { json: () => Promise<{ error?: string }> } }).context;
-          if (ctx) { const body = await ctx.json(); if (body?.error) detail = body.error; }
-        } catch { /* keep message */ }
-        throw new Error(detail);
-      }
-      if (data?.error) throw new Error(data.error);
-      await onQuestionsGenerated(data.video_question_1 || "", data.video_question_2 || "");
-      toast({ title: "Reflective questions ready" });
-    } catch (e: any) {
-      toast({ title: "Question generation failed", description: e.message, variant: "destructive" });
-    } finally {
-      setGeneratingQ(false);
-    }
-  };
-
-  const save = async () => {
-    const trimmed = draft.trim();
-    if (!trimmed) return;
-    const valid = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/.test(trimmed);
-    if (!valid) { toast({ title: "Invalid YouTube URL", variant: "destructive" }); return; }
-    setSaving(true);
-    await onUpdateLink(trimmed);
-    setSaving(false);
-    setEditing(false);
-  };
 
   return (
     <div className="max-w-5xl w-full">
       <div className="flex items-center justify-center gap-3 mb-4">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
-        <button onClick={() => setEditing(e => !e)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
-          {editing ? "Cancel" : "Replace URL"}
-        </button>
-        <button onClick={() => setShowTranscript(t => !t)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1">
-          {showTranscript ? "Hide transcript" : "Transcript"}
-        </button>
-        <button onClick={generateQuestions} disabled={generatingQ || !link} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-2 py-1 disabled:opacity-40">
-          {generatingQ ? "Generating…" : "Generate questions"}
-        </button>
       </div>
-      {editing && (
-        <div className="mb-4 flex gap-2">
-          <input
-            value={draft}
-            onChange={e => setDraft(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=..."
-            className="flex-1 bg-[hsl(var(--ivory))]/5 border border-[hsl(var(--ivory))]/20 rounded-sm px-3 py-2 text-[hsl(var(--ivory))] text-sm font-body"
-          />
-          <button onClick={save} disabled={saving} className="px-4 py-2 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm disabled:opacity-50">
-            {saving ? "Saving…" : "Save"}
-          </button>
-        </div>
-      )}
-      {showTranscript && (
-        <div className="mb-4">
-          <textarea
-            value={transcriptDraft}
-            onChange={e => setTranscriptDraft(e.target.value)}
-            placeholder="Paste the video transcript here — Generate questions uses it (and saves it) to build the two reflective questions from the transcript and this week's theme."
-            rows={6}
-            className="w-full bg-[hsl(var(--ivory))]/5 border border-[hsl(var(--ivory))]/20 rounded-sm px-3 py-2 text-[hsl(var(--ivory))] text-sm font-body"
-          />
-        </div>
-      )}
       {ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
           <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
-          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video — paste a YouTube URL above</p>
+          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video set for this session yet</p>
         </div>
       )}
       <p className="text-[hsl(var(--ivory))]/80 text-base font-body mt-4 text-center">{description}</p>
