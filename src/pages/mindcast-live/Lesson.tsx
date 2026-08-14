@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Lock, Download, ShoppingCart, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { toast } from "@/hooks/use-toast";
@@ -43,20 +44,20 @@ const Lesson = () => {
     if (!user) return;
     (async () => {
       const [s, u, r, c, w] = await Promise.all([
-        (supabase as any).from("mindcast_live_sessions_public").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
+        db.from("mindcast_live_sessions_public").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
         // Staff bypass — skip unlocked_lessons check, all weeks are unlocked
-        isStaff ? Promise.resolve({ data: null }) : (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
-        (supabase as any).from("session_responses")
+        isStaff ? Promise.resolve({ data: null }) : db.from("unlocked_lessons").select("week_number").eq("user_id", user.id),
+        db.from("session_responses")
           .select("prompt_type, response_text")
           .eq("user_id", user.id)
           .eq("week_number", week)
           .eq("audience_type", audience),
-        (supabase as any).from("lesson_completions")
+        db.from("lesson_completions")
           .select("week_number")
           .eq("user_id", user.id)
           .eq("week_number", week)
           .maybeSingle(),
-        (supabase as any).from("worksheets")
+        db.from("worksheets")
           .select("video_mp4_url")
           .eq("week_number", week)
           .eq("audience_type", audience)
@@ -70,7 +71,7 @@ const Lesson = () => {
         for (let i = 1; i <= 52; i++) allWeeks.push(i);
         setUnlocked(allWeeks);
       } else {
-        const ids = (u.data || []).map((r: any) => r.week_number).sort((a: number, b: number) => a - b);
+        const ids = (u.data || []).map(r => r.week_number).sort((a: number, b: number) => a - b);
         setUnlocked(ids);
         setIsUnlocked(ids.includes(week));
       }
@@ -104,7 +105,7 @@ const Lesson = () => {
   const handleSubmit = async () => {
     if (!user) return;
     setSubmitting(true);
-    const { error } = await (supabase as any).from("lesson_completions")
+    const { error } = await db.from("lesson_completions")
       .upsert({ user_id: user.id, week_number: week, audience_type: audience }, { onConflict: "user_id,week_number" });
     setSubmitting(false);
     if (error) { toast({ title: "Could not mark complete", description: error.message }); return; }
@@ -139,8 +140,8 @@ const Lesson = () => {
               const { data, error } = await supabase.functions.invoke("buy-worksheet", { body: { week_number: week, audience } });
               if (error) throw error;
               if (data?.url) window.open(data.url, "_blank");
-            } catch (e: any) {
-              toast({ title: "Couldn't start checkout", description: e.message });
+            } catch (e) {
+              toast({ title: "Couldn't start checkout", description: (e as Error).message });
             }
           }} className="inline-flex items-center gap-2 px-4 py-2 border border-[hsl(var(--bronze))] text-[hsl(var(--bronze))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:bg-[hsl(var(--bronze))]/10">
             <ShoppingCart size={13} /> Buy Printed Copy · $5 NZD
@@ -234,7 +235,7 @@ const persistResponse = async ({ user, week, audience, promptType, value }: {
   value: string;
 }) => {
   if (!user) return;
-  await (supabase as any).from("session_responses").upsert({
+  await db.from("session_responses").upsert({
     user_id: user.id,
     session_code: `LESSON-${week}`,
     week_number: week,

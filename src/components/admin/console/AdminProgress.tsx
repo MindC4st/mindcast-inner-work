@@ -6,18 +6,11 @@ import {
 import { CheckCircle2, PenLine, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-type CheckIn = { checked_in_at: string; track: string | null };
-type Completion = { week_number: number; audience_type: string | null };
-type Journal = { week_number: number; track: string | null };
-
-const TRACKS = ["Adult", "Teen", "Child"] as const;
-
-const mondayOf = (d: Date): Date => {
-  const x = new Date(d);
-  const day = (x.getDay() + 6) % 7;
-  x.setDate(x.getDate() - day);
-  x.setHours(0, 0, 0, 0);
-  return x;
+type ProgressStats = {
+  checkins_by_week: { week_start: string; Adult: number; Teen: number; Child: number; total: number }[];
+  track_totals: { Adult: number; Teen: number; Child: number };
+  completions_by_week: { week_number: number; Lessons: number }[];
+  journals_by_week: { week_number: number; Journals: number }[];
 };
 
 const Stat = ({ icon: Icon, label, value, tone }: {
@@ -33,64 +26,39 @@ const Stat = ({ icon: Icon, label, value, tone }: {
 );
 
 const AdminProgress = () => {
-  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
-  const [completions, setCompletions] = useState<Completion[]>([]);
-  const [journals, setJournals] = useState<Journal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<ProgressStats | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     (async () => {
-      const [{ data: ci }, { data: lc }, { data: lj }] = await Promise.all([
-        (supabase as any).from("check_ins").select("checked_in_at, track").order("checked_in_at", { ascending: false }).limit(5000),
-        (supabase as any).from("lesson_completions").select("week_number, audience_type").limit(5000),
-        (supabase as any).from("lesson_journal").select("week_number, track").limit(5000),
-      ]);
-      setCheckIns(ci || []);
-      setCompletions(lc || []);
-      setJournals(lj || []);
-      setLoading(false);
+      const { data, error: rpcErr } = await supabase.rpc("admin_progress_stats" as never);
+      if (rpcErr) { setError(rpcErr.message); return; }
+      setStats(data as unknown as ProgressStats);
     })();
   }, []);
 
-  const weekly = useMemo(() => {
-    const map = new Map<string, { label: string; Adult: number; Teen: number; Child: number; total: number }>();
-    checkIns.forEach((ci) => {
-      if (!ci.checked_in_at) return;
-      const mon = mondayOf(new Date(ci.checked_in_at));
-      const key = mon.toISOString().slice(0, 10);
-      if (!map.has(key)) {
-        map.set(key, {
-          label: mon.toLocaleDateString("en-NZ", { day: "numeric", month: "short" }),
-          Adult: 0, Teen: 0, Child: 0, total: 0,
-        });
-      }
-      const row = map.get(key)!;
-      const track = (TRACKS as readonly string[]).includes(ci.track || "") ? (ci.track as typeof TRACKS[number]) : "Adult";
-      row[track] += 1;
-      row.total += 1;
-    });
-    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-10).map(([, v]) => v);
-  }, [checkIns]);
+  const weekly = useMemo(
+    () => (stats?.checkins_by_week || []).map((w) => ({
+      label: new Date(w.week_start).toLocaleDateString("en-NZ", { day: "numeric", month: "short" }),
+      Adult: w.Adult, Teen: w.Teen, Child: w.Child,
+    })),
+    [stats],
+  );
 
   const perWeek = useMemo(() => {
-    const comp = new Map<number, number>();
-    completions.forEach((c) => comp.set(c.week_number, (comp.get(c.week_number) || 0) + 1));
-    const jour = new Map<number, number>();
-    journals.forEach((j) => jour.set(j.week_number, (jour.get(j.week_number) || 0) + 1));
-    const weeks = [...new Set([...comp.keys(), ...jour.keys()])].sort((a, b) => a - b).slice(0, 12);
-    return weeks.map((w) => ({ label: `W${w}`, Lessons: comp.get(w) || 0, Journals: jour.get(w) || 0 }));
-  }, [completions, journals]);
+    if (!stats) return [];
+    const journals = new Map(stats.journals_by_week.map((j) => [j.week_number, j.Journals]));
+    return stats.completions_by_week.map((c) => ({
+      label: `W${c.week_number}`,
+      Lessons: c.Lessons,
+      Journals: journals.get(c.week_number) || 0,
+    }));
+  }, [stats]);
 
-  const trackTotals = useMemo(() => {
-    const t: Record<string, number> = { Adult: 0, Teen: 0, Child: 0 };
-    checkIns.forEach((ci) => {
-      const k = (TRACKS as readonly string[]).includes(ci.track || "") ? ci.track! : "Adult";
-      t[k] = (t[k] || 0) + 1;
-    });
-    return t;
-  }, [checkIns]);
-
-  if (loading) {
+  if (error) {
+    return <p className="text-[#8E9299] text-sm font-body py-12 text-center">Couldn't load progress: {error}</p>;
+  }
+  if (!stats) {
     return <div className="py-24 flex justify-center"><span className="text-[#8E9299] text-xs font-body tracking-widest uppercase animate-pulse">Loading progress…</span></div>;
   }
 
@@ -102,9 +70,9 @@ const AdminProgress = () => {
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4">
-        <Stat icon={Users} label="Check-ins · Adult" value={trackTotals.Adult} />
-        <Stat icon={Users} label="Check-ins · Teen" value={trackTotals.Teen} tone="text-[#C5E3F3]" />
-        <Stat icon={Users} label="Check-ins · Child" value={trackTotals.Child} tone="text-[#8E9299]" />
+        <Stat icon={Users} label="Check-ins · Adult" value={stats.track_totals.Adult} />
+        <Stat icon={Users} label="Check-ins · Teen" value={stats.track_totals.Teen} tone="text-[#C5E3F3]" />
+        <Stat icon={Users} label="Check-ins · Child" value={stats.track_totals.Child} tone="text-[#8E9299]" />
       </div>
 
       <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
@@ -121,7 +89,7 @@ const AdminProgress = () => {
                 labelStyle={{ color: "#E2E8F0" }}
               />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="Adult" stackId="t" fill="#3585AF" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="Adult" stackId="t" fill="#3585AF" />
               <Bar dataKey="Teen" stackId="t" fill="#C5E3F3" />
               <Bar dataKey="Child" stackId="t" fill="#8E9299" radius={[4, 4, 0, 0]} />
             </BarChart>

@@ -17,7 +17,15 @@ export async function initObservability() {
   if (dsn) {
     try {
       const pkg = "@sentry/react";
-      const Sentry: any = await import(/* @vite-ignore */ pkg);
+      const Sentry = (await import(/* @vite-ignore */ pkg)) as {
+        init: (options: {
+          dsn: string;
+          release?: string;
+          environment?: string;
+          tracesSampleRate?: number;
+          replaysOnErrorSampleRate?: number;
+        }) => void;
+      };
       Sentry.init({
         dsn,
         release: import.meta.env.VITE_APP_RELEASE,
@@ -35,7 +43,13 @@ export async function initObservability() {
   if (posthogKey) {
     try {
       const pkg = "posthog-js";
-      const posthog: any = (await import(/* @vite-ignore */ pkg)).default;
+      const posthog = (await import(/* @vite-ignore */ pkg)).default as {
+        init: (key: string, options: {
+          api_host: string;
+          capture_pageview?: boolean;
+          disable_session_recording?: boolean;
+        }) => void;
+      };
       posthog.init(posthogKey, {
         api_host: (import.meta.env.VITE_POSTHOG_HOST as string) || "https://us.i.posthog.com",
         capture_pageview: true,

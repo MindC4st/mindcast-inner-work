@@ -7,6 +7,7 @@ import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { db } from "@/lib/db";
 
 type Week = {
   week_number: number;
@@ -17,14 +18,14 @@ type Week = {
 
 const PortalWeeks = () => {
   const { profile, role, user } = useAuth();
-  const track = trackForAgeGroup((profile as any)?.age_group);
+  const track = trackForAgeGroup(profile?.age_group);
   const { isUnlocked, unlockDate, currentWeek } = useProgramSchedule();
   const { isMember } = useEntitlement();
   const [adminFallback, setAdminFallback] = useState(false);
   const [weeks, setWeeks] = useState<Week[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
+  const isAdmin = role === "admin" || role === "facilitator" || profile?.is_admin === true || adminFallback;
 
   useEffect(() => {
     if (!user) return;
@@ -33,7 +34,7 @@ const PortalWeeks = () => {
         supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
         supabase.from("profiles").select("is_admin").eq("user_id", user.id).single(),
       ]);
-      if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
+      if (roleRow || profileRow?.is_admin) setAdminFallback(true);
     })();
   }, [user]);
 
@@ -43,12 +44,12 @@ const PortalWeeks = () => {
       setLoading(true);
       // Direct table query — for admins, RLS (with has_role fallback) allows full access.
       // curriculum_public RPC is SECURITY DEFINER and also works.
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("curriculum_weeks")
         .select("week_number, block_theme, adult_video_title, teen_video_title, kids_title, core_learning")
         .order("week_number", { ascending: true });
       if (cancelled) return;
-      const rows = (data || []).map((r: any) => ({
+      const rows = (data || []).map(r => ({
         week_number: r.week_number,
         block_theme: r.block_theme,
         title:

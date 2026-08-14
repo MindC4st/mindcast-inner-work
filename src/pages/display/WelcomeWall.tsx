@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
 import { Maximize } from "lucide-react";
@@ -8,8 +9,8 @@ import { Maximize } from "lucide-react";
 const WelcomeWall = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session");
-  const [session, setSession] = useState<any>(null);
-  const [checkins, setCheckins] = useState<any[]>([]);
+  const [session, setSession] = useState<Tables<"sessions"> | null>(null);
+  const [checkins, setCheckins] = useState<Tables<"check_ins">[]>([]);
 
   useEffect(() => {
     const loadSession = async () => {

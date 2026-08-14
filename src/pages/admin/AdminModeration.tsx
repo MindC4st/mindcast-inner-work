@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 
 // Standalone Q&A moderation queue across live sessions. Facilitator RLS only
@@ -22,7 +23,7 @@ const AdminModeration = ({ embedded = false }: { embedded?: boolean }) => {
   const [rows, setRows] = useState<Resp[]>([]);
 
   const load = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await db
       .from("session_responses")
       .select("id, session_code, display_name, response_text, moderation_status, hidden, created_at")
       .eq("is_public", true)
@@ -33,7 +34,7 @@ const AdminModeration = ({ embedded = false }: { embedded?: boolean }) => {
 
   useEffect(() => {
     load();
-    const ch = (supabase as any)
+    const ch = supabase
       .channel("moderation-queue")
       .on("postgres_changes", { event: "*", schema: "public", table: "session_responses" }, () => load())
       .subscribe();
@@ -41,12 +42,12 @@ const AdminModeration = ({ embedded = false }: { embedded?: boolean }) => {
   }, []);
 
   const approve = async (id: string) => {
-    const { error } = await (supabase as any).from("session_responses").update({ moderation_status: "approved" }).eq("id", id);
+    const { error } = await db.from("session_responses").update({ moderation_status: "approved" }).eq("id", id);
     if (error) toast({ title: "Couldn't approve", description: error.message, variant: "destructive" });
     else setRows((r) => r.map((x) => (x.id === id ? { ...x, moderation_status: "approved" } : x)));
   };
   const hide = async (id: string) => {
-    const { error } = await (supabase as any).from("session_responses").update({ hidden: true }).eq("id", id);
+    const { error } = await db.from("session_responses").update({ hidden: true }).eq("id", id);
     if (error) toast({ title: "Couldn't hide", description: error.message, variant: "destructive" });
     else setRows((r) => r.filter((x) => x.id !== id));
   };

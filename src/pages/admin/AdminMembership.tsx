@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 
 // Subscription & payment health. Reads the subscriptions table (kept in sync by
 // the stripe-webhook) plus membership_status counts from profiles.
@@ -39,8 +39,8 @@ const AdminMembership = ({ embedded = false }: { embedded?: boolean }) => {
   useEffect(() => {
     (async () => {
       const [s, p] = await Promise.all([
-        (supabase as any).from("subscriptions").select("*").order("updated_at", { ascending: false }).limit(500),
-        (supabase as any).from("profiles").select("id, display_name, name, email, membership_status"),
+        db.from("subscriptions").select("*").order("updated_at", { ascending: false }).limit(500),
+        db.from("profiles").select("id, display_name, name, email, membership_status"),
       ]);
       setSubs(s.data || []);
       setProfiles(p.data || []);

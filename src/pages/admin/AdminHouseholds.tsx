@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 
 // Create households and link guardians + children. Guardian read-access to a
@@ -23,9 +23,9 @@ const AdminHouseholds = ({ embedded = false }: { embedded?: boolean }) => {
 
   const load = async () => {
     const [h, m, p] = await Promise.all([
-      (supabase as any).from("households").select("id, name").order("name"),
-      (supabase as any).from("household_members").select("id, household_id, profile_id, role_in_household"),
-      (supabase as any).from("profiles").select("id, display_name, name, email").order("display_name"),
+      db.from("households").select("id, name").order("name"),
+      db.from("household_members").select("id, household_id, profile_id, role_in_household"),
+      db.from("profiles").select("id, display_name, name, email").order("display_name"),
     ]);
     setHouseholds(h.data || []);
     setMembers(m.data || []);
@@ -40,7 +40,7 @@ const AdminHouseholds = ({ embedded = false }: { embedded?: boolean }) => {
 
   const createHousehold = async () => {
     if (!newName.trim()) return;
-    const { error } = await (supabase as any).from("households").insert({ name: newName.trim() });
+    const { error } = await db.from("households").insert({ name: newName.trim() });
     if (error) { toast({ title: "Could not create", description: error.message, variant: "destructive" }); return; }
     setNewName("");
     load();
@@ -48,7 +48,7 @@ const AdminHouseholds = ({ embedded = false }: { embedded?: boolean }) => {
 
   const addMember = async () => {
     if (!add.household || !add.profile) { toast({ title: "Pick a household and a person" }); return; }
-    const { error } = await (supabase as any).from("household_members").upsert(
+    const { error } = await db.from("household_members").upsert(
       { household_id: add.household, profile_id: add.profile, role_in_household: add.role },
       { onConflict: "household_id,profile_id" },
     );
@@ -58,7 +58,7 @@ const AdminHouseholds = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   const removeMember = async (id: string) => {
-    await (supabase as any).from("household_members").delete().eq("id", id);
+    await db.from("household_members").delete().eq("id", id);
     load();
   };
 

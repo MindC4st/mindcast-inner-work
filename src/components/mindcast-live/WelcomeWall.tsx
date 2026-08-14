@@ -12,8 +12,10 @@
 // CSS keyframe transforms (GPU) rather than animating React state.
 
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 
 type CheckIn = {
   id: string;
@@ -83,11 +85,11 @@ const FloatingName = ({ checkIn }: { checkIn: CheckIn }) => {
         left: `${params.left}%`,
         top: `${params.top}%`,
         // Use CSS custom properties for the keyframe to read.
-        ["--drift-x" as any]: `${params.driftX}px`,
-        ["--drift-y" as any]: `${params.driftY}px`,
-        ["--rot" as any]: `${params.rot}deg`,
+        "--drift-x": `${params.driftX}px`,
+        "--drift-y": `${params.driftY}px`,
+        "--rot": `${params.rot}deg`,
         animation: `mc-float ${params.duration}s ease-in-out ${params.delay}s infinite`,
-      }}
+      } as CSSProperties}
     >
       <span
         className={`${FONT_CLASSES[params.fontIdx]} ${COLOUR_CLASSES[params.colourIdx]} whitespace-nowrap drop-shadow-[0_0_30px_rgba(184,137,90,0.15)]`}
@@ -107,7 +109,7 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
     let active = true;
     (async () => {
       const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("check_ins")
         .select("id, display_name, is_anonymous, checked_in_at")
         .gt("checked_in_at", fourHoursAgo)
@@ -120,7 +122,7 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
       .channel("welcome-wall")
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "check_ins" },
-        (p: any) => {
+        (p) => {
           const row = p.new as CheckIn;
           if (row.is_anonymous || !row.display_name || row.display_name === "Anonymous") return;
           setCheckIns(prev => prev.some(c => c.id === row.id) ? prev : [...prev, row]);

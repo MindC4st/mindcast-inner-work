@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { db } from "@/lib/db";
+import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Download, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
@@ -21,166 +21,117 @@ const downloadCsv = (filename: string, content: string) => {
 };
 
 const ExportReports = () => {
-  const { cohortId } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const exportBookmarkResponses = async () => {
-    if (!cohortId) return;
-    setLoading("bookmark");
-    try {
-      const [respRes, profilesRes] = await Promise.all([
-        supabase.from("bookmark_responses").select("*").eq("cohort_id", cohortId).order("week_number"),
-        supabase.from("profiles").select("user_id, name"),
-      ]);
-      const nameMap: Record<string, string> = {};
-      (profilesRes.data || []).forEach(p => { nameMap[p.user_id] = p.name; });
+  const nameMapOf = async (): Promise<Record<string, string>> => {
+    const { data } = await db
+      .from("profiles").select("id, name, display_name, email");
+    const map: Record<string, string> = {};
+    (data || []).forEach(p => { map[p.id] = p.display_name || p.name || p.email || "Unknown"; });
+    return map;
+  };
 
-      const headers = ["Member", "Week", "Bookmark ID", "Response", "Voice URL", "Shared", "Date"];
-      const rows = (respRes.data || []).map(r => [
-        nameMap[r.user_id] || "Unknown",
-        String(r.week_number),
-        r.bookmark_id,
-        r.response_text || "",
-        r.voice_url || "",
-        r.is_shared ? "Yes" : "No",
+  const exportMembers = async () => {
+    setLoading("members");
+    try {
+      const { data } = await db
+        .from("profiles")
+        .select("name, display_name, email, age_group, membership_status, membership_tier, kids_addon, nfc_id, created_at")
+        .order("created_at", { ascending: false });
+      const headers = ["Member", "Display name", "Email", "Age group", "Status", "Tier", "Kids add-on", "Bracelet", "Joined"];
+      const rows = (data || []).map(p => [
+        p.name || "", p.display_name || "", p.email || "", p.age_group || "",
+        p.membership_status || "", p.membership_tier || "", p.kids_addon ? "Yes" : "No",
+        p.nfc_id || "", new Date(p.created_at).toLocaleDateString(),
+      ]);
+      downloadCsv("mindcast-members.csv", toCsv(headers, rows));
+      toast.success("Members exported");
+    } catch (e) { toast.error((e as Error).message); }
+    setLoading(null);
+  };
+
+  const exportAttendance = async () => {
+    setLoading("attendance");
+    try {
+      const [ci, names] = await Promise.all([
+        db.from("check_ins")
+          .select("display_name, profile_id, track, source, checked_in_at, left_early_at")
+          .order("checked_in_at", { ascending: false }).limit(5000),
+        nameMapOf(),
+      ]);
+      const headers = ["Member", "Wall name", "Track", "Source", "Checked in", "Left early"];
+      const rows = ((ci || []) as unknown as Tables<"check_ins">[]).map(c => [
+        c.profile_id ? names[c.profile_id] || "Unknown" : "Walk-in",
+        c.display_name || "", c.track || "", c.source || "",
+        new Date(c.checked_in_at).toLocaleString(), c.left_early_at ? new Date(c.left_early_at).toLocaleString() : "",
+      ]);
+      downloadCsv("mindcast-attendance.csv", toCsv(headers, rows));
+      toast.success("Attendance exported");
+    } catch (e) { toast.error((e as Error).message); }
+    setLoading(null);
+  };
+
+  const exportJournals = async () => {
+    setLoading("journals");
+    try {
+      const [j, names] = await Promise.all([
+        db.from("lesson_journal")
+          .select("profile_id, week_number, track, reflection_answer, video_question_1_response, video_question_2_response, activity_response, weekly_intention, updated_at")
+          .order("week_number").limit(5000),
+        nameMapOf(),
+      ]);
+      const headers = ["Member", "Week", "Track", "Video Q1", "Video Q2", "Reflection", "Activity", "Intention", "Updated"];
+      const rows = ((j || []) as unknown as Tables<"lesson_journal">[]).map(r => [
+        names[r.profile_id] || "Unknown", String(r.week_number), r.track || "",
+        r.video_question_1_response || "", r.video_question_2_response || "",
+        r.reflection_answer || "", r.activity_response || "", r.weekly_intention || "",
+        new Date(r.updated_at).toLocaleDateString(),
+      ]);
+      downloadCsv("mindcast-journals.csv", toCsv(headers, rows));
+      toast.success("Journals exported");
+    } catch (e) { toast.error((e as Error).message); }
+    setLoading(null);
+  };
+
+  const exportCompletions = async () => {
+    setLoading("completions");
+    try {
+      const { data } = await db
+        .from("lesson_completions")
+        .select("user_id, week_number, audience_type, created_at")
+        .order("week_number").limit(5000);
+      const names = await nameMapOf();
+      const headers = ["Member", "Week", "Track", "Completed"];
+      const rows = ((data || []) as unknown as { user_id: string; week_number: number; audience_type: string; created_at: string }[]).map(r => [
+        names[r.user_id] || "Unknown", String(r.week_number), r.audience_type || "",
         new Date(r.created_at).toLocaleDateString(),
       ]);
-
-      downloadCsv("mindcast-bookmark-responses.csv", toCsv(headers, rows));
-      toast.success("Bookmark responses exported");
-    } catch (e: any) {
-      toast.error(e.message);
-    }
-    setLoading(null);
-  };
-
-  const exportEntries = async () => {
-    if (!cohortId) return;
-    setLoading("entries");
-    try {
-      const [entriesRes, profilesRes] = await Promise.all([
-        supabase.from("entries").select("*").eq("cohort_id", cohortId).order("week_number"),
-        supabase.from("profiles").select("user_id, name"),
-      ]);
-      const nameMap: Record<string, string> = {};
-      (profilesRes.data || []).forEach(p => { nameMap[p.user_id] = p.name; });
-
-      const headers = ["Member", "Week", "Question", "Answer", "Shared", "Date"];
-      const rows = (entriesRes.data || []).map(e => [
-        nameMap[e.user_id] || "Unknown",
-        String(e.week_number),
-        e.question_key,
-        e.answer_text || "",
-        e.is_shared ? "Yes" : "No",
-        new Date(e.created_at).toLocaleDateString(),
-      ]);
-
-      downloadCsv("mindcast-worksheet-entries.csv", toCsv(headers, rows));
-      toast.success("Entries exported");
-    } catch (e: any) {
-      toast.error(e.message);
-    }
-    setLoading(null);
-  };
-
-  const exportImplementation = async () => {
-    if (!cohortId) return;
-    setLoading("implementation");
-    try {
-      const [commRes, checkinRes, profilesRes] = await Promise.all([
-        supabase.from("commitments").select("*").eq("cohort_id", cohortId).order("week_number"),
-        supabase.from("implementation_checkins").select("*").eq("cohort_id", cohortId).order("week_number"),
-        supabase.from("profiles").select("user_id, name"),
-      ]);
-      const nameMap: Record<string, string> = {};
-      (profilesRes.data || []).forEach(p => { nameMap[p.user_id] = p.name; });
-
-      const headers = [
-        "Member", "Week", "Commitment", "Why", "Measure", "Obstacle", "Locked",
-        "Check-in Status", "What Happened", "Did Achieve", "What Learned",
-      ];
-      const rows = (commRes.data || []).map(c => {
-        const checkin = (checkinRes.data || []).find(ch => ch.user_id === c.user_id && ch.week_number === c.week_number);
-        return [
-          nameMap[c.user_id] || "Unknown",
-          String(c.week_number),
-          c.commitment_text || "",
-          c.why_text || "",
-          c.measure_text || "",
-          c.obstacle_text || "",
-          c.is_locked ? "Yes" : "No",
-          checkin?.status || "",
-          checkin?.what_happened || "",
-          checkin?.did_achieve || "",
-          checkin?.what_learned || "",
-        ];
-      });
-
-      downloadCsv("mindcast-implementation.csv", toCsv(headers, rows));
-      toast.success("Implementation data exported");
-    } catch (e: any) {
-      toast.error(e.message);
-    }
-    setLoading(null);
-  };
-
-  const exportDomainScores = async () => {
-    if (!cohortId) return;
-    setLoading("domains");
-    try {
-      const [scoresRes, profilesRes] = await Promise.all([
-        supabase.from("domain_scores").select("*").eq("cohort_id", cohortId).order("week_number"),
-        supabase.from("profiles").select("user_id, name"),
-      ]);
-      const nameMap: Record<string, string> = {};
-      (profilesRes.data || []).forEach(p => { nameMap[p.user_id] = p.name; });
-
-      const headers = ["Member", "Week", "Domain", "Score", "Date"];
-      const rows = (scoresRes.data || []).map(s => [
-        nameMap[s.user_id] || "Unknown",
-        String(s.week_number),
-        s.domain_name,
-        String(s.score),
-        new Date(s.created_at).toLocaleDateString(),
-      ]);
-
-      downloadCsv("mindcast-domain-scores.csv", toCsv(headers, rows));
-      toast.success("Domain scores exported");
-    } catch (e: any) {
-      toast.error(e.message);
-    }
+      downloadCsv("mindcast-completions.csv", toCsv(headers, rows));
+      toast.success("Completions exported");
+    } catch (e) { toast.error((e as Error).message); }
     setLoading(null);
   };
 
   const exports = [
-    { key: "bookmark", title: "BOOKMARK RESPONSES", desc: "All podcast reflection responses across sessions", fn: exportBookmarkResponses },
-    { key: "entries", title: "WORKSHEET ENTRIES", desc: "All belief audits, reflections, and self-audit text entries", fn: exportEntries },
-    { key: "implementation", title: "IMPLEMENTATION GOALS & CHECK-INS", desc: "Commitments, check-in status, and learnings per week", fn: exportImplementation },
-    { key: "domains", title: "DOMAIN SCORES", desc: "Self-audit domain scores per member per week", fn: exportDomainScores },
+    { key: "members", title: "MEMBERS", desc: "Roster with status, tier, kids add-on and bracelet tokens", fn: exportMembers },
+    { key: "attendance", title: "ATTENDANCE", desc: "Every check-in with track, source and left-early flags", fn: exportAttendance },
+    { key: "journals", title: "JOURNALS", desc: "Per-week reflections, video answers and intentions", fn: exportJournals },
+    { key: "completions", title: "COMPLETIONS", desc: "Lesson completions per member per week", fn: exportCompletions },
   ];
 
   return (
     <div>
-      <h2 className="font-display text-lg tracking-widest text-primary mb-6">EXPORT & REPORTS</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {exports.map(ex => (
-          <div key={ex.key} className="border border-primary/10 p-6 flex flex-col justify-between">
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <FileSpreadsheet size={16} className="text-primary/40" />
-                <h3 className="font-display text-xs tracking-widest text-primary">{ex.title}</h3>
-              </div>
-              <p className="text-xs text-muted-foreground">{ex.desc}</p>
+          <div key={ex.key} className="border border-white/[0.08] rounded-lg p-5 bg-white/[0.02]">
+            <div className="flex items-center gap-2 mb-2">
+              <FileSpreadsheet size={14} className="text-[#3585AF]" />
+              <h3 className="text-[11px] font-body tracking-[0.15em] text-[#E2E8F0]">{ex.title}</h3>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={ex.fn}
-              disabled={loading === ex.key}
-              className="text-[10px] tracking-widest self-start"
-            >
-              <Download size={12} />
-              {loading === ex.key ? "EXPORTING..." : "DOWNLOAD CSV"}
+            <p className="text-[11px] font-body text-[#8E9299] mb-4">{ex.desc}</p>
+            <Button variant="outline" size="sm" onClick={ex.fn} disabled={loading !== null}
+              className="gap-2">
+              <Download size={13} /> {loading === ex.key ? "Exporting…" : "Export CSV"}
             </Button>
           </div>
         ))}

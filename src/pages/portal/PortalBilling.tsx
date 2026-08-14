@@ -33,7 +33,7 @@ const PortalBilling = () => {
   const [error, setError] = useState<string | null>(null);
 
   const isMember = ACTIVE.has(membershipStatus);
-  const isTeen = ((profile as any)?.age_group || "").toLowerCase() === "teen";
+  const isTeen = (profile?.age_group || "").toLowerCase() === "teen";
 
   // Household bundle. Default to one membership matching the signed-in member.
   const [adults, setAdults] = useState(isTeen ? 0 : 1);
@@ -52,9 +52,9 @@ const PortalBilling = () => {
         body: { plan, adults, teens, children },
       });
       if (error) throw error;
-      if ((data as any)?.url) { window.location.href = (data as any).url; return; }
-      throw new Error((data as any)?.error || "Could not start checkout");
-    } catch (e: any) {
+      if (data?.url) { window.location.href = data.url; return; }
+      throw new Error(data?.error || "Could not start checkout");
+    } catch (e) {
       setError(e?.message ?? "Something went wrong");
       setBusy(null);
     }
@@ -65,9 +65,9 @@ const PortalBilling = () => {
     try {
       const { data, error } = await supabase.functions.invoke("create-billing-portal", { body: {} });
       if (error) throw error;
-      if ((data as any)?.url) { window.location.href = (data as any).url; return; }
-      throw new Error((data as any)?.error || "Could not open billing portal");
-    } catch (e: any) {
+      if (data?.url) { window.location.href = data.url; return; }
+      throw new Error(data?.error || "Could not open billing portal");
+    } catch (e) {
       setError(e?.message ?? "Something went wrong");
       setBusy(null);
     }

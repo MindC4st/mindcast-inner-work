@@ -19,15 +19,15 @@ export type Entitlement = {
 
 export function useEntitlement(): Entitlement {
   const { profile, membershipStatus } = useAuth();
-  const p: any = profile || {};
+  const p = profile;
   const isMember = membershipStatus === "active" || membershipStatus === "trialing";
-  const age = trackForAgeGroup(p.age_group); // 'adult' | 'teen' | 'child'
+  const age = trackForAgeGroup(p?.age_group); // 'adult' | 'teen' | 'child'
   const track: TrackLabel = age === "teen" ? "Teen" : age === "child" ? "Child" : "Adult";
   return {
     isMember,
     track,
-    kidsAddon: !!p.kids_addon,
-    tier: p.membership_tier || "none",
+    kidsAddon: !!p?.kids_addon,
+    tier: p?.membership_tier || "none",
     membershipStatus: membershipStatus || "none",
   };
 }

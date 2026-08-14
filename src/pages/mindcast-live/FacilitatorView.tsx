@@ -13,6 +13,8 @@ import {
 const ExerciseWhiteboard = lazy(() => import("@/components/whiteboard/ExerciseWhiteboard"));
 import WelcomeWall from "@/components/mindcast-live/WelcomeWall";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
@@ -103,7 +105,7 @@ type Response = {
   is_public: boolean;
   created_at: string;
   hidden: boolean;
-  moderation_status: "pending" | "approved" | "denied" | null;
+  moderation_status: string | null;
   prompt_type?: string | null;
 };
 
@@ -121,43 +123,42 @@ const genCode = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23
 // deity-free inner-wisdom alignment) live in curriculum_weeks. Merge the
 // curriculum row in as a fallback so the CSV lessons drive the live session and
 // any week that exists only in curriculum_weeks still renders.
-const pick = (a: any, b: any): string => (a && String(a).trim() ? String(a) : (b ? String(b) : "")) || "";
-const buildSession = (live: any, cur: any, wk: number, aud: string): Session | null => {
+const pick = (a: string | null | undefined, b: string | null | undefined): string => (a && String(a).trim() ? String(a) : (b ? String(b) : "")) || "";
+const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables<"curriculum_weeks"> | null, wk: number, aud: string): Session | null => {
   if (!live && !cur) return null;
-  const base: any = live || {};
   return {
-    id: base.id || `curriculum-${wk}-${aud}`,
+    id: live?.id || `curriculum-${wk}-${aud}`,
     week_number: wk,
-    phase: base.phase ?? cur?.block_number ?? 0,
-    phase_name: pick(base.phase_name, cur?.block_theme),
-    theme_title: pick(base.theme_title, cur?.weekly_theme),
+    phase: live?.phase ?? cur?.block_number ?? 0,
+    phase_name: pick(live?.phase_name, cur?.block_theme),
+    theme_title: pick(live?.theme_title, cur?.weekly_theme),
     audience: aud,
-    core_concept: pick(base.core_concept, cur?.core_learning),
-    signal_metaphor: pick(base.signal_metaphor, cur?.signal_metaphor),
-    ancient_wisdom_reframe: pick(base.ancient_wisdom_reframe, cur?.inner_wisdom_alignment),
-    session_title: pick(base.session_title, cur?.weekly_theme),
-    opening_hook: base.opening_hook || "",
-    teaching_points: base.teaching_points || "",
-    experiential_exercise: pick(base.experiential_exercise, cur?.interactive_activity),
-    guided_reflection: pick(base.guided_reflection, cur?.reflective_question),
-    journaling_prompt: pick(base.journaling_prompt, cur?.reflective_question),
-    weekly_practice_mon: base.weekly_practice_mon || "",
-    weekly_practice_wed: base.weekly_practice_wed || "",
-    weekly_practice_sun: base.weekly_practice_sun || "",
-    core_affirmation: base.core_affirmation || "",
-    video_link: pick(base.video_link, cur?.youtube_url),
-    video_description: pick(base.video_description, cur?.youtube_title),
-    video_backup_description: base.video_backup_description || "",
-    video_transcript: base.video_transcript || "",
-    video_question_1: base.video_question_1 || "",
-    video_question_2: base.video_question_2 || "",
-    facilitator_notes: [base.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
-    previous_week_callback: base.previous_week_callback || "",
-    video_position: base.video_position || cur?.video_position || "early",
-    activity_type: (cur?.activity_type || base.activity_type || "reflection"),
+    core_concept: pick(live?.core_concept, cur?.core_learning),
+    signal_metaphor: pick(live?.signal_metaphor, cur?.signal_metaphor),
+    ancient_wisdom_reframe: pick(live?.ancient_wisdom_reframe, cur?.inner_wisdom_alignment),
+    session_title: pick(live?.session_title, cur?.weekly_theme),
+    opening_hook: live?.opening_hook || "",
+    teaching_points: live?.teaching_points || "",
+    experiential_exercise: pick(live?.experiential_exercise, cur?.interactive_activity),
+    guided_reflection: pick(live?.guided_reflection, cur?.reflective_question),
+    journaling_prompt: pick(live?.journaling_prompt, cur?.reflective_question),
+    weekly_practice_mon: live?.weekly_practice_mon || "",
+    weekly_practice_wed: live?.weekly_practice_wed || "",
+    weekly_practice_sun: live?.weekly_practice_sun || "",
+    core_affirmation: live?.core_affirmation || "",
+    video_link: pick(live?.video_link, cur?.youtube_url),
+    video_description: pick(live?.video_description, cur?.youtube_title),
+    video_backup_description: live?.video_backup_description || "",
+    video_transcript: live?.video_transcript || "",
+    video_question_1: live?.video_question_1 || "",
+    video_question_2: live?.video_question_2 || "",
+    facilitator_notes: [live?.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
+    previous_week_callback: live?.previous_week_callback || "",
+    video_position: cur?.video_position || "early",
+    activity_type: (cur?.activity_type || "reflection"),
     activity_options: (cur?.activity_options || ""),
-    coloring_page_url: base.coloring_page_url || null,
-    coloring_pdf_url: base.coloring_pdf_url || null,
+    coloring_page_url: live?.coloring_page_url || null,
+    coloring_pdf_url: live?.coloring_pdf_url || null,
   };
 };
 
@@ -176,7 +177,7 @@ const FacilitatorView = () => {
   const { user, role, isStaff } = useAuth();
 
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">(
-    (search.get("a") as any) || "Adult"
+    (search.get("a") as "Adult" | "Teen" | "Child" | null) || "Adult"
   );
   const [session, setSession] = useState<Session | null>(null);
   const [slide, setSlide] = useState(0);
@@ -211,9 +212,9 @@ const FacilitatorView = () => {
   useEffect(() => {
     (async () => {
       const [{ data: live }, { data: cur }] = await Promise.all([
-        (supabase as any).from("mindcast_live_sessions").select("*")
+        db.from("mindcast_live_sessions").select("*")
           .eq("week_number", week).eq("audience", audience).maybeSingle(),
-        (supabase as any).from("curriculum_weeks").select("*")
+        db.from("curriculum_weeks").select("*")
           .eq("week_number", week).maybeSingle(),
       ]);
       setSession(buildSession(live, cur, week, audience));
@@ -226,7 +227,7 @@ const FacilitatorView = () => {
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("worksheets")
         .select("video_mp4_url, render_status")
         .eq("week_number", week).eq("audience_type", audience).maybeSingle();
@@ -239,10 +240,11 @@ const FacilitatorView = () => {
       .on("postgres_changes",
         { event: "*", schema: "public", table: "worksheets",
           filter: `week_number=eq.${week}` },
-        (p: any) => {
-          if (p.new?.audience_type !== audience) return;
-          setRenderedMp4(p.new?.video_mp4_url || null);
-          setRenderStatus(p.new?.render_status || null);
+        (p) => {
+          const row = p.new as Partial<Tables<"worksheets">> | undefined;
+          if (row?.audience_type !== audience) return;
+          setRenderedMp4(row?.video_mp4_url || null);
+          setRenderStatus(row?.render_status || null);
         })
       .subscribe();
     return () => { active = false; supabase.removeChannel(ch); };
@@ -253,7 +255,7 @@ const FacilitatorView = () => {
   // in featured_callbacks (next_week_number = this week).
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("featured_callbacks")
         .select("id, display_name, response_text, prompt_type")
         .eq("next_week_number", week)
@@ -273,7 +275,7 @@ const FacilitatorView = () => {
       return;
     }
     (async () => {
-      const { count } = await (supabase as any)
+      const { count } = await db
         .from("unlocked_lessons")
         .select("user_id", { count: "exact", head: true })
         .eq("week_number", week);
@@ -286,7 +288,7 @@ const FacilitatorView = () => {
   // Pending rows feed the moderation queue; approved rows feed the live wall.
   useEffect(() => {
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("session_responses")
         .select("id, display_name, response_text, show_name, is_public, created_at, hidden, moderation_status, prompt_type")
         .eq("session_code", code)
@@ -299,20 +301,21 @@ const FacilitatorView = () => {
     const ch = supabase
       .channel(`responses:${code}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
-        (p: any) => { if (p.new?.is_public) setResponses(prev => [p.new, ...prev]); })
+        (p) => { const row = p.new as Response; if (row?.is_public) setResponses(prev => [row, ...prev]); })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
-        (p: any) => setResponses(prev => {
+        (p) => setResponses(prev => {
+          const row = p.new as Response;
           // If a row was just made private, hidden, or denied, drop it.
-          if (!p.new?.is_public || p.new?.hidden || p.new?.moderation_status === "denied") {
-            return prev.filter(r => r.id !== p.new.id);
+          if (!row?.is_public || row?.hidden || row?.moderation_status === "denied") {
+            return prev.filter(r => r.id !== row.id);
           }
-          const existing = prev.find(r => r.id === p.new.id);
+          const existing = prev.find(r => r.id === row.id);
           return existing
-            ? prev.map(r => r.id === p.new.id ? p.new : r)
-            : [p.new, ...prev];
+            ? prev.map(r => r.id === row.id ? row : r)
+            : [row, ...prev];
         }))
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "session_responses", filter: `session_code=eq.${code}` },
-        (p: any) => setResponses(prev => prev.filter(r => r.id !== p.old?.id)))
+        (p) => setResponses(prev => prev.filter(r => r.id !== p.old?.id)))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [code]);
@@ -346,7 +349,7 @@ const FacilitatorView = () => {
     // Durable mirror: broadcast is low-latency but ephemeral, so a late joiner
     // or a reconnect can miss it. Persist the current state so LiveJoin can
     // resolve it on mount regardless of presenter timing.
-    (supabase as any).from("live_session_state").upsert({
+    db.from("live_session_state").upsert({
       session_code: code,
       week_number: week,
       audience,
@@ -403,20 +406,20 @@ const FacilitatorView = () => {
     if (unlocked) return;
     // Fan out: one unlock row per member profile so each user sees their own
     // unlock state. Upserts on (user_id, week_number).
-    const { data: profiles, error: profilesError } = await (supabase as any)
+    const { data: profiles, error: profilesError } = await db
       .from("profiles").select("user_id");
     if (profilesError) {
       toast({ title: "Could not load members", description: profilesError.message });
       return;
     }
     const rows = (profiles || [])
-      .filter((p: any) => p.user_id)
-      .map((p: any) => ({ user_id: p.user_id, week_number: week, facilitator_id: user?.id }));
+      .filter((p) => p.user_id)
+      .map((p) => ({ user_id: p.user_id, week_number: week, facilitator_id: user?.id }));
     if (rows.length === 0) {
       toast({ title: "No members to unlock for" });
       return;
     }
-    const { error } = await (supabase as any).from("unlocked_lessons")
+    const { error } = await db.from("unlocked_lessons")
       .upsert(rows, { onConflict: "user_id,week_number", ignoreDuplicates: true });
     if (error) { toast({ title: "Could not unlock", description: error.message }); return; }
     setUnlocked(true);
@@ -424,7 +427,7 @@ const FacilitatorView = () => {
   };
 
   const hideResponse = async (id: string) => {
-    await (supabase as any).from("session_responses").update({ hidden: true }).eq("id", id);
+    await db.from("session_responses").update({ hidden: true }).eq("id", id);
     setResponses(prev => prev.filter(r => r.id !== id));
   };
 
@@ -448,7 +451,7 @@ const FacilitatorView = () => {
   };
 
   const approveResponse = async (id: string) => {
-    const { error } = await (supabase as any)
+    const { error } = await db
       .from("session_responses")
       .update({ moderation_status: "approved" })
       .eq("id", id);
@@ -461,7 +464,7 @@ const FacilitatorView = () => {
     // Broadcast first so the submitter sees the Mindcast-tone message even
     // if the DB delete races with their realtime listener.
     await broadcastModeration(id, "denied", reason);
-    const { error } = await (supabase as any)
+    const { error } = await db
       .from("session_responses")
       .delete()
       .eq("id", id);
@@ -481,24 +484,25 @@ const FacilitatorView = () => {
       if (error) {
         let detail = error.message;
         try {
-          const ctx: any = (error as any).context;
+          const ctx = (error as { context?: { body?: unknown } }).context;
           if (ctx?.body) {
-            const text = typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body).text();
+            const text = typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body as ReadableStream).text();
             const parsed = JSON.parse(text);
             if (parsed?.error) detail = parsed.error;
           }
         } catch { /* keep generic */ }
         throw new Error(detail);
       }
-      if ((data as any)?.error) throw new Error((data as any).error);
+      const fnError = (data as { error?: string } | null)?.error;
+      if (fnError) throw new Error(fnError);
       setRenderStatus("processing");
       toast({
         title: "Video rendering started",
         description: "Storyboard + narration uploaded. MP4 will appear on the slide when Shotstack finishes (~3–5 min).",
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("generate-session-video failed:", e);
-      toast({ title: "Video generation failed", description: e.message, variant: "destructive" });
+      toast({ title: "Video generation failed", description: e instanceof Error ? e.message : undefined, variant: "destructive" });
     } finally {
       setGeneratingVideo(false);
     }
@@ -532,7 +536,7 @@ const FacilitatorView = () => {
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${unlocked ? "bg-[hsl(var(--bronze))]/20 text-[hsl(var(--bronze))]" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10"}`}>
             {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
           </button>
-          <button onClick={() => session && downloadWorksheetPdf(session as any)} title="Download worksheet PDF" className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><Download size={14} /></button>
+          <button onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><Download size={14} /></button>
           {isFacilitator && (
             <button
               onClick={handleGenerateVideo}
@@ -816,7 +820,7 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         themeTitle={session.theme_title}
         sessionTitle={session.session_title}
         onGenerated={async () => {
-          const { data } = await (supabase as any).from("mindcast_live_sessions")
+          const { data } = await db.from("mindcast_live_sessions")
             .select("coloring_page_url, coloring_pdf_url")
             .eq("week_number", session.week_number).eq("audience", "Child").maybeSingle();
           if (data) onSessionUpdate({ ...session, coloring_page_url: data.coloring_page_url, coloring_pdf_url: data.coloring_pdf_url });
@@ -863,8 +867,8 @@ const ColoringActivitySlide = ({
       if (data?.error) throw new Error(data.error);
       toast({ title: "Colouring page ready" });
       await onGenerated?.();
-    } catch (e: any) {
-      toast({ title: "Colouring generation failed", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      toast({ title: "Colouring generation failed", description: e instanceof Error ? e.message : undefined, variant: "destructive" });
     } finally {
       setGenerating(false);
     }

@@ -108,15 +108,15 @@ const ImplementationCheckin = ({ weekNumber }: ImplementationCheckinProps) => {
             </div>
           </div>
 
-          {[
+          {([
             { key: "what_happened", label: "What happened?", placeholder: "Describe how it went..." },
             { key: "did_achieve", label: "Did you achieve it?", placeholder: "Be honest — no judgement..." },
             { key: "what_learned", label: "What did you learn?", placeholder: "What would you do differently?" },
-          ].map(field => (
+          ] as const).map(field => (
             <div key={field.key}>
               <label className="portal-label block mb-1.5">{field.label}</label>
               <textarea
-                value={(checkin as any)[field.key]}
+                value={checkin[field.key]}
                 onChange={(e) => update(field.key, e.target.value)}
                 placeholder={field.placeholder}
                 className="w-full bg-foreground/[0.02] text-foreground p-3 text-sm font-body font-light border border-foreground/[0.07] focus:border-foreground/20 focus:outline-none resize-none min-h-[70px] leading-relaxed placeholder:text-muted-foreground/30"

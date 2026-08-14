@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 
 // Schedule parallel adult/teen/child tracks per day (scheduled_sessions).
@@ -26,7 +26,7 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    const { data } = await (supabase as any)
+    const { data } = await db
       .from("scheduled_sessions")
       .select("*")
       .order("session_date", { ascending: false })
@@ -38,7 +38,7 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
   const add = async () => {
     if (!form.session_date) { toast({ title: "Pick a date" }); return; }
     setSaving(true);
-    const { error } = await (supabase as any).from("scheduled_sessions").upsert(
+    const { error } = await db.from("scheduled_sessions").upsert(
       {
         session_date: form.session_date,
         track: form.track,
@@ -55,7 +55,7 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   const setStatus = async (id: string, status: string) => {
-    await (supabase as any).from("scheduled_sessions").update({ status }).eq("id", id);
+    await db.from("scheduled_sessions").update({ status }).eq("id", id);
     load();
   };
 

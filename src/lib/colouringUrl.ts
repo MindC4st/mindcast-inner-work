@@ -19,7 +19,7 @@ export async function resolveColouringUrl(
   // Legacy: an absolute public URL already.
   if (/^https?:\/\//i.test(value)) return value;
 
-  const { data, error } = await (supabase as any).storage
+  const { data, error } = await supabase.storage
     .from("colouring")
     .createSignedUrl(value, expiresIn);
   if (error || !data?.signedUrl) return null;

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Nfc, ShieldCheck, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { db } from "@/lib/db";
 
 type Row = {
   name: string | null; display_name: string | null; email: string | null;
@@ -26,7 +26,7 @@ const AdminProfile = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("profiles")
         .select("name, display_name, email, nfc_id, age_group, membership_status")
         .eq("user_id", user.id).maybeSingle();
@@ -40,7 +40,7 @@ const AdminProfile = () => {
   const save = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await (supabase as any)
+    const { error } = await db
       .from("profiles").update({ display_name: displayName.trim() }).eq("user_id", user.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }

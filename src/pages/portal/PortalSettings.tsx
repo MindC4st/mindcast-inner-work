@@ -34,7 +34,7 @@ const PortalSettings = () => {
   useEffect(() => {
     if (!profile) return;
     setName(profile.name || "");
-    const p: any = profile;
+    const p = profile;
     setFirstName(p.first_name || "");
     setLastName(p.last_name || "");
     setLiveMode((p.live_display_mode as DisplayMode) || "first_initial");
@@ -50,11 +50,11 @@ const PortalSettings = () => {
     try {
       const { data, error } = await supabase.functions.invoke("delete-account", { body: {} });
       if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
+      if (data?.error) throw new Error(data.error);
       toast({ title: "Account deleted", description: "Your account and data have been removed." });
       await signOut();
       navigate("/");
-    } catch (e: any) {
+    } catch (e) {
       setDeleting(false);
       toast({ title: "Couldn't delete account", description: e?.message ?? "Please try again or contact us.", variant: "destructive" });
     }
@@ -70,7 +70,7 @@ const PortalSettings = () => {
       live_display_mode: liveMode,
       notify_practice_email: emailReminders,
       notify_practice_push: pushReminders,
-    } as any).eq("user_id", user.id);
+    }).eq("user_id", user.id);
     setSaving(false);
     if (error) {
       toast({ title: "Failed to save", description: error.message, variant: "destructive" });
@@ -119,18 +119,18 @@ const PortalSettings = () => {
             <label className="portal-label block mb-2">MEMBERSHIP</label>
             <p className="text-sm text-foreground/50 font-body font-light py-3">
               {(() => {
-                const tier = (profile as any)?.membership_tier || "none";
-                const status = (profile as any)?.membership_status || "none";
-                const bundle = (profile as any)?.membership_bundle;
+                const tier = profile?.membership_tier || "none";
+                const status = profile?.membership_status || "none";
+                const bundle = profile?.membership_bundle as { adults?: number; teens?: number; children?: number } | null | undefined;
                 if (tier === "none" || status === "none") return "No active membership";
                 const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
                 const statusLabel = status === "active" ? "Active" : status === "trialing" ? "Trial" : status === "past_due" ? "Past Due" : status === "paused" ? "Paused" : status === "lapsed" ? "Lapsed" : status.replace("_", " ");
                 let detail = `${tierLabel} — ${statusLabel}`;
                 if (bundle && typeof bundle === "object") {
                   const parts = [];
-                  if ((bundle as any).adults) parts.push(`${(bundle as any).adults} Adult${(bundle as any).adults > 1 ? "s" : ""}`);
-                  if ((bundle as any).teens) parts.push(`${(bundle as any).teens} Teen${(bundle as any).teens > 1 ? "s" : ""}`);
-                  if ((bundle as any).children) parts.push(`${(bundle as any).children} Child${(bundle as any).children > 1 ? "ren" : ""}`);
+                  if (bundle.adults) parts.push(`${bundle.adults} Adult${bundle.adults > 1 ? "s" : ""}`);
+                  if (bundle.teens) parts.push(`${bundle.teens} Teen${bundle.teens > 1 ? "s" : ""}`);
+                  if (bundle.children) parts.push(`${bundle.children} Child${bundle.children > 1 ? "ren" : ""}`);
                   if (parts.length > 0) detail += ` (${parts.join(", ")})`;
                 }
                 return detail;

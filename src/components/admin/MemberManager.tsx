@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { User, ChevronRight, X, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { WEEKS } from "@/data/weekData";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface Member {
   userId: string;
@@ -18,10 +19,10 @@ interface Member {
 }
 
 interface MemberDetail {
-  entries: any[];
-  bookmarkResponses: any[];
-  commitments: any[];
-  checkins: any[];
+  entries: Tables<"entries">[];
+  bookmarkResponses: Tables<"bookmark_responses">[];
+  commitments: Tables<"commitments">[];
+  checkins: Tables<"implementation_checkins">[];
 }
 
 const STATUS_STYLES: Record<string, { dot: string; label: string }> = {
@@ -41,10 +42,15 @@ const MemberManager = () => {
   useEffect(() => {
     if (!cohortId) return;
     const load = async () => {
-      const { data: cm } = await supabase
+      const { data: cmRows } = await supabase
         .from("cohort_members")
         .select("user_id, joined_at, profiles!cohort_members_user_id_fkey(name, is_active)")
         .eq("cohort_id", cohortId);
+      // The FK join to profiles isn't in the generated types; cast the
+      // joined shape structurally.
+      const cm = cmRows as unknown as
+        | { user_id: string; joined_at: string; profiles: { name: string; is_active: boolean } | null }[]
+        | null;
 
       if (!cm) { setLoading(false); return; }
       const userIds = cm.map(c => c.user_id);
@@ -58,13 +64,13 @@ const MemberManager = () => {
 
       const roleMap: Record<string, string> = {};
       (rolesRes.data || []).forEach(r => { roleMap[r.user_id] = r.role; });
-      const countBy = (arr: any[], uid: string) => arr.filter(a => a.user_id === uid).length;
+      const countBy = (arr: { user_id: string }[], uid: string) => arr.filter(a => a.user_id === uid).length;
 
       setMembers(cm.map(c => ({
         userId: c.user_id,
-        name: (c.profiles as any)?.name || "Unknown",
+        name: c.profiles?.name || "Unknown",
         joinedAt: c.joined_at,
-        isActive: (c.profiles as any)?.is_active ?? true,
+        isActive: c.profiles?.is_active ?? true,
         role: roleMap[c.user_id] || "member",
         entriesCount: countBy(entriesRes.data || [], c.user_id),
         bookmarkCount: countBy(bmRes.data || [], c.user_id),
@@ -102,9 +108,9 @@ const MemberManager = () => {
 
   // ─── Member detail view ───
   if (selected && detail) {
-    const commitByWeek: Record<number, any> = {};
+    const commitByWeek: Record<number, Tables<"commitments">> = {};
     detail.commitments.forEach(c => { commitByWeek[c.week_number] = c; });
-    const checkinByWeek: Record<number, any> = {};
+    const checkinByWeek: Record<number, Tables<"implementation_checkins">> = {};
     detail.checkins.forEach(c => { checkinByWeek[c.week_number] = c; });
 
     return (

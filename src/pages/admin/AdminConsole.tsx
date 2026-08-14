@@ -1,9 +1,9 @@
 import { lazy, Suspense, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Clapperboard, CalendarDays, TrendingUp, CreditCard,
-  Users, Download, LineChart, UserCircle, Layers,
+  Users, Download, LineChart, UserCircle, Layers, GraduationCap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -25,16 +25,18 @@ const AdminProfile = lazy(() => import("@/components/admin/console/AdminProfile"
 const AdminDownloadsTab = lazy(() => import("@/components/admin/console/AdminDownloadsTab"));
 const FacilitateTab = lazy(() => import("@/components/admin/console/FacilitateTab"));
 const BraceletStudio = lazy(() => import("@/components/admin/console/BraceletStudio"));
+const TrainingHome = lazy(() => import("@/components/staff-training/TrainingHome"));
 
 type TabId =
   | "dashboard" | "sessions" | "progress" | "profile" | "insights"
-  | "membership" | "downloads" | "groups" | "facilitate";
+  | "membership" | "downloads" | "groups" | "facilitate" | "training";
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "facilitate", label: "Facilitate", icon: Clapperboard },
   { id: "sessions", label: "Sessions", icon: CalendarDays },
   { id: "progress", label: "Progress", icon: TrendingUp },
+  { id: "training", label: "Training", icon: GraduationCap },
   { id: "insights", label: "Insights", icon: LineChart },
   { id: "membership", label: "Membership", icon: CreditCard },
   { id: "groups", label: "Group View", icon: Users },
@@ -81,16 +83,30 @@ const SubTabBar = ({ tabs, active, onChange }: {
 );
 
 const AdminConsole = () => {
-  const { role } = useAuth();
-  const [tab, setTab] = useState<TabId>("dashboard");
-  const [sessionSub, setSessionSub] = useState<string>("schedule");
-  const [membershipSub, setMembershipSub] = useState<string>("overview");
+  const { role, isAdmin } = useAuth();
+  const [search] = useSearchParams();
+  const tabParam = search.get("tab") as TabId | null;
+  const subParam = search.get("sub");
+  const [tab, setTab] = useState<TabId>(
+    tabParam && TABS.some((t) => t.id === tabParam) && (tabParam !== "membership" || isAdmin)
+      ? tabParam
+      : "dashboard",
+  );
+  const [sessionSub, setSessionSub] = useState<string>(
+    subParam && SESSION_SUBTABS.some((s) => s.id === subParam) ? subParam : "schedule",
+  );
+  const [membershipSub, setMembershipSub] = useState<string>(
+    subParam && MEMBERSHIP_SUBTABS.some((s) => s.id === subParam) ? subParam : "overview",
+  );
+
+  const visibleTabs = TABS.filter((t) => t.id !== "membership" || isAdmin);
 
   const renderTab = () => {
     switch (tab) {
       case "dashboard": return <AdminDashboard embedded />;
       case "facilitate": return <FacilitateTab />;
       case "progress": return <AdminProgress />;
+      case "training": return <TrainingHome embedded />;
       case "insights": return <AdminInsights />;
       case "profile": return <AdminProfile />;
       case "downloads": return <AdminDownloadsTab />;
@@ -137,7 +153,7 @@ const AdminConsole = () => {
           </div>
         </div>
         <nav className="md:hidden flex gap-1 overflow-x-auto px-3 pb-2">
-          {TABS.map((t) => (
+          {visibleTabs.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${tab === t.id ? "bg-[#3585AF] text-white" : "text-[#8E9299]"}`}>
               <t.icon size={12} /> {t.label}
@@ -148,7 +164,7 @@ const AdminConsole = () => {
 
       <div className="flex">
         <aside className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-white/[0.06] min-h-[calc(100vh-3.5rem)] sticky top-14 self-start">
-          {TABS.map((t) => (
+          {visibleTabs.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`relative flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${tab === t.id ? "bg-white/[0.06] text-white" : "text-[#8E9299] hover:text-white hover:bg-white/[0.03]"}`}>
               {tab === t.id && <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-[#3585AF]" />}

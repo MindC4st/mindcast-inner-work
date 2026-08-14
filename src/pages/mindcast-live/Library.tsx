@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Lock, Unlock, Play, Presentation, Film, Pencil, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -19,9 +20,9 @@ const Library = () => {
     if (!user) return;
     (async () => {
       const [{ data: sessions }, { data: unl }, { data: comp }] = await Promise.all([
-        (supabase as any).from("mindcast_live_sessions_public").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
-        isStaff ? Promise.resolve({ data: [] }) : (supabase as any).from("unlocked_lessons").select("week_number").eq("user_id", user.id),
-        (supabase as any).from("lesson_completions").select("week_number").eq("user_id", user.id),
+        db.from("mindcast_live_sessions_public").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
+        isStaff ? Promise.resolve({ data: [] }) : db.from("unlocked_lessons").select("week_number").eq("user_id", user.id),
+        db.from("lesson_completions").select("week_number").eq("user_id", user.id),
       ]);
       const map = new Map<number, Row>();
       (sessions || []).forEach((s: Row) => map.set(s.week_number, s));
@@ -34,9 +35,9 @@ const Library = () => {
       if (isStaff) {
         setUnlocked(new Set(Array.from({ length: 52 }, (_, i) => i + 1)));
       } else {
-        setUnlocked(new Set((unl || []).map((u: any) => u.week_number)));
+        setUnlocked(new Set((unl || []).map(u => u.week_number)));
       }
-      setCompleted(new Set((comp || []).map((c: any) => c.week_number)));
+      setCompleted(new Set((comp || []).map(c => c.week_number)));
     })();
   }, [user, isStaff]);
 
@@ -48,13 +49,13 @@ const Library = () => {
     try {
       const { data, error } = await supabase.functions.invoke("bulk-generate-videos", { body: {} });
       if (error) throw error;
-      const d = data as any;
+      const d = data;
       toast({
         title: `Queued ${d.queued_this_run} renders`,
         description: `${d.already_done} already done · ${d.already_processing} already in flight · ${d.remaining_after_this_run} left. Re-click after a few minutes to continue.`,
       });
-    } catch (e: any) {
-      toast({ title: "Bulk generate failed", description: e.message });
+    } catch (e) {
+      toast({ title: "Bulk generate failed", description: (e as Error).message });
     } finally {
       setBulkRunning(false);
     }

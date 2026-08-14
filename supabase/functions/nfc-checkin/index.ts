@@ -16,6 +16,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { shouldDedupe } from "../_shared/checkin-dedupe.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -127,16 +128,15 @@ serve(async (req) => {
     }
     // -----------------------------------------------------------------------
 
-    // Idempotency: collapse duplicate scans within the last 5 minutes so an
+    // Idempotency: collapse duplicate scans within the dedupe window so an
     // accidental double-tap doesn't double-name the wall.
-    const fiveMinAgo = new Date(Date.now() - 5 * 60_000).toISOString();
     const { data: recent } = await supa
       .from("check_ins")
-      .select("id")
+      .select("id, checked_in_at")
       .eq("profile_id", profile.id)
-      .gt("checked_in_at", fiveMinAgo)
+      .order("checked_in_at", { ascending: false })
       .limit(1);
-    if (recent && recent.length > 0) {
+    if (recent && recent.length > 0 && shouldDedupe((recent[0] as { checked_in_at: string }).checked_in_at, Date.now())) {
       return json({ ok: true, deduped: true, display_name: displayName, welcome_name: welcomeName });
     }
 

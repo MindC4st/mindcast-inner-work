@@ -20,7 +20,7 @@ const PreviousCommitment = ({ sessionId, label }: PreviousCommitmentProps) => {
         name = data[commitmentKey].name;
       }
     }
-  } catch {}
+  } catch { /* corrupt local storage is non-fatal */ }
 
   if (!commitment) {
     return (

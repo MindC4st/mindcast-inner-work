@@ -9,6 +9,7 @@ import { downloadWorksheetPdf, WorksheetSession } from "@/lib/generateWorksheetP
 import { resolveColouringUrl } from "@/lib/colouringUrl";
 import { toast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
+import { db } from "@/lib/db";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -47,7 +48,7 @@ const PortalDownloads = () => {
   const [loading, setLoading] = useState(true);
   const [adminFallback, setAdminFallback] = useState(false);
 
-  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
+  const isAdmin = role === "admin" || role === "facilitator" || profile?.is_admin === true || adminFallback;
 
   // Direct DB fallback — catches cases where AuthContext isn't ready or lacks the flag
   useEffect(() => {
@@ -57,7 +58,7 @@ const PortalDownloads = () => {
         supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
         supabase.from("profiles").select("is_admin").eq("user_id", user.id).single(),
       ]);
-      if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
+      if (roleRow || profileRow?.is_admin) setAdminFallback(true);
     })();
   }, [user]);
 
@@ -66,20 +67,14 @@ const PortalDownloads = () => {
     let active = true;
     setLoading(true);
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("mindcast_live_sessions")
-        .select(
-          "week_number, audience, phase_name, theme_title, session_title, " +
-          "signal_metaphor, video_question_1, video_question_2, " +
-          "journaling_prompt, experiential_exercise, " +
-          "weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, " +
-          "core_affirmation, coloring_page_url, coloring_pdf_url"
-        )
+        .select("week_number, audience, phase_name, theme_title, session_title, signal_metaphor, video_question_1, video_question_2, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, coloring_page_url, coloring_pdf_url")
         .eq("audience", audience)
         .order("week_number", { ascending: true });
 
       if (!active) return;
-      const rows: DownloadItem[] = (data || []).map((r: any) => ({
+      const rows: DownloadItem[] = (data || []).map(r => ({
         ...r,
         worksheet_url: null, // will be filled from worksheets table
       }));
@@ -143,8 +138,8 @@ const PortalDownloads = () => {
         doc.save(`mindcast-coloring-week-${String(weekNumber).padStart(2, "0")}.pdf`);
       };
       reader.readAsDataURL(blob);
-    } catch (e: any) {
-      toast({ title: "Download failed", description: e?.message ?? "Could not generate PDF", variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Download failed", description: (e as Error)?.message ?? "Could not generate PDF", variant: "destructive" });
     }
   };
 

@@ -5,6 +5,8 @@ import { ArrowLeft, Check, Loader2, Youtube, Save, AlertCircle, Play, Sparkles }
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { db } from "@/lib/db";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 // ── In-app lesson editor (admin / facilitator) ──────────────────────────────
 // Edits every slide's text and swaps the YouTube video for a given week + track,
@@ -150,7 +152,7 @@ const LessonEditor = () => {
     let cancelled = false;
     setLoading(true);
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("mindcast_live_sessions").select("*")
         .eq("week_number", week).eq("audience", audience).maybeSingle();
       if (cancelled) return;
@@ -167,7 +169,7 @@ const LessonEditor = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("curriculum_weeks").select("activity_type, activity_options")
         .eq("week_number", week).maybeSingle();
       if (cancelled) return;
@@ -192,16 +194,16 @@ const LessonEditor = () => {
   const save = async () => {
     if (saving) return;
     setSaving(true);
-    const payload: any = { ...draft, phase: Number(draft.phase) || 0 };
+    const payload: TablesInsert<"mindcast_live_sessions"> = { ...draft, phase: Number(draft.phase) || 0 };
     delete payload.id;
-    const { data, error } = await (supabase as any)
+    const { data, error } = await db
       .from("mindcast_live_sessions")
       .upsert(payload, { onConflict: "week_number,audience" })
       .select("id").maybeSingle();
     // Persist the week-level activity_type (curriculum_weeks) when it changed.
-    let activityErr: any = null;
+    let activityErr: { message: string } | null = null;
     if (activityDirty) {
-      const r = await (supabase as any)
+      const r = await db
         .from("curriculum_weeks").update({ activity_type: activityType, activity_options: activityOptions }).eq("week_number", week);
       activityErr = r.error;
     }

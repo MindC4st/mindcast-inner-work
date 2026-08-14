@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Radio } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
+
 
 // Shows today's scheduled session for the member's track (from scheduled_sessions).
 // Renders nothing if there isn't one today. Links straight into the live room
@@ -24,8 +25,8 @@ const TodaysSessionBanner = () => {
   useEffect(() => {
     if (!profile) return;
     const today = new Date().toISOString().slice(0, 10);
-    const track = trackForAgeGroup((profile as any).age_group);
-    (supabase as any)
+    const track = trackForAgeGroup(profile.age_group);
+    db
       .from("scheduled_sessions")
       .select("track, week_number, room, session_code, status")
       .eq("session_date", today)

@@ -29,7 +29,7 @@ const AdminProgram = ({ embedded = false }: { embedded?: boolean }) => {
         .from("app_settings")
         .select("key, value")
         .in("key", ["program_start_date", "program_timezone"]);
-      const map = Object.fromEntries((data || []).map((r: any) => [r.key, r.value]));
+      const map = Object.fromEntries((data || []).map(r => [r.key, r.value]));
       setStartDate(map.program_start_date || "");
       setTz(map.program_timezone || "Pacific/Auckland");
       setLoading(false);

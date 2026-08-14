@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import QRCode from "react-qr-code";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, X, Copy, Shuffle, Check, Nfc } from "lucide-react";
 
@@ -23,8 +24,8 @@ const braceletUrlFor = (token: string) =>
   `${typeof window !== "undefined" ? window.location.origin : "https://mindcast.co.nz"}/b/${token}`;
 
 const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
-  const [members, setMembers] = useState<any[]>([]);
-  const [selected, setSelected] = useState<any>(null);
+  const [members, setMembers] = useState<Tables<"profiles">[]>([]);
+  const [selected, setSelected] = useState<Tables<"profiles"> | null>(null);
   const [nfcId, setNfcId] = useState("");
   const [saving, setSaving] = useState(false);
   const [justCopied, setJustCopied] = useState(false);
@@ -34,14 +35,14 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
     supabase.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setMembers(data || []));
   }, []);
 
-  const openMember = (m: any) => {
+  const openMember = (m: Tables<"profiles">) => {
     setSelected(m);
     setNfcId(m.nfc_id || "");
   };
 
   // One-click per row: reuse the member's existing token, or generate + assign
   // a fresh one, then open the modal with the copyable bracelet URL.
-  const rowBracelet = async (m: any) => {
+  const rowBracelet = async (m: Tables<"profiles">) => {
     if (m.nfc_id) { openMember(m); return; }
     const t = newBraceletToken();
     setSaving(true);
@@ -49,7 +50,7 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
       body: { profile_id: m.id, nfc_id: t },
     });
     setSaving(false);
-    const d = data as any;
+    const d = data as { error?: string } | null;
     if (error || d?.error) {
       toast({ title: "Could not assign bracelet", description: error?.message || d?.error, variant: "destructive" });
       return;
@@ -71,7 +72,7 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
       toast({ title: "Could not update NFC ID", description: error.message, variant: "destructive" });
       return;
     }
-    const d = data as any;
+    const d = data as { error?: string } | null;
     if (d?.error) {
       toast({ title: "Could not update NFC ID", description: d.error, variant: "destructive" });
       return;

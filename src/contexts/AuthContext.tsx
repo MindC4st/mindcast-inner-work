@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // A user can hold several roles (member + facilitator + admin). Pick the
       // highest privilege so an admin with a leftover 'member' row isn't
       // downgraded to a plain member by an unordered .limit(1).
-      const roles = roleRes.data.map((r: any) => r.role as string);
+      const roles = roleRes.data.map(r => r.role as string);
       const highest = roles.includes("admin") ? "admin"
         : roles.includes("facilitator") ? "facilitator"
         : (roles[0] ?? null);
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const isAdmin = role === "admin" || profile?.is_admin === true;
   const isStaff = isAdmin || role === "facilitator";
-  const membershipStatus = (profile as any)?.membership_status ?? "none";
+  const membershipStatus = profile?.membership_status ?? "none";
 
   return (
     <AuthContext.Provider

@@ -12,15 +12,26 @@
 
 export type NfcSupport = "capacitor" | "webnfc" | "unsupported";
 
+type CapacitorShell = { isNativePlatform?: () => boolean };
+type CapacitorNfcPlugin = {
+  addListener?: (eventName: string, listener: (event: unknown) => void) => unknown;
+  startScanSession?: () => Promise<void> | void;
+};
+type NDEFReaderCtor = new () => {
+  scan: (options?: { signal?: AbortSignal }) => Promise<void>;
+  onreading: ((event: { serialNumber?: string }) => void) | null;
+  onreadingerror: (() => void) | null;
+};
+
 // Capacitor injects this global when running inside a native shell.
 function isCapacitorNative(): boolean {
-  const cap = (globalThis as any).Capacitor;
+  const cap = (globalThis as { Capacitor?: CapacitorShell }).Capacitor;
   return !!cap && typeof cap.isNativePlatform === "function" && cap.isNativePlatform();
 }
 
 export function nfcSupport(): NfcSupport {
   if (isCapacitorNative()) return "capacitor";
-  if (typeof (globalThis as any).NDEFReader !== "undefined") return "webnfc";
+  if (typeof (globalThis as { NDEFReader?: unknown }).NDEFReader !== "undefined") return "webnfc";
   return "unsupported";
 }
 
@@ -32,29 +43,29 @@ export async function readNfcId(signal?: AbortSignal): Promise<string> {
     // Computed specifier so neither tsc nor rollup resolves the native-only
     // dependency at build time — it exists only inside the Capacitor shell.
     const pkg = "@capacitor-community/nfc";
-    const mod: any = await import(/* @vite-ignore */ pkg).catch(() => null);
+    const mod = (await import(/* @vite-ignore */ pkg).catch(() => null)) as { Nfc?: CapacitorNfcPlugin } | null;
     const Nfc = mod?.Nfc;
     if (!Nfc) throw new Error("NFC plugin unavailable");
     return await new Promise<string>((resolve, reject) => {
       let done = false;
       const finish = (fn: () => void) => { if (!done) { done = true; fn(); } };
-      Nfc.addListener?.("nfcTagScanned", (event: any) => {
+      Nfc.addListener?.("nfcTagScanned", (event: unknown) => {
         const id = extractCapacitorId(event);
         if (id) finish(() => resolve(id));
       });
       signal?.addEventListener("abort", () => finish(() => reject(new Error("cancelled"))));
-      Promise.resolve(Nfc.startScanSession?.()).catch((e: any) =>
+      Promise.resolve(Nfc.startScanSession?.()).catch((e: unknown) =>
         finish(() => reject(e instanceof Error ? e : new Error(String(e)))),
       );
     });
   }
 
   if (support === "webnfc") {
-    const NDEFReader = (globalThis as any).NDEFReader;
+    const NDEFReader = (globalThis as { NDEFReader?: NDEFReaderCtor }).NDEFReader!;
     const reader = new NDEFReader();
     await reader.scan({ signal });
     return await new Promise<string>((resolve, reject) => {
-      reader.onreading = (event: any) => {
+      reader.onreading = (event) => {
         if (event?.serialNumber) resolve(String(event.serialNumber));
         else reject(new Error("No serial number on tag"));
       };
@@ -66,9 +77,12 @@ export async function readNfcId(signal?: AbortSignal): Promise<string> {
   throw new Error("NFC is not supported on this device");
 }
 
-function extractCapacitorId(event: any): string | null {
+function extractCapacitorId(event: unknown): string | null {
   // Plugin shapes vary by version; try the common id fields.
-  const tag = event?.nfcTag || event?.tag || event;
+  const wrapper = event as { nfcTag?: unknown; tag?: unknown } | null;
+  const tag = (wrapper?.nfcTag || wrapper?.tag || event) as {
+    id?: unknown; serialNumber?: unknown; uid?: unknown; idBytes?: number[];
+  } | null;
   const raw =
     tag?.id ?? tag?.serialNumber ?? tag?.uid ??
     (Array.isArray(tag?.idBytes) ? tag.idBytes.map((b: number) => b.toString(16).padStart(2, "0")).join("") : null);

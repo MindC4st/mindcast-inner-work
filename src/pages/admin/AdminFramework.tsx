@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, GripVertical, Trash2, Plus, Printer } from "lucide-react";
 
@@ -13,12 +14,14 @@ const DEFAULT_FRAMEWORK = [
   { name: "The Close", duration: 5, description: "Word cloud builds on screen as members submit their leaving word. One brief closing thought from the facilitator. See you next week." },
 ];
 
+type FrameworkStep = Pick<Tables<"framework_steps">, "id" | "step_order" | "name" | "duration" | "description">;
+
 const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
-  const [steps, setSteps] = useState<any[]>([]);
+  const [steps, setSteps] = useState<FrameworkStep[]>([]);
   const [saving, setSaving] = useState(false);
-  const [activeSession, setActiveSession] = useState<any>(null);
-  const [kidsLO, setKidsLO] = useState<any>(null);
-  const [kidsTeen, setKidsTeen] = useState<any>(null);
+  const [activeSession, setActiveSession] = useState<Tables<"sessions"> | null>(null);
+  const [kidsLO, setKidsLO] = useState<Tables<"kids_sessions"> | null>(null);
+  const [kidsTeen, setKidsTeen] = useState<Tables<"kids_sessions"> | null>(null);
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -31,14 +34,14 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
       setActiveSession(data);
       if (data) {
         supabase.from("kids_sessions").select("*").eq("parent_session_id", data.id).then(({ data: kids }) => {
-          setKidsLO((kids || []).find((k: any) => k.age_group === "little_ones"));
-          setKidsTeen((kids || []).find((k: any) => k.age_group === "teens"));
+          setKidsLO((kids || []).find((k) => k.age_group === "little_ones") ?? null);
+          setKidsTeen((kids || []).find((k) => k.age_group === "teens") ?? null);
         });
       }
     });
   }, []);
 
-  const updateStep = (idx: number, field: string, value: any) => {
+  const updateStep = (idx: number, field: string, value: string | number) => {
     setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s)));
   };
   const removeStep = (idx: number) => {

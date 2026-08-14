@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -42,6 +42,13 @@ type GroupMember = {
   life_group_id: string;
   profile_id: string;
   joined_at: string;
+};
+
+// Shape of the profiles select below: the household join comes back as an
+// array aliased onto household_id (the FK isn't in the generated types, so
+// the result is cast structurally in fetchData).
+type JoinedProfileRow = Omit<Profile, "household_id"> & {
+  household_id: { household_id: string }[] | null;
 };
 
 type AssignedGroup = {
@@ -281,14 +288,14 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     const [profilesRes, groupsRes, membersRes] = await Promise.all([
-      (supabase as any).from("profiles").select(
+      db.from("profiles").select(
         "id, name, display_name, email, age_group, gender, date_of_birth, membership_status, household_id:household_members(household_id)"
       ).order("created_at", { ascending: false }).limit(2000),
-      (supabase as any).from("life_groups").select("*").order("name"),
-      (supabase as any).from("life_group_members").select("id, life_group_id, profile_id, joined_at"),
+      db.from("life_groups").select("*").order("name"),
+      db.from("life_group_members").select("id, life_group_id, profile_id, joined_at"),
     ]);
 
-    const rawProfiles = (profilesRes.data || []).map((p: any) => ({
+    const rawProfiles = ((profilesRes.data || []) as unknown as JoinedProfileRow[]).map((p) => ({
       ...p,
       household_id: p.household_id?.[0]?.household_id || null,
     }));
@@ -318,9 +325,9 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
     if (!showPreview) return null;
     let subset = profiles;
     if (assignTrack === "adult") {
-      subset = profiles.map(p => ({ ...p, _pfAge: calculateAge(p.date_of_birth) })).filter((p: any) => p._pfAge !== null && p._pfAge >= 19) as Profile[];
+      subset = profiles.map(p => ({ ...p, _pfAge: calculateAge(p.date_of_birth) })).filter((p) => p._pfAge !== null && p._pfAge >= 19) as Profile[];
     } else if (assignTrack === "teen") {
-      subset = profiles.map(p => ({ ...p, _pfAge: calculateAge(p.date_of_birth) })).filter((p: any) => p._pfAge !== null && p._pfAge >= 10 && p._pfAge <= 18) as Profile[];
+      subset = profiles.map(p => ({ ...p, _pfAge: calculateAge(p.date_of_birth) })).filter((p) => p._pfAge !== null && p._pfAge >= 10 && p._pfAge <= 18) as Profile[];
     }
     return assignLifeGroups(subset, adultGroupSize);
   }, [profiles, adultGroupSize, showPreview, assignTrack]);
@@ -328,7 +335,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
   const clearAllGroups = async () => {
     if (!confirm("Remove all members from all life groups? This cannot be undone.")) return;
     setSaving(true);
-    await (supabase as any).from("life_group_members").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await db.from("life_group_members").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     setSaving(false);
     await fetchData();
     toast({ title: "All group assignments cleared" });
@@ -339,29 +346,29 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
     setSaving(true);
 
     if (assignTrack === "all") {
-      await (supabase as any).from("life_group_members").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      await db.from("life_group_members").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     } else {
       const trackLetter = assignTrack === "adult" ? "adult" : "teen";
       const existingGroupNames = preview.groups.map(g => g.name);
       if (existingGroupNames.length > 0) {
-        const { data: existingGroups } = await (supabase as any).from("life_groups")
+        const { data: existingGroups } = await db.from("life_groups")
           .select("id").in("name", existingGroupNames);
         if (existingGroups?.length) {
-          await (supabase as any).from("life_group_members")
+          await db.from("life_group_members")
             .delete()
-            .in("life_group_id", existingGroups.map((g: any) => g.id));
+            .in("life_group_id", existingGroups.map((g) => g.id));
         }
       }
     }
 
     for (const group of preview.groups) {
       const spaceName = group.name;
-      const { data: existing } = await (supabase as any).from("life_groups")
+      const { data: existing } = await db.from("life_groups")
         .select("id").eq("name", spaceName).maybeSingle();
       let groupId: string;
       if (existing) {
         groupId = existing.id;
-        await (supabase as any).from("life_groups").update({
+        await db.from("life_groups").update({
           age_min: group.ageMin,
           age_max: group.ageMax,
           target_male_count: group.males,
@@ -372,7 +379,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
           updated_at: new Date().toISOString(),
         }).eq("id", groupId);
       } else {
-        const { data: created } = await (supabase as any).from("life_groups").insert({
+        const { data: created } = await db.from("life_groups").insert({
           name: spaceName,
           meeting_space: group.track === "teen" ? group.name : spaceName,
           capacity: group.track === "teen" ? teenGroupSize : adultGroupSize,
@@ -389,7 +396,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
         profile_id: m.id,
       }));
       if (memberRows.length > 0) {
-        await (supabase as any).from("life_group_members").insert(memberRows);
+        await db.from("life_group_members").insert(memberRows);
       }
     }
     setSaving(false);
@@ -399,7 +406,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   const removeMember = async (lifeGroupId: string, profileId: string) => {
-    await (supabase as any).from("life_group_members")
+    await db.from("life_group_members")
       .delete()
       .eq("life_group_id", lifeGroupId)
       .eq("profile_id", profileId);
@@ -501,9 +508,9 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
                   <h3 className="font-display text-sm tracking-wider text-primary">
                     PREVIEW: {preview.groups.length} GROUPS, {preview.unassigned.length} UNASSIGNED
                   </h3>
-                  {(preview as any).skipped?.length > 0 && (
+                  {preview.skipped?.length > 0 && (
                     <p className="text-[10px] text-foreground/40 font-body mt-0.5">
-                      {(preview as any).skipped.length} members skipped (inactive/lapsed).
+                      {preview.skipped.length} members skipped (inactive/lapsed).
                     </p>
                   )}
                 </div>
@@ -544,7 +551,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
               </div>
               {preview.unassigned.length > 0 && (
                 <div className="mt-3 text-xs text-foreground/40 font-body">
-                  Unassigned: {preview.unassigned.map(p => (p as any).display_name || p.name).join(", ")}
+                  Unassigned: {preview.unassigned.map(p => p.display_name || p.name).join(", ")}
                 </div>
               )}
             </div>
@@ -605,7 +612,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
                           <div key={m.id} className="flex items-center justify-between px-3 py-2 border border-foreground/[0.06] rounded-sm hover:bg-foreground/[0.03]">
                             <div>
                               <span className="text-xs font-body text-foreground">{m.display_name || m.name}</span>
-                              <span className="text-[10px] text-foreground/30 font-body ml-2">{(m as any).gender || "—"}</span>
+                              <span className="text-[10px] text-foreground/30 font-body ml-2">{m.gender || "—"}</span>
                             </div>
                             <button
                               onClick={() => removeMember(g.id, m.id)}

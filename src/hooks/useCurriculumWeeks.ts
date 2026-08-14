@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
+import type { Database } from "@/integrations/supabase/types";
+
+type CurriculumPublicRow = Database["public"]["Functions"]["curriculum_public"]["Returns"][number];
 
 // Life-group companion pulls the full 52-week curriculum from the database
 // (the live 52-week lesson plans) instead of a hardcoded pilot array. Each
@@ -26,7 +29,7 @@ export const trackForAgeGroup = (age?: string | null): Track => {
   return "adult";
 };
 
-const resolve = (row: any, track: Track): CurriculumWeek => {
+const resolve = (row: CurriculumPublicRow, track: Track): CurriculumWeek => {
   const title =
     track === "teen" ? row.teen_video_title :
     track === "child" ? row.kids_title :
@@ -55,9 +58,9 @@ export const useCurriculumWeeks = (track: Track) => {
       setLoading(true);
       // Public browse (titles + description for all weeks) — bypasses the paid
       // RLS on curriculum_weeks so the padlocked future weeks still list.
-      const { data } = await (supabase as any).rpc("curriculum_public");
+      const { data } = await db.rpc("curriculum_public");
       if (cancelled) return;
-      setWeeks((data || []).map((r: any) => resolve(r, track)));
+      setWeeks((data || []).map(r => resolve(r, track)));
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -75,7 +78,7 @@ export const useCurrentCurriculumWeek = (track: Track) => {
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
     const trackLabel = track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult";
-    (supabase as any)
+    db
       .from("scheduled_sessions")
       .select("week_number")
       .lte("session_date", today)

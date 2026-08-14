@@ -4,9 +4,13 @@ import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, L
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { toast } from "@/hooks/use-toast";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
+import type { Database } from "@/integrations/supabase/types";
+
+type CurriculumPublicRow = Database["public"]["Functions"]["curriculum_public"]["Returns"][number];
 
 const PortalWeek = () => {
   const { weekNumber } = useParams<{ weekNumber: string }>();
@@ -48,12 +52,12 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
   const { isMember, track, kidsAddon } = useEntitlement();
   const { isUnlocked, unlockDate, loading: schedLoading } = useProgramSchedule();
   const [row, setRow] = useState<CurriculumRow | null>(null);
-  const [pub, setPub] = useState<any>(null);
+  const [pub, setPub] = useState<CurriculumPublicRow | null>(null);
   const [wsRow, setWsRow] = useState<WorksheetRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminFallback, setAdminFallback] = useState(false);
 
-  const isAdmin = role === "admin" || role === "facilitator" || (profile as any)?.is_admin === true || adminFallback;
+  const isAdmin = role === "admin" || role === "facilitator" || profile?.is_admin === true || adminFallback;
 
   useEffect(() => {
     if (!user) return;
@@ -62,7 +66,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         supabase.from("user_roles").select("role").eq("user_id", user.id).in("role", ["facilitator", "admin"]).maybeSingle(),
         supabase.from("profiles").select("is_admin").eq("user_id", user.id).single(),
       ]);
-      if (roleRow || (profileRow as any)?.is_admin) setAdminFallback(true);
+      if (roleRow || profileRow?.is_admin) setAdminFallback(true);
     })();
   }, [user]);
 
@@ -73,9 +77,9 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
       // Header (title + description) is public; the paid body only returns rows
       // RLS lets this member read (active + unlocked), else null.
       const [{ data: pubRows }, { data: content }, { data: wsData }] = await Promise.all([
-        (supabase as any).rpc("curriculum_public", { p_week: weekNum }),
-        (supabase as any).from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
-        (supabase as any).from("mindcast_live_sessions").select(
+        db.rpc("curriculum_public", { p_week: weekNum }),
+        db.from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
+        db.from("mindcast_live_sessions").select(
           "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description, video_question_1, video_question_2"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
@@ -142,7 +146,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
               : "This week unlocks once the program start date is set."}
           />
         ) : (
-          <UnlockedContent weekNum={weekNum} track={track} row={row} vid={vid} kidsAddon={kidsAddon} profileId={(profile as any)?.id ?? null} wsRow={wsRow} />
+          <UnlockedContent weekNum={weekNum} track={track} row={row} vid={vid} kidsAddon={kidsAddon} profileId={profile?.id ?? null} wsRow={wsRow} />
         )}
       </div>
     </PortalLayout>
@@ -253,7 +257,7 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("lesson_journal").select("video_question_1_response, video_question_2_response, reflection_answer, activity_response, personal_notes, life_group_notes, weekly_intention")
         .eq("profile_id", profileId).eq("week_number", weekNum).eq("track", track).maybeSingle();
       if (!active) return;
@@ -265,7 +269,7 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       });
       // Loop-back: what they committed to last week.
       if (weekNum > 1) {
-        const { data: prev } = await (supabase as any)
+        const { data: prev } = await db
           .rpc("my_intention_for_week", { p_week: weekNum - 1, p_track: track });
         const row = Array.isArray(prev) ? prev[0] : prev;
         if (active) setLastIntention((row?.weekly_intention || "").trim() || null);
@@ -277,7 +281,7 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
 
   const save = async () => {
     setSaving(true);
-    const { error } = await (supabase as any).from("lesson_journal").upsert(
+    const { error } = await db.from("lesson_journal").upsert(
       { profile_id: profileId, week_number: weekNum, track, ...j },
       { onConflict: "profile_id,week_number,track" },
     );

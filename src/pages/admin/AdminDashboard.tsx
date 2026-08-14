@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowLeft, ChevronDown, ChevronRight, CheckCircle2, PauseCircle,
@@ -12,6 +12,7 @@ import {
 type Member = {
   id: string;
   name: string;
+  display_name: string;
   email: string | null;
   membership_status: string;
   membership_tier: string;
@@ -84,15 +85,15 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
     (async () => {
       setLoading(true);
       const [{ data: membersData }, { data: ciData }] = await Promise.all([
-        (supabase as any).from("profiles").select(
+        db.from("profiles").select(
           "id, name, display_name, email, membership_status, membership_tier, age_group, gender, date_of_birth, household_id:household_members!inner(household_id), created_at, is_active"
         ).order("created_at", { ascending: false }).limit(1000),
-        (supabase as any).from("check_ins").select(
+        db.from("check_ins").select(
           "id, profile_id, checked_in_at, track, source"
         ).order("checked_in_at", { ascending: false }).limit(5000),
       ]);
       setMembers(
-        (membersData || []).map((m: any) => ({
+        (membersData || []).map(m => ({
           ...m,
           household_id: m.household_id?.[0]?.household_id || null,
         }))
@@ -127,7 +128,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
       if (filterTier && m.membership_tier !== filterTier) return false;
       if (search) {
         const q = search.toLowerCase();
-        const display = (m.name || (m as any).display_name || m.email || "").toLowerCase();
+        const display = (m.name || m.display_name || m.email || "").toLowerCase();
         if (!display.includes(q)) return false;
       }
       return true;
@@ -258,7 +259,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                           <span className="text-foreground/30">{isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
                         </td>
                         <td className="py-3 px-2 text-foreground">
-                          <div className="font-medium">{(m as any).display_name || m.name}</div>
+                          <div className="font-medium">{m.display_name || m.name}</div>
                           <div className="text-[10px] text-foreground/40">{m.email || "—"}</div>
                         </td>
                         <td className="py-3 px-2 hidden md:table-cell"><TierLabel tier={m.membership_tier} /></td>

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { UserCheck, Check, Loader2, Radio, ArrowLeft, EyeOff } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { toast } from "@/hooks/use-toast";
 
 // Member self check-in. Marks attendance at today's live session; the member's
@@ -32,8 +32,8 @@ const PortalCheckIn = () => {
   useEffect(() => {
     if (!profile) return;
     const date = new Date().toISOString().slice(0, 10);
-    const track = trackForAgeGroup((profile as any).age_group);
-    (supabase as any)
+    const track = trackForAgeGroup(profile.age_group);
+    db
       .from("scheduled_sessions")
       .select("id, track, week_number, room, status")
       .eq("session_date", date).eq("track", track).neq("status", "cancelled")
@@ -44,9 +44,9 @@ const PortalCheckIn = () => {
   const checkIn = async (anonymous: boolean) => {
     if (saving || done) return;
     setSaving(true);
-    const { error } = await (supabase as any).from("check_ins").insert({
+    const { error } = await db.from("check_ins").insert({
       display_name: anonymous ? "Anonymous" : (displayName || "Member"),
-      profile_id: (profile as any)?.id ?? null,
+      profile_id: profile?.id ?? null,
       scheduled_session_id: today?.id ?? null,
       is_anonymous: anonymous,
     });

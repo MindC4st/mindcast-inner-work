@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Check, Loader2, Lock, Nfc } from "lucide-react";
+import { db } from "@/lib/db";
 
 type State =
   | { status: "loading" }
@@ -44,15 +45,15 @@ const BraceletTap = () => {
           body: { nfc_id: token },
         });
         if (error) throw error;
-        const d = data as any;
+        const d = data as { error?: string; display_name?: string; welcome_name?: string } | null;
         if (d?.error) throw new Error(d.error);
         setState({
           status: "welcome",
           displayName: d?.display_name || "Member",
           welcomeName: d?.welcome_name || d?.display_name || "Member",
         });
-      } catch (e: any) {
-        setState({ status: "error", message: e?.message || "Unknown bracelet" });
+      } catch (e: unknown) {
+        setState({ status: "error", message: e instanceof Error && e.message ? e.message : "Unknown bracelet" });
       }
     })();
   }, [token]);
@@ -60,9 +61,9 @@ const BraceletTap = () => {
   // Whose bracelet does this phone already belong to?
   useEffect(() => {
     if (!user) { setOwnNfcId(null); setOwnLoaded(true); return; }
-    (supabase as any)
+    db
       .from("profiles").select("nfc_id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }: any) => { setOwnNfcId(data?.nfc_id || null); setOwnLoaded(true); });
+      .then(({ data }) => { setOwnNfcId(data?.nfc_id || null); setOwnLoaded(true); });
   }, [user]);
 
   // Remembered device: already signed in as this bracelet's owner → portal.
@@ -97,8 +98,8 @@ const BraceletTap = () => {
       if (setErr) throw setErr;
       if (!remember) localStorage.setItem(EPHEMERAL_KEY, "1");
       navigate(`/portal/dashboard?source=bracelet&name=${encodeURIComponent(state.status === "welcome" ? state.displayName : "")}`, { replace: true });
-    } catch (e: any) {
-      setFormError(e?.message || "Sign-in failed");
+    } catch (e: unknown) {
+      setFormError(e instanceof Error && e.message ? e.message : "Sign-in failed");
       setBusy(false);
     }
   };

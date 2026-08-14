@@ -31,9 +31,9 @@ const Kiosk = () => {
           body: { nfc_id, source: "kiosk", track: track || undefined, action },
         });
         if (error) throw error;
-        if ((data as any)?.error) setError((data as any).error);
-        else if ((data as any)?.display_name) setLast({ name: (data as any).display_name, at: Date.now(), leaving: action === "left_early" });
-      } catch (e: any) {
+        if (data?.error) setError(data.error);
+        else if (data?.display_name) setLast({ name: data.display_name, at: Date.now(), leaving: action === "left_early" });
+      } catch (e) {
         if (e?.message === "cancelled") break;
         setError(e?.message ?? "Scan failed");
       }

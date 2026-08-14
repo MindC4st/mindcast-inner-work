@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Check, Heart, Eye, LogIn } from "lucide-react";
@@ -45,14 +46,14 @@ const LiveJoin = () => {
   // 'auto' = follow the user's profile setting; otherwise this session overrides it.
   // Cast: the generated Supabase types don't know about live_display_mode yet
   // (migration is in this PR — type regen happens after deploy).
-  const profileLiveMode = (profile as any)?.live_display_mode as DisplayMode | undefined;
+  const profileLiveMode = profile?.live_display_mode as DisplayMode | undefined;
   const [displayMode, setDisplayMode] = useState<DisplayMode>(profileLiveMode || "first_initial");
   useEffect(() => {
     if (profileLiveMode) setDisplayMode(profileLiveMode);
   }, [profileLiveMode]);
 
   const displayName = useMemo(
-    () => computeDisplayName(profile as any, displayMode),
+    () => computeDisplayName(profile, displayMode),
     [profile, displayMode],
   );
 
@@ -106,18 +107,18 @@ const LiveJoin = () => {
     // Durable fallback: if the presenter's broadcast hasn't reached us yet
     // (late join / reconnect), resolve the current slide from the DB. A live
     // broadcast that arrives after this still wins (it setState unconditionally).
-    (supabase as any)
+    db
       .from("live_session_state")
       .select("*")
       .eq("session_code", sessionCode)
       .maybeSingle()
-      .then(({ data }: { data: any }) => {
+      .then(({ data }) => {
         if (data && data.is_live) {
           setState((prev) => prev ?? {
             week: data.week_number,
             audience: data.audience,
             slide: data.current_slide,
-            promptType: data.prompt_type,
+            promptType: data.prompt_type as LiveState["promptType"],
             promptText: data.prompt_text,
             title: data.title,
           });
@@ -134,10 +135,10 @@ const LiveJoin = () => {
     if (!user || state?.promptType !== "intention_review" || !state?.week) return;
     const prevWeek = state.week - 1;
     if (prevWeek < 1) { setLastIntention(null); return; }
-    (supabase as any)
+    db
       .rpc("my_intention_for_week", { p_week: prevWeek, p_track: state.audience || "Adult" })
-      .then(({ data }: { data: any }) => {
-        const row = Array.isArray(data) ? data[0] : data;
+      .then(({ data }) => {
+        const row = (Array.isArray(data) ? data[0] : data) as unknown as { weekly_intention: string | null } | null | undefined;
         setLastIntention((row?.weekly_intention || "").trim() || null);
       }, () => setLastIntention(null));
   }, [user, state?.promptType, state?.week, state?.audience]);
@@ -146,7 +147,7 @@ const LiveJoin = () => {
   const updateDisplayMode = async (next: DisplayMode) => {
     setDisplayMode(next);
     if (!user) return;
-    await (supabase as any).from("profiles").update({ live_display_mode: next }).eq("user_id", user.id);
+    await db.from("profiles").update({ live_display_mode: next }).eq("user_id", user.id);
   };
 
   const submit = async () => {
@@ -156,10 +157,10 @@ const LiveJoin = () => {
     // design — saved only to their own journal so it can be read back next
     // Sunday. Never written to session_responses (nothing on the big screen).
     if (state.promptType === "intention") {
-      const pid = (profile as any)?.id;
+      const pid = profile?.id;
       if (!pid) { toast({ title: "Couldn't save", description: "Profile not ready — try again." }); return; }
       setSubmitting(true);
-      const { error: intErr } = await (supabase as any).from("lesson_journal").upsert(
+      const { error: intErr } = await db.from("lesson_journal").upsert(
         { profile_id: pid, week_number: state.week, track: state.audience, weekly_intention: response.trim().slice(0, 2000) },
         { onConflict: "profile_id,week_number,track" },
       );
@@ -185,7 +186,7 @@ const LiveJoin = () => {
       if (kind === "wordcloud") {
         try {
           const { data: mod } = await supabase.functions.invoke("moderate-content", { body: { text: value } });
-          status = (mod as any)?.approved === false ? "pending" : "approved";
+          status = mod?.approved === false ? "pending" : "approved";
         } catch {
           // If the screener is unavailable, hold it for a human rather than
           // risking unmoderated text on the big screen.
@@ -193,7 +194,7 @@ const LiveJoin = () => {
         }
       }
 
-      const { data: actRow, error: actErr } = await (supabase as any)
+      const { data: actRow, error: actErr } = await db
         .from("session_responses")
         .insert({
           session_code: sessionCode,
@@ -219,7 +220,7 @@ const LiveJoin = () => {
     }
 
     setSubmitting(true);
-    const { data, error } = await (supabase as any)
+    const { data, error } = await db
       .from("session_responses")
       .insert({
         session_code: sessionCode,
@@ -242,10 +243,10 @@ const LiveJoin = () => {
     // up under Session History. Only activity_response is set, so a portal
     // reflection for the same week is preserved (on-conflict updates that column
     // only). Best-effort — never block the live submission on it.
-    const pid = (profile as any)?.id;
+    const pid = profile?.id;
     if (pid && state.audience) {
       try {
-        await (supabase as any).from("lesson_journal").upsert(
+        await db.from("lesson_journal").upsert(
           { profile_id: pid, week_number: state.week, track: state.audience, activity_response: response.trim().slice(0, 2000) },
           { onConflict: "profile_id,week_number,track" },
         );

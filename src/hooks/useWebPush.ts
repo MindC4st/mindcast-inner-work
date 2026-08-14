@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 
 // VAPID public key is safe to ship in the bundle (it's the "public" half).
@@ -92,7 +92,7 @@ export const useWebPush = () => {
       return { ok: false, error: "Subscription missing keys" };
     }
 
-    const { error } = await (supabase as any)
+    const { error } = await db
       .from("push_subscriptions")
       .upsert({
         user_id: user.id,
@@ -116,7 +116,7 @@ export const useWebPush = () => {
     const endpoint = sub?.endpoint;
     if (sub) await sub.unsubscribe();
     if (endpoint) {
-      await (supabase as any).from("push_subscriptions")
+      await db.from("push_subscriptions")
         .delete().eq("user_id", user.id).eq("endpoint", endpoint);
     }
     await refresh();

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import InstallPrompt from "@/components/InstallPrompt";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import DevPageMenu from "@/components/DevPageMenu";
 
 // Route-level code splitting: every page loads on demand so first paint only
@@ -14,13 +15,13 @@ import DevPageMenu from "@/components/DevPageMenu";
 const Home = lazy(() => import("./pages/Home"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const AdminConsole = lazy(() => import("./pages/admin/AdminConsole"));
-const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
-const AdminKids = lazy(() => import("./pages/admin/AdminKids"));
-const AdminMembers = lazy(() => import("./pages/admin/AdminMembers"));
-const AdminApplicationsPage = lazy(() => import("./pages/admin/AdminApplicationsPage"));
-const AdminEmailReminders = lazy(() => import("./pages/admin/AdminEmailReminders"));
-const WorkbookRouter = lazy(() => import("./pages/WorkbookRouter"));
+const StaffTrainingHome = lazy(() => import("@/components/staff-training/TrainingHome"));
+const StaffModuleRunner = lazy(() => import("@/components/staff-training/ModuleRunner"));
+const StaffTrainingPolicies = lazy(() => import("@/components/staff-training/TrainingPolicies"));
+const StaffTrainingDocuments = lazy(() => import("@/components/staff-training/TrainingDocuments"));
+const StaffTrainingTeam = lazy(() => import("@/components/staff-training/TrainingTeam"));
+const StaffTrainingTeamMember = lazy(() => import("@/components/staff-training/TrainingTeamMember"));
 const WelcomeWall = lazy(() => import("./pages/display/WelcomeWall"));
 const About = lazy(() => import("./pages/About"));
 const Membership = lazy(() => import("./pages/Membership"));
@@ -53,14 +54,6 @@ const LessonEditor = lazy(() => import("./pages/mindcast-live/LessonEditor"));
 const CoursebookPrint = lazy(() => import("./pages/mindcast-live/CoursebookPrint"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
-const AdminScheduling = lazy(() => import("./pages/admin/AdminScheduling"));
-const AdminHouseholds = lazy(() => import("./pages/admin/AdminHouseholds"));
-const AdminMembership = lazy(() => import("./pages/admin/AdminMembership"));
-const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
-const Demo = lazy(() => import("./pages/Demo"));
-const AdminProgram = lazy(() => import("./pages/admin/AdminProgram"));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const AdminLifeGroups = lazy(() => import("./pages/admin/AdminLifeGroups"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -114,26 +107,34 @@ const AppRoutes = () => (
   <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/demo" element={<Demo />} />
       <Route path="/auth" element={<LegacyRedirect to="/portal/login" />} />
       <Route path="/onboarding" element={<Onboarding />} />
 
-      {/* Admin */}
+      {/* Admin — one console; old deep links forward to the right tab.
+          Kiosk + Framework stay standalone (hardware / print surfaces). */}
       <Route path="/admin" element={<AdminRoute><AdminConsole /></AdminRoute>} />
-      <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-      <Route path="/admin/life-groups" element={<AdminRoute><AdminLifeGroups /></AdminRoute>} />
-      <Route path="/admin/history" element={<AdminRoute><AdminHistory /></AdminRoute>} />
+      <Route path="/admin/dashboard" element={<Navigate to="/admin?tab=dashboard" replace />} />
+      <Route path="/admin/life-groups" element={<Navigate to="/admin?tab=groups" replace />} />
+      <Route path="/admin/history" element={<Navigate to="/admin?tab=sessions&sub=history" replace />} />
+      <Route path="/admin/scheduling" element={<Navigate to="/admin?tab=sessions&sub=schedule" replace />} />
+      <Route path="/admin/kids" element={<Navigate to="/admin?tab=sessions&sub=kids" replace />} />
+      <Route path="/admin/moderation" element={<Navigate to="/admin?tab=sessions&sub=moderation" replace />} />
+      <Route path="/admin/emails" element={<Navigate to="/admin?tab=sessions&sub=emails" replace />} />
+      <Route path="/admin/program" element={<AdminOnlyRoute><Navigate to="/admin?tab=sessions&sub=program" replace /></AdminOnlyRoute>} />
+      <Route path="/admin/membership" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership" replace /></AdminOnlyRoute>} />
+      <Route path="/admin/applications" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=applications" replace /></AdminOnlyRoute>} />
+      <Route path="/admin/members" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=members" replace /></AdminOnlyRoute>} />
+      <Route path="/admin/households" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=households" replace /></AdminOnlyRoute>} />
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
-      <Route path="/admin/kids" element={<AdminRoute><AdminKids /></AdminRoute>} />
-      <Route path="/admin/members" element={<AdminRoute><AdminMembers /></AdminRoute>} />
-      <Route path="/admin/applications" element={<AdminRoute><AdminApplicationsPage /></AdminRoute>} />
-      <Route path="/admin/emails" element={<AdminRoute><AdminEmailReminders /></AdminRoute>} />
       <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
-      <Route path="/admin/scheduling" element={<AdminRoute><AdminScheduling /></AdminRoute>} />
-      <Route path="/admin/moderation" element={<AdminRoute><AdminModeration /></AdminRoute>} />
-      <Route path="/admin/households" element={<AdminOnlyRoute><AdminHouseholds /></AdminOnlyRoute>} />
-      <Route path="/admin/membership" element={<AdminOnlyRoute><AdminMembership /></AdminOnlyRoute>} />
-      <Route path="/admin/program" element={<AdminOnlyRoute><AdminProgram /></AdminOnlyRoute>} />
+
+      {/* Staff Training (MC-TRN-001) — staff see their own path; team views admin-only */}
+      <Route path="/admin/staff-training" element={<AdminRoute><StaffTrainingHome /></AdminRoute>} />
+      <Route path="/admin/staff-training/module/:moduleId" element={<AdminRoute><StaffModuleRunner /></AdminRoute>} />
+      <Route path="/admin/staff-training/policies" element={<AdminRoute><StaffTrainingPolicies /></AdminRoute>} />
+      <Route path="/admin/staff-training/documents" element={<AdminRoute><StaffTrainingDocuments /></AdminRoute>} />
+      <Route path="/admin/staff-training/team" element={<AdminOnlyRoute><StaffTrainingTeam /></AdminOnlyRoute>} />
+      <Route path="/admin/staff-training/team/:userId" element={<AdminOnlyRoute><StaffTrainingTeamMember /></AdminOnlyRoute>} />
 
       {/* Portal (life-group companion) */}
       <Route path="/portal/login" element={<PortalLogin />} />
@@ -151,7 +152,6 @@ const AppRoutes = () => (
       <Route path="/portal/kids" element={<ProtectedRoute><PortalKids /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
-      <Route path="/workbook" element={<ProtectedRoute><WorkbookRouter /></ProtectedRoute>} />
 
       {/* Sunday Live (facilitator + members) */}
       <Route path="/live" element={<ComingSoon />} />
@@ -273,7 +273,9 @@ const App = () => (
         <AuthProvider>
           <ScrollToTop />
           <RouteTitle />
-          <AppRoutes />
+          <ErrorBoundary>
+            <AppRoutes />
+          </ErrorBoundary>
           <InstallPrompt />
           <DevPageMenu />
         </AuthProvider>

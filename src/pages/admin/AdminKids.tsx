@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
@@ -49,13 +50,15 @@ function extractVideoId(url: string): string | null {
   return m ? m[1] : null;
 }
 
+type KidsDraft = Partial<Tables<"kids_sessions">>;
+
 const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session");
-  const [session, setSession] = useState<any>(null);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [littleOnes, setLittleOnes] = useState<any>({});
-  const [teens, setTeens] = useState<any>({});
+  const [session, setSession] = useState<Tables<"sessions"> | null>(null);
+  const [sessions, setSessions] = useState<Tables<"sessions">[]>([]);
+  const [littleOnes, setLittleOnes] = useState<KidsDraft>({});
+  const [teens, setTeens] = useState<KidsDraft>({});
   const [saving, setSaving] = useState(false);
   const [analysingTeen, setAnalysingTeen] = useState(false);
   const { toast } = useToast();
@@ -64,10 +67,10 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
     supabase.from("sessions").select("*").order("session_number").then(({ data }) => {
       setSessions(data || []);
       if (sessionId) {
-        const s = (data || []).find((s: any) => s.id === sessionId);
+        const s = (data || []).find((s) => s.id === sessionId);
         if (s) setSession(s);
       } else if (data && data.length > 0) {
-        const active = data.find((s: any) => s.status === "active") || data[0];
+        const active = data.find((s) => s.status === "active") || data[0];
         setSession(active);
       }
     });
@@ -76,8 +79,8 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
   useEffect(() => {
     if (!session) return;
     supabase.from("kids_sessions").select("*").eq("parent_session_id", session.id).then(({ data }) => {
-      const lo = (data || []).find((d: any) => d.age_group === "little_ones");
-      const te = (data || []).find((d: any) => d.age_group === "teens");
+      const lo = (data || []).find((d) => d.age_group === "little_ones");
+      const te = (data || []).find((d) => d.age_group === "teens");
       if (lo) setLittleOnes(lo);
       if (te) setTeens(te);
     });
@@ -85,9 +88,9 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
 
   const weekSuggestion = session ? FIFTY_TWO_WEEK_PLAN[session.session_number] : null;
 
-  const savePanel = async (ageGroup: string, data: any) => {
+  const savePanel = async (ageGroup: string, data: KidsDraft) => {
     setSaving(true);
-    const payload = { ...data, age_group: ageGroup, parent_session_id: session.id };
+    const payload = { ...data, age_group: ageGroup, parent_session_id: session!.id };
     if (data.id && !data.id.startsWith("new")) {
       await supabase.from("kids_sessions").update(payload).eq("id", data.id);
     } else {
@@ -103,12 +106,12 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
     setAnalysingTeen(true);
     try {
       const { data, error } = await supabase.functions.invoke("analyse-video", {
-        body: { session_id: session.id, video_url: teens.video_url, age_group: "teen" },
+        body: { session_id: session!.id, video_url: teens.video_url, age_group: "teen" },
       });
       if (error) throw error;
       toast({ title: "Teen AI analysis complete" });
-    } catch (e: any) {
-      toast({ title: "Analysis failed", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      toast({ title: "Analysis failed", description: e instanceof Error ? e.message : undefined, variant: "destructive" });
     }
     setAnalysingTeen(false);
   };
@@ -126,7 +129,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
         {session && (
           <select
             value={session.id}
-            onChange={(e) => setSession(sessions.find((s) => s.id === e.target.value))}
+            onChange={(e) => setSession(sessions.find((s) => s.id === e.target.value) ?? null)}
             className="bg-foreground/5 border border-foreground/10 text-foreground text-xs font-body px-3 py-2 rounded-lg focus:outline-none"
           >
             {sessions.map((s) => (
@@ -160,7 +163,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
                 <p className="text-foreground/40 text-xs font-body mt-1">{weekSuggestion.kids_activity}</p>
                 <button
                   className="text-xs text-foreground/50 mt-2 underline font-body hover:text-foreground/70"
-                  onClick={() => setLittleOnes((p: any) => ({ ...p, lesson_theme: weekSuggestion.kids_title, activity_description: weekSuggestion.kids_activity }))}
+                  onClick={() => setLittleOnes((p) => ({ ...p, lesson_theme: weekSuggestion.kids_title, activity_description: weekSuggestion.kids_activity }))}
                 >
                   Use this suggestion
                 </button>
@@ -170,7 +173,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Story / Film URL (YouTube)</label>
-                <input className={inputClass} type="url" value={littleOnes.video_url || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, video_url: e.target.value }))} placeholder="Paste YouTube URL — Pixar short, storybook..." />
+                <input className={inputClass} type="url" value={littleOnes.video_url || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, video_url: e.target.value }))} placeholder="Paste YouTube URL — Pixar short, storybook..." />
                 {littleOnes.video_url && extractVideoId(littleOnes.video_url) && (
                   <div className="mt-2 aspect-video rounded-lg overflow-hidden">
                     <iframe src={`https://www.youtube.com/embed/${extractVideoId(littleOnes.video_url)}`} className="w-full h-full" allowFullScreen />
@@ -179,26 +182,26 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
               </div>
               <div>
                 <label className={labelClass}>This week's theme</label>
-                <input className={inputClass} value={littleOnes.lesson_theme || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, lesson_theme: e.target.value }))} placeholder="e.g. Bravery, Kindness..." />
+                <input className={inputClass} value={littleOnes.lesson_theme || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, lesson_theme: e.target.value }))} placeholder="e.g. Bravery, Kindness..." />
               </div>
               <div>
                 <label className={labelClass}>Activity type</label>
-                <select className={inputClass} value={littleOnes.activity_type || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, activity_type: e.target.value }))}>
+                <select className={inputClass} value={littleOnes.activity_type || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, activity_type: e.target.value }))}>
                   <option value="">Select...</option>
                   {ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
                 <label className={labelClass}>Activity description</label>
-                <textarea className={inputClass + " resize-none"} rows={3} value={littleOnes.activity_description || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, activity_description: e.target.value }))} placeholder="What will the children do?" />
+                <textarea className={inputClass + " resize-none"} rows={3} value={littleOnes.activity_description || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, activity_description: e.target.value }))} placeholder="What will the children do?" />
               </div>
               <div>
                 <label className={labelClass}>Materials needed</label>
-                <input className={inputClass} value={littleOnes.materials_needed || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, materials_needed: e.target.value }))} placeholder="Crayons, glue, scissors..." />
+                <input className={inputClass} value={littleOnes.materials_needed || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, materials_needed: e.target.value }))} placeholder="Crayons, glue, scissors..." />
               </div>
               <div>
                 <label className={labelClass}>Facilitator notes (private)</label>
-                <textarea className={inputClass + " resize-none"} rows={2} value={littleOnes.facilitator_notes || ""} onChange={(e) => setLittleOnes((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
+                <textarea className={inputClass + " resize-none"} rows={2} value={littleOnes.facilitator_notes || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
               <button onClick={() => savePanel("little_ones", littleOnes)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-primary/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Little Ones"}
@@ -226,7 +229,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Video URL (YouTube)</label>
-                <input className={inputClass} type="url" value={teens.video_url || ""} onChange={(e) => setTeens((p: any) => ({ ...p, video_url: e.target.value }))} placeholder="Paste YouTube URL..." />
+                <input className={inputClass} type="url" value={teens.video_url || ""} onChange={(e) => setTeens((p) => ({ ...p, video_url: e.target.value }))} placeholder="Paste YouTube URL..." />
                 {teens.video_url && extractVideoId(teens.video_url) && (
                   <div className="mt-2 aspect-video rounded-lg overflow-hidden">
                     <iframe src={`https://www.youtube.com/embed/${extractVideoId(teens.video_url)}`} className="w-full h-full" allowFullScreen />
@@ -238,11 +241,11 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
               </button>
               <div>
                 <label className={labelClass}>This week's theme</label>
-                <input className={inputClass} value={teens.lesson_theme || ""} onChange={(e) => setTeens((p: any) => ({ ...p, lesson_theme: e.target.value }))} placeholder="e.g. Identity, Purpose..." />
+                <input className={inputClass} value={teens.lesson_theme || ""} onChange={(e) => setTeens((p) => ({ ...p, lesson_theme: e.target.value }))} placeholder="e.g. Identity, Purpose..." />
               </div>
               <div>
                 <label className={labelClass}>Activity type</label>
-                <select className={inputClass} value={teens.activity_type || ""} onChange={(e) => setTeens((p: any) => ({ ...p, activity_type: e.target.value }))}>
+                <select className={inputClass} value={teens.activity_type || ""} onChange={(e) => setTeens((p) => ({ ...p, activity_type: e.target.value }))}>
                   <option value="">Select...</option>
                   {ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                   <option value="Group discussion">Group discussion</option>
@@ -252,15 +255,15 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
               </div>
               <div>
                 <label className={labelClass}>Activity description</label>
-                <textarea className={inputClass + " resize-none"} rows={3} value={teens.activity_description || ""} onChange={(e) => setTeens((p: any) => ({ ...p, activity_description: e.target.value }))} placeholder="What will the teens do?" />
+                <textarea className={inputClass + " resize-none"} rows={3} value={teens.activity_description || ""} onChange={(e) => setTeens((p) => ({ ...p, activity_description: e.target.value }))} placeholder="What will the teens do?" />
               </div>
               <div>
                 <label className={labelClass}>Materials needed</label>
-                <input className={inputClass} value={teens.materials_needed || ""} onChange={(e) => setTeens((p: any) => ({ ...p, materials_needed: e.target.value }))} placeholder="Notebooks, markers..." />
+                <input className={inputClass} value={teens.materials_needed || ""} onChange={(e) => setTeens((p) => ({ ...p, materials_needed: e.target.value }))} placeholder="Notebooks, markers..." />
               </div>
               <div>
                 <label className={labelClass}>Facilitator notes (private)</label>
-                <textarea className={inputClass + " resize-none"} rows={2} value={teens.facilitator_notes || ""} onChange={(e) => setTeens((p: any) => ({ ...p, facilitator_notes: e.target.value }))} />
+                <textarea className={inputClass + " resize-none"} rows={2} value={teens.facilitator_notes || ""} onChange={(e) => setTeens((p) => ({ ...p, facilitator_notes: e.target.value }))} />
               </div>
               <button onClick={() => savePanel("teens", teens)} disabled={saving} className="w-full bg-primary text-primary-foreground font-display font-bold py-3 text-xs hover:bg-primary/90 transition-colors disabled:opacity-30 rounded-lg">
                 {saving ? "Saving..." : "Save Teens"}

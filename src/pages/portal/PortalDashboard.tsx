@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ElementType } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -7,7 +7,8 @@ import {
 } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
+
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 
 // Member portal home — an adaptive tile launcher. The set of tiles adjusts to
@@ -22,16 +23,16 @@ const trackForAgeGroup = (age?: string | null): string => {
 };
 
 type Tile = {
-  key: string; title: string; subtitle: string; icon: any;
+  key: string; title: string; subtitle: string; icon: ElementType;
   to?: string; onClick?: () => void; accent?: boolean; badge?: string;
 };
 
 const PortalDashboard = () => {
   const { profile, isStaff } = useAuth();
   const navigate = useNavigate();
-  const track = trackForAgeGroup((profile as any)?.age_group);
+  const track = trackForAgeGroup(profile?.age_group);
   const isTeen = track === "Teen";
-  const hasKids = !!(profile as any)?.kids_addon;
+  const hasKids = !!profile?.kids_addon;
   const firstName = (profile?.name || "").split(" ")[0] || "there";
 
   const [liveCode, setLiveCode] = useState<string | null>(null);
@@ -45,7 +46,7 @@ const PortalDashboard = () => {
   useEffect(() => {
     if (!profile) return;
     const date = new Date().toISOString().slice(0, 10);
-    (supabase as any)
+    db
       .from("scheduled_sessions")
       .select("session_code, status")
       .eq("session_date", date).eq("track", track).neq("status", "cancelled")

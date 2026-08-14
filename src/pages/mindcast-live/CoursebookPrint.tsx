@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Printer, ArrowLeft, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
+
 
 // Printable coursebook export (facilitator/admin). Renders the 52-week content —
 // including the workbook_activity (the paper version of each live activity) — in
@@ -36,7 +37,7 @@ const CoursebookPrint = () => {
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data } = await (supabase as any)
+      const { data } = await db
         .from("curriculum_weeks").select("*").order("week_number", { ascending: true });
       if (!active) return;
       setRows((data || []) as Row[]);

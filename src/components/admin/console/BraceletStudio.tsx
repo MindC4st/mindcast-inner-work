@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Nfc, Copy, RefreshCw, Link2, Loader2, Unlink, Search, CheckCircle2 } from "lucide-react";
+import { db } from "@/lib/db";
 
 type Profile = {
   id: string; display_name: string | null; name: string | null;

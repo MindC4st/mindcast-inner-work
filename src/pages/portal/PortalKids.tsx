@@ -6,13 +6,14 @@ import PortalLayout from "@/components/portal/PortalLayout";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { toast } from "@/hooks/use-toast";
 
 // Fetch a signed URL for a week's colouring PDF from the private bucket and open
 // it. Returns false if it isn't uploaded yet (so we can show "coming soon").
 const openColouringPdf = async (week: number): Promise<boolean> => {
   const path = `week-${String(week).padStart(2, "0")}.pdf`;
-  const { data, error } = await (supabase as any).storage.from("colouring").createSignedUrl(path, 120);
+  const { data, error } = await supabase.storage.from("colouring").createSignedUrl(path, 120);
   if (error || !data?.signedUrl) return false;
   window.open(data.signedUrl, "_blank", "noopener");
   return true;
@@ -41,16 +42,16 @@ const PortalKids = () => {
       // Public titles for all weeks + the paid kids body (RLS returns only the
       // weeks this member may read: active + unlocked).
       const [{ data: titles }, { data: body }] = await Promise.all([
-        (supabase as any).rpc("curriculum_public"),
-        (supabase as any).from("curriculum_weeks")
+        db.rpc("curriculum_public"),
+        db.from("curriculum_weeks")
           .select("week_number, kids_picture_book, kids_picture_book_note, kids_colouring_prompt, kids_source, kids_game"),
       ]);
       if (!active) return;
-      setWeeks((titles || []).map((r: any) => ({
+      setWeeks((titles || []).map((r) => ({
         week_number: r.week_number, block_theme: r.block_theme, weekly_theme: r.weekly_theme, kids_title: r.kids_title,
       })) as KidWeek[]);
       const map: Record<number, KidContent> = {};
-      (body || []).forEach((r: any) => { map[r.week_number] = r; });
+      (body || []).forEach((r) => { map[r.week_number] = r; });
       setContent(map);
       setLoading(false);
     })();

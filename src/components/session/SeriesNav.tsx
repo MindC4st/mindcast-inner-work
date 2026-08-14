@@ -12,8 +12,8 @@ const SeriesNav = ({ seriesTitle, sessions, currentSessionId }: SeriesNavProps) 
     try {
       const saved = localStorage.getItem(`mindcast_session_${id}_progress`);
       if (!saved) return false;
-      const data = JSON.parse(saved);
-      return Object.values(data).some((v: any) => v?.locked);
+      const data = JSON.parse(saved) as Record<string, { locked?: boolean } | null | undefined>;
+      return Object.values(data).some((v) => v?.locked);
     } catch { return false; }
   };
 

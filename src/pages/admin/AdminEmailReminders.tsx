@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { ArrowLeft, Mail, Send, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<Tables<"email_reminders">[]>([]);
   const [cohorts, setCohorts] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
 
     setLogs(reminders.data || []);
     const map: Record<string, string> = {};
-    (cohortsRes.data || []).forEach((c: any) => { map[c.id] = c.name; });
+    (cohortsRes.data || []).forEach((c) => { map[c.id] = c.name; });
     setCohorts(map);
     setLoading(false);
   };
@@ -39,8 +40,8 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
       if (error) throw error;
       toast.success(`Reminders sent: ${JSON.stringify(data.results || [])}`);
       fetchData();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to send reminders");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error && err.message ? err.message : "Failed to send reminders");
     } finally {
       setSending(false);
     }
@@ -108,9 +109,9 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
                 {logs.map((log) => (
                   <tr key={log.id} className="border-b border-white/5 hover:bg-white/5 transition">
                     <td className="px-4 py-3 font-mono">{log.week_number}</td>
-                    <td className="px-4 py-3">{cohorts[log.cohort_id] || "—"}</td>
+                    <td className="px-4 py-3">{cohorts[log.cohort_id as string] || "—"}</td>
                     <td className="px-4 py-3 opacity-60">
-                      {new Date(log.sent_at).toLocaleDateString("en-NZ", {
+                      {new Date(log.sent_at as string).toLocaleDateString("en-NZ", {
                         day: "numeric", month: "short", year: "numeric",
                         hour: "2-digit", minute: "2-digit",
                       })}

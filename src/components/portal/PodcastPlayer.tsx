@@ -13,12 +13,39 @@ interface PodcastPlayerProps {
   triggeredBookmarks: Set<string>;
 }
 
+type YTPlayerInstance = {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  seekTo: (seconds: number, allowSeekAhead: boolean) => void;
+  getCurrentTime: () => number;
+  getDuration: () => number;
+  destroy: () => void;
+};
+
 declare global {
-  interface Window { YT: any; onYouTubeIframeAPIReady: () => void; }
+  interface Window {
+    YT?: {
+      Player: new (
+        el: HTMLElement,
+        options: {
+          videoId: string;
+          height: string;
+          width: string;
+          playerVars: { modestbranding: number; rel: number; playsinline: number };
+          events: {
+            onReady: () => void;
+            onStateChange: (e: { data: number }) => void;
+          };
+        },
+      ) => YTPlayerInstance;
+      PlayerState: { PLAYING: number };
+    };
+    onYouTubeIframeAPIReady: () => void;
+  }
 }
 
 const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ youtubeId, bookmarks, onBookmarkHit, triggeredBookmarks }, ref) => {
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<YTPlayerInstance | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -41,16 +68,16 @@ const PodcastPlayer = forwardRef<PodcastPlayerHandle, PodcastPlayerProps>(({ you
 
   useEffect(() => {
     if (!apiReady || !youtubeId || !containerRef.current) return;
-    playerRef.current = new window.YT.Player(containerRef.current, {
+    playerRef.current = new window.YT!.Player(containerRef.current, {
       videoId: youtubeId,
       height: "100%",
       width: "100%",
       playerVars: { modestbranding: 1, rel: 0, playsinline: 1 },
       events: {
-        onReady: () => { setDuration(playerRef.current.getDuration()); },
-        onStateChange: (e: any) => {
-          setIsPlaying(e.data === window.YT.PlayerState.PLAYING);
-          if (e.data === window.YT.PlayerState.PLAYING) setDuration(playerRef.current.getDuration());
+        onReady: () => { setDuration(playerRef.current!.getDuration()); },
+        onStateChange: (e) => {
+          setIsPlaying(e.data === window.YT!.PlayerState.PLAYING);
+          if (e.data === window.YT!.PlayerState.PLAYING) setDuration(playerRef.current!.getDuration());
         },
       },
     });

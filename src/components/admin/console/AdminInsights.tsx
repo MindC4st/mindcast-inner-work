@@ -7,7 +7,11 @@ import {
 import { CreditCard, Baby, TrendingUp, Activity } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-type Profile = { membership_status: string | null; kids_addon: boolean | null; created_at: string };
+type InsightsStats = {
+  status_mix: { name: string; value: number }[];
+  signups_by_month: { month: string; new: number }[];
+  totals: { profiles: number; active: number; kids_addon: number; checkins: number };
+};
 
 const STATUS_COLORS: Record<string, string> = {
   active: "#3585AF",
@@ -29,55 +33,38 @@ const Card = ({ icon: Icon, label, value, sub }: { icon: LucideIcon; label: stri
 );
 
 const AdminInsights = () => {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [checkInCount, setCheckInCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<InsightsStats | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     (async () => {
-      const [{ data: p }, { count }] = await Promise.all([
-        (supabase as any).from("profiles").select("membership_status, kids_addon, created_at").limit(2000),
-        (supabase as any).from("check_ins").select("id", { count: "exact", head: true }),
-      ]);
-      setProfiles(p || []);
-      setCheckInCount(count || 0);
-      setLoading(false);
+      const { data, error: rpcErr } = await supabase.rpc("admin_insights_stats" as never);
+      if (rpcErr) { setError(rpcErr.message); return; }
+      setStats(data as unknown as InsightsStats);
     })();
   }, []);
 
-  const statusMix = useMemo(() => {
-    const c: Record<string, number> = {};
-    profiles.forEach((p) => {
-      const k = p.membership_status || "none";
-      c[k] = (c[k] || 0) + 1;
-    });
-    return Object.entries(c).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-  }, [profiles]);
-
   const signups = useMemo(() => {
-    const map = new Map<string, number>();
-    profiles.forEach((p) => {
-      const d = new Date(p.created_at);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      map.set(key, (map.get(key) || 0) + 1);
-    });
     let running = 0;
-    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([key, n]) => {
-      running += n;
-      const [y, m] = key.split("-").map(Number);
+    return (stats?.signups_by_month || []).map((m) => {
+      running += m.new;
+      const [y, mo] = m.month.split("-").map(Number);
       return {
-        label: new Date(y, m - 1, 1).toLocaleDateString("en-NZ", { month: "short", year: "2-digit" }),
+        label: new Date(y, mo - 1, 1).toLocaleDateString("en-NZ", { month: "short", year: "2-digit" }),
         Members: running,
       };
     });
-  }, [profiles]);
+  }, [stats]);
 
-  const kidsAddon = profiles.filter((p) => p.kids_addon).length;
-  const active = profiles.filter((p) => p.membership_status === "active" || p.membership_status === "trialing").length;
-
-  if (loading) {
+  if (error) {
+    return <p className="text-[#8E9299] text-sm font-body py-12 text-center">Couldn't load insights: {error}</p>;
+  }
+  if (!stats) {
     return <div className="py-24 flex justify-center"><span className="text-[#8E9299] text-xs font-body tracking-widest uppercase animate-pulse">Loading insights…</span></div>;
   }
+
+  const { totals, status_mix } = stats;
+  const activeRate = totals.profiles ? Math.round((totals.active / totals.profiles) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -87,20 +74,20 @@ const AdminInsights = () => {
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card icon={CreditCard} label="Active members" value={active} sub={`${profiles.length} total profiles`} />
-        <Card icon={Baby} label="Kids add-ons" value={kidsAddon} sub="families on the child track" />
-        <Card icon={Activity} label="Total check-ins" value={checkInCount} sub="NFC + kiosk + manual" />
-        <Card icon={TrendingUp} label="Active rate" value={`${profiles.length ? Math.round((active / profiles.length) * 100) : 0}%`} sub="active or trialing" />
+        <Card icon={CreditCard} label="Active members" value={totals.active} sub={`${totals.profiles} total profiles`} />
+        <Card icon={Baby} label="Kids add-ons" value={totals.kids_addon} sub="families on the child track" />
+        <Card icon={Activity} label="Total check-ins" value={totals.checkins} sub="NFC + kiosk + manual" />
+        <Card icon={TrendingUp} label="Active rate" value={`${activeRate}%`} sub="active or trialing" />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
         <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
           <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-4">Membership mix</p>
-          <div className="h-64 flex items-center">
+          <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={statusMix} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={2} stroke="#0A1120">
-                  {statusMix.map((s) => (
+                <Pie data={status_mix} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2} stroke="#0A1120">
+                  {status_mix.map((s) => (
                     <Cell key={s.name} fill={STATUS_COLORS[s.name] || "#64748B"} />
                   ))}
                 </Pie>
@@ -112,7 +99,7 @@ const AdminInsights = () => {
             </ResponsiveContainer>
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2">
-            {statusMix.map((s) => (
+            {status_mix.map((s) => (
               <span key={s.name} className="flex items-center gap-2 text-[11px] font-body text-[#8E9299]">
                 <span className="w-2.5 h-2.5 rounded-sm" style={{ background: STATUS_COLORS[s.name] || "#64748B" }} />
                 {s.name} · {s.value}

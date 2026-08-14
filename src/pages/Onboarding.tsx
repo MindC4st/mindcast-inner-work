@@ -37,7 +37,7 @@ const Onboarding = () => {
         age_group: resolvedAge,
         opt_in_public_goals: optIn ?? false,
         onboarding_complete: true,
-      } as any)
+      })
       .eq("user_id", user.id);
     setSaving(false);
     navigate("/dashboard");
