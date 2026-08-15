@@ -541,7 +541,7 @@ const FacilitatorView = () => {
             <button
               onClick={handleGenerateVideo}
               disabled={generatingVideo}
-              title="Generate Session Video (Claude storyboard + ElevenLabs narration)"
+              title="Generate video metaphor (Gemini)"
               className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
             >
               <Film size={12} />{generatingVideo ? "Generating…" : "Generate Video"}
@@ -1458,11 +1458,16 @@ const SignalMetaphorSlide = ({
   const rendering = renderStatus === "processing" || renderStatus === "rendering" || renderStatus === "saving";
 
   if (mp4Url) {
+    const isImage = /\.(png|jpe?g|webp)(\?|$)/i.test(mp4Url);
     return (
       <div className="max-w-5xl w-full">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">In Today's World</p>
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
-          <video src={mp4Url} controls className="w-full h-full" />
+          {isImage ? (
+            <img src={mp4Url} alt="" className="w-full h-full object-contain" />
+          ) : (
+            <video src={mp4Url} controls className="w-full h-full" />
+          )}
         </div>
         <motion.blockquote initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1 }}
           className="text-center mt-6 px-8">

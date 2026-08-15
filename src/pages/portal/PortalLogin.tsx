@@ -36,7 +36,13 @@ const PortalLogin = () => {
     const { error } = await signIn(email, password);
     setLoading(false);
     if (error) {
-      toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+      const friendly =
+        /invalid login credentials/i.test(error.message)
+          ? "Hmm, that email or password doesn't look right — try again."
+          : /email not confirmed/i.test(error.message)
+            ? "Please confirm your email first — check your inbox for the confirmation link."
+            : "We couldn't sign you in just now. Check your details and try again.";
+      toast({ title: "Sign in failed", description: friendly, variant: "destructive" });
     } else {
       navigate(redirectTo);
     }
@@ -154,6 +160,10 @@ const PortalLogin = () => {
             <a href="/membership" className="text-[11px] tracking-[0.1em] text-cream/60 hover:text-cream font-body transition-colors mt-1 inline-block underline underline-offset-4">
               Become a member →
             </a>
+            <div className="mt-4 space-x-4">
+              <a href="/terms" className="text-cream/30 hover:text-cream/60 text-[10px] font-body transition-colors">Terms</a>
+              <a href="/privacy" className="text-cream/30 hover:text-cream/60 text-[10px] font-body transition-colors">Privacy</a>
+            </div>
           </div>
         </motion.div>
       </div>
