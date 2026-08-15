@@ -51,7 +51,7 @@ function drawHeader(doc: jsPDF, s: WorksheetSession, W: number, M: number) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6);
   doc.setTextColor(SILVER);
-  doc.text("notice. name. rewire.", M + 32, 33);
+  doc.text("notice it. name it. do it.", M + 32, 33);
 
   // Right: audience badge
   doc.setFillColor(BLUE);
@@ -311,7 +311,7 @@ function drawFooter(doc: jsPDF, W: number, M: number) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(6);
     doc.setTextColor(GREY);
-    doc.text("mindcast.co.nz  |  notice. name. rewire.", M, H - 18, { charSpace: 1.2 });
+    doc.text("mindcast.co.nz  |  notice it. name it. do it.", M, H - 18, { charSpace: 1.2 });
     doc.text(`${i} / ${pages}`, W - M, H - 18, { align: "right" });
   }
 }

@@ -252,7 +252,7 @@ const HeroSection = () => {
   );
 };
 
-/* ─── MANIFESTO — NOTICE. NAME. REWIRE. ─── */
+/* ─── MANIFESTO — NOTICE IT. NAME IT. DO IT. ─── */
 const ManifestoSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
 

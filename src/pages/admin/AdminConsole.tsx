@@ -174,7 +174,7 @@ const AdminConsole = () => {
           ))}
           <div className="mt-auto pt-6 px-3">
             <p className="text-[9px] font-body tracking-[0.2em] uppercase text-[#8E9299]/60 flex items-center gap-1.5">
-              <Layers size={10} /> notice. name. rewire.
+              <Layers size={10} /> notice it. name it. do it.
             </p>
           </div>
         </aside>
