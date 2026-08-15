@@ -8,7 +8,18 @@ type Profile = {
   email: string | null; nfc_id: string | null;
 };
 
-const SITE = "https://mindcast.co.nz";
+// The host burned onto the physical bracelet. This gets written into hardware:
+// if it points at a domain that does not resolve, the only fix is re-writing
+// every bracelet by hand. So it is NOT hardcoded to a bare domain.
+//
+// Order: an explicit VITE_BRACELET_BASE_URL (pin it for a programming run),
+// otherwise the origin the admin is actually on. Programming the bracelets from
+// https://www.mindcast.co.nz therefore writes www URLs, which is what resolves.
+const SITE = (
+  import.meta.env.VITE_BRACELET_BASE_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "")
+).replace(/\/+$/, "");
+
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 const genToken = (len = 10) => {
@@ -144,6 +155,13 @@ const BraceletStudio = () => {
         </h2>
         <p className="text-[#8E9299] text-sm font-body mt-1">
           Generate a token, write it to an NFC bracelet as a URL record, then assign it to the member. Tapping the bracelet opens <span className="text-[#C5E3F3]">{SITE}/b/&lt;token&gt;</span> and checks the member in.
+        </p>
+        {/* The host is written into the tag itself. Changing it later means
+            re-writing every bracelet by hand, so make it impossible to miss
+            which one is about to be burned in. */}
+        <p className="text-[11px] font-body mt-3 rounded-sm border border-[#C5E3F3]/25 bg-[#C5E3F3]/[0.06] px-3 py-2 text-[#C5E3F3]">
+          Bracelets will be written with <strong className="font-semibold">{SITE || "(unknown host)"}</strong> — this is
+          baked into the tag. Confirm that address loads in a browser before writing a batch.
         </p>
       </div>
 
