@@ -736,8 +736,25 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
       if (type === "wordcloud") {
         return <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
       }
-      if (type === "poll" && options.length > 0) {
+      // `choice` is the richer poll — the wall shows the same tally, so it
+      // reuses the same slide rather than duplicating it.
+      if ((type === "poll" || type === "choice") && options.length > 0) {
         return <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
+      }
+      if (type === "scale") {
+        // options = [statement, lowLabel, highLabel] — see migration 20260817120000.
+        return (
+          <ScaleSlide
+            text={session.experiential_exercise}
+            statement={options[0] || "How true does this feel for you right now?"}
+            minLabel={options[1] || "Not at all"}
+            maxLabel={options[2] || "Completely"}
+            responses={activityResponses}
+          />
+        );
+      }
+      if (type === "phrase") {
+        return <PhraseWallSlide text={session.experiential_exercise} responses={activityResponses} />;
       }
       return <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
     }
@@ -1020,6 +1037,112 @@ const WordCloudSlide = ({ text, responses }: { text: string; responses: Response
  * Live poll — members tap one of the facilitator's own options, so there is no
  * free text on screen and nothing to moderate.
  */
+/**
+ * ScaleSlide — the room's answer to a 1-10 statement, as a distribution.
+ *
+ * The average alone hides the interesting shape: a room split between 2s and
+ * 9s averages the same as a room of all 5s, and those are completely different
+ * conversations to facilitate. So the bars are the point; the average is the
+ * caption.
+ */
+const ScaleSlide = ({
+  text, statement, minLabel, maxLabel, responses,
+}: { text: string; statement: string; minLabel: string; maxLabel: string; responses: Response[] }) => {
+  const { buckets, total, average } = useMemo(() => {
+    const b = Array.from({ length: 10 }, () => 0);
+    let sum = 0, n = 0;
+    for (const r of responses) {
+      const v = Math.round(Number((r.response_text || "").trim()));
+      if (Number.isFinite(v) && v >= 1 && v <= 10) { b[v - 1] += 1; sum += v; n += 1; }
+    }
+    return { buckets: b, total: n, average: n ? sum / n : 0 };
+  }, [responses]);
+
+  const peak = Math.max(1, ...buckets);
+
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="font-body text-lg text-[hsl(var(--ivory))]/80 mb-8 text-center">{text}</p>
+      <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] mb-10 text-center italic">{statement}</p>
+
+      <div className="flex items-end justify-between gap-2 md:gap-3 h-56">
+        {buckets.map((count, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+            <span className={`font-display text-lg mb-2 ${count ? "text-[hsl(var(--ivory))]" : "text-[hsl(var(--ivory))]/20"}`}>
+              {count || ""}
+            </span>
+            <motion.div
+              className="w-full rounded-t-sm bg-[hsl(var(--blue))]"
+              initial={{ height: 0 }}
+              animate={{ height: `${(count / peak) * 100}%` }}
+              transition={{ type: "spring", stiffness: 90, damping: 18 }}
+              style={{ minHeight: count ? 6 : 2, opacity: count ? 1 : 0.15 }}
+            />
+            <span className="font-body text-[11px] text-[hsl(var(--ivory))]/40 mt-2">{i + 1}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-between mt-4 text-[11px] tracking-[0.2em] font-body uppercase text-[hsl(var(--ivory))]/40">
+        <span>{minLabel}</span>
+        <span>{maxLabel}</span>
+      </div>
+
+      <p className="text-center mt-8 font-body text-sm text-[hsl(var(--ivory))]/50">
+        {total === 0
+          ? "Waiting for the room…"
+          : `${total} ${total === 1 ? "response" : "responses"} · average ${average.toFixed(1)}`}
+      </p>
+    </div>
+  );
+};
+
+/**
+ * PhraseWallSlide — completed sentence stems, newest first.
+ *
+ * Free text, so it obeys the same rule as the word cloud: only rows the
+ * moderator has approved ever reach the wall (filtered by the caller).
+ */
+const PhraseWallSlide = ({ text, responses }: { text: string; responses: Response[] }) => {
+  const phrases = useMemo(
+    () => responses.map(r => (r.response_text || "").trim()).filter(Boolean).slice(-12).reverse(),
+    [responses],
+  );
+
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="font-body text-lg text-[hsl(var(--ivory))]/80 mb-10 text-center">{text}</p>
+
+      {phrases.length === 0 ? (
+        <p className="text-center font-body text-sm text-[hsl(var(--ivory))]/40">Waiting for the room…</p>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          <AnimatePresence initial={false}>
+            {phrases.map((p, i) => (
+              <motion.p
+                key={`${p}-${i}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-snug border-l-2 border-[hsl(var(--blue))] pl-5 py-2"
+              >
+                {p}
+              </motion.p>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      <p className="text-center mt-10 font-body text-sm text-[hsl(var(--ivory))]/50">
+        {responses.length === 0 ? "" : `${responses.length} shared`}
+      </p>
+    </div>
+  );
+};
+
 const PollSlide = ({ text, options, responses }: { text: string; options: string[]; responses: Response[] }) => {
   const tally = useMemo(() => {
     const counts = new Map<string, number>(options.map(o => [o.toLowerCase(), 0]));
