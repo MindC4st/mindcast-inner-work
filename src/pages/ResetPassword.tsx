@@ -12,19 +12,24 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for recovery token in URL hash
+    // The recovery token can arrive as a hash on any page; AuthContext then
+    // routes here, so by mount the session may already exist with the hash
+    // consumed. Accept any of: hash token, live recovery event, or an
+    // already-established recovery session.
     const hash = window.location.hash;
     if (hash.includes("type=recovery")) {
       setReady(true);
-    } else {
-      // Also listen for PASSWORD_RECOVERY event
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-        if (event === "PASSWORD_RECOVERY") {
-          setReady(true);
-        }
-      });
-      return () => subscription.unsubscribe();
+      return;
     }
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setReady(true);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setReady(true);
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

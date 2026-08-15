@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -23,6 +24,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null);
@@ -61,7 +63,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // IMPORTANT: do NOT `await` supabase queries directly inside
     // onAuthStateChange — it deadlocks the auth client and `loading`
     // never flips to false. Defer with setTimeout(0).
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Recovery links can land on any URL (email templates drop the token in
+      // the hash at the site root) — wherever the session arrives with a
+      // recovery event, route the member to the reset screen.
+      if (event === "PASSWORD_RECOVERY") {
+        setTimeout(() => navigate("/reset-password"), 0);
+      }
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
