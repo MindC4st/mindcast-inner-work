@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket } from "lucide-react";
 import logoLight from "@/assets/logo-cream.png";
 
 const NAV_ITEMS = [
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: "Progress", to: "/portal/progress", icon: TrendingUp },
   { label: "Profile", to: "/portal/settings", icon: User },
   { label: "Insights", to: "/portal/insights", icon: Brain },
+  { label: "Door pass", to: "/portal/pass", icon: Ticket },
   { label: "Membership", to: "/portal/billing", icon: CreditCard },
 ];
 
@@ -108,6 +109,24 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           >
             <Clapperboard size={15} strokeWidth={1.5} />
             Facilitate
+          </Link>
+        )}
+
+        {/* Staff Training Hub. The page and its routes existed, but nothing in
+            the app linked to them — no facilitator could reach their own
+            required training without typing the URL. */}
+        {isStaff && (
+          <Link
+            to="/admin/training"
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+              isActive("/admin/training")
+                ? "bg-primary-foreground/[0.08] text-primary-foreground"
+                : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+            }`}
+          >
+            <GraduationCap size={15} strokeWidth={1.5} />
+            Staff Training
           </Link>
         )}
 

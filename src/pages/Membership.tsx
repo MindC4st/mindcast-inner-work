@@ -57,7 +57,7 @@ const Membership = () => (
       <div className="container mx-auto px-6 max-w-5xl">
         <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-4">THE WEEKLY RHYTHM</h2>
         <p className="text-center text-muted-foreground font-body text-sm max-w-xl mx-auto mb-16">
-          Notice. Name. Rewire. A structure built for follow-through, not just insight.
+          Notice It. Name It. Do It. A structure built for follow-through, not just insight.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {RHYTHM.map((r, i) => (

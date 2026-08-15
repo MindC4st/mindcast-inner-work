@@ -55,6 +55,9 @@ const CoursebookPrint = lazy(() => import("./pages/mindcast-live/CoursebookPrint
 const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
+const DoorScanner = lazy(() => import("./pages/admin/DoorScanner"));
+const PortalPass = lazy(() => import("./pages/portal/PortalPass"));
+const TryASession = lazy(() => import("./pages/TryASession"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +113,7 @@ const AppRoutes = () => (
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<LegacyRedirect to="/portal/login" />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/try" element={<TryASession />} />
 
       {/* Admin — one console; old deep links forward to the right tab.
           Kiosk + Framework stay standalone (hardware / print surfaces). */}
@@ -128,6 +132,7 @@ const AppRoutes = () => (
       <Route path="/admin/households" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=households" replace /></AdminOnlyRoute>} />
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
       <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
+      <Route path="/admin/scan" element={<AdminRoute><DoorScanner /></AdminRoute>} />
 
       {/* Staff Training (MC-TRN-001) — staff see their own path; team views admin-only */}
       <Route path="/admin/staff-training" element={<AdminRoute><StaffTrainingHome /></AdminRoute>} />
@@ -151,6 +156,7 @@ const AppRoutes = () => (
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
       <Route path="/portal/checkin" element={<ProtectedRoute><PortalCheckIn /></ProtectedRoute>} />
       <Route path="/portal/kids" element={<ProtectedRoute><PortalKids /></ProtectedRoute>} />
+      <Route path="/portal/pass" element={<ProtectedRoute><PortalPass /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
 
@@ -163,7 +169,8 @@ const AppRoutes = () => (
       <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
       <Route path="/mindcast-live/edit/:weekNumber" element={<AdminRoute><LessonEditor /></AdminRoute>} />
       <Route path="/mindcast-live/coursebook" element={<AdminRoute><CoursebookPrint /></AdminRoute>} />
-      <Route path="/training" element={<AdminRoute><TrainingPage /></AdminRoute>} />
+      <Route path="/admin/training" element={<AdminRoute><TrainingPage /></AdminRoute>} />
+      <Route path="/training" element={<LegacyRedirect to="/admin/training" />} />
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
@@ -240,6 +247,10 @@ const TITLE_MAP: [string, string][] = [
   ["/mindcast-live/coursebook", "Coursebook (Print) · Mindcast"],
   ["/admin/dashboard", "Dashboard · Admin"],
   ["/admin/life-groups", "Life Groups · Admin"],
+  ["/admin/scan", "Door Scan · Mindcast"],
+  ["/portal/pass", "Door Pass · Mindcast Portal"],
+  ["/try", "Try a Session · Mindcast"],
+  ["/admin/training", "Staff Training · Mindcast"],
   ["/admin", "Admin · Mindcast"],
   ["/workbook", "Workbook · Mindcast"],
   ["/dashboard", "Dashboard · Mindcast"],

@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import RateScale from "@/components/session/RateScale";
+import MultipleChoiceReflection from "@/components/session/MultipleChoiceReflection";
+import WordPhraseBuilder from "@/components/session/WordPhraseBuilder";
 import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -179,11 +182,17 @@ const LiveJoin = () => {
     // facilitator's own option list, so there is nothing to review.
     if (state.promptType === "activity") {
       const kind = (state.activityType || "reflection").toLowerCase();
-      const value = response.trim().slice(0, 60);
+      // 60 chars suits a single word-cloud word, but a completed sentence stem
+      // is longer than that before the member types anything — truncating it
+      // there would cut every phrase mid-word.
+      const value = response.trim().slice(0, kind === "phrase" ? 220 : 60);
       setSubmitting(true);
 
       let status: "approved" | "pending" = "approved";
-      if (kind === "wordcloud") {
+      // Free-text kinds reach the big screen verbatim, so every one of them is
+      // screened first. `scale` and `choice` come from the facilitator's own
+      // options, so there is nothing to review.
+      if (kind === "wordcloud" || kind === "phrase") {
         try {
           const { data: mod } = await supabase.functions.invoke("moderate-content", { body: { text: value } });
           status = mod?.approved === false ? "pending" : "approved";
@@ -319,6 +328,16 @@ const LiveJoin = () => {
   const isActivity = state?.promptType === "activity";
   const activityKind = (state?.activityType || "reflection").toLowerCase();
   const pollOptions = state?.activityOptions ?? [];
+  // activity_options doubles as widget config (see the 20260817120000 migration):
+  //   scale  -> [statement, lowLabel, highLabel]
+  //   phrase -> [template with ________ blanks]
+  //   choice -> the option list, same as poll
+  const scaleConfig = {
+    statement: pollOptions[0] || "How true does this feel for you right now?",
+    minLabel: pollOptions[1] || "Not at all",
+    maxLabel: pollOptions[2] || "Completely",
+  };
+  const phraseTemplate = pollOptions[0] || "One thing I will do this week is ________.";
   const isIntentionPrompt = state?.promptType === "intention";
   const alreadySubmitted = submittedFor === `${state?.slide}`;
   const isSpectator = mode === "spectator";
@@ -434,8 +453,43 @@ const LiveJoin = () => {
                 </p>
               )}
 
-              {/* Poll — tap one of the facilitator's options. */}
-              {isActivity && activityKind === "poll" && pollOptions.length > 0 ? (
+              {/* Scale — a 1-10 slider. The fastest interaction in the room, so
+                  it carries weeks that used to be a plain textarea. */}
+              {isActivity && activityKind === "scale" ? (
+                <div className="mb-5">
+                  <RateScale
+                    statement={scaleConfig.statement}
+                    minLabel={scaleConfig.minLabel}
+                    maxLabel={scaleConfig.maxLabel}
+                    storageKey={`live-scale-${sessionCode}-${state?.slide}`}
+                    initialValue={Number(response) || 5}
+                    onSave={(v) => setResponse(String(v))}
+                  />
+                </div>
+              ) : isActivity && activityKind === "phrase" ? (
+                <div className="mb-5">
+                  <WordPhraseBuilder
+                    template={phraseTemplate}
+                    storageKey={`live-phrase-${sessionCode}-${state?.slide}`}
+                    onSave={(vals) => {
+                      // Rebuild the finished sentence, so the room screen shows
+                      // language rather than disconnected fragments.
+                      const parts = phraseTemplate.split("________");
+                      setResponse(parts.map((p, i) => p + (vals[i] ?? "")).join("").trim());
+                    }}
+                  />
+                </div>
+              ) : isActivity && activityKind === "choice" && pollOptions.length > 0 ? (
+                <div className="mb-5">
+                  <MultipleChoiceReflection
+                    question={state?.promptText || "Which is closest to you?"}
+                    options={pollOptions}
+                    storageKey={`live-choice-${sessionCode}-${state?.slide}`}
+                    onSave={({ selected }) => setResponse(selected[0] ?? "")}
+                  />
+                </div>
+              ) : /* Poll — tap one of the facilitator's options. */
+              isActivity && activityKind === "poll" && pollOptions.length > 0 ? (
                 <div className="space-y-2 mb-5">
                   {pollOptions.map((opt) => (
                     <button
@@ -482,8 +536,12 @@ const LiveJoin = () => {
                   </p>
                 ) : isActivity ? (
                   <p className="text-[hsl(var(--navy-mid))]/70 font-body text-xs px-1">
-                    {activityKind === "poll"
+                    {activityKind === "poll" || activityKind === "choice"
                       ? "Your choice is counted in the room's totals — no names shown."
+                      : activityKind === "scale"
+                      ? "Your number joins the room's spread — no names shown."
+                      : activityKind === "phrase"
+                      ? "Your sentence joins the wall anonymously, once it's checked."
                       : "Your word joins the wall anonymously."}
                   </p>
                 ) : (

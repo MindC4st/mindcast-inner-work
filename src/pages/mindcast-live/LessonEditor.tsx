@@ -355,20 +355,41 @@ const LessonEditor = () => {
                       <select value={activityType} onChange={(e) => setActivityType(e.target.value)}
                         className="w-full max-w-xs rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20">
                         <option value="wordcloud">Word cloud — one word each</option>
-                        <option value="poll">Poll / spectrum — vote or rate</option>
+                        <option value="choice">Choice — pick an option, screen shows the tally</option>
+                        <option value="scale">Scale — rate 1&ndash;10, screen shows the spread</option>
+                        <option value="phrase">Phrase — finish a sentence, screen shows the wall</option>
+                        <option value="poll">Poll — plain vote (legacy; prefer Choice)</option>
                         <option value="reflection">Reflection — submit a line / open Q&amp;A</option>
                         <option value="none">Private only — nothing on screen</option>
                       </select>
                       <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Drives the live in-session widget. Applies to all tracks for this week.</span>
                     </label>
                   )}
-                  {slide.idx === 8 && activityType === "poll" && (
+                  {slide.idx === 8 && ["poll", "choice", "scale", "phrase"].includes(activityType) && (
                     <label className="block">
-                      <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">Poll options — one per line</span>
+                      <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">
+                        {activityType === "scale"
+                          ? "Scale setup — line 1 statement, line 2 low label, line 3 high label"
+                          : activityType === "phrase"
+                          ? "Sentence stem — use ________ for each blank"
+                          : "Options — one per line"}
+                      </span>
                       <textarea rows={5} value={activityOptions} onChange={(e) => setActivityOptions(e.target.value)}
-                        placeholder={"Social feeds\nPeople I know\nFamily"}
+                        placeholder={
+                          activityType === "scale"
+                            ? "How true does this feel for you right now?\nNot at all\nCompletely"
+                            : activityType === "phrase"
+                            ? "The thing I keep avoiding is ________, and the first small step is ________."
+                            : "Social feeds\nPeople I know\nFamily"
+                        }
                         className="w-full rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20 resize-y leading-relaxed" />
-                      <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Members tap one of these. Fixed options mean nothing needs moderating on screen.</span>
+                      <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">
+                        {activityType === "scale"
+                          ? "Members drag a 1–10 slider. The screen shows the room's spread and average."
+                          : activityType === "phrase"
+                          ? "Members fill the blanks. Free text, so each sentence is screened before it reaches the wall."
+                          : "Members tap one of these. Fixed options mean nothing needs moderating on screen."}
+                      </span>
                     </label>
                   )}
                   {slide.fields.map((f) => (

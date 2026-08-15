@@ -44,3 +44,12 @@ verify_jwt = true
 # (service role) and by a scheduled absence sweep — not directly by members.
 [functions.attendance-notify]
 verify_jwt = false
+
+# Staff-operated door scanner. Reads membership status and household
+# composition for other people, so it requires a signed-in facilitator/admin.
+[functions.door-scan]
+verify_jwt = true
+
+# Public by design: the person registering does not have an account yet.
+[functions.issue-trial-ticket]
+verify_jwt = false

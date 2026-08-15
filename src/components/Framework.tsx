@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
 const steps = [
-  { title: "NOTICE", desc: "Become aware of what is happening inside — without judgement." },
-  { title: "NAME", desc: "Give precise language to your experience — feeling, need, and request." },
-  { title: "REWIRE", desc: "Take one deliberate action toward lasting change." },
+  { title: "NOTICE IT", desc: "Become aware of what is happening inside — without judgement." },
+  { title: "NAME IT", desc: "Give precise language to your experience — feeling, need, and request." },
+  { title: "DO IT", desc: "Take one deliberate action toward lasting change." },
 ];
 
 const Framework = () => (
@@ -24,7 +24,7 @@ const Framework = () => (
         transition={{ duration: 0.6 }}
         className="heading-display text-5xl md:text-7xl text-center mb-20"
       >
-        NOTICE. NAME. REWIRE.
+        NOTICE IT. NAME IT. DO IT.
       </motion.h2>
 
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">

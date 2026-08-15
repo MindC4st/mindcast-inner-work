@@ -37,7 +37,7 @@ This isn't another app. It's a room full of people who show up for each other.
 
 Link in bio to become a member 🤍
 
-#Mindcast #MindcastNZ #InnerWork #Taupō #PersonalDevelopment #CommunityOverContent #NoticeNameRewire #NewZealand #WeeklyPractice #GroupGrowth #MindfulLiving #NZLife`;
+#Mindcast #MindcastNZ #InnerWork #Taupō #PersonalDevelopment #CommunityOverContent #NoticeItNameItDoIt #NewZealand #WeeklyPractice #GroupGrowth #MindfulLiving #NZLife`;
 
 const STORY_SCRIPT = `SLIDE 1:
 You learn something powerful every week.
@@ -72,7 +72,7 @@ That's why I built Mindcast.
 
 It's a facilitated 52-week journey — part live gathering, part reflection practice, part accountability circle. Every week, a community meets for a live Sunday session on one theme, reflects privately in their own journal, and goes deeper together in a midweek Life Group. Adults, teens and children each have their own parallel track.
 
-The methodology is simple: Notice what's happening inside you. Name it out loud. Rewire one thing at a time. Quietly radical.
+The methodology is simple: Notice what's happening inside you. Name it out loud. Then do one thing about it. Quietly radical.
 
 Membership is open now here in Taupō, New Zealand — a full 52-week journey with a community walking it beside you.
 
@@ -102,7 +102,7 @@ Hi there,
 
 I wanted to share something I've been quietly working on.
 
-Mindcast is a facilitated 52-week journey for people who want more than passive self-development — built around a simple methodology: Notice. Name. Rewire.
+Mindcast is a facilitated 52-week journey for people who want more than passive self-development — built around a simple methodology: Notice It. Name It. Do It.
 
 Membership is open now in Taupō. Here's what each week looks like:
 
