@@ -92,7 +92,7 @@ const FloatingName = ({ checkIn }: { checkIn: CheckIn }) => {
       } as CSSProperties}
     >
       <span
-        className={`${FONT_CLASSES[params.fontIdx]} ${COLOUR_CLASSES[params.colourIdx]} whitespace-nowrap drop-shadow-[0_0_30px_rgba(184,137,90,0.15)]`}
+        className={`${FONT_CLASSES[params.fontIdx]} ${COLOUR_CLASSES[params.colourIdx]} whitespace-nowrap drop-shadow-[0_0_30px_rgba(53,133,175,0.15)]`}
         style={{ fontSize: `${params.size}rem`, transform: `rotate(${params.rot}deg)`, display: "inline-block" }}
       >
         {display_name}
