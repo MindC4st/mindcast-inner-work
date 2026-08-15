@@ -247,4 +247,13 @@
   .animate-float {
     animation: float 4s ease-in-out infinite;
   }
+
+  /* Ripple — the brand signature device. A point, then its consequences.
+     Used by src/components/brand/Ripple.tsx; silenced automatically by the
+     global prefers-reduced-motion rule above. */
+  @keyframes mc-ripple {
+    0% { transform: scale(0.55); opacity: 0.7; }
+    70% { opacity: 0.18; }
+    100% { transform: scale(1.25); opacity: 0; }
+  }
 }
