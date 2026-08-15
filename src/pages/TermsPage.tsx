@@ -2,121 +2,157 @@ import { LegalPage } from "@/components/legal/LegalPage";
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Use" lastUpdated="April 2026">
+    <LegalPage title="Terms of Use" lastUpdated="August 2026">
       <p>
-        These Terms of Use govern your access to and use of the Mindcast Inner Work platform,
-        including our website, digital workbooks, community sessions, and any related services
-        (collectively, "Mindcast"). By using Mindcast, you agree to these terms.
-        Mindcast is operated from New Zealand and these terms are governed by New Zealand law.
+        These Terms of Use govern your access to and use of Mindcast — our website, member
+        portal, live sessions, workbooks, mobile app and related services. By creating an
+        account, joining a session, or using any Mindcast service, you confirm that you have
+        read, understood and agree to these terms.
       </p>
 
-      <h2>1. Who can use Mindcast</h2>
+      <h2>1. Who we are</h2>
       <p>
-        You must be 16 or older to create a Mindcast account independently. Persons aged
-        13–15 may use Mindcast with the express written consent of a parent or legal guardian.
-        Children under 13 do not use the digital platform — their programme is managed through
-        their parent or guardian's account or through paper-based materials only.
-      </p>
-      <p>
-        By registering, you confirm that the information you provide is accurate and that you
-        meet the age requirements above.
+        Mindcast is operated by <strong>Mindcast Limited</strong>, a New Zealand company based
+        in Taupō, Aotearoa New Zealand. These terms are governed by New Zealand law.
       </p>
 
-      <h2>2. Community standards</h2>
+      <h2>2. What Mindcast is</h2>
       <p>
-        Mindcast is a community built on mutual respect. When using any interactive feature
-        (check-ins, goal sharing, success stories, word cloud submissions), you agree not to:
+        Mindcast is an <strong>educational and community wellbeing programme</strong>. We
+        facilitate weekly group sessions and provide reflective materials that collate and
+        reframe ideas from philosophy, psychology and wisdom traditions, to help people
+        understand themselves and take small, practical steps toward a life they value.
       </p>
+
+      <h2>3. What Mindcast is not</h2>
+      <p>
+        Mindcast, its founder, facilitators and volunteers are <strong>not doctors,
+        psychologists, psychotherapists, counsellors, or trained health professionals</strong>,
+        and Mindcast is not a health, medical, psychological or therapeutic service.
+      </p>
+      <p>
+        Nothing in our sessions, app, workbook or materials is medical, psychological,
+        therapeutic, financial or legal advice, or a diagnosis or treatment of any condition.
+        The material is collated and reframed general information, shared in good faith — it is
+        not a substitute for professional care.
+      </p>
+
+      <h2>4. The founder's role — a curator, not an authority</h2>
+      <p>
+        Mindcast is curated by its founder, who gathers, arranges and reframes ideas from many
+        sources into a weekly practice. The founder does not claim to have the answers, to be
+        an expert or authority, or to have originated the underlying ideas. Their role is to
+        hold the space, share what has helped others, and help you draw out your own
+        understanding. Any answers you find here are your own, reached in your own way and at
+        your own pace.
+      </p>
+
+      <h2>5. What the material is based on</h2>
+      <p>
+        The ideas shared in Mindcast are drawn from two kinds of sources: (a) evidence-informed
+        research and widely-recognised psychological and wellbeing concepts that are publicly
+        available, and (b) ancient philosophical and wisdom traditions that form part of the
+        public domain of human thought. This material is collated, reframed and expressed in
+        Mindcast's own words as a general educational synthesis — not original scientific fact,
+        clinical guidance, or the teaching of any particular organisation or religion. We make
+        no guarantee as to the completeness, accuracy, currency or suitability of any idea for
+        your situation. Where we point to a talk, book or video, we do so as a reference for
+        your own further exploration, and do not claim to represent or speak for its author.
+      </p>
+
+      <h2>6. Please seek professional help when you need it</h2>
+      <p>
+        If you are experiencing mental or physical health difficulties, distress or crisis,
+        please consult a qualified professional. In New Zealand you can call or text{" "}
+        <strong>1737</strong> (free, 24/7) to talk with a trained counsellor, contact your GP,
+        or call <strong>111</strong> in an emergency. Facilitators may gently refer you to
+        professional support; they will never attempt to treat you.
+      </p>
+
+      <h2>7. Voluntary participation &amp; personal responsibility</h2>
       <ul>
-        <li>Post content that is offensive, discriminatory, threatening, or harassing</li>
-        <li>Share personal information about other members without their consent</li>
-        <li>Use the platform to promote products, services, or organisations without permission</li>
+        <li>Participation is entirely voluntary. You may pause, decline any activity, or leave at any time, for any reason, with no penalty or pressure.</li>
+        <li>You are responsible for your own decisions and wellbeing. You take part using your own judgement and at your own risk, and what you do with any idea from Mindcast is your choice and responsibility.</li>
+        <li>You agree to engage respectfully and to keep what others share in a session confidential — what's shared in the room stays in the room.</li>
+      </ul>
+
+      <h2>8. Community standards</h2>
+      <p>When using any interactive feature (check-ins, word walls, shared screens), you agree not to:</p>
+      <ul>
+        <li>Harass, threaten, discriminate against, or abuse other members</li>
+        <li>Disclose another person's personal information without their consent</li>
         <li>Impersonate another person or misrepresent your identity</li>
-        <li>Post content that breaches any New Zealand law, including the Harmful Digital Communications Act 2015</li>
+        <li>Promote products, services or organisations without permission</li>
+        <li>Submit content that is unlawful or harmful, including under the Harmful Digital Communications Act 2015</li>
       </ul>
       <p>
-        Content submitted to shared screens (success stories, word cloud) is moderated before
-        display. We reserve the right to remove any content that breaches these standards
-        without notice.
+        Content shown on shared screens is moderated before display. We may remove content
+        that breaches these standards.
       </p>
 
-      <h2>3. Your content</h2>
+      <h2>9. Your content &amp; privacy</h2>
       <p>
-        Your workbook entries, goals, and reflections are your own. You retain ownership of
-        anything you write in your workbook. By submitting content to shared features
-        (success stories, word cloud, goal wall), you grant Mindcast a non-exclusive licence
-        to display that content in the context of our community sessions.
-      </p>
-      <p>
-        We will never sell, license, or share your personal reflections with third parties.
+        Your workbook entries and reflections are private and remain your own. We will never
+        sell your personal information or reflections, and we do not use member reflections to
+        train third-party AI models. Where you choose to share something on a community screen,
+        you grant Mindcast a limited licence to display it solely in that context — you can
+        share anonymously and withdraw at any time.
       </p>
 
-      <h2>4. Subscriptions and physical workbooks</h2>
+      <h2>10. Membership, payments &amp; refunds</h2>
       <p>
-        Details of our current pricing are displayed on the Mindcast website. Where a paid
-        subscription or physical workbook purchase is involved, additional terms apply as set
-        out in our <a href="/refund">Refund & Cancellation Policy</a>.
-      </p>
-      <p>
-        Your rights as a consumer under the New Zealand Consumer Guarantees Act 1993 and
-        Fair Trading Act 1986 are not affected by these terms.
+        Mindcast is a membership community. The live Sunday gathering may be attended free;
+        paid membership unlocks the app experience and the continuing digital journey. Pricing,
+        billing, cancellation and refunds are set out on the website and in our{" "}
+        <a href="/refund">Refund &amp; Cancellation Policy</a>. Your rights under the New Zealand
+        Consumer Guarantees Act 1993 and Fair Trading Act 1986 are not affected.
       </p>
 
-      <h2>5. AI-generated content</h2>
+      <h2>11. AI-assisted content</h2>
       <p>
-        Mindcast uses artificial intelligence to generate session workbook questions based on
-        video content. These questions are generated automatically and reviewed by our
-        facilitators before use. AI-generated questions reflect the content of the session
-        video and are intended for personal reflection only — they are not professional advice
-        of any kind.
+        Mindcast may use AI-assisted tools to help generate some content (for example,
+        reflective questions based on a session video). This is reviewed by our facilitators
+        before use, and is provided for personal reflection only — not as professional advice.
       </p>
 
-      <h2>6. Intellectual property</h2>
+      <h2>12. Intellectual property</h2>
       <p>
-        The Mindcast name, logo, platform design, curriculum structure, and workbook templates
-        are owned by Mindcast and protected by New Zealand copyright law. You may not reproduce,
-        adapt, or distribute these materials without written permission, except for personal
-        use within a Mindcast session.
+        The Mindcast name, logo, brand, curriculum structure, session scripts, workbook and
+        software are owned by Mindcast Limited and protected by New Zealand law. They are
+        provided to members for their own personal, non-commercial use only. You may not
+        record, copy, reproduce, distribute, resell, or use them to run your own group or
+        programme, without Mindcast's written permission. Please do not record sessions.
       </p>
 
-      <h2>7. Third-party services</h2>
+      <h2>13. No guarantees</h2>
       <p>
-        Mindcast uses third-party services to operate, including services for database
-        management, authentication, payment processing, AI question generation, and video
-        content hosting. These services operate under their own terms of service and privacy
-        policies. Mindcast is not responsible for the practices of these providers.
+        We share these ideas because we believe in them, but we make no promises about
+        outcomes or results. Everyone is different; personal growth is not guaranteed.
       </p>
 
-      <h2>8. Limitation of liability</h2>
+      <h2>14. Limitation of liability</h2>
       <p>
-        Mindcast is provided "as is" for personal reflection and community connection purposes.
-        Nothing on Mindcast constitutes medical, psychological, financial, or professional advice.
-        If you are experiencing a mental health crisis, please contact the New Zealand
-        crisis line: <strong>1737</strong> (free, 24/7).
-      </p>
-      <p>
-        To the maximum extent permitted by New Zealand law, Mindcast and its operators are not
-        liable for any indirect, incidental, or consequential loss arising from your use of
-        the platform. Our total liability to you will not exceed the amount you paid to
-        Mindcast in the 12 months preceding any claim.
+        To the maximum extent permitted by New Zealand law, Mindcast Limited and its people are
+        not liable for any loss, harm or damage arising from your participation or from your
+        use of the materials, except where liability cannot be excluded by law (including the
+        Consumer Guarantees Act 1993 where it applies).
       </p>
 
-      <h2>9. Changes to these terms</h2>
+      <h2>15. Children &amp; young people</h2>
       <p>
-        We may update these terms from time to time. We will notify registered members of
-        material changes by email. Continued use of Mindcast after the effective date of
-        changes constitutes acceptance of the new terms.
+        Children do not have their own logins — a parent or guardian accesses children's
+        content on their behalf and consents for them. Teens participate with guardian
+        involvement. Safeguarding is governed by our Safeguarding &amp; Child Protection
+        Policy.
       </p>
 
-      <h2>10. Governing law</h2>
+      <h2>16. Changes, governing law &amp; contact</h2>
       <p>
-        These terms are governed by the laws of New Zealand. Any disputes will be subject
-        to the exclusive jurisdiction of the New Zealand courts.
-      </p>
-
-      <h2>11. Contact</h2>
-      <p>
-        Questions about these terms: <a href="mailto:hello@mindcast.co.nz">hello@mindcast.co.nz</a>
+        We may update these terms from time to time and will notify registered members of
+        material changes. Continued use after changes take effect constitutes acceptance.
+        These terms are governed by the laws of New Zealand, with disputes subject to the
+        exclusive jurisdiction of the New Zealand courts. Questions about these terms:{" "}
+        <a href="mailto:hello@mindcast.co.nz">hello@mindcast.co.nz</a>.
       </p>
     </LegalPage>
   );
