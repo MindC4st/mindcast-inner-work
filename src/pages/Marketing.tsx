@@ -279,15 +279,15 @@ const Marketing = () => (
     <Navbar />
 
     {/* Hero */}
-    <section className="section-navy pt-32 pb-20 px-6">
+    <section className="section-cream pt-32 pb-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
-        <span className="inline-block text-[10px] tracking-[0.3em] uppercase text-cream/40 font-body mb-4">
+        <span className="inline-block text-[10px] tracking-[0.3em] uppercase text-muted-foreground/70 font-body mb-4">
           Membership Growth Kit
         </span>
-        <h1 className="font-display text-4xl md:text-5xl text-cream tracking-tight mb-4">
+        <h1 className="font-display text-4xl md:text-5xl text-foreground tracking-tight mb-4">
           Grow Your Mindcast Community
         </h1>
-        <p className="font-body text-cream/60 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+        <p className="font-body text-muted-foreground text-sm md:text-base max-w-xl mx-auto leading-relaxed">
           Download and share these ready-to-go assets across Facebook, Instagram, LinkedIn and email.
           Everything is written and designed — just post it.
         </p>

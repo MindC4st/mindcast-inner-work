@@ -12,10 +12,10 @@ import { motion, AnimatePresence } from "framer-motion";
 //   - Age comes from a date of birth, not from a self-selected label.
 
 const inputClass =
-  "w-full bg-transparent border-b border-cream/15 text-cream font-body text-sm py-3 px-1 text-center focus:outline-none focus:border-cream/40 transition-colors placeholder:text-cream/20";
+  "w-full bg-transparent border-b border-border text-foreground font-body text-sm py-3 px-1 text-center focus:outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/50";
 
 const primaryBtn =
-  "mt-8 w-full py-3.5 bg-cream text-navy text-xs tracking-[0.15em] font-display font-bold hover:bg-cream/90 transition-colors disabled:opacity-30";
+  "mt-8 w-full py-3.5 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30";
 
 const ageFrom = (dob: string): number | null => {
   if (!dob) return null;
@@ -88,14 +88,14 @@ const Onboarding = () => {
   const totalSteps = isTeen ? 4 : 3;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 section-navy">
+    <div className="min-h-screen flex items-center justify-center px-4 section-cream">
       <div className="w-full max-w-md">
         <div className="flex justify-center gap-2 mb-12">
           {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
             <div
               key={s}
               className={`w-2 h-2 rounded-full transition-colors ${
-                s === step ? "bg-cream" : s < step ? "bg-cream/40" : "bg-cream/10"
+                s === step ? "bg-primary" : s < step ? "bg-primary/40" : "bg-primary/15"
               }`}
             />
           ))}
@@ -104,8 +104,8 @@ const Onboarding = () => {
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center">
-              <h2 className="font-display text-2xl font-bold text-cream mb-2">Welcome to Mindcast.</h2>
-              <p className="text-cream/40 text-sm font-body mb-10">What should we call you on screen at check-in?</p>
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">Welcome to Mindcast.</h2>
+              <p className="text-muted-foreground/70 text-sm font-body mb-10">What should we call you on screen at check-in?</p>
               <input
                 type="text"
                 value={displayName}
@@ -120,8 +120,8 @@ const Onboarding = () => {
 
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center">
-              <h2 className="font-display text-xl font-bold text-cream mb-2">When were you born?</h2>
-              <p className="text-cream/30 text-xs font-body mb-8">
+              <h2 className="font-display text-xl font-bold text-foreground mb-2">When were you born?</h2>
+              <p className="text-muted-foreground/60 text-xs font-body mb-8">
                 We use this once, to put you in the right room. It never appears on any screen.
               </p>
               <input
@@ -134,15 +134,15 @@ const Onboarding = () => {
               />
 
               {isChild && (
-                <div className="mt-8 border border-cream/20 bg-cream/5 p-5 text-left">
-                  <p className="text-cream font-body text-sm font-semibold mb-2">
+                <div className="mt-8 border border-border bg-primary/5 p-5 text-left">
+                  <p className="text-foreground font-body text-sm font-semibold mb-2">
                     Kids join through a parent.
                   </p>
-                  <p className="text-cream/60 font-body text-sm leading-relaxed">
+                  <p className="text-muted-foreground font-body text-sm leading-relaxed">
                     Under-13s can't create their own account — a parent or guardian adds you to
                     their family membership, and you'll be signed in and out of the kids' room by
                     them each week. Show them this page:{" "}
-                    <Link to="/membership" className="underline text-cream">mindcast.co.nz/membership</Link>
+                    <Link to="/membership" className="underline text-foreground">mindcast.co.nz/membership</Link>
                   </p>
                 </div>
               )}
@@ -159,8 +159,8 @@ const Onboarding = () => {
 
           {step === 3 && isTeen && (
             <motion.div key="step3-guardian" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center">
-              <h2 className="font-display text-xl font-bold text-cream mb-2">One thing first — your parent or guardian.</h2>
-              <p className="text-cream/30 text-xs font-body mb-8 leading-relaxed">
+              <h2 className="font-display text-xl font-bold text-foreground mb-2">One thing first — your parent or guardian.</h2>
+              <p className="text-muted-foreground/60 text-xs font-body mb-8 leading-relaxed">
                 Because you're under 18, we record that a parent or guardian knows you're joining
                 and agrees. We may contact them to confirm. Your journal stays private — they
                 never see what you write.
@@ -186,7 +186,7 @@ const Onboarding = () => {
                   onChange={(e) => setGuardianAgrees(e.target.checked)}
                   className="mt-1 h-4 w-4"
                 />
-                <span className="text-cream/60 font-body text-xs leading-relaxed">
+                <span className="text-muted-foreground font-body text-xs leading-relaxed">
                   My parent or guardian knows I'm creating this account and agrees to me taking
                   part in Mindcast teen sessions.
                 </span>
@@ -203,15 +203,15 @@ const Onboarding = () => {
 
           {step === totalSteps && (
             <motion.div key="step-final" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="text-center">
-              <h2 className="font-display text-xl font-bold text-cream mb-3">
+              <h2 className="font-display text-xl font-bold text-foreground mb-3">
                 When you set a goal each week, would you like to share how it went with the group?
               </h2>
-              <p className="text-cream/30 text-xs font-body mb-8">Completely optional — you can change this anytime.</p>
+              <p className="text-muted-foreground/60 text-xs font-body mb-8">Completely optional — you can change this anytime.</p>
               <div className="space-y-3">
                 <button
                   onClick={() => setOptIn(true)}
                   className={`w-full py-4 px-5 text-left text-sm font-body border transition-all ${
-                    optIn === true ? "border-cream/40 text-cream bg-cream/5" : "border-cream/10 text-cream/40 hover:border-cream/20"
+                    optIn === true ? "border-primary text-foreground bg-primary/5" : "border-border text-muted-foreground/70 hover:border-primary/40"
                   }`}
                 >
                   Yes — I'm happy to share
@@ -219,7 +219,7 @@ const Onboarding = () => {
                 <button
                   onClick={() => setOptIn(false)}
                   className={`w-full py-4 px-5 text-left text-sm font-body border transition-all ${
-                    optIn === false ? "border-cream/40 text-cream bg-cream/5" : "border-cream/10 text-cream/40 hover:border-cream/20"
+                    optIn === false ? "border-primary text-foreground bg-primary/5" : "border-border text-muted-foreground/70 hover:border-primary/40"
                   }`}
                 >
                   No — I prefer to keep my progress private

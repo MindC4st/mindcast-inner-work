@@ -14,19 +14,19 @@ const AdminHandbook = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <header className="bg-[hsl(var(--navy))] text-cream px-6 py-4 flex items-center gap-4 print:hidden">
+      <header className="bg-card text-foreground border-b border-border px-6 py-4 flex items-center gap-4 print:hidden">
         <Link to="/admin" aria-label="Back to console" className="p-1">
           <ArrowLeft size={20} />
         </Link>
         <div className="flex-1">
           <h1 className="font-display text-2xl tracking-wide">OPERATIONS HANDBOOK</h1>
-          <p className="font-body text-[11px] text-cream/60">
+          <p className="font-body text-[11px] text-muted-foreground">
             Running a Sunday, end to end — and what to do when each system fails.
           </p>
         </div>
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 border border-cream/30 px-4 py-2.5 font-display tracking-widest text-sm"
+          className="flex items-center gap-2 border border-primary/40 text-primary px-4 py-2.5 font-display tracking-widest text-sm"
         >
           <Printer size={16} /> PRINT / PDF
         </button>

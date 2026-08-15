@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
-import logoLight from "@/assets/logo-cream.png";
+import logoLight from "@/assets/logo-dark-notagline.png";
 
 const PortalLogin = () => {
   const [email, setEmail] = useState("");
@@ -77,37 +77,37 @@ const PortalLogin = () => {
   };
 
   return (
-    <section className="bg-navy min-h-screen flex items-center justify-center">
+    <section className="bg-background min-h-screen flex items-center justify-center">
       <div className="w-full max-w-sm px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           {/* Brand mark */}
           <div className="text-center mb-12">
             <img src={logoLight} alt="Mindcast" className="h-12 mx-auto" />
-            <div className="w-8 h-px bg-cream/20 mx-auto mt-4" />
-            <h1 className="font-display text-lg tracking-[0.3em] text-cream/80 mt-5">MEMBER PORTAL</h1>
+            <div className="w-8 h-px bg-primary/30 mx-auto mt-4" />
+            <h1 className="font-display text-lg tracking-[0.3em] text-foreground/90 mt-5">MEMBER PORTAL</h1>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-[10px] tracking-[0.2em] text-cream/40 font-body block mb-2">EMAIL</label>
+              <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">EMAIL</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-transparent border-b border-cream/20 text-cream px-0 py-3 text-sm font-body font-light placeholder:text-cream/25 focus:border-cream/50 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
                 placeholder="your@email.com"
               />
             </div>
             <div>
-              <label className="text-[10px] tracking-[0.2em] text-cream/40 font-body block mb-2">PASSWORD</label>
+              <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">PASSWORD</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-transparent border-b border-cream/20 text-cream px-0 py-3 text-sm font-body font-light placeholder:text-cream/25 focus:border-cream/50 focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -116,7 +116,7 @@ const PortalLogin = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-cream/10 text-cream py-4 text-[11px] tracking-[0.2em] font-body hover:bg-cream/20 transition-colors disabled:opacity-40"
+                className="w-full bg-primary text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
               >
                 {loading ? "SIGNING IN..." : "SIGN IN"}
               </button>
@@ -125,23 +125,23 @@ const PortalLogin = () => {
 
           {/* Forgot password */}
           <div className="text-center mt-4">
-            <button type="button" onClick={handleForgotPassword} className="text-[10px] tracking-[0.15em] text-cream/30 hover:text-cream/60 font-body transition-colors">
+            <button type="button" onClick={handleForgotPassword} className="text-[10px] tracking-[0.15em] text-muted-foreground/60 hover:text-foreground font-body transition-colors">
               Forgot password?
             </button>
           </div>
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-cream/15" />
-            <span className="text-[10px] tracking-[0.2em] text-cream/25 font-body">OR</span>
-            <div className="flex-1 h-px bg-cream/15" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] tracking-[0.2em] text-muted-foreground/50 font-body">OR</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {/* Google Sign In */}
           <button
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 bg-cream/5 text-cream py-4 text-[11px] tracking-[0.15em] font-body hover:bg-cream/15 transition-colors disabled:opacity-40 border border-cream/15"
+            className="w-full flex items-center justify-center gap-3 bg-primary/5 text-foreground py-4 text-[11px] tracking-[0.15em] font-body hover:bg-primary/10 transition-colors disabled:opacity-40 border border-border"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -154,15 +154,15 @@ const PortalLogin = () => {
 
           {/* Access note */}
           <div className="mt-10 text-center">
-            <p className="text-cream/40 text-[11px] font-body font-light leading-relaxed">
+            <p className="text-muted-foreground/70 text-[11px] font-body font-light leading-relaxed">
               The portal is for Mindcast members.
             </p>
-            <a href="/membership" className="text-[11px] tracking-[0.1em] text-cream/60 hover:text-cream font-body transition-colors mt-1 inline-block underline underline-offset-4">
+            <a href="/membership" className="text-[11px] tracking-[0.1em] text-muted-foreground hover:text-foreground font-body transition-colors mt-1 inline-block underline underline-offset-4">
               Become a member →
             </a>
             <div className="mt-4 space-x-4">
-              <a href="/terms" className="text-cream/30 hover:text-cream/60 text-[10px] font-body transition-colors">Terms</a>
-              <a href="/privacy" className="text-cream/30 hover:text-cream/60 text-[10px] font-body transition-colors">Privacy</a>
+              <a href="/terms" className="text-muted-foreground/60 hover:text-foreground text-[10px] font-body transition-colors">Terms</a>
+              <a href="/privacy" className="text-muted-foreground/60 hover:text-foreground text-[10px] font-body transition-colors">Privacy</a>
             </div>
           </div>
         </motion.div>

@@ -48,7 +48,7 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   return (
-    <div className={`${embedded ? "" : "min-h-screen "}bg-[#0F1E35] text-[#F5F1E8]`}>
+    <div className={`${embedded ? "" : "min-h-screen "}bg-card text-foreground`}>
       <div className="container max-w-4xl mx-auto px-6 py-12">
         {!embedded && (
         <Link
@@ -69,7 +69,7 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
           <Button
             onClick={handleSendNow}
             disabled={sending}
-            className="bg-[#F5F1E8] text-[#0F1E35] hover:bg-[#F5F1E8]/90 rounded-full px-6 text-xs tracking-wider"
+            className="bg-background text-foreground hover:bg-background/90 rounded-full px-6 text-xs tracking-wider"
           >
             {sending ? (
               <><Loader2 size={14} className="animate-spin mr-2" /> Sending...</>
@@ -94,10 +94,10 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
             <p className="text-sm">No reminders sent yet</p>
           </div>
         ) : (
-          <div className="rounded-xl overflow-hidden border border-white/10">
+          <div className="rounded-xl overflow-hidden border border-border">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left">
+                <tr className="border-b border-border text-left">
                   <th className="px-4 py-3 text-[10px] tracking-widest uppercase opacity-40">Week</th>
                   <th className="px-4 py-3 text-[10px] tracking-widest uppercase opacity-40">Cohort</th>
                   <th className="px-4 py-3 text-[10px] tracking-widest uppercase opacity-40">Sent At</th>
@@ -107,7 +107,7 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
               </thead>
               <tbody>
                 {logs.map((log) => (
-                  <tr key={log.id} className="border-b border-white/5 hover:bg-white/5 transition">
+                  <tr key={log.id} className="border-b border-border hover:bg-foreground/[0.04] transition">
                     <td className="px-4 py-3 font-mono">{log.week_number}</td>
                     <td className="px-4 py-3">{cohorts[log.cohort_id as string] || "—"}</td>
                     <td className="px-4 py-3 opacity-60">
