@@ -23,6 +23,9 @@
 --    path below is an atomic conditional UPDATE, so two simultaneous scans of
 --    the same ticket cannot both succeed.
 
+-- gen_random_bytes lives in pgcrypto (not enabled by default on every project).
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- ── Scans arrive from the QR scanner as their own source ──────────────────
 ALTER TABLE public.check_ins DROP CONSTRAINT IF EXISTS check_ins_source_check;
 ALTER TABLE public.check_ins
@@ -112,9 +115,13 @@ REVOKE ALL ON FUNCTION public.redeem_trial_ticket(text, uuid) FROM PUBLIC, anon,
 -- Members who were never issued a bracelet still need something to scan, so
 -- backfill nfc_id for anyone missing it. Same column, same /b/<token> URL,
 -- so a member can be read by NFC or by QR interchangeably.
+-- nfc_id is a privileged field guarded by profiles_block_privilege_escalation
+-- (service_role only), so suspend the guard for this one-off backfill.
+ALTER TABLE public.profiles DISABLE TRIGGER profiles_block_privilege_escalation;
 UPDATE public.profiles
-SET nfc_id = encode(gen_random_bytes(8), 'hex')
+SET nfc_id = encode(extensions.gen_random_bytes(8), 'hex')
 WHERE COALESCE(nfc_id, '') = '';
+ALTER TABLE public.profiles ENABLE TRIGGER profiles_block_privilege_escalation;
 
 -- ── Door roster ───────────────────────────────────────────────────────────
 -- Given ANY person's pass token, return everyone the door should consider:
