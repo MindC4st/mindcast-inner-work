@@ -140,6 +140,14 @@ serve(async (req) => {
       return json({ ok: true, deduped: true, display_name: displayName, welcome_name: welcomeName });
     }
 
+    // Wall consent is resolved at write time, so a revoked consent or opt-out
+    // is honoured on the very next scan. Failure here hides rather than shows.
+    let wallHidden = true;
+    try {
+      const { data: allowed } = await supa.rpc("wall_display_allowed", { p_profile: profile.id });
+      wallHidden = allowed !== true;
+    } catch { /* default stays hidden */ }
+
     const { error: insErr } = await supa.from("check_ins").insert({
       profile_id: profile.id,
       display_name: displayName,
@@ -147,6 +155,7 @@ serve(async (req) => {
       track: track ?? normalizeTrack((profile as any).age_group),
       source,
       scheduled_session_id: scheduledSessionId,
+      wall_hidden: wallHidden,
     });
     if (insErr) throw insErr;
 
