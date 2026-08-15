@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import logoBlue from "@/assets/logo-dark-notagline.png";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 
 // Site navbar for every non-home page: ivory surface, blue wordmark, blue
 // accent. (The homepage carries its own dark CinematicNav.)

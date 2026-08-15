@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
-import logoLight from "@/assets/logo-dark-notagline.png";
+import logoLight from "@/assets/logo-blue-wordmark.png";
 
 const PortalLogin = () => {
   const [email, setEmail] = useState("");

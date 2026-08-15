@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket } from "lucide-react";
-import logoBlue from "@/assets/logo-dark-notagline.png";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 
 const NAV_ITEMS = [
   { label: "Dashboard", to: "/portal/dashboard", icon: LayoutDashboard },

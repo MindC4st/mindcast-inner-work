@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import logoCream from "@/assets/logo-cream.png";
-import logoBlue from "@/assets/logo-dark-notagline.png";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 
 // Footer — light (ivory + blue wordmark) is the default everywhere; the dark
 // variant exists only for the homepage's cinematic canvas.

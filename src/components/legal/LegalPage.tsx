@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoNav from "@/assets/logo-dark-notagline.png";
+import logoNav from "@/assets/logo-blue-wordmark.png";
 
 interface LegalPageProps {
   title: string;

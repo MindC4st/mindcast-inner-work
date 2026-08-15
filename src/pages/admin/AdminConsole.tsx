@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import logoBlue from "@/assets/logo-dark-notagline.png";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 import {
   LayoutDashboard, Clapperboard, CalendarDays, TrendingUp, CreditCard,
   Users, Download, LineChart, UserCircle, Layers, GraduationCap,
