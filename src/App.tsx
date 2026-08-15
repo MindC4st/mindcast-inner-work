@@ -57,6 +57,8 @@ const Kiosk = lazy(() => import("./pages/Kiosk"));
 const DoorScanner = lazy(() => import("./pages/admin/DoorScanner"));
 const PortalPass = lazy(() => import("./pages/portal/PortalPass"));
 const TryASession = lazy(() => import("./pages/TryASession"));
+const RoomRoll = lazy(() => import("./pages/facilitate/RoomRoll"));
+const AdminHandbook = lazy(() => import("./pages/admin/AdminHandbook"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -132,6 +134,8 @@ const AppRoutes = () => (
       <Route path="/admin/framework" element={<AdminRoute><AdminFramework /></AdminRoute>} />
       <Route path="/admin/kiosk" element={<AdminRoute><Kiosk /></AdminRoute>} />
       <Route path="/admin/scan" element={<AdminRoute><DoorScanner /></AdminRoute>} />
+      <Route path="/facilitate/roll/:room" element={<AdminRoute><RoomRoll /></AdminRoute>} />
+      <Route path="/admin/handbook" element={<AdminRoute><AdminHandbook /></AdminRoute>} />
 
       {/* Staff Training (MC-TRN-001) — staff see their own path; team views admin-only */}
       <Route path="/admin/staff-training" element={<AdminRoute><StaffTrainingHome /></AdminRoute>} />

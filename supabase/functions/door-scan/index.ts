@@ -119,12 +119,22 @@ serve(async (req) => {
       }
 
       const guestCount = Array.isArray(r.guests) ? r.guests.length : 0;
+      // Trial attendees appear on the wall like anyone else (never marked as
+      // a trial) — but an under-18 trial guest without recorded guardian
+      // consent stays off the projected surface entirely.
+      const { data: ticketRow } = await supa
+        .from("trial_tickets")
+        .select("guardian_consent_at")
+        .eq("token", token)
+        .maybeSingle();
+      const minorNoConsent = r.track !== "Adult" && !ticketRow?.guardian_consent_at;
       const { error: insErr } = await supa.from("check_ins").insert({
         profile_id: null,
         display_name: r.full_name,
         is_anonymous: false,
         track: r.track,
         source: "trial",
+        wall_hidden: minorNoConsent,
       });
       if (insErr) throw insErr;
 
@@ -150,16 +160,24 @@ serve(async (req) => {
       return json({ ok: false, reason: "not_entitled", refused }, 409);
     }
 
-    const rows = toAdmit.map((id) => {
+    const rows = await Promise.all(toAdmit.map(async (id) => {
       const p = allowed.get(id) as Record<string, unknown>;
+      // Consent resolved per person at write time: minors need a live
+      // wall_display consent; anyone may have opted out.
+      let wallHidden = true;
+      try {
+        const { data: ok } = await supa.rpc("wall_display_allowed", { p_profile: id });
+        wallHidden = ok !== true;
+      } catch { /* default stays hidden */ }
       return {
         profile_id: id,
         display_name: String(p.display_name ?? "Member"),
         is_anonymous: false,
         track: String(p.track ?? "Adult"),
         source: "qr",
+        wall_hidden: wallHidden,
       };
-    });
+    }));
 
     // Skip anyone already seated today so a re-scan does not double the wall.
     const fresh = rows.filter((r) => {
@@ -170,6 +188,23 @@ serve(async (req) => {
     if (fresh.length > 0) {
       const { error: insErr } = await supa.from("check_ins").insert(fresh);
       if (insErr) throw insErr;
+
+      // Signing a teen/child in at the door creates an EXPECTED record on the
+      // room roll — not an attendance record. The facilitator's roll call
+      // turns expected into present, or surfaces the gap between the door and
+      // the room. Never block entry on a failure here: record and resolve.
+      const expected = fresh
+        .filter((r) => r.track === "Teen" || r.track === "Child")
+        .map((r) => ({
+          room: r.track,
+          subject_profile_id: r.profile_id,
+          event: "signed_in",
+          actor_user_id: uid,
+        }));
+      if (expected.length > 0) {
+        const { error: rollErr } = await supa.from("roll_events").insert(expected);
+        if (rollErr) console.error("roll_events signed_in failed (entry not blocked):", rollErr);
+      }
     }
 
     return json({
