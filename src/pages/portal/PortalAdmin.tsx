@@ -15,11 +15,17 @@ const TABS = [
 type Tab = typeof TABS[number]["key"];
 
 const PortalAdmin = () => {
-  const { role } = useAuth();
+  const { isStaff, loading } = useAuth();
   const [tab, setTab] = useState<Tab>("members");
 
-  if (role !== "facilitator") {
-    return <PortalLayout><p className="text-muted-foreground">Access denied. Facilitators only.</p></PortalLayout>;
+  // isStaff covers facilitator AND admin — an exact role === "facilitator"
+  // match locked admins out of their own admin panel (roles resolve to the
+  // highest privilege, so an admin's role is "admin", not "facilitator").
+  if (loading) {
+    return <PortalLayout><p className="text-muted-foreground">Loading…</p></PortalLayout>;
+  }
+  if (!isStaff) {
+    return <PortalLayout><p className="text-muted-foreground">Access denied. Staff only.</p></PortalLayout>;
   }
 
   return (
