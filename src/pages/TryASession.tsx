@@ -17,6 +17,8 @@ type Guest = { name: string; track: string };
 const TryASession = () => {
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", track: "Adult", intended_date: "" });
   const [guests, setGuests] = useState<Guest[]>([]);
+  const [guardianName, setGuardianName] = useState("");
+  const [guardianConsent, setGuardianConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ticket, setTicket] = useState<{ token: string; png: string } | null>(null);
@@ -28,7 +30,7 @@ const TryASession = () => {
     setBusy(true); setError(null);
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("issue-trial-ticket", {
-        body: { ...form, guests },
+        body: { ...form, guests, guardian_name: guardianName, guardian_consent: guardianConsent },
       });
       if (fnErr) throw fnErr;
       const r = data as { ok?: boolean; token?: string; message?: string };
@@ -141,6 +143,34 @@ const TryASession = () => {
               </button>
             )}
           </div>
+
+          {/* Under-18 attendance needs recorded guardian consent — the same
+              safeguarding gate members pass through. */}
+          {(form.track !== "Adult" || guests.length > 0) && (
+            <div className="border border-[hsl(var(--warm-border))] bg-white rounded-sm p-4">
+              <span className="block text-[10px] tracking-[0.2em] uppercase font-body text-[hsl(var(--navy-mid))] mb-2">
+                Parent / guardian consent (needed for under-18s)
+              </span>
+              <input
+                value={guardianName}
+                onChange={(e) => setGuardianName(e.target.value)}
+                placeholder="Parent or guardian's full name"
+                className="w-full bg-white border border-[hsl(var(--warm-border))] rounded-sm px-3 py-2.5 font-body text-sm text-[hsl(var(--navy))] outline-none focus:border-[hsl(var(--blue))] mb-3"
+              />
+              <label className="flex items-start gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={guardianConsent}
+                  onChange={(e) => setGuardianConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4"
+                />
+                <span className="font-body text-xs text-[hsl(var(--navy-mid))] leading-relaxed">
+                  I am the parent or guardian and I consent to the under-18s named here attending
+                  this session.
+                </span>
+              </label>
+            </div>
+          )}
 
           {error && <p className="text-sm font-body text-destructive">{error}</p>}
 

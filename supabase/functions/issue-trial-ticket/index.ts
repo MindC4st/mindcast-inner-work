@@ -58,6 +58,18 @@ serve(async (req) => {
       return json({ error: "Please give us a name and a valid email." }, 400);
     }
 
+    // Under-18 attendance requires recorded guardian consent — same
+    // safeguarding gate as membership. The ticket carries the record; the
+    // door refuses to project an unconsented minor's name on any wall.
+    const minorsAttending = track !== "Adult" || guests.length > 0;
+    const guardian_name = String(body.guardian_name ?? "").trim().slice(0, 120) || null;
+    const guardianConsents = body.guardian_consent === true;
+    if (minorsAttending && (!guardian_name || !guardianConsents)) {
+      return json({
+        error: "A parent or guardian's name and consent are needed for anyone under 18.",
+      }, 400);
+    }
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supa = createClient(SUPABASE_URL, SERVICE_KEY);
@@ -89,6 +101,8 @@ serve(async (req) => {
     const t = token();
     const { error } = await supa.from("trial_tickets").insert({
       token: t, full_name, email, phone, track, guests, intended_date,
+      guardian_name: minorsAttending ? guardian_name : null,
+      guardian_consent_at: minorsAttending ? new Date().toISOString() : null,
     });
     if (error) throw error;
 
