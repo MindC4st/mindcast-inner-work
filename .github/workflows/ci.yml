@@ -1,0 +1,37 @@
+# CI — every push and PR runs the same four gates a release depends on.
+# No deploy happens here; Vercel deploys from main on its own.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+      - name: No service-role key in the client bundle
+        run: |
+          if grep -R "service_role" dist/assets --include="*.js" -l; then
+            echo "::error::service_role found in built output"
+            exit 1
+          fi
+          echo "Bundle clean."
