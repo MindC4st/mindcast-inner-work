@@ -186,16 +186,16 @@ const Membership = () => (
     <Navbar />
 
     {/* 1 · What you are joining — said plainly, before any price appears. */}
-    <section className="section-navy min-h-[72vh] flex items-center pt-16 grain-overlay">
+    <section className="section-cream min-h-[72vh] flex items-center pt-16">
       <div className="container mx-auto px-6 py-24 max-w-4xl text-center">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-          <Ripple size={44} className="mx-auto mb-8 text-cream/70" animate />
+          <Ripple size={44} className="mx-auto mb-8 text-primary" animate />
         </motion.div>
         <motion.h1
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="heading-display text-5xl sm:text-6xl md:text-8xl leading-[0.92] text-cream"
+          className="heading-display text-5xl sm:text-6xl md:text-8xl leading-[0.92] text-foreground"
         >
           A ROOM IN TAUPŌ.
           <br />
@@ -207,7 +207,7 @@ const Membership = () => (
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className="font-serif italic text-xl md:text-2xl text-cream/80 mt-8 max-w-2xl mx-auto"
+          className="font-serif italic text-xl md:text-2xl text-muted-foreground mt-8 max-w-2xl mx-auto"
         >
           Nobody here buys a subscription. You decide to turn up — for a year, with people who
           will notice when you don't.
@@ -313,18 +313,18 @@ const Membership = () => (
     </section>
 
     {/* 6 · Cancellation, stated before anyone pays. */}
-    <section className="section-navy py-24 grain-overlay">
+    <section className="section-white border-t border-border py-24">
       <div className="container mx-auto px-6 max-w-3xl text-center">
         <motion.div {...fadeUp}>
-          <Ripple size={36} className="mx-auto mb-6 text-cream/60" />
-          <h2 className="heading-display text-4xl md:text-6xl text-cream mb-6">
+          <Ripple size={36} className="mx-auto mb-6 text-primary" />
+          <h2 className="heading-display text-4xl md:text-6xl text-foreground mb-6">
             LEAVING IS TWO CLICKS
           </h2>
-          <p className="font-body text-base text-cream/75 leading-relaxed max-w-xl mx-auto mb-4">
+          <p className="font-body text-base text-muted-foreground leading-relaxed max-w-xl mx-auto mb-4">
             Cancel any time from your account. Two clicks, no phone call, no retention offer, no
             "are you sure?" survey. Your journal and reflections stay yours to export.
           </p>
-          <p className="font-serif italic text-lg text-cream/70 max-w-xl mx-auto mb-10">
+          <p className="font-serif italic text-lg text-muted-foreground max-w-xl mx-auto mb-10">
             We would rather you left easily and remembered the room well.
           </p>
           <div className="relative overflow-hidden max-w-2xl mx-auto aspect-[5/2] mb-10">
@@ -337,7 +337,7 @@ const Membership = () => (
           </div>
           <Link
             to="/portal/billing"
-            className="inline-block bg-cream text-[hsl(var(--navy))] font-display tracking-widest text-sm px-10 py-4 hover:bg-cream/90 transition-colors"
+            className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors"
           >
             BECOME A MEMBER
           </Link>

@@ -609,7 +609,7 @@ const Home = () => {
       <VenueSection />
       <VisionQuote />
       <FinalCTA />
-      <Footer />
+      <Footer variant="dark" />
     </div>
   );
 };
