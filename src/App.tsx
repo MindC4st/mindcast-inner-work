@@ -52,6 +52,7 @@ const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
 const LessonEditor = lazy(() => import("./pages/mindcast-live/LessonEditor"));
 const CoursebookPrint = lazy(() => import("./pages/mindcast-live/CoursebookPrint"));
+const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
 
@@ -162,6 +163,7 @@ const AppRoutes = () => (
       <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
       <Route path="/mindcast-live/edit/:weekNumber" element={<AdminRoute><LessonEditor /></AdminRoute>} />
       <Route path="/mindcast-live/coursebook" element={<AdminRoute><CoursebookPrint /></AdminRoute>} />
+      <Route path="/training" element={<AdminRoute><TrainingPage /></AdminRoute>} />
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
