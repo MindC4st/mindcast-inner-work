@@ -52,7 +52,6 @@ const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
 const MindcastLesson = lazy(() => import("./pages/mindcast-live/Lesson"));
 const LessonEditor = lazy(() => import("./pages/mindcast-live/LessonEditor"));
 const CoursebookPrint = lazy(() => import("./pages/mindcast-live/CoursebookPrint"));
-const TrainingPage = lazy(() => import("./pages/TrainingPage"));
 const BraceletTap = lazy(() => import("./pages/BraceletTap"));
 const Kiosk = lazy(() => import("./pages/Kiosk"));
 const DoorScanner = lazy(() => import("./pages/admin/DoorScanner"));
@@ -169,8 +168,8 @@ const AppRoutes = () => (
       <Route path="/mindcast-live/facilitate/:weekNumber" element={<AdminRoute><FacilitatorView /></AdminRoute>} />
       <Route path="/mindcast-live/edit/:weekNumber" element={<AdminRoute><LessonEditor /></AdminRoute>} />
       <Route path="/mindcast-live/coursebook" element={<AdminRoute><CoursebookPrint /></AdminRoute>} />
-      <Route path="/admin/training" element={<AdminRoute><TrainingPage /></AdminRoute>} />
-      <Route path="/training" element={<LegacyRedirect to="/admin/training" />} />
+      <Route path="/admin/training" element={<Navigate to="/admin/staff-training" replace />} />
+      <Route path="/training" element={<LegacyRedirect to="/admin/staff-training" />} />
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
@@ -250,7 +249,7 @@ const TITLE_MAP: [string, string][] = [
   ["/admin/scan", "Door Scan · Mindcast"],
   ["/portal/pass", "Door Pass · Mindcast Portal"],
   ["/try", "Try a Session · Mindcast"],
-  ["/admin/training", "Staff Training · Mindcast"],
+  ["/admin/staff-training", "Staff Training · Mindcast"],
   ["/admin", "Admin · Mindcast"],
   ["/workbook", "Workbook · Mindcast"],
   ["/dashboard", "Dashboard · Mindcast"],

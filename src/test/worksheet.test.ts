@@ -3,13 +3,14 @@ import { describe, expect, it } from "vitest";
 import { generateWorksheetPdf, type WorksheetSession } from "@/lib/generateWorksheetPdf";
 import fixture from "./fixtures/worksheet-curriculum.json";
 
-let pdfjsReady: Promise<any> | null = null;
-async function pdfjsLib() {
+type PdfJs = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
+let pdfjsReady: Promise<PdfJs> | null = null;
+async function pdfjsLib(): Promise<PdfJs> {
   if (!pdfjsReady) {
     pdfjsReady = (async () => {
       const lib = await import("pdfjs-dist/legacy/build/pdf.mjs");
       const worker = await import("pdfjs-dist/legacy/build/pdf.worker.mjs");
-      (globalThis as any).pdfjsWorker = worker;
+      (globalThis as unknown as { pdfjsWorker: unknown }).pdfjsWorker = worker;
       return lib;
     })();
   }
@@ -69,7 +70,7 @@ describe("worksheet text layer (pdfjs extraction)", () => {
     const pdfjs = await pdfjsLib();
     const doc = generateWorksheetPdf(s);
     const data = new Uint8Array(doc.output("arraybuffer"));
-    const pdf = await pdfjs.getDocument({ data, isEvalSupported: false }).promise;
+    const pdf = await pdfjs.getDocument({ data }).promise;
     const items: { str: string; y: number }[] = [];
     for (let p = 1; p <= pdf.numPages; p++) {
       const page = await pdf.getPage(p);
@@ -95,7 +96,13 @@ describe("worksheet text layer (pdfjs extraction)", () => {
   });
 
   it("extracts in reading order: letterhead → signal → reflection → writing → activity → practice → footer", async () => {
-    const items = await extract(sessions[0]);
+    const full: WorksheetSession = {
+      ...sessions[0],
+      weekly_practice_mon: "Notice the hum once today.",
+      weekly_practice_wed: "Name one thing out loud.",
+      weekly_practice_sun: "Do one concrete step.",
+    };
+    const items = await extract(full);
     // charSpace tracking can fragment extraction; compare space-insensitively.
     const flat = items.map((i) => i.str).join("\n").replace(/\s+/g, "");
     const idx = (t: string) => flat.indexOf(t.replace(/\s+/g, ""));

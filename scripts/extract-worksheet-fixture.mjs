@@ -1,62 +1,121 @@
-// Extracts the live 52-week curriculum (per track) into a test fixture so the
-// worksheet template can be asserted against every real week x track combo.
-// Source of truth: curriculum_public RPC + mindcast_live_sessions_public view
-// (same merge order as the app). Run: node scripts/extract-worksheet-fixture.mjs
-import { readFileSync, writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+// Extracts the 52-week curriculum (per track) for the worksheet layout test.
+// Source of truth: the timestamp-ordered migration chain (per AGENTS.md) —
+// base content from curriculum_content_v2, signal metaphors + later overrides
+// from the follow-up migrations. Offline + deterministic; no Supabase access.
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const env = Object.fromEntries(
-  readFileSync(path.join(root, ".env"), "utf8")
-    .split(/\r?\n/)
-    .filter((l) => l.includes("="))
-    .map((l) => { const i = l.indexOf("="); return [l.slice(0, i).trim(), l.slice(i + 1).trim().replace(/"/g, "")]; }),
-);
-const URL0 = env.VITE_SUPABASE_URL;
-const KEY = env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const migDir = path.join(root, "supabase", "migrations");
+const files = readdirSync(migDir).filter((f) => f.endsWith(".sql")).sort();
 
-const get = async (url) => {
-  const r = await fetch(`${URL0}/rest/v1/${url}`, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
-  if (!r.ok) throw new Error(`${url} -> ${r.status} ${await r.text()}`);
-  return r.json();
-};
+const read = (f) => readFileSync(path.join(migDir, f), "utf8");
+
+// Split a VALUES (...) tuple into fields, honouring ''-escaped strings.
+function splitFields(inner) {
+  const out = [];
+  let cur = "";
+  let inStr = false;
+  for (let i = 0; i < inner.length; i++) {
+    const c = inner[i];
+    if (inStr) {
+      if (c === "'") {
+        if (inner[i + 1] === "'") { cur += "'"; i++; }
+        else inStr = false;
+      } else cur += c;
+    } else if (c === "'") { inStr = true; }
+    else if (c === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+function parseInsertTuples(sql) {
+  const tuples = [];
+  const re = /INSERT INTO public\.curriculum_weeks\s*\([^)]*\)\s*VALUES\s*\(/g;
+  let m;
+  while ((m = re.exec(sql))) {
+    // scan from after the opening paren, tracking depth and strings
+    let i = m.index + m[0].length - 1; // index of the '('
+    let depth = 0;
+    let inStr = false;
+    const start = i + 1;
+    for (let j = i; j < sql.length; j++) {
+      const c = sql[j];
+      if (inStr) {
+        if (c === "'") { if (sql[j + 1] === "'") j++; else inStr = false; }
+      } else if (c === "'") inStr = true;
+      else if (c === "(") depth++;
+      else if (c === ")") { depth--; if (depth === 0) { tuples.push(splitFields(sql.slice(start, j))); break; } }
+    }
+  }
+  return tuples;
+}
+
+function parseUpdates(sql, column) {
+  const map = new Map();
+  const re = new RegExp(`SET\\s+${column}\\s*=\\s*'((?:[^']|'')*)'[\\s\\S]*?week_number\\s*=\\s*(\\d+)`, "g");
+  let m;
+  while ((m = re.exec(sql))) {
+    map.set(parseInt(m[2], 10), m[1].replace(/''/g, "'").trim());
+  }
+  return map;
+}
+
+const COLUMNS = [
+  "week_number", "block_number", "block_theme", "weekly_theme", "core_learning",
+  "youtube_url", "youtube_title", "youtube_runtime", "adult_source", "adult_video_title",
+  "teen_source", "teen_video_title", "reflective_question", "interactive_activity",
+  "kids_picture_book", "kids_picture_book_note", "kids_colouring_prompt", "inner_wisdom_alignment",
+];
+
+// Base content (52 weeks).
+const base = parseInsertTuples(read("20260711160000_curriculum_content_v2.sql"))
+  .filter((t) => t.length >= COLUMNS.length)
+  .map((t) => {
+    const o = {};
+    COLUMNS.forEach((c, i) => { o[c] = t[i] ?? ""; });
+    return o;
+  });
+
+// Signal metaphors + later overrides, applied in timestamp order (newest wins).
+const signal = new Map();
+const question = new Map();
+const activity = new Map();
+for (const f of files) {
+  const sql = read(f);
+  for (const [w, v] of parseUpdates(sql, "signal_metaphor")) signal.set(w, v);
+  for (const [w, v] of parseUpdates(sql, "teen_signal_metaphor")) signal.set(`teen-${w}`, v);
+  for (const [w, v] of parseUpdates(sql, "kids_signal_metaphor")) signal.set(`kids-${w}`, v);
+  for (const [w, v] of parseUpdates(sql, "reflective_question")) question.set(w, v);
+  for (const [w, v] of parseUpdates(sql, "interactive_activity")) activity.set(w, v);
+}
 
 const pick = (a, b) => (a && String(a).trim() ? String(a) : b || "");
 
-const rpcWeek = async (week) => {
-  const r = await fetch(`${URL0}/rest/v1/rpc/curriculum_public`, {
-    method: "POST",
-    headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_week: week }),
-  });
-  if (!r.ok) throw new Error(`curriculum_public ${week} -> ${r.status}`);
-  const rows = await r.json();
-  return Array.isArray(rows) ? rows[0] : null;
-};
-
 const sessions = [];
-for (let week = 1; week <= 52; week++) {
-  const cur = await rpcWeek(week);
-  if (!cur) { console.warn(`week ${week}: no curriculum row — skipped`); continue; }
-
+for (const cur of base) {
+  const week = parseInt(cur.week_number, 10);
+  if (!week) continue;
   const tracks = [
-    { audience: "Adult", theme: cur.weekly_theme, title: cur.weekly_theme, signal: cur.signal_metaphor, prompt: cur.reflective_question, activity: cur.interactive_activity },
-    { audience: "Teen", theme: cur.weekly_theme, title: cur.teen_title, signal: cur.teen_signal_metaphor || cur.signal_metaphor, prompt: cur.reflective_question, activity: cur.interactive_activity },
-    { audience: "Child", theme: cur.weekly_theme, title: cur.kids_title, signal: cur.kids_signal_metaphor || cur.signal_metaphor, prompt: cur.reflective_question, activity: cur.interactive_activity },
+    { audience: "Adult", title: cur.weekly_theme, signal: signal.get(week) ?? cur.core_learning },
+    { audience: "Teen", title: cur.teen_video_title || cur.weekly_theme, signal: signal.get(`teen-${week}`) ?? signal.get(week) ?? cur.core_learning },
+    { audience: "Child", title: cur.kids_picture_book || cur.weekly_theme, signal: signal.get(`kids-${week}`) ?? signal.get(week) ?? cur.core_learning },
   ];
   for (const t of tracks) {
     sessions.push({
       week_number: week,
       phase_name: cur.block_theme || "",
-      theme_title: t.theme || `Week ${week}`,
-      session_title: t.title || "",
+      theme_title: cur.weekly_theme || `Week ${week}`,
+      session_title: pick(t.title, cur.weekly_theme),
       audience: t.audience,
       signal_metaphor: t.signal || "",
       video_question_1: "",
       video_question_2: "",
-      journaling_prompt: t.prompt || "",
-      experiential_exercise: t.activity || "",
+      journaling_prompt: question.get(week) ?? cur.reflective_question ?? "",
+      experiential_exercise: activity.get(week) ?? cur.interactive_activity ?? "",
       weekly_practice_mon: "",
       weekly_practice_wed: "",
       weekly_practice_sun: "",
@@ -64,6 +123,6 @@ for (let week = 1; week <= 52; week++) {
   }
 }
 
-const out = path.join(root, "src/test/fixtures/worksheet-curriculum.json");
+const out = path.join(root, "src", "test", "fixtures", "worksheet-curriculum.json");
 writeFileSync(out, JSON.stringify(sessions, null, 2));
 console.log(`wrote ${sessions.length} sessions to ${out}`);

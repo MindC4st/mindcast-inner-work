@@ -117,10 +117,10 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
             required training without typing the URL. */}
         {isStaff && (
           <Link
-            to="/admin/training"
+            to="/admin/staff-training"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
-              isActive("/admin/training")
+              isActive("/admin/staff-training")
                 ? "bg-primary-foreground/[0.08] text-primary-foreground"
                 : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
             }`}
