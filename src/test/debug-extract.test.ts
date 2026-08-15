@@ -8,7 +8,7 @@ it("debug extract", async () => {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const s = (fixture as any[])[0];
   const doc = generateWorksheetPdf(s as any);
-  const pdf = await pdfjs.getDocument({ data: new Uint8Array(doc.output("arraybuffer")), isEvalSupported: false }).promise;
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(doc.output("arraybuffer")) }).promise;
   let out = "";
   for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);
