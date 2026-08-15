@@ -147,7 +147,7 @@ serve(async (req) => {
       Child: "Children 6-12. Simple language. Concrete examples. Connect to feelings, friendships, family, and fairness. Warm and curious tone.",
     };
 
-    const systemPrompt = `You are the Mindcast session facilitator. Mindcast is a secular community gathering built around curated videos and personal reflection — notice. name. rewire.
+    const systemPrompt = `You are the Mindcast session facilitator. Mindcast is a secular community gathering built around curated videos and personal reflection — Notice it. Name it. Do it.
 
 This week's session:
 - Phase: ${lesson.phase_name || ""}

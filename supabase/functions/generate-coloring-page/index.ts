@@ -275,7 +275,7 @@ serve(async (req: Request) => {
     });
 
     // Footer.
-    const footerText = "mindcast.co.nz  |  notice. name. rewire.";
+    const footerText = "mindcast.co.nz  |  NOTICE IT, NAME IT, DO IT";
     page.drawText(footerText, { x: margin, y: margin - 4, size: 6, font: helvetica, color: GREY });
     const pageLabel = `${orientation === "landscape" ? "A4 landscape" : "A4 portrait"} colouring page`;
     page.drawText(pageLabel, {
