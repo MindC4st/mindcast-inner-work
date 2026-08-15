@@ -170,6 +170,23 @@ serve(async (req) => {
     if (fresh.length > 0) {
       const { error: insErr } = await supa.from("check_ins").insert(fresh);
       if (insErr) throw insErr;
+
+      // Signing a teen/child in at the door creates an EXPECTED record on the
+      // room roll — not an attendance record. The facilitator's roll call
+      // turns expected into present, or surfaces the gap between the door and
+      // the room. Never block entry on a failure here: record and resolve.
+      const expected = fresh
+        .filter((r) => r.track === "Teen" || r.track === "Child")
+        .map((r) => ({
+          room: r.track,
+          subject_profile_id: r.profile_id,
+          event: "signed_in",
+          actor_user_id: uid,
+        }));
+      if (expected.length > 0) {
+        const { error: rollErr } = await supa.from("roll_events").insert(expected);
+        if (rollErr) console.error("roll_events signed_in failed (entry not blocked):", rollErr);
+      }
     }
 
     return json({
