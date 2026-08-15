@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket } from "lucide-react";
 import logoLight from "@/assets/logo-cream.png";
 
 const NAV_ITEMS = [
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: "Progress", to: "/portal/progress", icon: TrendingUp },
   { label: "Profile", to: "/portal/settings", icon: User },
   { label: "Insights", to: "/portal/insights", icon: Brain },
+  { label: "Door pass", to: "/portal/pass", icon: Ticket },
   { label: "Membership", to: "/portal/billing", icon: CreditCard },
 ];
 
