@@ -76,6 +76,21 @@
     --sidebar-accent-foreground: 210 56% 14%;
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 200 50% 38%;
+
+    /* ── Cinematic dark scale (homepage marketing canvas ONLY — every other
+       member-facing and admin surface stays ivory-first). Brand blue remains
+       the single accent; --glow is its lighter gradient step. */
+    --surface-0: 217 55% 5%;    /* deep navy #0a1120 — base canvas */
+    --surface-1: 216 56% 13%;   /* #0f1e35 — elevated band */
+    --surface-2: 214 45% 20%;   /* highest elevation */
+    --glow: 199 55% 58%;        /* lighter step of #3585af for glow/gradients */
+    --gradient-hero: radial-gradient(120% 80% at 50% 0%,
+                       hsl(200 50% 45% / 0.22) 0%,
+                       hsl(217 55% 5% / 0) 55%);
+    --shadow-cinematic: 0 24px 80px -24px hsl(217 55% 3% / 0.9),
+                        0 4px 24px -8px hsl(200 50% 45% / 0.15);
+    --ring-glow: 0 0 0 2px hsl(var(--surface-0)), 0 0 0 4px hsl(var(--blue)),
+                 0 0 18px 2px hsl(var(--glow) / 0.45);
   }
 }
 
@@ -255,5 +270,63 @@
     0% { transform: scale(0.55); opacity: 0.7; }
     70% { opacity: 0.18; }
     100% { transform: scale(1.25); opacity: 0; }
+  }
+
+  /* ── Cinematic dark primitives (homepage canvas) ───────────────────────── */
+
+  .surface-dark {
+    background: hsl(var(--surface-0));
+    color: hsl(var(--cream));
+  }
+  .surface-dark-1 {
+    background: hsl(var(--surface-1));
+    color: hsl(var(--cream));
+  }
+
+  /* Elevated glass panel: blur + hairline border at ~10% white. */
+  .glass-panel {
+    background: hsl(0 0% 100% / 0.05);
+    border: 1px solid hsl(0 0% 100% / 0.1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--shadow-cinematic);
+  }
+
+  /* Soft blue radial glow behind a focal point. Parent needs position. */
+  .glow-behind::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    pointer-events: none;
+    background: radial-gradient(50% 50% at 50% 50%, hsl(var(--glow) / 0.18) 0%, transparent 70%);
+    z-index: 0;
+  }
+  .glow-behind > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .gradient-hero {
+    background-image: var(--gradient-hero);
+  }
+
+  /* Glow-step focus for dark surfaces (light surfaces keep the global ring). */
+  .surface-dark :focus-visible,
+  .surface-dark-1 :focus-visible {
+    outline: none;
+    box-shadow: var(--ring-glow);
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--glow) / 0.35); }
+    50% { box-shadow: 0 0 24px 4px hsl(var(--glow) / 0.2); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes marquee-x {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 }
