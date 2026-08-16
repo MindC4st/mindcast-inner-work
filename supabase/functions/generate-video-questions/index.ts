@@ -79,8 +79,8 @@ serve(async (req) => {
     .select("role")
     .eq("user_id", userRes.user.id)
     .in("role", ["facilitator", "admin"])
-    .maybeSingle();
-  if (!roleRow) {
+    .limit(1);
+  if (!roleRow || roleRow.length === 0) {
     return new Response(JSON.stringify({ error: "Facilitators only" }), {
       status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -70,8 +70,8 @@ serve(async (req) => {
     const { data: userResp } = await supa.auth.getUser(authHeader.replace("Bearer ", ""));
     if (!userResp?.user?.id) return json({ error: "Unauthorised" }, 401);
     const { data: roleRow } = await supa
-      .from("user_roles").select("role").eq("user_id", userResp.user.id).in("role", ["facilitator", "admin"]).maybeSingle();
-    if (!roleRow) return json({ error: "Facilitators and admins only" }, 403);
+      .from("user_roles").select("role").eq("user_id", userResp.user.id).in("role", ["facilitator", "admin"]).limit(1);
+    if (!roleRow || roleRow.length === 0) return json({ error: "Facilitators and admins only" }, 403);
 
     const { data: lesson, error: lErr } = await supa
       .from("mindcast_live_sessions")

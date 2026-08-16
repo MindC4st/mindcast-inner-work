@@ -220,9 +220,9 @@ serve(async (req) => {
       .select("role")
       .eq("user_id", user.id)
       .in("role", ["facilitator", "admin"])
-      .maybeSingle();
+      .limit(1);
 
-    if (!roleRow) return json({ error: "Staff only" }, 403);
+    if (!roleRow || roleRow.length === 0) return json({ error: "Staff only" }, 403);
 
     const body = await req.json();
     const adultGroupSize = typeof body.adult_group_size === "number" && body.adult_group_size >= 5 && body.adult_group_size <= 25

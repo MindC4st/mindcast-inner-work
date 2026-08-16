@@ -84,8 +84,8 @@ serve(async (req) => {
     const uid = userResp?.user?.id;
     if (!uid) return json({ error: "Unauthorised" }, 401);
     const { data: roleRow } = await supa
-      .from("user_roles").select("role").eq("user_id", uid).in("role", ["facilitator", "admin"]).maybeSingle();
-    if (!roleRow) return json({ error: "Facilitators and admins only" }, 403);
+      .from("user_roles").select("role").eq("user_id", uid).in("role", ["facilitator", "admin"]).limit(1);
+    if (!roleRow || roleRow.length === 0) return json({ error: "Facilitators and admins only" }, 403);
 
     const { data: session, error: sErr } = await supa
       .from("mindcast_live_sessions")

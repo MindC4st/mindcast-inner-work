@@ -56,8 +56,8 @@ serve(async (req) => {
 
     const { data: roleRow } = await supa
       .from("user_roles").select("role").eq("user_id", uid)
-      .in("role", ["facilitator", "admin"]).maybeSingle();
-    if (!roleRow) return json({ error: "Door staff only" }, 403);
+      .in("role", ["facilitator", "admin"]).limit(1);
+    if (!roleRow || roleRow.length === 0) return json({ error: "Door staff only" }, 403);
 
     const body = await req.json();
     const token = extractToken(String(body.token ?? ""));

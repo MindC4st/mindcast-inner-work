@@ -82,8 +82,8 @@ serve(async (req: Request) => {
     .select("role")
     .eq("user_id", userRes.user.id)
     .in("role", ["facilitator", "admin"])
-    .maybeSingle();
-  if (!roleRow) return json({ error: "Facilitators only" }, 403);
+    .limit(1);
+  if (!roleRow || roleRow.length === 0) return json({ error: "Facilitators only" }, 403);
   if (!GOOGLE_AI_API_KEY) return json({ error: "GOOGLE_AI_API_KEY is not configured", hint: "Set it under Supabase → Edge Functions → Secrets." }, 500);
   // -------------------------------------------------------------------------
 
