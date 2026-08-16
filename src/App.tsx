@@ -41,6 +41,8 @@ const PortalCheckIn = lazy(() => import("./pages/portal/PortalCheckIn"));
 const PortalKids = lazy(() => import("./pages/portal/PortalKids"));
 const PortalAdmin = lazy(() => import("./pages/portal/PortalAdmin"));
 const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
+const PortalOrders = lazy(() => import("./pages/portal/PortalOrders"));
+const Shop = lazy(() => import("./pages/Shop"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
@@ -153,6 +155,9 @@ const AppRoutes = () => (
       <Route path="/portal/kids" element={<ProtectedRoute><PortalKids /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
+      <Route path="/portal/orders" element={<ProtectedRoute><PortalOrders /></ProtectedRoute>} />
+      {/* Public catalogue — browsing needs no account, buying does. */}
+      <Route path="/shop" element={<Shop />} />
 
       {/* Sunday Live (facilitator + members) */}
       <Route path="/live" element={<ComingSoon />} />
@@ -232,7 +237,9 @@ const TITLE_MAP: [string, string][] = [
   ["/portal/progress", "Progress · Mindcast Portal"],
   ["/portal/checkin", "Check-In · Mindcast Portal"],
   ["/portal/kids", "Kid Sessions · Mindcast Portal"],
+  ["/portal/orders", "My Orders · Mindcast Portal"],
   ["/portal/login", "Member Login · Mindcast"],
+  ["/shop", "Shop · Mindcast"],
   ["/mindcast-live/library", "Coursebook Library · Mindcast"],
   ["/mindcast-live/lesson", "Lesson · Mindcast"],
   ["/mindcast-live/facilitate", "Facilitate · Mindcast"],

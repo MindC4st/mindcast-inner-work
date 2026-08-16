@@ -44,3 +44,8 @@ verify_jwt = true
 # (service role) and by a scheduled absence sweep — not directly by members.
 [functions.attendance-notify]
 verify_jwt = false
+
+# Shop checkout. Requires a signed-in member — an order needs an owner for its
+# pickup code, and price is read from our catalogue, never from the request.
+[functions.create-shop-checkout]
+verify_jwt = true
