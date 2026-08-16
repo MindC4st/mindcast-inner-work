@@ -1,20 +1,26 @@
 // /b/:token — entry point when a member taps an NFC bracelet (or anyone
 // follows the bracelet URL). Records the check-in immediately, greets the
 // owner by name (so a lost bracelet can be identified without logging in),
-// then routes by device state:
+// then routes by *whose bracelet it is*, not by role:
 //
-//   remembered phone (signed in as the owner) → straight to the portal
-//   staff tablet (facilitator/admin)          → on-page check-in confirmation
-//   new phone                                 → "Welcome, <name>" + one-time
+//   the signed-in user owns this bracelet → their NFC dashboard (door pass)
+//   staff tapping someone else's bracelet → on-page check-in confirmation
+//   new / other phone                     → "Welcome, <name>" + one-time
 //     password; "stay signed in" remembers the device for next time
+//
+// Ownership is checked before role on purpose: an admin or facilitator tapping
+// their own bracelet on their own phone is a member arriving, not a staff
+// member working the door, and should get the dashboard.
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Check, Loader2, Lock, Nfc } from "lucide-react";
 import { db } from "@/lib/db";
+import BraceletDashboard from "@/components/bracelet/BraceletDashboard";
+import { useTodaysSession } from "@/hooks/useTodaysSession";
 
 type State =
   | { status: "loading" }
@@ -25,8 +31,10 @@ const EPHEMERAL_KEY = "mindcast_ephemeral_session";
 
 const BraceletTap = () => {
   const { token } = useParams();
-  const navigate = useNavigate();
   const { user, role, loading: authLoading } = useAuth();
+  // Used by the staff card so "back to slideshow" returns to the session
+  // that's actually running, not the library index.
+  const { session: todaysSession } = useTodaysSession();
   const [state, setState] = useState<State>({ status: "loading" });
   const [ownNfcId, setOwnNfcId] = useState<string | null>(null);
   const [ownLoaded, setOwnLoaded] = useState(false);
@@ -58,21 +66,22 @@ const BraceletTap = () => {
     })();
   }, [token]);
 
-  // Whose bracelet does this phone already belong to?
+  // Whose bracelet does this phone already belong to? Re-resolved whenever the
+  // signed-in user changes, and flagged unloaded while in flight so a freshly
+  // unlocked phone never flashes the password form again on a stale answer.
   useEffect(() => {
     if (!user) { setOwnNfcId(null); setOwnLoaded(true); return; }
+    let cancelled = false;
+    setOwnLoaded(false);
     db
       .from("profiles").select("nfc_id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => { setOwnNfcId(data?.nfc_id || null); setOwnLoaded(true); });
+      .then(({ data }) => {
+        if (cancelled) return;
+        setOwnNfcId(data?.nfc_id || null);
+        setOwnLoaded(true);
+      });
+    return () => { cancelled = true; };
   }, [user]);
-
-  // Remembered device: already signed in as this bracelet's owner → portal.
-  useEffect(() => {
-    if (state.status !== "welcome" || authLoading || !ownLoaded) return;
-    if (user && role === "member" && ownNfcId === token) {
-      navigate(`/portal/dashboard?source=bracelet&name=${encodeURIComponent(state.displayName)}`, { replace: true });
-    }
-  }, [state, authLoading, ownLoaded, ownNfcId, user, role, token, navigate]);
 
   const unlock = async () => {
     if (!password || busy) return;
@@ -97,7 +106,10 @@ const BraceletTap = () => {
       });
       if (setErr) throw setErr;
       if (!remember) localStorage.setItem(EPHEMERAL_KEY, "1");
-      navigate(`/portal/dashboard?source=bracelet&name=${encodeURIComponent(state.status === "welcome" ? state.displayName : "")}`, { replace: true });
+      // Stay on /b/:token — the auth change re-resolves ownership and this
+      // page swaps itself for the dashboard, so the member lands on their door
+      // pass rather than being bounced into the portal.
+      setBusy(false);
     } catch (e: unknown) {
       setFormError(e instanceof Error && e.message ? e.message : "Sign-in failed");
       setBusy(false);
@@ -130,9 +142,25 @@ const BraceletTap = () => {
     );
   }
 
+  // Auth and ownership must both be resolved before we pick a branch,
+  // otherwise the owner sees a flash of the staff card or the password form.
+  if (authLoading || !ownLoaded) {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
+        <div className="inline-block w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse" />
+      </div>
+    );
+  }
+
+  // This is my bracelet, on my phone → my dashboard, whatever my role is.
+  if (user && token && ownNfcId === token) {
+    return <BraceletDashboard token={token} />;
+  }
+
   const isStaff = role === "facilitator" || role === "admin";
 
-  // Staff tablet at the door: confirmation card, keep tapping bracelets.
+  // Staff tablet at the door, tapping someone else's bracelet: confirmation
+  // card, keep tapping bracelets.
   if (isStaff) {
     return (
       <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center px-6">
@@ -144,7 +172,10 @@ const BraceletTap = () => {
           <p className="text-primary text-[10px] tracking-[0.5em] font-body uppercase mb-2">Checked in</p>
           <p className="font-display text-3xl tracking-wider text-[hsl(var(--ivory))] mb-6">{state.displayName.toUpperCase()}</p>
           <p className="text-[hsl(var(--ivory))]/50 text-[11px] font-body">Tap the next bracelet to continue, or return to the slideshow.</p>
-          <Link to="/mindcast-live/library" className="inline-block mt-6 text-[hsl(var(--blue-light))] text-xs tracking-widest uppercase font-body border-b border-[hsl(var(--blue-light))]/40">
+          <Link
+            to={todaysSession ? `/mindcast-live/lesson/${todaysSession.weekNumber}` : "/mindcast-live/library"}
+            className="inline-block mt-6 text-[hsl(var(--blue-light))] text-xs tracking-widest uppercase font-body border-b border-[hsl(var(--blue-light))]/40"
+          >
             ← Back to slideshow
           </Link>
         </motion.div>
