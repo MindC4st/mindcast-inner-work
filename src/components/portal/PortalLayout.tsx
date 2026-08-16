@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket } from "lucide-react";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket, ShieldCheck } from "lucide-react";
 import logoBlue from "@/assets/logo-blue-wordmark.png";
 
 const NAV_ITEMS = [
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { label: "Profile", to: "/portal/settings", icon: User },
   { label: "Insights", to: "/portal/insights", icon: Brain },
   { label: "Door pass", to: "/portal/pass", icon: Ticket },
+  { label: "Family & safety", to: "/portal/family", icon: ShieldCheck },
   { label: "Membership", to: "/portal/billing", icon: CreditCard },
 ];
 
