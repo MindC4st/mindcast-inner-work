@@ -27,6 +27,8 @@ import {
   ScrollProgress,
   Marquee,
 } from "@/components/glow";
+import { AboutContent } from "./About";
+import { MembershipContent } from "./Membership";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -53,11 +55,15 @@ const CinematicNav = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // ABOUT and MEMBERSHIP are ivory bands further down THIS page — the nav
+  // scrolls to them the same way it scrolls to #rhythm, instead of leaving
+  // the homepage. The standalone /about and /membership routes still exist
+  // for direct links, the footer and search.
   const links = [
     { label: "HOW IT WORKS", href: "#gathering" },
     { label: "THE RHYTHM", href: "#rhythm" },
-    { label: "ABOUT", href: "/about" },
-    { label: "MEMBERSHIP", href: "/membership" },
+    { label: "ABOUT", href: "#about" },
+    { label: "MEMBERSHIP", href: "#membership" },
   ];
 
   return (
@@ -190,7 +196,7 @@ const HeroSection = () => {
           you accountable to the things you already know.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
-          <GlowButton to="/membership">SEE MEMBERSHIP</GlowButton>
+          <GlowButton href="#membership">SEE MEMBERSHIP</GlowButton>
           <GlowButton to="/try" variant="outline">GET A FREE SESSION PASS</GlowButton>
         </div>
       </div>
@@ -574,7 +580,7 @@ const FinalCTA = () => (
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <GlowButton to="/try">GET A FREE SESSION PASS</GlowButton>
-          <GlowButton to="/membership" variant="outline">SEE MEMBERSHIP</GlowButton>
+          <GlowButton href="#membership" variant="outline">SEE MEMBERSHIP</GlowButton>
         </div>
       </Reveal>
     </div>
@@ -608,6 +614,16 @@ const Home = () => {
       <RhythmSection />
       <VenueSection />
       <VisionQuote />
+
+      {/* Ivory contrast bands — the About and Membership pages live in-page
+          here, reached from the nav exactly like #rhythm. */}
+      <div id="about" className="scroll-mt-14">
+        <AboutContent membershipHref="#membership" />
+      </div>
+      <div id="membership" className="scroll-mt-14">
+        <MembershipContent />
+      </div>
+
       <FinalCTA />
       <Footer variant="dark" />
     </div>

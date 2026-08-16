@@ -15,9 +15,11 @@ const values = [
   { title: "ONE STEP AT A TIME", desc: "We don't ask you to transform. We ask you to notice one thing, name one thing, change one thing. Then come back next week." },
 ];
 
-const About = () => (
+// The page body, exported so the homepage can embed it as an ivory band
+// (/#about) while /about keeps working as a standalone route. Same content,
+// one source — no drift between the two.
+export const AboutContent = ({ membershipHref = "/membership" }: { membershipHref?: string }) => (
   <>
-    <Navbar />
     <section className="section-cream min-h-[60vh] flex items-center pt-16">
       <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
@@ -203,12 +205,18 @@ const About = () => (
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
           The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō.
         </motion.p>
-        <motion.a href="/membership" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+        <motion.a href={membershipHref} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
           BECOME A MEMBER &rarr;
         </motion.a>
       </div>
     </section>
+  </>
+);
 
+const About = () => (
+  <>
+    <Navbar />
+    <AboutContent />
     <Footer />
   </>
 );

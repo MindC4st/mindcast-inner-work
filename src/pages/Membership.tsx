@@ -181,10 +181,10 @@ const INCLUDED: { item: string; inTier: string }[] = [
   { item: "Locked-in commitment", inTier: "Not included — cancel any time, two clicks, no questions" },
 ];
 
-const Membership = () => (
+// The page body, exported so the homepage can embed it as an ivory band
+// (/#membership) while /membership keeps working as a standalone route.
+export const MembershipContent = () => (
   <>
-    <Navbar />
-
     {/* 1 · What you are joining — said plainly, before any price appears. */}
     <section className="section-cream min-h-[72vh] flex items-center pt-16">
       <div className="container mx-auto px-6 py-24 max-w-4xl text-center">
@@ -344,7 +344,13 @@ const Membership = () => (
         </motion.div>
       </div>
     </section>
+  </>
+);
 
+const Membership = () => (
+  <>
+    <Navbar />
+    <MembershipContent />
     <Footer />
   </>
 );
