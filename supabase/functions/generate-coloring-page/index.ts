@@ -46,6 +46,21 @@ const extractReason = (body: string): string => {
   }
 };
 
+// Greedy word-wrap using the font's measured widths (pdf-lib drawText doesn't
+// wrap on its own).
+const wrapText = (text: string, font: { widthOfTextAtSize: (t: string, s: number) => number }, size: number, maxWidth: number): string[] => {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let line = "";
+  for (const w of words) {
+    const test = line ? `${line} ${w}` : w;
+    if (font.widthOfTextAtSize(test, size) <= maxWidth) line = test;
+    else { if (line) lines.push(line); line = w; }
+  }
+  if (line) lines.push(line);
+  return lines;
+};
+
 // Session date = program start Sunday + (week - 1) weeks, in the program tz.
 // deno-lint-ignore no-explicit-any
 async function sessionDateFor(supabase: any, week_number: number): Promise<string> {
@@ -253,6 +268,20 @@ serve(async (req: Request) => {
       });
     }
 
+    // Subheading — the week's "In Today's World" metaphor, for a parent to
+    // read aloud to their child while they colour.
+    const metaphor = (lesson.signal_metaphor || "").trim().slice(0, 240);
+    let imageTop = pageH - margin - 62;
+    if (metaphor) {
+      const lines = wrapText(metaphor, helvetica, 9, pageW - margin * 2);
+      lines.forEach((line, i) => {
+        page.drawText(line, {
+          x: margin, y: imageTop - i * 12, size: 9, font: helvetica, color: GREY,
+        });
+      });
+      imageTop = imageTop - lines.length * 12 - 6;
+    }
+
     // Embed the PNG.
     let pngImage;
     try {
@@ -266,8 +295,8 @@ serve(async (req: Request) => {
       });
     }
 
-    // Image area: between the title block and the name line.
-    const top = pageH - margin - 62;
+    // Image area: between the title/metaphor block and the name line.
+    const top = imageTop;
     const bottom = margin + 58;
     const maxW = pageW - margin * 2;
     const maxH = top - bottom;
