@@ -102,6 +102,7 @@ type Session = {
   todays_world_video_url: string;
   todays_world_captions_url: string;
   todays_world_approval: string;
+  video_local_url: string;
   video_link: string;
   video_description: string;
   video_backup_description: string;
@@ -184,6 +185,7 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     todays_world_video_url: (live as unknown as { todays_world_video_url?: string } | null)?.todays_world_video_url || "",
     todays_world_captions_url: (live as unknown as { todays_world_captions_url?: string } | null)?.todays_world_captions_url || "",
     todays_world_approval: (live as unknown as { todays_world_approval?: string } | null)?.todays_world_approval || "unapproved",
+    video_local_url: (live as unknown as { video_local_url?: string } | null)?.video_local_url || "",
     video_link: pick(live?.video_link, cur?.youtube_url),
     video_description: pick(live?.video_description, cur?.youtube_title),
     video_backup_description: live?.video_backup_description || "",
@@ -279,6 +281,21 @@ const FacilitatorView = () => {
       setRevealCount(1);
     })();
   }, [week, audience]);
+
+  // Gate F — preload the approved metaphor clips + the local video when the
+  // deck opens so there is no spinner mid-session.
+  useEffect(() => {
+    if (!session) return;
+    const urls = [session.ancient_wisdom_video_url, session.todays_world_video_url, session.video_local_url]
+      .filter((u) => u && u.startsWith("http"));
+    for (const u of urls) {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "video";
+      link.href = u;
+      document.head.appendChild(link);
+    }
+  }, [session?.id, session?.ancient_wisdom_video_url, session?.todays_world_video_url, session?.video_local_url]);
 
   // Load up to 20 moderator-approved reflections from last week for the
   // "Voices from Last Week" slide. Selected by the Sun 9am cron and stored
@@ -926,6 +943,7 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
         backup={session.video_backup_description}
         question1={session.video_question_1}
         question2={session.video_question_2}
+        localUrl={session.video_local_url}
       />
     );
     case "coloring": return (
@@ -1568,7 +1586,7 @@ const MetaphorVideoSlide = ({
           {isImage ? (
             <img src={videoUrl} alt="" className="w-full h-full object-contain" />
           ) : (
-            <video src={videoUrl} controls className="w-full h-full">
+            <video src={videoUrl} controls preload="auto" className="w-full h-full">
               {captionsUrl && <track kind="captions" src={captionsUrl} srcLang="en" label="English" default />}
             </video>
           )}
@@ -1609,8 +1627,8 @@ const MetaphorVideoSlide = ({
   );
 };
 
-const VideoSlide = ({ link, description, backup, question1, question2 }: {
-  link: string; description: string; backup: string; question1: string; question2: string;
+const VideoSlide = ({ link, description, backup, question1, question2, localUrl }: {
+  link: string; description: string; backup: string; question1: string; question2: string; localUrl: string;
 }) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
@@ -1619,8 +1637,15 @@ const VideoSlide = ({ link, description, backup, question1, question2 }: {
     <div className="max-w-5xl w-full">
       <div className="flex items-center justify-center gap-3 mb-4">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
+        {localUrl && <span className="text-[hsl(var(--blue))] text-[9px] font-body tracking-widest uppercase">Local copy</span>}
       </div>
-      {ytId ? (
+      {localUrl ? (
+        // Pre-downloaded local copy — venue wifi cannot be trusted with a 20-min
+        // stream. Played from our storage instead of YouTube.
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
+          <video src={localUrl} controls preload="auto" className="w-full h-full" />
+        </div>
+      ) : ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
           <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
