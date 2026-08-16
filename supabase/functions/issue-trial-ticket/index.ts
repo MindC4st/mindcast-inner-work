@@ -12,6 +12,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import QRCode from "npm:qrcode@1.5.4";
+import { ipAllowed, clientIp } from "../_shared/ip-rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -127,6 +128,12 @@ async function sendTicketEmail(opts: {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
+
+  // Issuance flood guard: one ticket per email is the hard rule (below); this
+  // soft per-IP ceiling stops the form itself being hammered.
+  if (!ipAllowed(clientIp(req), 5, 3600_000)) {
+    return json({ error: "Too many requests from this connection — please try again later." }, 429);
+  }
 
   try {
     const body = await req.json();

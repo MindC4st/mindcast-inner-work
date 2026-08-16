@@ -17,6 +17,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { shouldDedupe } from "../_shared/checkin-dedupe.ts";
+import { ipAllowed, clientIp } from "../_shared/ip-rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,6 +50,12 @@ const computeDisplayName = (
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
+
+  // Flood guard only — a real kiosk scans dozens of bracelets an hour, so the
+  // ceiling is generous (240/min per IP). Duplicate taps are already deduped.
+  if (!ipAllowed(clientIp(req), 240, 60_000)) {
+    return json({ error: "Too many scans — one moment, please." }, 429);
+  }
 
   try {
     const body = await req.json();
