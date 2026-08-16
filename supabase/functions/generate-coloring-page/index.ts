@@ -34,6 +34,18 @@ const json = (body: unknown, status = 200) =>
     headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
 
+// Pull the human-readable reason out of a Gemini error body (quota / model
+// not found / invalid key) rather than echoing the whole JSON.
+const extractReason = (body: string): string => {
+  try {
+    const parsed = JSON.parse(body);
+    const msg = parsed?.error?.message || parsed?.message || parsed?.error?.status || "";
+    return String(msg).replace(/\s+/g, " ").slice(0, 240);
+  } catch {
+    return body.replace(/\s+/g, " ").slice(0, 240);
+  }
+};
+
 // Session date = program start Sunday + (week - 1) weeks, in the program tz.
 // deno-lint-ignore no-explicit-any
 async function sessionDateFor(supabase: any, week_number: number): Promise<string> {
@@ -137,7 +149,7 @@ serve(async (req: Request) => {
     };
 
     let imageB64: string | null = null;
-    let lastError: string = "";
+    const attempts: string[] = [];
 
     for (const model of GEMINI_MODELS) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`;
@@ -149,14 +161,16 @@ serve(async (req: Request) => {
       });
 
       if (!geminiRes.ok) {
-        lastError = `${model}: ${geminiRes.status} ${await geminiRes.text()}`;
+        const bodyText = await geminiRes.text();
+        const reason = extractReason(bodyText);
+        attempts.push(`${model}: ${geminiRes.status} ${reason}`);
         continue;
       }
 
       const geminiData = await geminiRes.json();
       const candidate = geminiData.candidates?.[0];
       if (!candidate?.content?.parts) {
-        lastError = `${model}: no parts in response`;
+        attempts.push(`${model}: no parts in response`);
         continue;
       }
 
@@ -169,11 +183,12 @@ serve(async (req: Request) => {
       }
 
       if (imageB64) break;
-      lastError = `${model}: no image in response parts`;
+      attempts.push(`${model}: no image in response parts`);
     }
 
     if (!imageB64) {
-      return json({ error: `No image generated — ${lastError || "all Gemini models failed"}`, detail: lastError }, 502);
+      const summary = attempts.join(" · ");
+      return json({ error: `No image generated — ${summary}`, detail: summary }, 502);
     }
 
     const imageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
