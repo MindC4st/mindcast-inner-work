@@ -121,13 +121,22 @@ serve(async (req: Request) => {
     }
     const orientation = rawOrientation === "landscape" ? "landscape" : "portrait";
 
-    // 1. Fetch the child lesson for this week
-    const { data: lesson, error: lessonError } = await supabase
-      .from("mindcast_live_sessions")
-      .select("*")
-      .eq("week_number", week_number)
-      .eq("audience", "Child")
-      .single();
+    // 1. Fetch the child lesson for this week, plus the week's kid-speak
+    //    metaphor straight from the curriculum table (the live-session
+    //    signal_metaphor mirror can drift stale after a content re-seed).
+    const [{ data: lesson, error: lessonError }, { data: cwWeek }] = await Promise.all([
+      supabase
+        .from("mindcast_live_sessions")
+        .select("*")
+        .eq("week_number", week_number)
+        .eq("audience", "Child")
+        .single(),
+      supabase
+        .from("curriculum_weeks")
+        .select("kids_signal_metaphor")
+        .eq("week_number", week_number)
+        .single(),
+    ]);
 
     if (lessonError || !lesson) {
       return json({ error: "Lesson not found for week " + week_number }, 404);
@@ -138,7 +147,7 @@ serve(async (req: Request) => {
     //    current theme so regeneration tracks content edits.
     const theme = (lesson.theme_title || "").trim();
     const sessionTitle = (lesson.session_title || "").trim();
-    const metaphor = (lesson.signal_metaphor || "").trim().slice(0, 220);
+    const metaphor = (cwWeek?.kids_signal_metaphor || lesson.signal_metaphor || "").trim().slice(0, 220);
     let prompt = (lesson.coloring_prompt || "").trim();
     if (!prompt) {
       prompt =
