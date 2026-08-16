@@ -42,6 +42,11 @@ verify_jwt = true
 [functions.attendance-notify]
 verify_jwt = false
 
+# Shop checkout. Requires a signed-in member — an order needs an owner for its
+# pickup code, and price is read from our catalogue, never from the request.
+[functions.create-shop-checkout]
+verify_jwt = true
+
 # Staff-operated door scanner. Reads membership status and household
 # composition for other people, so it requires a signed-in facilitator/admin.
 [functions.door-scan]

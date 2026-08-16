@@ -161,6 +161,63 @@ async function syncSubscription(sub: Stripe.Subscription) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Shop orders. The order row is created HERE, not at checkout time, so a
+// pickup code only ever exists against a payment Stripe has confirmed.
+// ---------------------------------------------------------------------------
+async function recordShopOrder(s: Stripe.Checkout.Session) {
+  const meta = (s.metadata ?? {}) as Record<string, string>;
+
+  const quantity = Math.max(1, parseInt(meta.quantity || "1", 10) || 1);
+  const unitPrice = parseInt(meta.unit_price_cents || "0", 10) || 0;
+  // Trust Stripe's amount_total for what was actually charged; fall back to our
+  // own arithmetic only if Stripe didn't provide one.
+  const amountTotal = typeof s.amount_total === "number" ? s.amount_total : unitPrice * quantity;
+
+  // Name the product as it was at purchase time, so a later rename doesn't
+  // rewrite an order that's already been placed.
+  let productName = meta.product_slug || "Mindcast product";
+  if (meta.product_id) {
+    const { data: product } = await admin
+      .from("shop_products").select("name").eq("id", meta.product_id).maybeSingle();
+    if (product?.name) productName = product.name;
+  }
+
+  // stripe_session_id is UNIQUE and Stripe retries deliveries, so ignore a
+  // duplicate rather than minting a second pickup code for one payment.
+  const { error } = await admin.from("shop_orders").upsert(
+    {
+      profile_id: meta.profile_id || null,
+      product_id: meta.product_id || null,
+      product_name: productName,
+      unit_price_cents: unitPrice,
+      quantity,
+      amount_total_cents: amountTotal,
+      currency: (s.currency || "nzd").toLowerCase(),
+      fulfilment: meta.fulfilment === "partner" ? "partner" : "counter",
+      partner_name: meta.partner_name || null,
+      scheduled_session_id: meta.scheduled_session_id || null,
+      stripe_session_id: s.id,
+      stripe_payment_intent: s.payment_intent ? String(s.payment_intent) : null,
+      status: "paid",
+    },
+    { onConflict: "stripe_session_id", ignoreDuplicates: true },
+  );
+  if (error) throw error;
+}
+
+async function markShopOrderRefunded(charge: Stripe.Charge) {
+  const pi = charge.payment_intent ? String(charge.payment_intent) : null;
+  if (!pi) return;
+  // Partial refunds leave the order collectable; only a full refund voids it.
+  if (charge.amount_refunded < charge.amount) return;
+  await admin
+    .from("shop_orders")
+    .update({ status: "refunded", updated_at: new Date().toISOString() })
+    .eq("stripe_payment_intent", pi)
+    .in("status", ["paid", "collected"]);
+}
+
 serve(async (req) => {
   if (req.method !== "POST") return new Response("POST only", { status: 405 });
 
@@ -192,7 +249,16 @@ serve(async (req) => {
           // Carry checkout metadata onto the subscription if Stripe didn't copy it
           sub.metadata = { ...(s.metadata as any), ...(sub.metadata as any) };
           await syncSubscription(sub);
+        } else if (s.mode === "payment" && (s.metadata as any)?.kind === "shop") {
+          await recordShopOrder(s);
         }
+        break;
+      }
+      // A refunded payment must stop reading as a valid pickup. Without this a
+      // refunded order still shows a live code on the member's phone.
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        await markShopOrderRefunded(charge);
         break;
       }
       case "invoice.payment_failed": {

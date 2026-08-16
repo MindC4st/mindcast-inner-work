@@ -2286,6 +2286,129 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_products: {
+        Row: {
+          category: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          fulfilment: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          partner_name: string | null
+          price_cents: number
+          slug: string
+          sort_order: number
+          stripe_price_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          fulfilment?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          partner_name?: string | null
+          price_cents: number
+          slug: string
+          sort_order?: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          fulfilment?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          partner_name?: string | null
+          price_cents?: number
+          slug?: string
+          sort_order?: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_orders: {
+        Row: {
+          amount_total_cents: number
+          collected_at: string | null
+          collected_by: string | null
+          created_at: string
+          currency: string
+          fulfilment: string
+          id: string
+          note: string | null
+          partner_name: string | null
+          pickup_code: string
+          product_id: string | null
+          product_name: string
+          profile_id: string | null
+          quantity: number
+          scheduled_session_id: string | null
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          unit_price_cents: number
+          updated_at: string
+        }
+        Insert: {
+          amount_total_cents: number
+          collected_at?: string | null
+          collected_by?: string | null
+          created_at?: string
+          currency?: string
+          fulfilment?: string
+          id?: string
+          note?: string | null
+          partner_name?: string | null
+          pickup_code?: string
+          product_id?: string | null
+          product_name: string
+          profile_id?: string | null
+          quantity?: number
+          scheduled_session_id?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          unit_price_cents: number
+          updated_at?: string
+        }
+        Update: {
+          amount_total_cents?: number
+          collected_at?: string | null
+          collected_by?: string | null
+          created_at?: string
+          currency?: string
+          fulfilment?: string
+          id?: string
+          note?: string | null
+          partner_name?: string | null
+          pickup_code?: string
+          product_id?: string | null
+          product_name?: string
+          profile_id?: string | null
+          quantity?: number
+          scheduled_session_id?: string | null
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          unit_price_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       session_bookmarks: {
         Row: {
           created_at: string
