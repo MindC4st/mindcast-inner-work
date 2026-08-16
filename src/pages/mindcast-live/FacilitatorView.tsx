@@ -567,6 +567,14 @@ const FacilitatorView = () => {
     toast({ title: "Metaphor approved" });
   };
 
+  // Gate E — closing the session invalidates the join code (members see
+  // "session ended" the moment is_live flips false).
+  const handleCloseSession = async () => {
+    const { error } = await db.from("live_session_state").update({ is_live: false, closed_at: new Date().toISOString() }).eq("session_code", code);
+    if (error) { toast({ title: "Could not close session", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Session closed", description: "The join code is now invalid." });
+  };
+
   if (!session) {
     return <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center text-[hsl(var(--ivory))]/60 font-body text-sm tracking-widest">LOADING WEEK {week} ({audience})...</div>;
   }
@@ -622,6 +630,12 @@ const FacilitatorView = () => {
             );
           })()}
           <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
+          {isFacilitator && (
+            <button onClick={handleCloseSession} title="Close the session — invalidates the join code"
+              className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10">
+              <Lock size={12} /> Close session
+            </button>
+          )}
           <button onClick={toggleFs} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
         </div>
       </div>

@@ -66,6 +66,7 @@ const LiveJoin = () => {
   const [shareOnScreen, setShareOnScreen] = useState(false);
   const [response, setResponse] = useState("");
   const [state, setState] = useState<LiveState | null>(null);
+  const [ended, setEnded] = useState(false);
   const [submittedFor, setSubmittedFor] = useState<string | null>(null);
   const [submittedRowId, setSubmittedRowId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -125,6 +126,8 @@ const LiveJoin = () => {
             promptText: data.prompt_text,
             title: data.title,
           });
+        } else if (data && data.is_live === false) {
+          setEnded(true);
         }
       });
 
@@ -281,6 +284,21 @@ const LiveJoin = () => {
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center text-[hsl(var(--navy-mid))]/60 text-xs font-body tracking-widest uppercase">
         Loading…
+      </div>
+    );
+  }
+
+  if (ended && !state) {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
+        <div className="max-w-sm text-center">
+          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Mindcast LIVE</p>
+          <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">SESSION ENDED</h1>
+          <p className="font-body text-sm text-[hsl(var(--navy-mid))] mb-6">
+            This session has closed. Your reflections are already saved to your coursebook.
+          </p>
+          <Link to="/portal/dashboard" className="text-primary text-xs tracking-widest uppercase font-body border-b border-primary/40">Back to your dashboard</Link>
+        </div>
       </div>
     );
   }
