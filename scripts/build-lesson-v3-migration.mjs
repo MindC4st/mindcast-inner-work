@@ -104,14 +104,13 @@ for (const { audience, file } of files) {
       previous_week_callback: get(r, "S2 Voices Callback Intro"),
     };
 
-    const setLines = Object.entries(cols).map(([k, v]) => `${k} = '${esc(v)}'`).join(", ");
     const keys = Object.keys(cols).join(", ");
     const vals = Object.values(cols).map((v) => `'${esc(v)}'`).join(", ");
 
-    sql.push(`INSERT INTO public.mindcast_live_sessions (week_number, audience, heavy_week_flag, ${keys}) VALUES (${week}, '${audience}', ${heavy ? "true" : "false"}, ${vals}) ON CONFLICT (week_number, audience) DO UPDATE SET heavy_week_flag = EXCLUDED.heavy_week_flag, ${Object.entries(cols).map(([k]) => `${k} = EXCLUDED.${k}`).join(", ")};`);
+    sql.push(`INSERT INTO public.mindcast_live_sessions (week_number, audience, phase, phase_name, heavy_week_flag, ${keys}) VALUES (${week}, '${audience}', ${shared.block_number}, '${esc(shared.block_theme)}', ${heavy ? "true" : "false"}, ${vals}) ON CONFLICT (week_number, audience) DO UPDATE SET phase = EXCLUDED.phase, phase_name = EXCLUDED.phase_name, heavy_week_flag = EXCLUDED.heavy_week_flag, ${Object.entries(cols).map(([k]) => `${k} = EXCLUDED.${k}`).join(", ")};`);
   }
 }
 
-const out = path.join(root, "supabase", "migrations", "20260816150000_curriculum_content_v3.sql");
+const out = path.join(root, "supabase", "migrations", "20260819220000_curriculum_content_v3.sql");
 writeFileSync(out, sql.join("\n") + "\n");
 console.log(`wrote ${path.relative(root, out)} (${sql.length} statements)`);
