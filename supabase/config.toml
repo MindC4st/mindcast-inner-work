@@ -60,3 +60,7 @@ verify_jwt = false
 # The token is unguessable and can only flip the opt-out flag.
 [functions.trial-unsubscribe]
 verify_jwt = false
+
+# Member data export — authenticated, returns only the caller's own rows.
+[functions.export-my-data]
+verify_jwt = true

@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useWebPush } from "@/hooks/useWebPush";
-import { Bell, BellOff, Mail, AlertTriangle, Loader2 } from "lucide-react";
+import { Bell, BellOff, Mail, AlertTriangle, Loader2, Download } from "lucide-react";
 
 type DisplayMode = "full" | "first_initial" | "anonymous";
 
@@ -22,6 +22,7 @@ const PortalSettings = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [name, setName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -43,6 +44,30 @@ const PortalSettings = () => {
   }, [profile]);
 
   const preview = useMemo(() => previewFor(firstName, lastName, liveMode), [firstName, lastName, liveMode]);
+
+  const handleExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("export-my-data", { body: {} });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `mindcast-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast({ title: "Export ready", description: "Your data has been downloaded as JSON." });
+    } catch (e) {
+      toast({ title: "Couldn't export data", description: e?.message ?? "Please try again or contact us.", variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (deleting) return;
@@ -306,6 +331,24 @@ const PortalSettings = () => {
           >
             {saving ? "SAVING..." : "SAVE CHANGES"}
           </button>
+
+          {/* Your data — export everything we hold about you */}
+          <div className="mt-12 pt-8 border-t border-foreground/10">
+            <h2 className="portal-heading text-xl text-foreground mb-1 flex items-center gap-2">
+              <Download size={16} /> Your data
+            </h2>
+            <p className="text-sm text-muted-foreground font-body font-light mb-4 max-w-md">
+              Download everything Mindcast holds about you — profile, journal, reflections,
+              attendance and preferences — as a single JSON file.
+            </p>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="flex items-center gap-2 border border-primary/40 text-primary px-5 py-2.5 text-[11px] tracking-[0.2em] font-body hover:bg-primary/5 transition-colors disabled:opacity-40"
+            >
+              {exporting ? <><Loader2 size={13} className="animate-spin" /> PREPARING…</> : "DOWNLOAD MY DATA"}
+            </button>
+          </div>
 
           {/* Danger zone — permanent account + data deletion */}
           <div className="mt-12 pt-8 border-t border-destructive/20">
