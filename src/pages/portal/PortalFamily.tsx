@@ -124,7 +124,7 @@ const PortalFamily = () => {
     if (!error) void load();
   };
 
-  const setWallConsent = async (child: Child, enabled: boolean) => {
+  const updateWallConsent = async (child: Child, enabled: boolean) => {
     if (!user) return;
     if (enabled) {
       const { error } = await supabase.from("guardian_consents").insert({
@@ -153,7 +153,7 @@ const PortalFamily = () => {
     setWallConsent((s) => ({ ...s, [child.profile_id]: enabled }));
   };
 
-  const setSelfSignout = async (child: Child, enabled: boolean) => {
+  const updateSelfSignout = async (child: Child, enabled: boolean) => {
     const { error } = await supabase.rpc("set_teen_self_signout", {
       p_teen_profile: child.profile_id,
       p_enabled: enabled,
@@ -250,7 +250,7 @@ const PortalFamily = () => {
                     <span className="text-xs font-body text-muted-foreground">Name on welcome wall</span>
                     <Toggle
                       on={Boolean(wallConsent[child.profile_id])}
-                      onChange={(v) => void setWallConsent(child, v)}
+                      onChange={(v) => void updateWallConsent(child, v)}
                       label={`Welcome wall consent for ${child.display_name}`}
                     />
                   </div>
@@ -270,7 +270,7 @@ const PortalFamily = () => {
                     </div>
                     <Toggle
                       on={Boolean(selfSignout[child.profile_id])}
-                      onChange={(v) => void setSelfSignout(child, v)}
+                      onChange={(v) => void updateSelfSignout(child, v)}
                       label={`Self-sign-out for ${child.display_name}`}
                     />
                   </div>

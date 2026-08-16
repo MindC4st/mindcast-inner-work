@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense, type ReactNode } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { resolveColouringUrl } from "@/lib/colouringUrl";
+import SlideTimer from "@/components/session-runner/SlideTimer";
 
 // Data-driven deck: a session is an ordered list of slide "kinds", so the order
 // can change (and the video can flex position) without touching the renderer.
@@ -31,14 +32,31 @@ import { resolveColouringUrl } from "@/lib/colouringUrl";
 type SlideKind =
   | "title" | "intention" | "wisdom" | "metaphor" | "video"
   | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice"
-  | "commitment";
+  | "commitment" | "affirmation";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
   title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
   metaphor: "In Today's World", video: "Video", coloring: "Coloring Activity",
   core: "Go Deeper", reflect: "Reflect & Share", activity: "Together",
   guided: "Guided Reflection", practice: "This Week's Practice",
-  commitment: "Your Intention for the Week",
+  commitment: "Your Intention for the Week", affirmation: "Closing Affirmation",
+};
+
+// The v3 deck is data-driven: lesson_slides rows map to a render kind via the
+// stable slide_key. This map is the ONLY hard-coded link; order, active state,
+// track applicability and titles all come from the table.
+const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
+  welcome: "title",
+  voices: "intention",
+  ancient: "wisdom",
+  todays_world: "metaphor",
+  theme: "core",
+  video: "video",
+  exercise: "activity",
+  reflection: "reflect",
+  intention: "practice",
+  affirmation: "affirmation",
+  notes: null, // facilitator notes live in the drawer, not a projected slide
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
@@ -74,6 +92,10 @@ type Session = {
   weekly_practice_wed: string;
   weekly_practice_sun: string;
   core_affirmation: string;
+  closing_quote: string;
+  closing_quote_attribution: string;
+  private_write_prompt: string;
+  todays_theme: string;
   video_link: string;
   video_description: string;
   video_backup_description: string;
@@ -146,6 +168,10 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     weekly_practice_wed: live?.weekly_practice_wed || "",
     weekly_practice_sun: live?.weekly_practice_sun || "",
     core_affirmation: live?.core_affirmation || "",
+    closing_quote: (live as unknown as { closing_quote?: string } | null)?.closing_quote || "",
+    closing_quote_attribution: (live as unknown as { closing_quote_attribution?: string } | null)?.closing_quote_attribution || "",
+    private_write_prompt: (live as unknown as { private_write_prompt?: string } | null)?.private_write_prompt || "",
+    todays_theme: (live as unknown as { todays_theme?: string } | null)?.todays_theme || "",
     video_link: pick(live?.video_link, cur?.youtube_url),
     video_description: pick(live?.video_description, cur?.youtube_title),
     video_backup_description: live?.video_backup_description || "",
@@ -194,8 +220,31 @@ const FacilitatorView = () => {
   const [callbacks, setCallbacks] = useState<Callback[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Data-driven deck (v3): load the active, track-applicable slides in order.
+  // Falls back to the hard-coded deck when lesson_slides has no rows yet.
+  const [slideDefs, setSlideDefs] = useState<{ slide_key: string; title: string; default_duration_seconds: number }[]>([]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data } = await db
+        .from("lesson_slides" as never)
+        .select("slide_key, title, default_duration_seconds")
+        .eq("is_active", true)
+        .contains("applies_to_tracks", [audience])
+        .order("position");
+      if (!active) return;
+      setSlideDefs((data ?? []) as unknown as { slide_key: string; title: string; default_duration_seconds: number }[]);
+    })();
+    return () => { active = false; };
+  }, [audience]);
+
   // The ordered deck; `slide` indexes it.
-  const deck = useMemo(() => buildDeck(session?.audience), [session?.audience]);
+  const deck = useMemo<SlideKind[]>(() => {
+    const dataDriven = slideDefs
+      .map((d) => SLIDE_KEY_TO_KIND[d.slide_key])
+      .filter((k): k is SlideKind => k != null);
+    return dataDriven.length ? dataDriven : buildDeck(session?.audience);
+  }, [slideDefs, session?.audience]);
   const lastSlide = deck.length - 1;
   const currentKind: SlideKind = deck[Math.min(slide, lastSlide)] ?? "title";
 
@@ -665,6 +714,33 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
+// 90-second private write gate: projected, one-tap start, unskippable. When the
+// timer completes it quietly reveals the exercise beneath it.
+const PrivateWriteGate = ({ prompt, children }: { prompt: string; children: ReactNode }) => {
+  const [started, setStarted] = useState(false);
+  const [done, setDone] = useState(false);
+  if (done) return <>{children}</>;
+  const fallback = "Take 90 seconds — write what you actually think, before anyone else speaks.";
+  return (
+    <div className="text-center max-w-4xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">90-second private write</p>
+      {!started ? (
+        <button onClick={() => setStarted(true)}
+          className="px-8 py-4 bg-[hsl(var(--blue))] text-white font-display tracking-[0.2em] text-xl rounded-sm hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))] transition-colors">
+          START THE 90-SECOND WRITE
+        </button>
+      ) : (
+        <>
+          <SlideTimer seconds={90} running={started} projected onComplete={() => setDone(true)} />
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 italic mt-8 max-w-3xl mx-auto leading-snug">
+            {prompt || fallback}
+          </p>
+        </>
+      )}
+    </div>
+  );
+};
+
 const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
   switch (kind) {
     case "title": return (
@@ -733,17 +809,13 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
       const options = (session.activity_options || "")
         .split(/\r?\n/).map(o => o.trim()).filter(Boolean);
 
+      let inner: ReactNode;
       if (type === "wordcloud") {
-        return <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
-      }
-      // `choice` is the richer poll — the wall shows the same tally, so it
-      // reuses the same slide rather than duplicating it.
-      if ((type === "poll" || type === "choice") && options.length > 0) {
-        return <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
-      }
-      if (type === "scale") {
-        // options = [statement, lowLabel, highLabel] — see migration 20260817120000.
-        return (
+        inner = <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
+      } else if ((type === "poll" || type === "choice") && options.length > 0) {
+        inner = <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
+      } else if (type === "scale") {
+        inner = (
           <ScaleSlide
             text={session.experiential_exercise}
             statement={options[0] || "How true does this feel for you right now?"}
@@ -752,11 +824,14 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
             responses={activityResponses}
           />
         );
+      } else if (type === "phrase") {
+        inner = <PhraseWallSlide text={session.experiential_exercise} responses={activityResponses} />;
+      } else {
+        inner = <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
       }
-      if (type === "phrase") {
-        return <PhraseWallSlide text={session.experiential_exercise} responses={activityResponses} />;
-      }
-      return <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
+      // The whole-room exercise opens with a 90-second, projected, unskippable
+      // private write so the quiet half of the room writes their own answer.
+      return <PrivateWriteGate prompt={session.private_write_prompt}>{inner}</PrivateWriteGate>;
     }
     case "guided": return (
       <div className="max-w-4xl">
@@ -815,6 +890,19 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
           </span>
         </div>
         <p className="text-[hsl(var(--ivory))]/30 text-[11px] font-body tracking-widest uppercase mt-6">Private to you — it is not shown on screen</p>
+      </div>
+    );
+    // Closing affirmation — a quote from the author or speaker in the video.
+    case "affirmation": return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Closing Affirmation</p>
+        <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+          "{session.closing_quote || session.core_affirmation}"
+        </motion.p>
+        {session.closing_quote_attribution && (
+          <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">{session.closing_quote_attribution}</p>
+        )}
       </div>
     );
     // Video — supporting evidence / how-to / personal story (position flexes).
