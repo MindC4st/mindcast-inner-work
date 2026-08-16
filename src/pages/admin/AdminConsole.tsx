@@ -20,6 +20,8 @@ const AdminApplicationsPage = lazy(() => import("./AdminApplicationsPage"));
 const AdminMembers = lazy(() => import("./AdminMembers"));
 const AdminHouseholds = lazy(() => import("./AdminHouseholds"));
 const AdminLifeGroups = lazy(() => import("./AdminLifeGroups"));
+const AdminRoster = lazy(() => import("./AdminRoster"));
+const AdminConcessions = lazy(() => import("./AdminConcessions"));
 const AdminProgress = lazy(() => import("@/components/admin/console/AdminProgress"));
 const AdminInsights = lazy(() => import("@/components/admin/console/AdminInsights"));
 const AdminProfile = lazy(() => import("@/components/admin/console/AdminProfile"));
@@ -47,6 +49,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
 
 const SESSION_SUBTABS = [
   { id: "schedule", label: "Schedule" },
+  { id: "roster", label: "Roster" },
   { id: "program", label: "Program & Unlocks" },
   { id: "kids", label: "Kids Sessions" },
   { id: "moderation", label: "Moderation" },
@@ -58,6 +61,7 @@ const MEMBERSHIP_SUBTABS = [
   { id: "overview", label: "Subscriptions" },
   { id: "applications", label: "Applications" },
   { id: "members", label: "Members" },
+  { id: "concessions", label: "Concessions" },
   { id: "households", label: "Households" },
   { id: "bracelets", label: "Bracelets" },
 ] as const;
@@ -116,6 +120,7 @@ const AdminConsole = () => {
         <div>
           <SubTabBar tabs={SESSION_SUBTABS} active={sessionSub} onChange={setSessionSub} />
           {sessionSub === "schedule" && <AdminScheduling embedded />}
+          {sessionSub === "roster" && <AdminRoster embedded />}
           {sessionSub === "program" && <AdminProgram embedded />}
           {sessionSub === "kids" && <AdminKids embedded />}
           {sessionSub === "moderation" && <AdminModeration embedded />}
@@ -129,6 +134,7 @@ const AdminConsole = () => {
           {membershipSub === "overview" && <AdminMembership embedded />}
           {membershipSub === "applications" && <AdminApplicationsPage embedded />}
           {membershipSub === "members" && <AdminMembers embedded />}
+          {membershipSub === "concessions" && <AdminConcessions embedded />}
           {membershipSub === "households" && <AdminHouseholds embedded />}
           {membershipSub === "bracelets" && <BraceletStudio />}
         </div>

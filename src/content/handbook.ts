@@ -30,7 +30,7 @@ export const HANDBOOK: HandbookPart[] = [
         id: "pre-session",
         title: "1 · Before people arrive (45 minutes out)",
         steps: [
-          "Unlock, lights on, chairs set. Two safety-checked adults minimum in any room that will hold children — check the roster at /admin before anything else.",
+          "Unlock, lights on, chairs set. Two safety-checked adults minimum in any room that will hold children — check the roster at /admin → Sessions → Roster before anything else.",
           "Turn on the door tablet. Sign in with your own staff account (never a shared login). Open /admin/scan.",
           "Turn on each room's projector or TV. On the room device open /display/wall?room=adult, ?room=teen and ?room=kids respectively, and tap the fullscreen icon.",
           "Check the kids' and teens' walls are NOT visible from the street or through a window. Move the screen, not the rule.",
@@ -87,8 +87,8 @@ export const HANDBOOK: HandbookPart[] = [
         title: "5 · Welcome walls",
         steps: [
           "Names appear automatically as people are admitted. There is nothing to operate.",
-          "If a parent asks why their child's name doesn't appear: that's consent — it's only projected when the guardian has agreed. They can change it in the portal; it takes effect on the next scan.",
-          "If someone asks to be taken off the wall: portal → settings → wall display, or the desk can set it. Effective next scan; apologise, don't debug at the door.",
+          "If a parent asks why their child's name doesn't appear: that's consent — it's only projected when the guardian has agreed. They can change it in the portal under Family & safety; it takes effect on the next scan.",
+          "If someone asks to be taken off the wall: portal → Family & safety (their own toggle), or the desk can set it. Effective next scan; apologise, don't debug at the door.",
         ],
         fallback: "Wall frozen? Refresh the browser tab. The room works fine without it.",
       },
