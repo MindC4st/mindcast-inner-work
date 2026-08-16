@@ -12,11 +12,11 @@ type ModuleLite = { id: string; code: string; title: string; position: number; g
 type ProgressLite = { user_id: string; module_id: string; status: string; expires_at: string | null; due_at: string | null; module_version: number };
 
 const DOT: Record<ModuleStatus, string> = {
-  not_started: "bg-white/15",
-  in_progress: "bg-[#3585AF]",
-  passed: "bg-[#7FB6D9]",
-  acknowledged: "bg-[#7FB6D9]",
-  failed: "bg-white/40",
+  not_started: "bg-foreground/10",
+  in_progress: "bg-primary",
+  passed: "bg-primary",
+  acknowledged: "bg-primary",
+  failed: "bg-primary/50",
   overdue: "bg-red-400",
   expired: "bg-red-400",
 };
@@ -91,27 +91,27 @@ const TrainingTeam = () => {
     toast.success("Compliance matrix exported — response content is never included.");
   };
 
-  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-[#8E9299]" /></div>;
+  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-center gap-4 mb-6">
         <div>
-          <h2 className="font-display text-2xl text-white tracking-wider">Team compliance</h2>
-          <p className="text-[#8E9299] text-sm font-body mt-1">
+          <h2 className="font-display text-2xl text-foreground tracking-wider">Team compliance</h2>
+          <p className="text-muted-foreground text-sm font-body mt-1">
             Who is current, due soon or overdue — at a module level. Free-text answers stay private to each worker.
           </p>
         </div>
         <button onClick={exportCsv}
-          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-md border border-[#3585AF]/50 text-[#C5E3F3] text-[11px] font-body tracking-widest uppercase hover:bg-[#3585AF]/10 transition-colors">
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-md border border-primary/50 text-primary text-[11px] font-body tracking-widest uppercase hover:bg-primary/10 transition-colors">
           <Download size={13} /> Export
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
+      <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm font-body">
           <thead>
-            <tr className="bg-white/[0.04] text-left text-[10px] text-[#8E9299] uppercase tracking-widest">
+            <tr className="bg-card text-left text-[10px] text-muted-foreground uppercase tracking-widest">
               <th className="px-4 py-3">Team member</th>
               <th className="px-3 py-3">Gate</th>
               {modules.map((m) => (
@@ -121,15 +121,15 @@ const TrainingTeam = () => {
           </thead>
           <tbody>
             {matrix.map((row) => (
-              <tr key={row.staff.user_id} className="border-t border-white/[0.06] hover:bg-white/[0.02] transition-colors">
+              <tr key={row.staff.user_id} className="border-t border-border hover:bg-foreground/[0.03] transition-colors">
                 <td className="px-4 py-3">
-                  <Link to={`/admin/staff-training/team/${row.staff.user_id}`} className="text-[#E2E8F0] hover:text-white underline-offset-2 hover:underline">
+                  <Link to={`/admin/staff-training/team/${row.staff.user_id}`} className="text-foreground hover:text-foreground underline-offset-2 hover:underline">
                     {row.staff.display_name || row.staff.name || row.staff.email}
                   </Link>
-                  <span className="block text-[10px] text-[#8E9299]">{row.staff.role}</span>
+                  <span className="block text-[10px] text-muted-foreground">{row.staff.role}</span>
                 </td>
                 <td className="px-3 py-3">
-                  <span className={`px-2 py-1 rounded-sm text-[10px] tracking-widest uppercase ${row.current ? "bg-[#3585AF]/20 text-[#C5E3F3]" : "bg-red-500/15 text-red-300"}`}>
+                  <span className={`px-2 py-1 rounded-sm text-[10px] tracking-widest uppercase ${row.current ? "bg-primary/15 text-primary" : "bg-red-500/15 text-red-300"}`}>
                     {row.current ? "Current" : "Stand down"}
                   </span>
                 </td>
@@ -141,16 +141,16 @@ const TrainingTeam = () => {
               </tr>
             ))}
             {matrix.length === 0 && (
-              <tr><td colSpan={3 + modules.length} className="px-4 py-12 text-center text-[#8E9299]">No staff found.</td></tr>
+              <tr><td colSpan={3 + modules.length} className="px-4 py-12 text-center text-muted-foreground">No staff found.</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-body text-[#8E9299]">
-        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-white/15" /> Not started</span>
-        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-[#3585AF]" /> In progress</span>
-        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-[#7FB6D9]" /> Passed / acknowledged</span>
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-body text-muted-foreground">
+        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-foreground/10" /> Not started</span>
+        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-primary" /> In progress</span>
+        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-primary" /> Passed / acknowledged</span>
         <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-400" /> Overdue / expired</span>
       </div>
     </div>

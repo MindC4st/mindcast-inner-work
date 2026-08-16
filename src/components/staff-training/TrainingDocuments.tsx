@@ -44,15 +44,15 @@ const TrainingDocuments = () => {
     setBusy(false);
   };
 
-  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-[#8E9299]" /></div>;
+  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
-      <Link to="/admin/staff-training" className="inline-flex items-center gap-1.5 text-[#8E9299] hover:text-white text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
+      <Link to="/admin/staff-training" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
         <ArrowLeft size={12} /> Training
       </Link>
-      <h2 className="font-display text-2xl text-white tracking-wider mb-1">Controlled documents</h2>
-      <p className="text-[#8E9299] text-sm font-body mb-6">
+      <h2 className="font-display text-2xl text-foreground tracking-wider mb-1">Controlled documents</h2>
+      <p className="text-muted-foreground text-sm font-body mb-6">
         The live controlled documents for your role. Signing records the version and the date — it never replaces earlier evidence.
       </p>
 
@@ -61,37 +61,37 @@ const TrainingDocuments = () => {
           const sig = sigs.find((s) => s.document_id === d.id && s.document_version === d.version);
           const oldSig = sigs.find((s) => s.document_id === d.id);
           return (
-            <div key={d.id} className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-4">
+            <div key={d.id} className="rounded-lg border border-border bg-card px-4 py-4">
               <div className="flex items-center gap-4">
-                <FileText size={15} className="text-[#3585AF] shrink-0" />
+                <FileText size={15} className="text-primary shrink-0" />
                 <span className="flex-1 min-w-0">
-                  <span className="block text-sm font-body text-[#E2E8F0]">{d.code} · {d.title} <span className="text-[#8E9299]">v{d.version}</span></span>
-                  <span className="block text-[11px] font-body text-[#8E9299]">{d.summary}</span>
+                  <span className="block text-sm font-body text-foreground">{d.code} · {d.title} <span className="text-muted-foreground">v{d.version}</span></span>
+                  <span className="block text-[11px] font-body text-muted-foreground">{d.summary}</span>
                 </span>
                 {sig ? (
-                  <span className="text-[11px] font-body text-[#C5E3F3] shrink-0">
+                  <span className="text-[11px] font-body text-primary shrink-0">
                     Signed {new Date(sig.signed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                 ) : (
                   <button onClick={() => setSigning(signing === d.id ? null : d.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#3585AF]/50 text-[#C5E3F3] text-[10px] font-body tracking-widest uppercase hover:bg-[#3585AF]/10 transition-colors shrink-0">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-primary/50 text-primary text-[10px] font-body tracking-widest uppercase hover:bg-primary/10 transition-colors shrink-0">
                     <PenLine size={11} /> Sign
                   </button>
                 )}
               </div>
               {!sig && oldSig && (
-                <p className="mt-2 text-[11px] font-body text-[#8E9299]">
+                <p className="mt-2 text-[11px] font-body text-muted-foreground">
                   You signed v{oldSig.document_version} on {new Date(oldSig.signed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })} — this version is new and needs a fresh signature.
                 </p>
               )}
               {signing === d.id && !sig && (
-                <div className="mt-3 border-t border-white/[0.06] pt-3">
+                <div className="mt-3 border-t border-border pt-3">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#3585AF]" />
-                    <span className="text-[12px] font-body text-[#C9D4DE] leading-relaxed">{DECLARATION}</span>
+                    <span className="text-[12px] font-body text-foreground/80 leading-relaxed">{DECLARATION}</span>
                   </label>
                   <button onClick={() => sign(d)} disabled={!agree || busy}
-                    className="mt-3 px-4 py-2 rounded-sm bg-[#3585AF] text-white text-[10px] font-body tracking-widest uppercase hover:bg-[#3585AF]/80 transition-colors disabled:opacity-40">
+                    className="mt-3 px-4 py-2 rounded-sm bg-primary text-primary-foreground text-[10px] font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
                     {busy ? "Recording…" : "Record my signature"}
                   </button>
                 </div>

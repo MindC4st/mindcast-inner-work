@@ -20,11 +20,11 @@ type ProgressRow = {
 };
 
 const PILL: Record<ModuleStatus, string> = {
-  not_started: "bg-white/[0.06] text-[#8E9299]",
-  in_progress: "bg-[#3585AF]/20 text-[#C5E3F3]",
-  passed: "bg-[#3585AF]/25 text-[#C5E3F3]",
-  acknowledged: "bg-[#3585AF]/25 text-[#C5E3F3]",
-  failed: "bg-white/[0.08] text-[#E2E8F0]",
+  not_started: "bg-foreground/[0.05] text-muted-foreground",
+  in_progress: "bg-primary/15 text-primary",
+  passed: "bg-primary/20 text-primary",
+  acknowledged: "bg-primary/20 text-primary",
+  failed: "bg-foreground/[0.06] text-foreground",
   overdue: "bg-red-500/15 text-red-300",
   expired: "bg-red-500/15 text-red-300",
 };
@@ -74,19 +74,19 @@ const TrainingHome = ({ embedded = false }: { embedded?: boolean }) => {
   const actionNeeded = rows.filter((r) => r.status === "overdue" || r.status === "expired" || r.status === "failed");
 
   if (loading) {
-    return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-[#8E9299]" /></div>;
+    return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
   }
 
   return (
     <div className={embedded ? "" : "max-w-4xl mx-auto px-6 py-8"}>
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div>
-          <h2 className="font-display text-2xl text-white tracking-wider">Staff training</h2>
-          <p className="text-[#8E9299] text-sm font-body mt-1">
+          <h2 className="font-display text-2xl text-foreground tracking-wider">Staff training</h2>
+          <p className="text-muted-foreground text-sm font-body mt-1">
             Your training path for the {role === "admin" ? "admin" : "facilitator"} role — the same ten modules for everyone, repeated annually.
           </p>
         </div>
-        <div className={`ml-auto flex items-center gap-2 rounded-md px-4 py-2.5 ${current ? "bg-[#3585AF]/15 text-[#C5E3F3]" : "bg-red-500/10 text-red-300"}`}>
+        <div className={`ml-auto flex items-center gap-2 rounded-md px-4 py-2.5 ${current ? "bg-primary/10 text-primary" : "bg-red-500/10 text-red-300"}`}>
           {current ? <ShieldCheck size={15} /> : <ShieldAlert size={15} />}
           <span className="text-xs font-body tracking-widest uppercase">
             {current ? "Current for member-facing work" : "Not current — member-contact gate open"}
@@ -104,11 +104,11 @@ const TrainingHome = ({ embedded = false }: { embedded?: boolean }) => {
       <div className="space-y-2">
         {rows.map(({ mod, prog, dueAt, status }) => (
           <Link key={mod.id} to={`/admin/staff-training/module/${mod.id}`}
-            className="flex items-center gap-4 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 hover:border-white/20 transition-colors">
-            <span className="font-display text-lg text-[#8E9299] w-8 shrink-0">{String(mod.position).padStart(2, "0")}</span>
+            className="flex items-center gap-4 rounded-lg border border-border bg-card px-4 py-3.5 hover:border-primary/40 transition-colors">
+            <span className="font-display text-lg text-muted-foreground w-8 shrink-0">{String(mod.position).padStart(2, "0")}</span>
             <span className="flex-1 min-w-0">
-              <span className="block text-sm font-body text-[#E2E8F0] truncate">{mod.title}</span>
-              <span className="block text-[11px] font-body text-[#8E9299] mt-0.5">
+              <span className="block text-sm font-body text-foreground truncate">{mod.title}</span>
+              <span className="block text-[11px] font-body text-muted-foreground mt-0.5">
                 {GATE_LABEL[mod.gate]} ·{" "}
                 {mod.pass_mark === null ? "Acknowledgement" : `${Math.round(mod.pass_mark * 100)}% pass`} ·{" "}
                 ~{mod.est_minutes} min
@@ -126,21 +126,21 @@ const TrainingHome = ({ embedded = false }: { embedded?: boolean }) => {
             <span className={`px-2.5 py-1 rounded-sm text-[10px] font-body tracking-widest uppercase shrink-0 ${PILL[status]}`}>
               {STATUS_LABEL[status]}
             </span>
-            <ArrowRight size={14} className="text-[#8E9299] shrink-0" />
+            <ArrowRight size={14} className="text-muted-foreground shrink-0" />
           </Link>
         ))}
         {rows.length === 0 && (
-          <p className="text-[#8E9299] text-sm font-body py-12 text-center">
+          <p className="text-muted-foreground text-sm font-body py-12 text-center">
             No training is assigned to your role yet.
           </p>
         )}
       </div>
 
-      <div className="mt-6 flex gap-6 text-[11px] font-body text-[#8E9299]">
-        <Link to="/admin/staff-training/policies" className="underline underline-offset-2 hover:text-white transition-colors">Policy acknowledgements</Link>
-        <Link to="/admin/staff-training/documents" className="underline underline-offset-2 hover:text-white transition-colors">Controlled documents</Link>
+      <div className="mt-6 flex gap-6 text-[11px] font-body text-muted-foreground">
+        <Link to="/admin/staff-training/policies" className="underline underline-offset-2 hover:text-foreground transition-colors">Policy acknowledgements</Link>
+        <Link to="/admin/staff-training/documents" className="underline underline-offset-2 hover:text-foreground transition-colors">Controlled documents</Link>
         {(role === "admin") && (
-          <Link to="/admin/staff-training/team" className="underline underline-offset-2 hover:text-white transition-colors">Team compliance</Link>
+          <Link to="/admin/staff-training/team" className="underline underline-offset-2 hover:text-foreground transition-colors">Team compliance</Link>
         )}
       </div>
     </div>

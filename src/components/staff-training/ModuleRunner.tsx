@@ -27,14 +27,14 @@ const Body = ({ text }: { text: string }) => (
         return (
           <ul key={i} className="space-y-1.5">
             {lines.map((l, j) => (
-              <li key={j} className="flex gap-2 text-sm font-body text-[#C9D4DE] leading-relaxed">
-                <span className="text-[#3585AF] mt-0.5">·</span>{l.slice(2)}
+              <li key={j} className="flex gap-2 text-sm font-body text-foreground/80 leading-relaxed">
+                <span className="text-primary mt-0.5">·</span>{l.slice(2)}
               </li>
             ))}
           </ul>
         );
       }
-      return <p key={i} className="text-sm font-body text-[#C9D4DE] leading-relaxed whitespace-pre-line">{para}</p>;
+      return <p key={i} className="text-sm font-body text-foreground/80 leading-relaxed whitespace-pre-line">{para}</p>;
     })}
   </div>
 );
@@ -196,36 +196,36 @@ const ModuleRunner = () => {
     await load();
   };
 
-  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-[#8E9299]" /></div>;
+  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
   if (!module) {
-    return <p className="py-24 text-center text-[#8E9299] text-sm font-body">Module not found.</p>;
+    return <p className="py-24 text-center text-muted-foreground text-sm font-body">Module not found.</p>;
   }
 
   const ackOnly = module.pass_mark === null;
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
-      <Link to="/admin/staff-training" className="inline-flex items-center gap-1.5 text-[#8E9299] hover:text-white text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
+      <Link to="/admin/staff-training" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
         <ArrowLeft size={12} /> Training
       </Link>
 
-      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-1">
+      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-1">
         Module {String(module.position).padStart(2, "0")} · {GATE_LABEL[module.gate]} ·{" "}
         {ackOnly ? "Acknowledgement" : `${Math.round((module.pass_mark ?? 0) * 100)}% pass`} · v{module.version}
       </p>
-      <h2 className="font-display text-3xl text-white tracking-wider mb-6">{module.title}</h2>
+      <h2 className="font-display text-3xl text-foreground tracking-wider mb-6">{module.title}</h2>
 
       {versionChanged && !done && (
-        <div className="mb-6 rounded-md border border-[#3585AF]/30 bg-[#3585AF]/10 px-4 py-3 text-[12px] font-body text-[#C5E3F3] flex items-center justify-between gap-3">
+        <div className="mb-6 rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-[12px] font-body text-primary flex items-center justify-between gap-3">
           This module was updated to v{module.version}. Your in-progress attempt is on v{progress?.module_version}.
-          <button onClick={startNewVersion} className="shrink-0 px-3 py-1.5 rounded-sm bg-[#3585AF] text-white text-[10px] tracking-widest uppercase hover:bg-[#3585AF]/80 transition-colors">
+          <button onClick={startNewVersion} className="shrink-0 px-3 py-1.5 rounded-sm bg-primary text-primary-foreground text-[10px] tracking-widest uppercase hover:bg-primary/90 transition-colors">
             Start v{module.version}
           </button>
         </div>
       )}
 
       {done && !versionChanged && (
-        <div className="mb-6 rounded-md border border-[#3585AF]/30 bg-[#3585AF]/10 px-4 py-4 text-sm font-body text-[#C5E3F3] flex items-center gap-3">
+        <div className="mb-6 rounded-md border border-primary/30 bg-primary/10 px-4 py-4 text-sm font-body text-primary flex items-center gap-3">
           <CheckCircle2 size={16} />
           <span>
             Completed {progress?.completed_at ? new Date(progress.completed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric" }) : ""} (v{progress?.module_version})
@@ -235,9 +235,9 @@ const ModuleRunner = () => {
       )}
 
       {versionChanged && done && (
-        <div className="mb-6 rounded-md border border-[#3585AF]/30 bg-[#3585AF]/10 px-4 py-3 text-[12px] font-body text-[#C5E3F3] flex items-center justify-between gap-3">
+        <div className="mb-6 rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-[12px] font-body text-primary flex items-center justify-between gap-3">
           A new version of this module is live. Your completion of v{progress?.module_version} stays on record.
-          <button onClick={startNewVersion} className="shrink-0 px-3 py-1.5 rounded-sm bg-[#3585AF] text-white text-[10px] tracking-widest uppercase hover:bg-[#3585AF]/80 transition-colors">
+          <button onClick={startNewVersion} className="shrink-0 px-3 py-1.5 rounded-sm bg-primary text-primary-foreground text-[10px] tracking-widest uppercase hover:bg-primary/90 transition-colors">
             Acknowledge v{module.version}
           </button>
         </div>
@@ -247,8 +247,8 @@ const ModuleRunner = () => {
         {lessons.map((lesson) => {
           const lCps = checkpoints.filter((c) => c.lesson_id === lesson.id);
           return (
-            <section key={lesson.id} className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 md:p-6">
-              <h3 className="font-display text-xl text-white tracking-wider mb-3">{lesson.title}</h3>
+            <section key={lesson.id} className="rounded-lg border border-border bg-card p-5 md:p-6">
+              <h3 className="font-display text-xl text-foreground tracking-wider mb-3">{lesson.title}</h3>
               <Body text={lesson.body} />
               {lCps.length > 0 && (
                 <div className="mt-5 space-y-5">
@@ -263,7 +263,7 @@ const ModuleRunner = () => {
           );
         })}
         {checkpoints.filter((c) => c.module_id === module.id).map((cp) => (
-          <section key={cp.id} className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 md:p-6">
+          <section key={cp.id} className="rounded-lg border border-border bg-card p-5 md:p-6">
             <CheckpointInput cp={cp} value={values[cp.id] ?? null} result={results[cp.id]}
               disabled={done} onChange={(v) => setValue(cp.id, v)} />
           </section>
@@ -271,14 +271,14 @@ const ModuleRunner = () => {
       </div>
 
       {!done && (
-        <div className="sticky bottom-0 mt-8 -mx-6 px-6 py-4 backdrop-blur-xl bg-[#0A1120]/85 border-t border-white/[0.06] flex items-center gap-4">
-          <p className="text-[11px] font-body text-[#8E9299]">
+        <div className="sticky bottom-0 mt-8 -mx-6 px-6 py-4 backdrop-blur-xl bg-foreground/40 border-t border-border flex items-center gap-4">
+          <p className="text-[11px] font-body text-muted-foreground">
             {evaluation.missingCount === 0
               ? ackOnly ? "Everything is answered." : `Score so far is not shown until you submit.`
               : `${evaluation.missingCount} checkpoint${evaluation.missingCount > 1 ? "s" : ""} to go — progress saves as you write.`}
           </p>
           <button onClick={submit} disabled={submitting || !evaluation.complete}
-            className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#3585AF] text-white text-xs font-body tracking-widest uppercase hover:bg-[#3585AF]/80 transition-colors disabled:opacity-40">
+            className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-xs font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
             {submitting ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
             {ackOnly ? "Acknowledge and complete" : "Submit answers"}
           </button>
@@ -286,7 +286,7 @@ const ModuleRunner = () => {
       )}
 
       {feedback === "passed" && (
-        <div className="mt-6 rounded-md border border-[#3585AF]/30 bg-[#3585AF]/10 px-4 py-3 text-sm font-body text-[#C5E3F3] flex items-center gap-2">
+        <div className="mt-6 rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-body text-primary flex items-center gap-2">
           <CheckCircle2 size={15} /> {ackOnly ? "Acknowledged — thank you. It is on record with the version and date." : "Passed — recorded with this module version."}
         </div>
       )}
@@ -304,27 +304,27 @@ const CheckpointInput = ({ cp, value, result, disabled, onChange }: {
   cp: CheckpointRow; value: ResponseValue; result: boolean | undefined;
   disabled: boolean; onChange: (v: ResponseValue) => void;
 }) => {
-  const ring = result === undefined ? "" : result ? "border-[#3585AF]/50" : "border-red-400/40";
+  const ring = result === undefined ? "" : result ? "border-primary/50" : "border-red-400/40";
 
   if (cp.kind === "freetext") {
     return (
       <label className="block">
-        <span className="block text-[13px] font-body text-[#E2E8F0] mb-2 leading-relaxed">{cp.prompt}</span>
+        <span className="block text-[13px] font-body text-foreground mb-2 leading-relaxed">{cp.prompt}</span>
         <textarea value={(value as string) || ""} disabled={disabled} rows={4}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Write your answer — it stays private to you and the compliance view sees only that you completed it."
-          className={`w-full bg-transparent border rounded-md px-3 py-2.5 text-sm font-body text-[#E2E8F0] placeholder:text-[#8E9299]/40 focus:outline-none focus:border-[#3585AF]/60 resize-y ${ring || "border-white/10"}`} />
+          className={`w-full bg-transparent border rounded-md px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary resize-y ${ring || "border-border"}`} />
       </label>
     );
   }
 
   if (cp.kind === "acknowledge") {
     return (
-      <label className={`flex items-start gap-3 rounded-md border px-4 py-3.5 cursor-pointer transition-colors ${ring || "border-white/10"} ${disabled ? "opacity-60" : ""}`}>
+      <label className={`flex items-start gap-3 rounded-md border px-4 py-3.5 cursor-pointer transition-colors ${ring || "border-border"} ${disabled ? "opacity-60" : ""}`}>
         <input type="checkbox" checked={value === true} disabled={disabled}
           onChange={(e) => onChange(e.target.checked)}
           className="mt-0.5 w-4 h-4 accent-[#3585AF]" />
-        <span className="text-[13px] font-body text-[#E2E8F0] leading-relaxed">{cp.prompt}</span>
+        <span className="text-[13px] font-body text-foreground leading-relaxed">{cp.prompt}</span>
       </label>
     );
   }
@@ -332,13 +332,13 @@ const CheckpointInput = ({ cp, value, result, disabled, onChange }: {
   if (cp.kind === "single") {
     return (
       <fieldset>
-        <legend className="text-[13px] font-body text-[#E2E8F0] mb-2 leading-relaxed">{cp.prompt}</legend>
+        <legend className="text-[13px] font-body text-foreground mb-2 leading-relaxed">{cp.prompt}</legend>
         <div className="space-y-1.5">
           {cp.options.map((opt, i) => (
-            <label key={i} className={`flex items-start gap-3 rounded-md border px-4 py-2.5 cursor-pointer transition-colors ${value === i ? "border-[#3585AF]/60 bg-[#3585AF]/10" : "border-white/10 hover:border-white/20"} ${disabled ? "opacity-60" : ""}`}>
+            <label key={i} className={`flex items-start gap-3 rounded-md border px-4 py-2.5 cursor-pointer transition-colors ${value === i ? "border-primary/60 bg-primary/10" : "border-border hover:border-primary/40"} ${disabled ? "opacity-60" : ""}`}>
               <input type="radio" name={cp.id} checked={value === i} disabled={disabled}
                 onChange={() => onChange(i)} className="mt-0.5 w-4 h-4 accent-[#3585AF]" />
-              <span className="text-[13px] font-body text-[#C9D4DE] leading-relaxed">{opt}</span>
+              <span className="text-[13px] font-body text-foreground/80 leading-relaxed">{opt}</span>
             </label>
           ))}
         </div>
@@ -351,15 +351,15 @@ const CheckpointInput = ({ cp, value, result, disabled, onChange }: {
     const remaining = cp.options.map((_, i) => i).filter((i) => !current.includes(i));
     return (
       <div>
-        <p className="text-[13px] font-body text-[#E2E8F0] mb-2 leading-relaxed">{cp.prompt}</p>
+        <p className="text-[13px] font-body text-foreground mb-2 leading-relaxed">{cp.prompt}</p>
         <div className="space-y-1.5 mb-2">
           {current.map((optIdx, pos) => (
-            <div key={optIdx} className="flex items-center gap-3 rounded-md border border-[#3585AF]/40 bg-[#3585AF]/10 px-4 py-2">
-              <span className="font-display text-[#C5E3F3]">{pos + 1}</span>
-              <span className="flex-1 text-[13px] font-body text-[#E2E8F0]">{cp.options[optIdx]}</span>
+            <div key={optIdx} className="flex items-center gap-3 rounded-md border border-primary/40 bg-primary/10 px-4 py-2">
+              <span className="font-display text-primary">{pos + 1}</span>
+              <span className="flex-1 text-[13px] font-body text-foreground">{cp.options[optIdx]}</span>
               {!disabled && (
                 <button onClick={() => onChange(current.filter((x) => x !== optIdx))}
-                  className="text-[#8E9299] hover:text-white text-[10px] font-body uppercase tracking-widest">Undo</button>
+                  className="text-muted-foreground hover:text-foreground text-[10px] font-body uppercase tracking-widest">Undo</button>
               )}
             </div>
           ))}
@@ -368,7 +368,7 @@ const CheckpointInput = ({ cp, value, result, disabled, onChange }: {
           <div className="flex flex-wrap gap-2">
             {remaining.map((i) => (
               <button key={i} onClick={() => onChange([...current, i])}
-                className="px-3 py-1.5 rounded-md border border-white/10 text-[12px] font-body text-[#C9D4DE] hover:border-[#3585AF]/50 transition-colors">
+                className="px-3 py-1.5 rounded-md border border-border text-[12px] font-body text-foreground/80 hover:border-primary/50 transition-colors">
                 {cp.options[i]}
               </button>
             ))}
@@ -382,16 +382,16 @@ const CheckpointInput = ({ cp, value, result, disabled, onChange }: {
   const current = Array.isArray(value) ? (value as number[]) : [];
   return (
     <fieldset>
-      <legend className="text-[13px] font-body text-[#E2E8F0] mb-2 leading-relaxed">{cp.prompt}</legend>
+      <legend className="text-[13px] font-body text-foreground mb-2 leading-relaxed">{cp.prompt}</legend>
       <div className="space-y-1.5">
         {cp.options.map((opt, i) => {
           const on = current.includes(i);
           return (
-            <label key={i} className={`flex items-start gap-3 rounded-md border px-4 py-2.5 cursor-pointer transition-colors ${on ? "border-[#3585AF]/60 bg-[#3585AF]/10" : "border-white/10 hover:border-white/20"} ${disabled ? "opacity-60" : ""}`}>
+            <label key={i} className={`flex items-start gap-3 rounded-md border px-4 py-2.5 cursor-pointer transition-colors ${on ? "border-primary/60 bg-primary/10" : "border-border hover:border-primary/40"} ${disabled ? "opacity-60" : ""}`}>
               <input type="checkbox" checked={on} disabled={disabled}
                 onChange={(e) => onChange(e.target.checked ? [...current, i] : current.filter((x) => x !== i))}
                 className="mt-0.5 w-4 h-4 accent-[#3585AF]" />
-              <span className="text-[13px] font-body text-[#C9D4DE] leading-relaxed">{opt}</span>
+              <span className="text-[13px] font-body text-foreground/80 leading-relaxed">{opt}</span>
             </label>
           );
         })}
