@@ -1,0 +1,319 @@
+{
+  "generatedAt": "2026-08-16T00:42:03.806Z",
+  "site": "mindcast.co.nz",
+  "pages": {
+    "home": {
+      "notionId": "3be0d85f-784c-8167-bc8d-c992a92ee903",
+      "sections": [
+        {
+          "slug": "home",
+          "title": "Home",
+          "blocks": [
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — hero — full-width navy/ivory, wordmark + broadcast/ripple device (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            }
+          ]
+        },
+        {
+          "slug": "headline",
+          "title": "Headline",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Mindcast exists to close the gap between knowing and doing."
+            }
+          ]
+        },
+        {
+          "slug": "subcopy",
+          "title": "Subcopy",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A weekly facilitated gathering where ordinary people become more themselves — together, every week, for as long as they want to keep coming."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-method",
+          "title": "The method",
+          "blocks": [
+            {
+              "type": "quote",
+              "text": "Notice it. Name it. Do it."
+            },
+            {
+              "type": "p",
+              "text": "UNCONSCIOUS → CONSCIOUS → CHANGED"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-rhythm",
+          "title": "The rhythm",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "Sunday · The Gathering"
+            },
+            {
+              "type": "p",
+              "text": "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? No shame, just honest data."
+            },
+            {
+              "type": "h3",
+              "text": "In the Rooms"
+            },
+            {
+              "type": "p",
+              "text": "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation."
+            },
+            {
+              "type": "h3",
+              "text": "Before You Leave"
+            },
+            {
+              "type": "p",
+              "text": "You write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — rooms — three tracks side by side (Adults / Teens / Children) (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "tracks",
+          "title": "Tracks",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "Adults — the same theme, worked deeply"
+            },
+            {
+              "type": "li",
+              "text": "Teens — their own room, their own journal (private, even from parents)"
+            },
+            {
+              "type": "li",
+              "text": "Children — picture book, game and colouring that goes home on the fridge"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "what-mindcast-is-not",
+          "title": "What Mindcast is not",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "Not therapy, medicine, a church or a guru-led teaching"
+            },
+            {
+              "type": "li",
+              "text": "No pressure, no scarcity, no guilt — ever"
+            }
+          ]
+        }
+      ]
+    },
+    "membership": {
+      "notionId": "3be0d85f-784c-81d6-a10f-de836b3f8815",
+      "sections": [
+        {
+          "slug": "membership",
+          "title": "Membership",
+          "blocks": [
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — membership hero (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            }
+          ]
+        },
+        {
+          "slug": "full-year",
+          "title": "Full year",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Every Sunday session, your workbook and saved reflections, a midweek Life Group, and your wristband at the door."
+            }
+          ]
+        },
+        {
+          "slug": "teen-room",
+          "title": "Teen room",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The teen room, same rhythm. A private journal no one else reads — not even parents — and their own pass for the door."
+            }
+          ]
+        },
+        {
+          "slug": "kids-room",
+          "title": "Kids room",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A picture book, a game, colouring that goes home on the fridge. Children are signed in and out by you, every week."
+            }
+          ]
+        },
+        {
+          "slug": "household",
+          "title": "Household",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "One payment, the whole household. Everyone walks in on the same Sunday and everyone has their own room to be in."
+            }
+          ]
+        },
+        {
+          "slug": "honest-rate",
+          "title": "Honest rate",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "If the standard rate is the thing standing between you and the room, this is the rate. No means testing, no proof, no explanation."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — pricing cards (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            }
+          ]
+        }
+      ]
+    },
+    "about": {
+      "notionId": "3be0d85f-784c-81f9-bf28-c1cfd5f613f5",
+      "sections": [
+        {
+          "slug": "about",
+          "title": "About",
+          "blocks": [
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — about hero / founder (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            }
+          ]
+        },
+        {
+          "slug": "the-story",
+          "title": "The story",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Mindcast began from a simple question about what actually changes people — and the answer was a room, not an app."
+            }
+          ]
+        },
+        {
+          "slug": "the-room",
+          "title": "The room",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The most powerful thing we offer isn't a podcast or a framework. It's the room you walk into each week."
+            }
+          ]
+        },
+        {
+          "slug": "the-mission",
+          "title": "The mission",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "COMMUNITY — a weekly gathering of people who show up for each other."
+            },
+            {
+              "type": "li",
+              "text": "PRACTICE — a 52-week journey with a weekly rhythm: Sunday session, reflection, intention, Life Group."
+            },
+            {
+              "type": "li",
+              "text": "TOOLS — a live digital course book, guided reflection and journaling, weekly practices."
+            }
+          ]
+        },
+        {
+          "slug": "our-values",
+          "title": "Our values",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "Community over content"
+            },
+            {
+              "type": "li",
+              "text": "Draw out, do not preach"
+            },
+            {
+              "type": "li",
+              "text": "Everyone can afford to belong"
+            },
+            {
+              "type": "li",
+              "text": "Safe by design"
+            },
+            {
+              "type": "li",
+              "text": "Honest about what we are"
+            },
+            {
+              "type": "li",
+              "text": "No pressure, ever"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "principles",
+          "title": "Principles",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "Consent before everything"
+            },
+            {
+              "type": "li",
+              "text": "Evidence where possible, honesty about the rest"
+            },
+            {
+              "type": "li",
+              "text": "Inner work is for everyone"
+            },
+            {
+              "type": "li",
+              "text": "Safety is non-negotiable"
+            },
+            {
+              "type": "li",
+              "text": "One step at a time"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
