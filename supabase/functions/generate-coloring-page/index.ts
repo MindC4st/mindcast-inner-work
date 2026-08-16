@@ -270,7 +270,6 @@ serve(async (req: Request) => {
 
     // Subheading — the week's "In Today's World" metaphor, for a parent to
     // read aloud to their child while they colour.
-    const metaphor = (lesson.signal_metaphor || "").trim().slice(0, 240);
     let imageTop = pageH - margin - 62;
     if (metaphor) {
       const lines = wrapText(metaphor, helvetica, 9, pageW - margin * 2);
