@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Lock, PlayCircle, Clock, CheckCircle2, Shield } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Lock, PlayCircle, CheckCircle2, Shield, Pencil } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { trackForAgeGroup } from "@/hooks/useCurriculumWeeks";
@@ -18,6 +18,7 @@ type Week = {
 
 const PortalWeeks = () => {
   const { profile, role, user } = useAuth();
+  const navigate = useNavigate();
   const track = trackForAgeGroup(profile?.age_group);
   const { isUnlocked, unlockDate, currentWeek } = useProgramSchedule();
   const { isMember } = useEntitlement();
@@ -112,7 +113,7 @@ const PortalWeeks = () => {
           let status: { icon: JSX.Element; label: string; cls: string };
           if (!effectiveMember) status = { icon: <Lock size={13} />, label: "Members only", cls: "text-foreground/40" };
           else if (unlocked) status = { icon: <PlayCircle size={16} strokeWidth={1.5} />, label: isCurrent ? "This week" : "Open", cls: "text-primary" };
-          else status = { icon: <Clock size={13} />, label: opensOn ? `Opens ${opensOn.toLocaleDateString(undefined, { day: "numeric", month: "short" })}` : "Opens soon", cls: "text-foreground/40" };
+          else status = { icon: <Lock size={13} />, label: opensOn ? `Opens ${opensOn.toLocaleDateString(undefined, { day: "numeric", month: "short" })} · 9:30am` : "Locked", cls: "text-foreground/40" };
 
           return (
             <Link key={w.week_number} to={`/portal/week/${w.week_number}`}
@@ -131,6 +132,18 @@ const PortalWeeks = () => {
                   {isCurrent && unlocked ? <CheckCircle2 size={16} strokeWidth={1.5} /> : status.icon}
                   <span className="hidden sm:inline">{status.label}</span>
                 </span>
+                {isAdmin && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/mindcast-live/edit/${w.week_number}`); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); navigate(`/mindcast-live/edit/${w.week_number}`); } }}
+                    title="Edit this week"
+                    className="shrink-0 flex items-center gap-1 text-[10px] font-body tracking-widest uppercase text-foreground/40 hover:text-primary transition-colors"
+                  >
+                    <Pencil size={12} /> <span className="hidden sm:inline">Edit</span>
+                  </span>
+                )}
               </div>
             </Link>
           );

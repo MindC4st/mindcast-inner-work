@@ -49,7 +49,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       </div>
 
       <nav className="flex-1 px-4">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
           const active = isActive(item.to);
           return (
             <Link
@@ -210,7 +210,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom">
         <div className="flex items-stretch">
-          {BOTTOM_TAB_ITEMS.map((item) => {
+          {BOTTOM_TAB_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
             const active = isActive(item.to);
             return (
               <Link
