@@ -20,14 +20,13 @@ import { LOGO_PNG_B64 } from "./logo.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY")!;
-// Gemini-native image models accessible via Gemini API key (AIza...)
-// gemini-2.5-flash-image (Nano Banana) — ~500 free images/day
-// gemini-3.1-flash-image-preview (Nano Banana 2) — newest, same API
-const GEMINI_MODELS = [
-  "gemini-2.5-flash-image",
-  "gemini-3.1-flash-image-preview",
-];
+const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
+// Gemini image models, tried in order. Overridable via GEMINI_IMAGE_MODELS
+// (comma-separated) so a renamed/retired model never requires a code deploy.
+const GEMINI_MODELS = (
+  Deno.env.get("GEMINI_IMAGE_MODELS") ||
+  "gemini-2.5-flash-image,gemini-2.0-flash-preview-image-generation,gemini-3.1-flash-image-preview"
+).split(",").map((s) => s.trim()).filter(Boolean);
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -85,6 +84,7 @@ serve(async (req: Request) => {
     .in("role", ["facilitator", "admin"])
     .maybeSingle();
   if (!roleRow) return json({ error: "Facilitators only" }, 403);
+  if (!GOOGLE_AI_API_KEY) return json({ error: "GOOGLE_AI_API_KEY is not configured", hint: "Set it under Supabase → Edge Functions → Secrets." }, 500);
   // -------------------------------------------------------------------------
 
   try {
@@ -173,7 +173,7 @@ serve(async (req: Request) => {
     }
 
     if (!imageB64) {
-      return json({ error: "No image generated — all Gemini models failed", detail: lastError }, 502);
+      return json({ error: `No image generated — ${lastError || "all Gemini models failed"}`, detail: lastError }, 502);
     }
 
     const imageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
