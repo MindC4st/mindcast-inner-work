@@ -229,6 +229,14 @@ const FacilitatorView = () => {
   const [responses, setResponses] = useState<Response[]>([]);
   const [code] = useState(() => search.get("code") || genCode());
   const [callbacks, setCallbacks] = useState<Callback[]>([]);
+  // Gate G — facilitator-only elapsed-vs-expected per slide (never projected).
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    setElapsed(0);
+    const start = Date.now();
+    const iv = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(iv);
+  }, [slide]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Data-driven deck (v3): load the active, track-applicable slides in order.
@@ -717,6 +725,17 @@ const FacilitatorView = () => {
         <div className="flex flex-col items-center">
           <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLE[currentKind]}</span>
           <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / {deck.length}</span>
+          {(() => {
+            const expected = slideDefs.find((d) => SLIDE_KEY_TO_KIND[d.slide_key] === currentKind)?.default_duration_seconds ?? 0;
+            if (!expected) return null;
+            const mm = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+            const over = elapsed > expected;
+            return (
+              <span className={`text-[10px] font-mono ${over ? "text-amber-400" : "text-[hsl(var(--ivory))]/40"}`} title="Elapsed vs expected — facilitator only, never projected">
+                {mm(elapsed)} / {mm(expected)}{over ? " · over" : ""}
+              </span>
+            );
+          })()}
         </div>
         <div className="flex items-center gap-2">
           {onReflection && (

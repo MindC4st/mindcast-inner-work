@@ -41,6 +41,10 @@ type Draft = {
   video_question_1: string;
   video_question_2: string;
   core_affirmation: string;
+  ancient_wisdom_video_url: string;
+  ancient_wisdom_approval: string;
+  todays_world_video_url: string;
+  todays_world_approval: string;
   facilitator_notes: string;
 };
 
@@ -117,6 +121,8 @@ const EMPTY = (week: number, audience: string): Draft => ({
   video_link: "", video_description: "", video_backup_description: "", video_local_url: "",
   video_transcript: "", video_question_1: "", video_question_2: "",
   core_affirmation: "",
+  ancient_wisdom_video_url: "", ancient_wisdom_approval: "unapproved",
+  todays_world_video_url: "", todays_world_approval: "unapproved",
   facilitator_notes: "",
 });
 
@@ -259,6 +265,39 @@ const LessonEditor = () => {
     return () => window.removeEventListener("beforeunload", h);
   }, [dirty, activityDirty]);
 
+  // Gate D — generate/approve the 10s metaphor clip for a slide.
+  const [assetBusy, setAssetBusy] = useState(false);
+  const assetSlideKey = (idx: number) => (idx === 2 ? "todays_world" : idx === 3 ? "ancient" : null);
+  const generateMetaphor = async (idx: number) => {
+    const slideKey = assetSlideKey(idx);
+    if (!slideKey || assetBusy) return;
+    setAssetBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-metaphor-video", {
+        body: { week_number: week, audience, slide: slideKey },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (slideKey === "ancient") {
+        set("ancient_wisdom_video_url", data.video_url || "");
+        set("ancient_wisdom_approval", "unapproved");
+      } else {
+        set("todays_world_video_url", data.video_url || "");
+        set("todays_world_approval", "unapproved");
+      }
+      toast({ title: data.cached ? "Already current" : "Metaphor generated", description: "Review the preview, then Approve (then save)." });
+    } catch (e) {
+      toast({ title: "Metaphor generation failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    } finally {
+      setAssetBusy(false);
+    }
+  };
+  const setMetaphorApproval = (idx: number, approve: boolean) => {
+    const slideKey = assetSlideKey(idx);
+    if (!slideKey) return;
+    set(slideKey === "ancient" ? "ancient_wisdom_approval" : "todays_world_approval", approve ? "approved" : "unapproved");
+  };
+
   const slide = SLIDES[active];
   const vid = useMemo(() => ytId(draft.video_link), [draft.video_link]);
   const ease = reduce ? { duration: 0 } : { duration: 0.25, ease: [0.22, 1, 0.36, 1] as const };
@@ -397,6 +436,44 @@ const LessonEditor = () => {
                   {slide.fields.map((f) => (
                     <FieldRow key={String(f.key)} field={f} value={draft[f.key]} onChange={(v) => set(f.key, v)} vid={f.kind === "video" ? vid : null} />
                   ))}
+                  {(slide.idx === 2 || slide.idx === 3) && (() => {
+                    const slideKey = slide.idx === 2 ? "todays_world" : "ancient";
+                    const videoUrl = slide.idx === 2 ? draft.todays_world_video_url : draft.ancient_wisdom_video_url;
+                    const approval = slide.idx === 2 ? draft.todays_world_approval : draft.ancient_wisdom_approval;
+                    return (
+                      <div className="rounded-xl border border-[hsl(var(--blue))]/30 bg-[hsl(var(--blue-light))]/20 p-4 space-y-3">
+                        <p className="text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))]">Metaphor video · 10s</p>
+                        {videoUrl ? (
+                          <video src={videoUrl} controls className="w-full max-w-md rounded-lg border border-[hsl(var(--warm-border))] bg-black" />
+                        ) : (
+                          <p className="text-[13px] font-body text-[hsl(var(--navy-mid))]">No clip yet — generate one from the text above.</p>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => generateMetaphor(slide.idx)} disabled={assetBusy}
+                            className="px-4 py-2 rounded-full bg-[hsl(var(--navy))] text-white text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy-mid))] transition-colors disabled:opacity-40">
+                            {assetBusy ? "Generating…" : videoUrl ? "Regenerate" : "Generate"}
+                          </button>
+                          {videoUrl && (
+                            approval === "approved" ? (
+                              <button onClick={() => setMetaphorApproval(slide.idx, false)}
+                                className="px-4 py-2 rounded-full border border-[hsl(var(--navy))] text-[hsl(var(--navy))] text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy))] hover:text-white transition-colors">
+                                Unapprove
+                              </button>
+                            ) : (
+                              <button onClick={() => setMetaphorApproval(slide.idx, true)}
+                                className="px-4 py-2 rounded-full bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy))] transition-colors">
+                                Approve
+                              </button>
+                            )
+                          )}
+                          <span className="text-[11px] font-body text-[hsl(var(--navy-mid))]/70">
+                            {videoUrl ? (approval === "approved" ? "Approved — will play on the slide." : "Unapproved — won't reach a room until approved.") : ""}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-body text-[hsl(var(--navy-mid))]/60">Approve, then Save changes to persist.</p>
+                      </div>
+                    );
+                  })()}
                   {slide.idx === 12 && (
                     <div className="rounded-xl border border-[hsl(var(--blue))]/30 bg-[hsl(var(--blue-light))]/20 p-4">
                       <p className="text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-2">Reflective questions · DeepSeek</p>
