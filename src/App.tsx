@@ -176,6 +176,7 @@ const AppRoutes = () => (
 
       {/* Public displays */}
       <Route path="/display" element={<WelcomeWall />} />
+      <Route path="/display/wall" element={<WelcomeWall />} />
       {/* Retired: superseded by the moderated word cloud on the Together slide. */}
       <Route path="/display/goals" element={<Navigate to="/display" replace />} />
       <Route path="/display/wordcloud" element={<Navigate to="/display" replace />} />

@@ -1,0 +1,46 @@
+-- Notification outbox drain schedule (pg_cron + pg_net).
+--
+-- record_departure() and queue_notification() write guardian emails into
+-- notification_outbox; notify-outbox is the courier. The roll UI drains it
+-- opportunistically after actions, but a Sunday phone can sleep, lose wifi,
+-- or be closed — so a server-side sweep every 2 minutes is the backstop that
+-- guarantees a departure email actually goes out.
+--
+-- Following the repo convention (see 20260527020000): the schedule itself is
+-- registered manually in the Supabase SQL editor, not committed, so it cannot
+-- double-register on migration re-runs.
+--
+-- SETUP (one-time, in the Supabase SQL editor):
+--
+--   1. Enable extensions: pg_cron and pg_net (Dashboard → Database → Extensions).
+--   2. Set the function secret CRON_SECRET on notify-outbox
+--      (any long random string), then run:
+--
+-- BEGIN cron schedule block (copy into SQL editor, do not commit):
+--
+-- SELECT cron.schedule(
+--   'mc-notify-outbox-drain',
+--   '*/2 * * * *',
+--   $$
+--     SELECT net.http_post(
+--       url     := 'https://pjyelgogdsuiugaudecc.supabase.co/functions/v1/notify-outbox',
+--       headers := jsonb_build_object(
+--                    'Content-Type', 'application/json',
+--                    'Authorization', 'Bearer <SERVICE_ROLE_KEY>',
+--                    'x-cron-secret', '<CRON_SECRET>'
+--                  ),
+--       body    := '{}'::jsonb
+--     );
+--   $$
+-- );
+--
+-- END cron schedule block
+--
+-- To unschedule later:
+--   SELECT cron.unschedule('mc-notify-outbox-drain');
+--
+-- Idempotency: the drain claims rows with UPDATE ... WHERE status='queued', so
+-- overlapping runs (cron + a facilitator's flush at the same moment) cannot
+-- double-send the same email.
+
+SELECT 1 AS notify_outbox_cron_doc_only;
