@@ -274,7 +274,7 @@ const Membership = () => (
             <h3 className="font-display text-3xl tracking-wide text-foreground">TRIAL PASS</h3>
             <p className="mt-4 mb-1">
               <span className="font-display text-5xl text-foreground">$0</span>
-              <span className="font-body text-sm text-muted-foreground ml-2">one session</span>
+              <span className="font-body text-sm text-muted-foreground ml-2"> one session</span>
             </p>
             <p className="font-body text-sm text-muted-foreground leading-relaxed flex-1 mb-8">
               One Sunday, the whole thing, free. Single use, requested in one click, delivered as

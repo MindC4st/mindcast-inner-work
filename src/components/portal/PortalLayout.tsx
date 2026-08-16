@@ -23,7 +23,7 @@ const BOTTOM_TAB_ITEMS = [
 ];
 
 const PortalLayout = ({ children }: { children: ReactNode }) => {
-  const { profile, signOut, isStaff } = useAuth();
+  const { profile, signOut, isStaff, role } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -148,7 +148,10 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
 
       <div className="p-6 pt-4">
         <div className="border-t border-border mb-4" />
-        <p className="text-muted-foreground text-[11px] font-body mb-2">{profile?.name || "Member"}</p>
+        <p className="text-muted-foreground text-[11px] font-body mb-2">{profile?.display_name || profile?.name || "Member"}</p>
+        {role && role !== "member" && (
+          <p className="text-primary text-[9px] font-body tracking-[0.2em] uppercase mb-2">{role}</p>
+        )}
         <button onClick={handleSignOut} className="flex items-center gap-2 text-muted-foreground/60 hover:text-foreground text-[10px] tracking-[0.15em] font-body transition-colors">
           <LogOut size={12} strokeWidth={1.5} /> Sign out
         </button>
