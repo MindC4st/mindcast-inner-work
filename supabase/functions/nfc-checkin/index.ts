@@ -17,6 +17,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { shouldDedupe } from "../_shared/checkin-dedupe.ts";
+import { ipAllowed, clientIp } from "../_shared/ip-rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,6 +50,12 @@ const computeDisplayName = (
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
+
+  // Flood guard only — a real kiosk scans dozens of bracelets an hour, so the
+  // ceiling is generous (240/min per IP). Duplicate taps are already deduped.
+  if (!ipAllowed(clientIp(req), 240, 60_000)) {
+    return json({ error: "Too many scans — one moment, please." }, 429);
+  }
 
   try {
     const body = await req.json();
@@ -140,6 +147,14 @@ serve(async (req) => {
       return json({ ok: true, deduped: true, display_name: displayName, welcome_name: welcomeName });
     }
 
+    // Wall consent is resolved at write time, so a revoked consent or opt-out
+    // is honoured on the very next scan. Failure here hides rather than shows.
+    let wallHidden = true;
+    try {
+      const { data: allowed } = await supa.rpc("wall_display_allowed", { p_profile: profile.id });
+      wallHidden = allowed !== true;
+    } catch { /* default stays hidden */ }
+
     const { error: insErr } = await supa.from("check_ins").insert({
       profile_id: profile.id,
       display_name: displayName,
@@ -147,6 +162,7 @@ serve(async (req) => {
       track: track ?? normalizeTrack((profile as any).age_group),
       source,
       scheduled_session_id: scheduledSessionId,
+      wall_hidden: wallHidden,
     });
     if (insErr) throw insErr;
 
@@ -165,6 +181,10 @@ serve(async (req) => {
 
     return json({ ok: true, display_name: displayName, welcome_name: welcomeName, track });
   } catch (e: any) {
-    return json({ error: e?.message ?? String(e) }, 500);
+    // This endpoint is public and unauthenticated, so the raw error (Postgres
+    // messages, column names, constraint names) must not go back over the wire.
+    // Log it where staff can read it; tell the caller only that it failed.
+    console.error("nfc-checkin failed:", e);
+    return json({ error: "Check-in failed. Please see a facilitator." }, 500);
   }
 });

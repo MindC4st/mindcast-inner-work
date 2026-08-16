@@ -77,27 +77,27 @@ const TrainingTeamMember = () => {
     toast.success("Recorded.");
   };
 
-  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-[#8E9299]" /></div>;
+  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <Link to="/admin/staff-training/team" className="inline-flex items-center gap-1.5 text-[#8E9299] hover:text-white text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
+      <Link to="/admin/staff-training/team" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
         <ArrowLeft size={12} /> Team compliance
       </Link>
-      <h2 className="font-display text-2xl text-white tracking-wider mb-1">
+      <h2 className="font-display text-2xl text-foreground tracking-wider mb-1">
         {profile?.display_name || profile?.name || profile?.email || "Team member"}
       </h2>
-      <p className="text-[#8E9299] text-sm font-body mb-6">{profile?.email}</p>
+      <p className="text-muted-foreground text-sm font-body mb-6">{profile?.email}</p>
 
       <div className="space-y-2 mb-8">
         {progress.map((row) => (
-          <div key={row.id} className={`flex items-center gap-4 rounded-lg border px-4 py-3.5 ${row.superseded ? "border-white/[0.05] bg-white/[0.01] opacity-60" : "border-white/[0.08] bg-white/[0.03]"}`}>
+          <div key={row.id} className={`flex items-center gap-4 rounded-lg border px-4 py-3.5 ${row.superseded ? "border-border bg-card opacity-60" : "border-border bg-card"}`}>
             <span className="flex-1 min-w-0">
-              <span className="block text-sm font-body text-[#E2E8F0]">
-                {modTitle(row.module_code)} <span className="text-[#8E9299]">v{row.module_version}</span>
-                {row.superseded && <span className="ml-2 text-[10px] uppercase tracking-widest text-[#8E9299]">historical</span>}
+              <span className="block text-sm font-body text-foreground">
+                {modTitle(row.module_code)} <span className="text-muted-foreground">v{row.module_version}</span>
+                {row.superseded && <span className="ml-2 text-[10px] uppercase tracking-widest text-muted-foreground">historical</span>}
               </span>
-              <span className="block text-[11px] font-body text-[#8E9299] mt-0.5">
+              <span className="block text-[11px] font-body text-muted-foreground mt-0.5">
                 {row.completed_at
                   ? `Completed ${new Date(row.completed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}`
                   : `Started ${new Date(row.started_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}`}
@@ -105,34 +105,34 @@ const TrainingTeamMember = () => {
                 {row.expires_at && <> · due again {new Date(row.expires_at).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</>}
               </span>
             </span>
-            <span className="text-[10px] font-body tracking-widest uppercase text-[#8E9299]">
+            <span className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">
               {row.superseded ? "Superseded" : STATUS_LABEL[(row.status === "in_progress" ? "in_progress" : row.status) as ModuleStatus] || row.status}
             </span>
             {!row.superseded && ["passed", "acknowledged", "expired"].includes(row.status) && (
               <button onClick={() => recertify(row)} disabled={busy === row.id}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-[#3585AF]/50 text-[#C5E3F3] text-[10px] font-body tracking-widest uppercase hover:bg-[#3585AF]/10 transition-colors disabled:opacity-40">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-primary/50 text-primary text-[10px] font-body tracking-widest uppercase hover:bg-primary/10 transition-colors disabled:opacity-40">
                 <RefreshCw size={11} /> Recertify
               </button>
             )}
           </div>
         ))}
         {progress.length === 0 && (
-          <p className="text-[#8E9299] text-sm font-body py-8 text-center">No training activity yet.</p>
+          <p className="text-muted-foreground text-sm font-body py-8 text-center">No training activity yet.</p>
         )}
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[11px] font-body tracking-[0.2em] uppercase text-[#8E9299]">Compliance record</h3>
+        <h3 className="text-[11px] font-body tracking-[0.2em] uppercase text-muted-foreground">Compliance record</h3>
         <button onClick={() => setNoteOpen((o) => !o)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-white/15 text-[#8E9299] hover:text-white text-[10px] font-body tracking-widest uppercase transition-colors">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-border text-muted-foreground hover:text-foreground text-[10px] font-body tracking-widest uppercase transition-colors">
           <StickyNote size={11} /> Record
         </button>
       </div>
 
       {noteOpen && (
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4 mb-4 space-y-3">
+        <div className="rounded-lg border border-border bg-card p-4 mb-4 space-y-3">
           <select value={category} onChange={(e) => setCategory(e.target.value)}
-            className="w-full bg-transparent border border-white/10 rounded-md px-3 py-2 text-sm font-body text-[#E2E8F0] focus:outline-none focus:border-[#3585AF]/60">
+            className="w-full bg-transparent border border-border rounded-md px-3 py-2 text-sm font-body text-foreground focus:outline-none focus:border-primary">
             <option value="note">Note</option>
             <option value="exception">Exception / stand-down decision</option>
             <option value="safety_check">Safety check status</option>
@@ -141,9 +141,9 @@ const TrainingTeamMember = () => {
           </select>
           <textarea value={detail} onChange={(e) => setDetail(e.target.value)} rows={3}
             placeholder="Facts only — this record is administrative, not a safeguarding case file."
-            className="w-full bg-transparent border border-white/10 rounded-md px-3 py-2.5 text-sm font-body text-[#E2E8F0] placeholder:text-[#8E9299]/40 focus:outline-none focus:border-[#3585AF]/60 resize-y" />
+            className="w-full bg-transparent border border-border rounded-md px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary resize-y" />
           <button onClick={addNote} disabled={busy === "note" || !detail.trim()}
-            className="px-4 py-2 rounded-sm bg-[#3585AF] text-white text-[10px] font-body tracking-widest uppercase hover:bg-[#3585AF]/80 transition-colors disabled:opacity-40">
+            className="px-4 py-2 rounded-sm bg-primary text-primary-foreground text-[10px] font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
             Save record
           </button>
         </div>
@@ -151,14 +151,14 @@ const TrainingTeamMember = () => {
 
       <div className="space-y-2">
         {compliance.map((c) => (
-          <div key={c.id} className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-            <p className="text-[10px] font-body tracking-widest uppercase text-[#8E9299]">
+          <div key={c.id} className="rounded-lg border border-border bg-card px-4 py-3">
+            <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">
               {c.category.replace("_", " ")} · {new Date(c.created_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}
             </p>
-            <p className="text-[13px] font-body text-[#C9D4DE] mt-1">{c.detail}</p>
+            <p className="text-[13px] font-body text-foreground/80 mt-1">{c.detail}</p>
           </div>
         ))}
-        {compliance.length === 0 && <p className="text-[#8E9299] text-sm font-body py-6 text-center">No compliance records.</p>}
+        {compliance.length === 0 && <p className="text-muted-foreground text-sm font-body py-6 text-center">No compliance records.</p>}
       </div>
     </div>
   );

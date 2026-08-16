@@ -1,8 +1,8 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard } from "lucide-react";
-import logoLight from "@/assets/logo-cream.png";
+import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket, ShieldCheck } from "lucide-react";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 
 const NAV_ITEMS = [
   { label: "Dashboard", to: "/portal/dashboard", icon: LayoutDashboard },
@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { label: "Progress", to: "/portal/progress", icon: TrendingUp },
   { label: "Profile", to: "/portal/settings", icon: User },
   { label: "Insights", to: "/portal/insights", icon: Brain },
+  { label: "Door pass", to: "/portal/pass", icon: Ticket },
+  { label: "Family & safety", to: "/portal/family", icon: ShieldCheck },
   { label: "Membership", to: "/portal/billing", icon: CreditCard },
 ];
 
@@ -22,7 +24,7 @@ const BOTTOM_TAB_ITEMS = [
 ];
 
 const PortalLayout = ({ children }: { children: ReactNode }) => {
-  const { profile, signOut, isStaff } = useAuth();
+  const { profile, signOut, isStaff, role } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,17 +40,17 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
     <>
       <div className="p-8 pb-6">
         <Link to="/" onClick={() => setSidebarOpen(false)}>
-          <img src={logoLight} alt="Mindcast" className="h-8" />
+          <img src={logoBlue} alt="Mindcast" className="h-8" />
         </Link>
-        <p className="text-primary-foreground/25 text-[10px] tracking-[0.25em] mt-1.5 font-body">MEMBER PORTAL</p>
+        <p className="text-primary/60 text-[10px] tracking-[0.25em] mt-1.5 font-body">MEMBER PORTAL</p>
       </div>
 
       <div className="px-6 mb-4">
-        <div className="border-t border-primary-foreground/[0.06]" />
+        <div className="border-t border-border" />
       </div>
 
       <nav className="flex-1 px-4">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
           const active = isActive(item.to);
           return (
             <Link
@@ -57,8 +59,8 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
               onClick={() => setSidebarOpen(false)}
               className={`relative flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
                 active
-                  ? "bg-primary-foreground/[0.08] text-primary-foreground"
-                  : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
               }`}
             >
               {active && <span className="absolute left-0 top-2.5 bottom-2.5 w-0.5 rounded-full bg-[hsl(var(--blue-light))]" />}
@@ -68,15 +70,15 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           );
         })}
 
-        <div className="my-3 mx-4 border-t border-primary-foreground/[0.06]" />
+        <div className="my-3 mx-4 border-t border-border" />
 
         <Link
           to="/portal/downloads"
           onClick={() => setSidebarOpen(false)}
           className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
             isActive("/portal/downloads")
-              ? "bg-primary-foreground/[0.08] text-primary-foreground"
-              : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
           }`}
         >
           <Download size={15} strokeWidth={1.5} />
@@ -88,8 +90,8 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           onClick={() => setSidebarOpen(false)}
           className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
             isActive("/portal/group")
-              ? "bg-primary-foreground/[0.08] text-primary-foreground"
-              : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
           }`}
         >
           <Users size={15} strokeWidth={1.5} />
@@ -102,8 +104,8 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
               isActive("/mindcast-live")
-                ? "bg-primary-foreground/[0.08] text-primary-foreground"
-                : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
             }`}
           >
             <Clapperboard size={15} strokeWidth={1.5} />
@@ -111,26 +113,47 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
           </Link>
         )}
 
+        {/* Staff Training Hub. The page and its routes existed, but nothing in
+            the app linked to them — no facilitator could reach their own
+            required training without typing the URL. */}
         {isStaff && (
           <Link
-            to="/portal/admin"
+            to="/admin/staff-training"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
-              isActive("/portal/admin")
-                ? "bg-primary-foreground/[0.08] text-primary-foreground"
-                : "text-primary-foreground/30 hover:text-primary-foreground/60 hover:bg-primary-foreground/[0.03]"
+              isActive("/admin/staff-training")
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
+            }`}
+          >
+            <GraduationCap size={15} strokeWidth={1.5} />
+            Staff Training
+          </Link>
+        )}
+
+        {isStaff && (
+          <Link
+            to="/admin"
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+              isActive("/admin")
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
             }`}
           >
             <Settings size={15} strokeWidth={1.5} />
-            Admin Panel
+            Admin Console
           </Link>
         )}
       </nav>
 
       <div className="p-6 pt-4">
-        <div className="border-t border-primary-foreground/[0.06] mb-4" />
-        <p className="text-primary-foreground/40 text-[11px] font-body mb-2">{profile?.name || "Member"}</p>
-        <button onClick={handleSignOut} className="flex items-center gap-2 text-primary-foreground/20 hover:text-primary-foreground/50 text-[10px] tracking-[0.15em] font-body transition-colors">
+        <div className="border-t border-border mb-4" />
+        <p className="text-muted-foreground text-[11px] font-body mb-2">{profile?.display_name || profile?.name || "Member"}</p>
+        {role && role !== "member" && (
+          <p className="text-primary text-[9px] font-body tracking-[0.2em] uppercase mb-2">{role}</p>
+        )}
+        <button onClick={handleSignOut} className="flex items-center gap-2 text-muted-foreground/60 hover:text-foreground text-[10px] tracking-[0.15em] font-body transition-colors">
           <LogOut size={12} strokeWidth={1.5} /> Sign out
         </button>
       </div>
@@ -148,19 +171,19 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-[hsl(var(--navy))] text-primary-foreground flex-col transition-transform duration-300 hidden lg:flex">
+      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-card text-foreground border-r border-border flex-col transition-transform duration-300 hidden lg:flex">
         <SidebarContent />
       </aside>
 
       {/* Mobile sidebar drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[hsl(var(--navy))] text-primary-foreground flex flex-col transition-transform duration-300 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-card text-foreground border-r border-border flex flex-col transition-transform duration-300 lg:hidden ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <button
           onClick={() => setSidebarOpen(false)}
-          className="absolute top-5 right-5 text-primary-foreground/40 hover:text-primary-foreground/70 transition-colors"
+          className="absolute top-5 right-5 text-muted-foreground hover:text-foreground transition-colors"
         >
           <X size={18} strokeWidth={1.5} />
         </button>
@@ -170,11 +193,11 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       {/* Main content */}
       <main className="flex-1 min-h-screen pb-20 lg:pb-0">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center justify-between px-5 py-4 bg-[hsl(var(--navy))] text-primary-foreground sticky top-0 z-30">
-          <Link to="/"><img src={logoLight} alt="Mindcast" className="h-6" /></Link>
+        <div className="lg:hidden flex items-center justify-between px-5 py-4 bg-card/95 backdrop-blur-md text-foreground border-b border-border sticky top-0 z-30">
+          <Link to="/"><img src={logoBlue} alt="Mindcast" className="h-6" /></Link>
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             <Menu size={20} strokeWidth={1.5} />
           </button>
@@ -186,16 +209,16 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
       </main>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[hsl(var(--navy))]/95 backdrop-blur-md border-t border-primary-foreground/[0.06] safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom">
         <div className="flex items-stretch">
-          {BOTTOM_TAB_ITEMS.map((item) => {
+          {BOTTOM_TAB_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
             const active = isActive(item.to);
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors ${
-                  active ? "text-primary-foreground" : "text-primary-foreground/25"
+                  active ? "text-primary" : "text-muted-foreground/50"
                 }`}
               >
                 <item.icon size={20} strokeWidth={active ? 2 : 1.5} />

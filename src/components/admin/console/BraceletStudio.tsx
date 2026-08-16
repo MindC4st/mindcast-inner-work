@@ -151,51 +151,51 @@ const BraceletStudio = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="font-display text-2xl text-white tracking-wider flex items-center gap-3">
-          <Nfc size={20} className="text-[#3585AF]" /> Bracelets
+        <h2 className="font-display text-2xl text-foreground tracking-wider flex items-center gap-3">
+          <Nfc size={20} className="text-primary" /> Bracelets
         </h2>
-        <p className="text-[#8E9299] text-sm font-body mt-1">
-          Generate a token, write it to an NFC bracelet as a URL record, then assign it to the member. Tapping the bracelet opens <span className="text-[#C5E3F3]">{SITE}/b/&lt;token&gt;</span> and checks the member in.
+        <p className="text-muted-foreground text-sm font-body mt-1">
+          Generate a token, write it to an NFC bracelet as a URL record, then assign it to the member. Tapping the bracelet opens <span className="text-primary">{SITE}/b/&lt;token&gt;</span> and checks the member in.
         </p>
         {/* The host is written into the tag itself. Changing it later means
             re-writing every bracelet by hand, so make it impossible to miss
             which one is about to be burned in. */}
-        <p className="text-[11px] font-body mt-3 rounded-sm border border-[#C5E3F3]/25 bg-[#C5E3F3]/[0.06] px-3 py-2 text-[#C5E3F3]">
+        <p className="text-[11px] font-body mt-3 rounded-sm border border-primary/25 bg-blue-light/[0.06] px-3 py-2 text-primary">
           Bracelets will be written with <strong className="font-semibold">{SITE || "(unknown host)"}</strong> — this is
           baked into the tag. Confirm that address loads in a browser before writing a batch.
         </p>
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 space-y-4">
-        <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299]">1 · Choose the member</p>
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
+        <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">1 · Choose the member</p>
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8E9299]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search name, email or existing token…"
-            className="w-full bg-transparent border border-white/10 rounded-md pl-9 pr-3 py-2.5 text-sm font-body text-[#E2E8F0] placeholder:text-[#8E9299]/50 focus:outline-none focus:border-[#3585AF]/60 transition-colors"
+            className="w-full bg-transparent border border-border rounded-md pl-9 pr-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
           />
         </div>
         <div className="space-y-1">
           {matches.map((p) => (
             <button key={p.id} onClick={() => pick(p)}
-              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${selected?.id === p.id ? "bg-[#3585AF]/20 border border-[#3585AF]/40" : "border border-transparent hover:bg-white/[0.04]"}`}>
-              <span className="text-sm font-body text-[#E2E8F0] truncate">{p.display_name || p.name || p.email}</span>
-              <span className="text-[10px] font-body text-[#8E9299] shrink-0">
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${selected?.id === p.id ? "bg-primary/15 border border-primary/40" : "border border-transparent hover:bg-card"}`}>
+              <span className="text-sm font-body text-foreground truncate">{p.display_name || p.name || p.email}</span>
+              <span className="text-[10px] font-body text-muted-foreground shrink-0">
                 {p.nfc_id ? `token ${p.nfc_id}` : "no bracelet"}
               </span>
             </button>
           ))}
-          {matches.length === 0 && <p className="text-[#8E9299] text-xs font-body py-2">No members match.</p>}
+          {matches.length === 0 && <p className="text-muted-foreground text-xs font-body py-2">No members match.</p>}
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 space-y-4">
+      <div className="rounded-lg border border-border bg-card p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299]">2 · Bracelet token</p>
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">2 · Bracelet token</p>
           <button onClick={() => { setToken(genToken()); setAssigned(false); }}
-            className="flex items-center gap-1.5 text-[11px] font-body text-[#C5E3F3] hover:text-white transition-colors">
+            className="flex items-center gap-1.5 text-[11px] font-body text-primary hover:text-foreground transition-colors">
             <RefreshCw size={12} /> Regenerate
           </button>
         </div>
@@ -204,54 +204,54 @@ const BraceletStudio = () => {
           <input
             value={token}
             onChange={(e) => { setToken(e.target.value.toUpperCase().replace(/[^A-Z0-9]/gi, "").slice(0, 64)); setAssigned(false); }}
-            className="flex-1 bg-transparent border border-white/10 rounded-md px-3 py-2.5 font-display text-xl tracking-[0.3em] text-white focus:outline-none focus:border-[#3585AF]/60 transition-colors"
+            className="flex-1 bg-transparent border border-border rounded-md px-3 py-2.5 font-display text-xl tracking-[0.3em] text-foreground focus:outline-none focus:border-primary/60 transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-2 rounded-md border border-white/[0.08] bg-[#0A1120] px-3 py-2.5">
-          <Link2 size={13} className="text-[#3585AF] shrink-0" />
-          <span className="text-xs font-body text-[#C5E3F3] truncate flex-1">{braceletUrl(token)}</span>
-          <button onClick={copyUrl} title="Copy URL" className="text-[#8E9299] hover:text-white transition-colors"><Copy size={13} /></button>
+        <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2.5">
+          <Link2 size={13} className="text-primary shrink-0" />
+          <span className="text-xs font-body text-primary truncate flex-1">{braceletUrl(token)}</span>
+          <button onClick={copyUrl} title="Copy URL" className="text-muted-foreground hover:text-foreground transition-colors"><Copy size={13} /></button>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-3">
           <button onClick={writeTag} disabled={busy !== null || !token}
-            className="flex items-center justify-center gap-2 py-3 rounded-md border border-[#3585AF]/50 text-[#C5E3F3] text-xs font-body tracking-widest uppercase hover:bg-[#3585AF]/10 transition-colors disabled:opacity-40">
+            className="flex items-center justify-center gap-2 py-3 rounded-md border border-primary/50 text-primary text-xs font-body tracking-widest uppercase hover:bg-primary/10 transition-colors disabled:opacity-40">
             {busy === "write" ? <Loader2 size={13} className="animate-spin" /> : <Nfc size={13} />}
             Write to bracelet (Web NFC)
           </button>
           <button onClick={assign} disabled={busy !== null || !selected || !token}
-            className="flex items-center justify-center gap-2 py-3 rounded-md bg-[#3585AF] text-white text-xs font-body tracking-widest uppercase hover:bg-[#3585AF]/80 transition-colors disabled:opacity-40">
+            className="flex items-center justify-center gap-2 py-3 rounded-md bg-primary text-primary-foreground text-xs font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
             {busy === "assign" ? <Loader2 size={13} className="animate-spin" /> : assigned ? <CheckCircle2 size={13} /> : <CheckCircle2 size={13} />}
             {assigned ? "Assigned" : "3 · Assign to member"}
           </button>
         </div>
 
         {!canWebNfc() && (
-          <p className="text-[11px] font-body text-[#8E9299]">
-            This device can't write NFC tags in the browser. Copy the URL above and write it as an <span className="text-[#C5E3F3]">NDEF URL record</span> with any NFC writer app (e.g. NFC Tools), then assign.
+          <p className="text-[11px] font-body text-muted-foreground">
+            This device can't write NFC tags in the browser. Copy the URL above and write it as an <span className="text-primary">NDEF URL record</span> with any NFC writer app (e.g. NFC Tools), then assign.
           </p>
         )}
 
         {selected?.nfc_id && (
-          <div className="flex items-center justify-between rounded-md border border-white/[0.08] bg-white/[0.02] px-3 py-2.5">
-            <p className="text-[11px] font-body text-[#8E9299]">
-              {(selected.display_name || selected.name) || "This member"} currently has token <span className="text-[#C5E3F3]">{selected.nfc_id}</span>
+          <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2.5">
+            <p className="text-[11px] font-body text-muted-foreground">
+              {(selected.display_name || selected.name) || "This member"} currently has token <span className="text-primary">{selected.nfc_id}</span>
             </p>
             <button onClick={unassign} disabled={busy !== null}
-              className="flex items-center gap-1.5 text-[11px] font-body text-[#8E9299] hover:text-white transition-colors disabled:opacity-40">
+              className="flex items-center gap-1.5 text-[11px] font-body text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40">
               {busy === "unassign" ? <Loader2 size={12} className="animate-spin" /> : <Unlink size={12} />} Unassign
             </button>
           </div>
         )}
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
-        <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-3">How it works</p>
-        <ol className="list-decimal list-inside space-y-1.5 text-[12px] font-body text-[#8E9299]">
-          <li>Generate a token — it becomes the bracelet URL <span className="text-[#C5E3F3]">/b/&lt;token&gt;</span>.</li>
+      <div className="rounded-lg border border-border bg-card p-5">
+        <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-3">How it works</p>
+        <ol className="list-decimal list-inside space-y-1.5 text-[12px] font-body text-muted-foreground">
+          <li>Generate a token — it becomes the bracelet URL <span className="text-primary">/b/&lt;token&gt;</span>.</li>
           <li>Write that URL to the bracelet as an NDEF URL record (Web NFC on Chrome/Android, or any NFC writer app).</li>
-          <li>Assign the token to the member — stored as their <span className="text-[#C5E3F3]">nfc_id</span> (unique across all members).</li>
+          <li>Assign the token to the member — stored as their <span className="text-primary">nfc_id</span> (unique across all members).</li>
           <li>Test: tap the bracelet on a phone. It checks the member in and the name appears on the Welcome Wall.</li>
         </ol>
       </div>

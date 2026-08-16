@@ -28,12 +28,12 @@ const ComingSoon = () => {
   return (
     <>
       <Navbar />
-      <section className="section-navy min-h-[80vh] flex items-center pt-16">
+      <section className="section-cream min-h-[80vh] flex items-center pt-16">
         <div className="container mx-auto px-6 text-center py-24">
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-cream/40 text-xs tracking-[0.3em] mb-6 block"
+            className="text-muted-foreground/70 text-xs tracking-[0.3em] mb-6 block"
           >
             COMING SOON
           </motion.span>
@@ -49,7 +49,7 @@ const ComingSoon = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto"
+            className="mt-8 text-muted-foreground font-body text-base max-w-xl mx-auto"
           >
             {content.message}
           </motion.p>
@@ -61,14 +61,14 @@ const ComingSoon = () => {
           >
             <Link
               to="/membership"
-              className="text-xs font-display font-extrabold tracking-[0.2em] bg-cream text-navy py-3 px-8 hover:bg-cream/90 transition-colors"
+              className="text-xs font-display font-extrabold tracking-[0.2em] bg-primary text-primary-foreground py-3 px-8 hover:bg-primary/90 transition-colors"
               style={{ color: "hsl(210,56%,14%)" }}
             >
               BECOME A MEMBER
             </Link>
             <Link
               to="/"
-              className="text-xs font-display font-extrabold tracking-[0.2em] border border-cream/20 text-cream/60 py-3 px-8 hover:text-cream hover:border-cream/40 transition-colors"
+              className="text-xs font-display font-extrabold tracking-[0.2em] border border-border text-muted-foreground py-3 px-8 hover:text-foreground hover:border-primary transition-colors"
             >
               BACK HOME
             </Link>

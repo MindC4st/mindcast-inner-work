@@ -16,12 +16,12 @@ type ProgressStats = {
 const Stat = ({ icon: Icon, label, value, tone }: {
   icon: LucideIcon; label: string; value: string | number; tone?: string;
 }) => (
-  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
+  <div className="rounded-lg border border-border bg-card p-5">
     <div className="flex items-center gap-2 mb-3">
-      <Icon size={14} className={tone || "text-[#3585AF]"} />
-      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299]">{label}</p>
+      <Icon size={14} className={tone || "text-primary"} />
+      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">{label}</p>
     </div>
-    <p className="font-display text-3xl text-white tracking-wider">{value}</p>
+    <p className="font-display text-3xl text-foreground tracking-wider">{value}</p>
   </div>
 );
 
@@ -56,27 +56,27 @@ const AdminProgress = () => {
   }, [stats]);
 
   if (error) {
-    return <p className="text-[#8E9299] text-sm font-body py-12 text-center">Couldn't load progress: {error}</p>;
+    return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load progress: {error}</p>;
   }
   if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-[#8E9299] text-xs font-body tracking-widest uppercase animate-pulse">Loading progress…</span></div>;
+    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading progress…</span></div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-2xl text-white tracking-wider">Progress</h2>
-        <p className="text-[#8E9299] text-sm font-body mt-1">Attendance, lesson completion and journaling across the three tracks.</p>
+        <h2 className="font-display text-2xl text-foreground tracking-wider">Progress</h2>
+        <p className="text-muted-foreground text-sm font-body mt-1">Attendance, lesson completion and journaling across the three tracks.</p>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4">
         <Stat icon={Users} label="Check-ins · Adult" value={stats.track_totals.Adult} />
-        <Stat icon={Users} label="Check-ins · Teen" value={stats.track_totals.Teen} tone="text-[#C5E3F3]" />
-        <Stat icon={Users} label="Check-ins · Child" value={stats.track_totals.Child} tone="text-[#8E9299]" />
+        <Stat icon={Users} label="Check-ins · Teen" value={stats.track_totals.Teen} tone="text-primary" />
+        <Stat icon={Users} label="Check-ins · Child" value={stats.track_totals.Child} tone="text-muted-foreground" />
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
-        <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-4">Live attendance by session week</p>
+      <div className="rounded-lg border border-border bg-card p-5">
+        <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-4">Live attendance by session week</p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weekly} barSize={18}>
@@ -97,10 +97,10 @@ const AdminProgress = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
+      <div className="rounded-lg border border-border bg-card p-5">
         <div className="flex items-center gap-4 mb-4">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] flex items-center gap-2"><CheckCircle2 size={12} /> Lessons completed</p>
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] flex items-center gap-2"><PenLine size={12} /> Journal entries</p>
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-2"><CheckCircle2 size={12} /> Lessons completed</p>
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground flex items-center gap-2"><PenLine size={12} /> Journal entries</p>
         </div>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">

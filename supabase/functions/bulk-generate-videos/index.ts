@@ -1,19 +1,11 @@
-// bulk-generate-videos — queue Shotstack renders for every lesson that has a
-// `film_script_2min` and doesn't already have a finished MP4.
+// bulk-generate-videos — generate metaphor videos for every lesson that has a
+// `signal_metaphor`/`film_script_2min` and doesn't already have a finished asset.
 //
-// Strategy: this function does NOT do the render work itself. It just walks
-// the `mindcast_live_sessions` table and, for each (week, audience) that
-// qualifies, calls the existing `generate-session-video` edge function via
-// HTTP. That function returns quickly (it submits to Shotstack with a
-// webhook). The Shotstack webhook fills in `worksheets.video_mp4_url` when
-// each render finishes.
-//
-// Throttling: Shotstack stage tier rate-limits aggressive bursts. We chunk
-// in batches of `BATCH_SIZE` parallel requests with a short pause between
-// batches, and the whole loop is bounded by the Supabase edge function
-// timeout (~50s). If we run out of time, we exit gracefully — re-running the
-// function picks up where we left off because completed renders already
-// have `render_status='done'` and are skipped.
+// Strategy: this function does NOT do the generation itself. It walks the
+// `mindcast_live_sessions` table and, for each (week, audience) that
+// qualifies, calls the `generate-session-video` edge function (synchronous
+// Gemini generation) via HTTP. Completed lessons carry
+// `worksheets.render_status='ready'` and are skipped.
 //
 // Required env:
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto-injected)
@@ -50,8 +42,8 @@ serve(async (req) => {
     const uid = userResp?.user?.id;
     if (!uid) return json({ error: "Unauthorised" }, 401);
     const { data: roleRow } = await supa
-      .from("user_roles").select("role").eq("user_id", uid).eq("role", "facilitator").maybeSingle();
-    if (!roleRow) return json({ error: "Facilitators only" }, 403);
+      .from("user_roles").select("role").eq("user_id", uid).in("role", ["facilitator", "admin"]).limit(1);
+    if (!roleRow || roleRow.length === 0) return json({ error: "Facilitators and admins only" }, 403);
 
     // Optional body: { audiences?: string[], force?: boolean }
     let body: { audiences?: string[]; force?: boolean } = {};
@@ -76,7 +68,7 @@ serve(async (req) => {
       .select("week_number, audience_type, video_mp4_url, render_status");
     const doneSet = new Set(
       (existing || [])
-        .filter(w => w.video_mp4_url && w.render_status === "done")
+        .filter(w => w.video_mp4_url && w.render_status === "ready")
         .map(w => `${w.week_number}::${w.audience_type}`)
     );
     const pendingSet = new Set(

@@ -36,10 +36,15 @@ type Draft = {
   video_link: string;
   video_description: string;
   video_backup_description: string;
+  video_local_url: string;
   video_transcript: string;
   video_question_1: string;
   video_question_2: string;
   core_affirmation: string;
+  ancient_wisdom_video_url: string;
+  ancient_wisdom_approval: string;
+  todays_world_video_url: string;
+  todays_world_approval: string;
   facilitator_notes: string;
 };
 
@@ -95,6 +100,7 @@ const SLIDES: SlideDef[] = [
     { key: "video_link", label: "YouTube URL", kind: "video", hint: "Paste any YouTube link — watch, share, or embed." },
     { key: "video_description", label: "Caption", kind: "area", rows: 2 },
     { key: "video_backup_description", label: "Backup caption", kind: "area", rows: 2 },
+    { key: "video_local_url", label: "Local video URL (pre-downloaded copy — plays instead of YouTube)", kind: "input", hint: "Paste the storage URL of a pre-downloaded MP4 so a 20-min video never depends on venue wifi." },
     { key: "video_transcript", label: "Video transcript", kind: "area", rows: 6, hint: "Paste the transcript — the generate-questions button on the facilitator screen uses it." },
     { key: "video_question_1", label: "Reflective question 1 (from the video)", kind: "area", rows: 2 },
     { key: "video_question_2", label: "Reflective question 2 (into their week)", kind: "area", rows: 2 },
@@ -112,9 +118,11 @@ const EMPTY = (week: number, audience: string): Draft => ({
   previous_week_callback: "", signal_metaphor: "", ancient_wisdom_reframe: "", opening_hook: "",
   core_concept: "", teaching_points: "", journaling_prompt: "", experiential_exercise: "",
   guided_reflection: "", weekly_practice_mon: "", weekly_practice_wed: "", weekly_practice_sun: "",
-  video_link: "", video_description: "", video_backup_description: "",
+  video_link: "", video_description: "", video_backup_description: "", video_local_url: "",
   video_transcript: "", video_question_1: "", video_question_2: "",
   core_affirmation: "",
+  ancient_wisdom_video_url: "", ancient_wisdom_approval: "unapproved",
+  todays_world_video_url: "", todays_world_approval: "unapproved",
   facilitator_notes: "",
 });
 
@@ -257,6 +265,39 @@ const LessonEditor = () => {
     return () => window.removeEventListener("beforeunload", h);
   }, [dirty, activityDirty]);
 
+  // Gate D — generate/approve the 10s metaphor clip for a slide.
+  const [assetBusy, setAssetBusy] = useState(false);
+  const assetSlideKey = (idx: number) => (idx === 2 ? "todays_world" : idx === 3 ? "ancient" : null);
+  const generateMetaphor = async (idx: number) => {
+    const slideKey = assetSlideKey(idx);
+    if (!slideKey || assetBusy) return;
+    setAssetBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-metaphor-video", {
+        body: { week_number: week, audience, slide: slideKey },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (slideKey === "ancient") {
+        set("ancient_wisdom_video_url", data.video_url || "");
+        set("ancient_wisdom_approval", "unapproved");
+      } else {
+        set("todays_world_video_url", data.video_url || "");
+        set("todays_world_approval", "unapproved");
+      }
+      toast({ title: data.cached ? "Already current" : "Metaphor generated", description: "Review the preview, then Approve (then save)." });
+    } catch (e) {
+      toast({ title: "Metaphor generation failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    } finally {
+      setAssetBusy(false);
+    }
+  };
+  const setMetaphorApproval = (idx: number, approve: boolean) => {
+    const slideKey = assetSlideKey(idx);
+    if (!slideKey) return;
+    set(slideKey === "ancient" ? "ancient_wisdom_approval" : "todays_world_approval", approve ? "approved" : "unapproved");
+  };
+
   const slide = SLIDES[active];
   const vid = useMemo(() => ytId(draft.video_link), [draft.video_link]);
   const ease = reduce ? { duration: 0 } : { duration: 0.25, ease: [0.22, 1, 0.36, 1] as const };
@@ -355,25 +396,84 @@ const LessonEditor = () => {
                       <select value={activityType} onChange={(e) => setActivityType(e.target.value)}
                         className="w-full max-w-xs rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20">
                         <option value="wordcloud">Word cloud — one word each</option>
-                        <option value="poll">Poll / spectrum — vote or rate</option>
+                        <option value="choice">Choice — pick an option, screen shows the tally</option>
+                        <option value="scale">Scale — rate 1&ndash;10, screen shows the spread</option>
+                        <option value="phrase">Phrase — finish a sentence, screen shows the wall</option>
+                        <option value="poll">Poll — plain vote (legacy; prefer Choice)</option>
                         <option value="reflection">Reflection — submit a line / open Q&amp;A</option>
                         <option value="none">Private only — nothing on screen</option>
                       </select>
                       <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Drives the live in-session widget. Applies to all tracks for this week.</span>
                     </label>
                   )}
-                  {slide.idx === 8 && activityType === "poll" && (
+                  {slide.idx === 8 && ["poll", "choice", "scale", "phrase"].includes(activityType) && (
                     <label className="block">
-                      <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">Poll options — one per line</span>
+                      <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">
+                        {activityType === "scale"
+                          ? "Scale setup — line 1 statement, line 2 low label, line 3 high label"
+                          : activityType === "phrase"
+                          ? "Sentence stem — use ________ for each blank"
+                          : "Options — one per line"}
+                      </span>
                       <textarea rows={5} value={activityOptions} onChange={(e) => setActivityOptions(e.target.value)}
-                        placeholder={"Social feeds\nPeople I know\nFamily"}
+                        placeholder={
+                          activityType === "scale"
+                            ? "How true does this feel for you right now?\nNot at all\nCompletely"
+                            : activityType === "phrase"
+                            ? "The thing I keep avoiding is ________, and the first small step is ________."
+                            : "Social feeds\nPeople I know\nFamily"
+                        }
                         className="w-full rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20 resize-y leading-relaxed" />
-                      <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">Members tap one of these. Fixed options mean nothing needs moderating on screen.</span>
+                      <span className="block text-[11px] text-[hsl(var(--navy-mid))]/60 mt-1">
+                        {activityType === "scale"
+                          ? "Members drag a 1–10 slider. The screen shows the room's spread and average."
+                          : activityType === "phrase"
+                          ? "Members fill the blanks. Free text, so each sentence is screened before it reaches the wall."
+                          : "Members tap one of these. Fixed options mean nothing needs moderating on screen."}
+                      </span>
                     </label>
                   )}
                   {slide.fields.map((f) => (
                     <FieldRow key={String(f.key)} field={f} value={draft[f.key]} onChange={(v) => set(f.key, v)} vid={f.kind === "video" ? vid : null} />
                   ))}
+                  {(slide.idx === 2 || slide.idx === 3) && (() => {
+                    const slideKey = slide.idx === 2 ? "todays_world" : "ancient";
+                    const videoUrl = slide.idx === 2 ? draft.todays_world_video_url : draft.ancient_wisdom_video_url;
+                    const approval = slide.idx === 2 ? draft.todays_world_approval : draft.ancient_wisdom_approval;
+                    return (
+                      <div className="rounded-xl border border-[hsl(var(--blue))]/30 bg-[hsl(var(--blue-light))]/20 p-4 space-y-3">
+                        <p className="text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))]">Metaphor video · 10s</p>
+                        {videoUrl ? (
+                          <video src={videoUrl} controls className="w-full max-w-md rounded-lg border border-[hsl(var(--warm-border))] bg-black" />
+                        ) : (
+                          <p className="text-[13px] font-body text-[hsl(var(--navy-mid))]">No clip yet — generate one from the text above.</p>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => generateMetaphor(slide.idx)} disabled={assetBusy}
+                            className="px-4 py-2 rounded-full bg-[hsl(var(--navy))] text-white text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy-mid))] transition-colors disabled:opacity-40">
+                            {assetBusy ? "Generating…" : videoUrl ? "Regenerate" : "Generate"}
+                          </button>
+                          {videoUrl && (
+                            approval === "approved" ? (
+                              <button onClick={() => setMetaphorApproval(slide.idx, false)}
+                                className="px-4 py-2 rounded-full border border-[hsl(var(--navy))] text-[hsl(var(--navy))] text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy))] hover:text-white transition-colors">
+                                Unapprove
+                              </button>
+                            ) : (
+                              <button onClick={() => setMetaphorApproval(slide.idx, true)}
+                                className="px-4 py-2 rounded-full bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase hover:bg-[hsl(var(--navy))] transition-colors">
+                                Approve
+                              </button>
+                            )
+                          )}
+                          <span className="text-[11px] font-body text-[hsl(var(--navy-mid))]/70">
+                            {videoUrl ? (approval === "approved" ? "Approved — will play on the slide." : "Unapproved — won't reach a room until approved.") : ""}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-body text-[hsl(var(--navy-mid))]/60">Approve, then Save changes to persist.</p>
+                      </div>
+                    );
+                  })()}
                   {slide.idx === 12 && (
                     <div className="rounded-xl border border-[hsl(var(--blue))]/30 bg-[hsl(var(--blue-light))]/20 p-4">
                       <p className="text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-2">Reflective questions · DeepSeek</p>

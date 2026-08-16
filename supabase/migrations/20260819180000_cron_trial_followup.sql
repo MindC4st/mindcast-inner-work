@@ -1,0 +1,37 @@
+-- Trial follow-up schedule (pg_cron + pg_net).
+--
+-- trial-followup sends ONE warm email to guests whose trial session was
+-- 18 hours to 7 days ago. The claim is atomic (follow_up_sent_at set in the
+-- same UPDATE), so overlapping runs cannot double-send.
+--
+-- Following the repo convention: the schedule is registered manually in the
+-- Supabase SQL editor, not committed.
+--
+-- SETUP (one-time, in the Supabase SQL editor):
+--
+--   Requires pg_cron + pg_net enabled and CRON_SECRET set on trial-followup.
+--
+-- BEGIN cron schedule block (copy into SQL editor, do not commit):
+--
+-- SELECT cron.schedule(
+--   'mc-trial-followup',
+--   '17 10 * * 1',   -- Monday ~22:17 NZST — the day after Sunday settles
+--   $$
+--     SELECT net.http_post(
+--       url     := 'https://pjyelgogdsuiugaudecc.supabase.co/functions/v1/trial-followup',
+--       headers := jsonb_build_object(
+--                    'Content-Type', 'application/json',
+--                    'Authorization', 'Bearer <SERVICE_ROLE_KEY>',
+--                    'x-cron-secret', '<CRON_SECRET>'
+--                  ),
+--       body    := '{}'::jsonb
+--     );
+--   $$
+-- );
+--
+-- END cron schedule block
+--
+-- To unschedule later:
+--   SELECT cron.unschedule('mc-trial-followup');
+
+SELECT 1 AS trial_followup_cron_doc_only;

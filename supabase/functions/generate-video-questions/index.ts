@@ -79,8 +79,8 @@ serve(async (req) => {
     .select("role")
     .eq("user_id", userRes.user.id)
     .in("role", ["facilitator", "admin"])
-    .maybeSingle();
-  if (!roleRow) {
+    .limit(1);
+  if (!roleRow || roleRow.length === 0) {
     return new Response(JSON.stringify({ error: "Facilitators only" }), {
       status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -147,7 +147,7 @@ serve(async (req) => {
       Child: "Children 6-12. Simple language. Concrete examples. Connect to feelings, friendships, family, and fairness. Warm and curious tone.",
     };
 
-    const systemPrompt = `You are the Mindcast session facilitator. Mindcast is a secular community gathering built around curated videos and personal reflection — notice. name. rewire.
+    const systemPrompt = `You are the Mindcast session facilitator. Mindcast is a secular community gathering built around curated videos and personal reflection — Notice it. Name it. Do it.
 
 This week's session:
 - Phase: ${lesson.phase_name || ""}
@@ -174,42 +174,129 @@ Return ONLY valid JSON:
 }`;
 
     const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
-    if (!DEEPSEEK_API_KEY) throw new Error("DEEPSEEK_API_KEY is not configured");
+    const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
+    if (!DEEPSEEK_API_KEY && !GOOGLE_AI_API_KEY) {
+      throw new Error("Neither DEEPSEEK_API_KEY nor GOOGLE_AI_API_KEY is configured");
+    }
 
-    const aiResponse = await fetch("https://api.deepseek.com/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Video title: ${videoTitle}\n\nTranscript:\n${transcript}\n\nGenerate the two reflective questions.` },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.7,
-        max_tokens: 512,
-      }),
-    });
+    const userContent = `Video title: ${videoTitle}\n\nTranscript:\n${transcript}\n\nGenerate the two reflective questions.`;
 
-    if (!aiResponse.ok) {
-      const body = await aiResponse.text();
+    // ── Generation with resilience ─────────────────────────────────────────
+    // DeepSeek first (retry once on transient failures). DeepSeek's output
+    // content-inspection (data_inspection_failed) rejects some perfectly
+    // legitimate Mindcast transcripts — that is a hard no, not a transient
+    // fault, so it goes straight to the Gemini fallback instead of retrying.
+    let raw = "";
+    let usedModel = "";
+    const failures: string[] = [];
+
+    const tryDeepSeek = async (): Promise<boolean> => {
+      if (!DEEPSEEK_API_KEY) return false;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await fetch("https://api.deepseek.com/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "deepseek-chat",
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userContent },
+              ],
+              response_format: { type: "json_object" },
+              temperature: 0.7,
+              max_tokens: 512,
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const content = data?.choices?.[0]?.message?.content || "";
+            if (content) {
+              raw = content;
+              usedModel = "deepseek-chat";
+              return true;
+            }
+            failures.push("deepseek: empty completion");
+          } else {
+            const body = await res.text();
+            const inspectionFailed = body.includes("data_inspection_failed");
+            failures.push(`deepseek (${res.status}): ${body.slice(0, 180)}`);
+            // Content moderation won't change its mind on retry.
+            if (inspectionFailed) return false;
+            if (res.status >= 400 && res.status < 500 && res.status !== 429) return false;
+            await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+          }
+        } catch (e) {
+          failures.push(`deepseek: ${String(e).slice(0, 120)}`);
+          await new Promise((r) => setTimeout(r, 800));
+        }
+      }
+      return false;
+    };
+
+    const tryGemini = async (): Promise<boolean> => {
+      if (!GOOGLE_AI_API_KEY) return false;
+      // Newest first; fall down the list if a model name has rotated out.
+      for (const model of ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]) {
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: [{ role: "user", parts: [{ text: userContent }] }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                  temperature: 0.7,
+                  maxOutputTokens: 512,
+                },
+              }),
+            },
+          );
+          if (!res.ok) {
+            const body = await res.text();
+            failures.push(`${model} (${res.status}): ${body.slice(0, 180)}`);
+            if (res.status === 404) continue; // model name rotated; try next
+            if (res.status === 429) { await new Promise((r) => setTimeout(r, 1200)); continue; }
+            return false;
+          }
+          const data = await res.json();
+          const content = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("") ?? "";
+          if (content) {
+            raw = content;
+            usedModel = model;
+            return true;
+          }
+          failures.push(`${model}: empty completion`);
+        } catch (e) {
+          failures.push(`${model}: ${String(e).slice(0, 120)}`);
+        }
+      }
+      return false;
+    };
+
+    const ok = (await tryDeepSeek()) || (await tryGemini());
+    if (!ok) {
       return new Response(
-        JSON.stringify({ error: `AI generation failed (${aiResponse.status})`, detail: body.slice(0, 300) }),
-        { status: aiResponse.status === 429 ? 429 : 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          error: "AI generation failed on every provider",
+          detail: failures.slice(0, 4),
+        }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const aiData = await aiResponse.json();
-    const raw = aiData?.choices?.[0]?.message?.content || "";
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("AI returned no parseable questions");
+    if (!jsonMatch) throw new Error(`${usedModel} returned no parseable questions`);
     const parsed = JSON.parse(jsonMatch[0]);
     const q1 = (parsed.question_1 || "").trim();
     const q2 = (parsed.question_2 || "").trim();
-    if (!q1 || !q2) throw new Error("AI returned fewer than two questions");
+    if (!q1 || !q2) throw new Error(`${usedModel} returned fewer than two questions`);
 
     // 3. Store transcript + questions on the lesson row.
     const { error: updateError } = await supabase
@@ -233,6 +320,7 @@ Return ONLY valid JSON:
         success: true,
         week_number,
         audience,
+        model: usedModel,
         video_title: videoTitle,
         video_transcript: transcript,
         video_question_1: q1,

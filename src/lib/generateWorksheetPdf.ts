@@ -1,4 +1,9 @@
 import jsPDF from "jspdf";
+import {
+  FONT_BEBAS_REGULAR, FONT_MONTSERRAT_REGULAR, FONT_MONTSERRAT_SEMIBOLD,
+  FONT_MONTSERRAT_BOLD, FONT_CORMORANT_ITALIC,
+} from "@/lib/worksheetFonts";
+import { NAVY_WORDMARK_PNG } from "@/lib/brandAssets";
 
 export type WorksheetSession = {
   week_number: number;
@@ -17,405 +22,390 @@ export type WorksheetSession = {
   core_affirmation?: string;
 };
 
-// Brand palette — Deep Signal Navy / White / Static Grey / Silver /
-// Warm White / Signal Blue / Soft Blue. No gold.
-const NAVY = "#0a1120";
-const WHITE = "#ffffff";
-const GREY = "#8e9299";
-const SILVER = "#e2e8f0";
-const WARM_WHITE = "#fffaf6";
-const BLUE = "#3585af";
-const SOFT_BLUE = "#c5e3f3";
+// MC-BRD-001 print palette. Ivory is screen-only and never printed as a fill.
+const INK: [number, number, number] = [0x10, 0x24, 0x38];
+const SIGNAL_BLUE: [number, number, number] = [0x35, 0x85, 0xaf]; // rules + non-text only
+const SIGNAL_DEEP: [number, number, number] = [0x30, 0x71, 0x91]; // all coloured text under 24pt
+const MIST: [number, number, number] = [0xc5, 0xe3, 0xf3]; // ripple tail only
+const RULE: [number, number, number] = [0xc9, 0xd3, 0xde]; // photocopy-safe ruled lines
 
-/** Draw the navy header bar with text-only Mindcast logo */
-function drawHeader(doc: jsPDF, s: WorksheetSession, W: number, M: number) {
-  const barH = 72;
-  doc.setFillColor(NAVY);
-  doc.rect(0, 0, W, barH, "F");
+const PAGE_W = 595.28;
+const PAGE_H = 841.89;
+const M = 40;
+const CW = PAGE_W - M * 2; // 515.28
+const FOOTER_H = 24;
+const BOTTOM = PAGE_H - M - FOOTER_H;
+const WRITING_MIN = 120;
+const WRITING_PITCH = 24;
 
-  // Left: "M" letter mark (stylised)
-  doc.setFillColor(BLUE);
-  doc.roundedRect(M, 14, 22, 22, 3, 3, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(WARM_WHITE);
-  doc.text("M", M + 6, 30);
+// Opacity on a white page == tint toward white; avoids GState and photocopies
+// identically to the intended fade.
+const fade = (c: [number, number, number], opacity: number): [number, number, number] => {
+  const t = 1 - opacity;
+  return [
+    Math.round(c[0] + (255 - c[0]) * t),
+    Math.round(c[1] + (255 - c[1]) * t),
+    Math.round(c[2] + (255 - c[2]) * t),
+  ];
+};
 
-  // Mindcast wordmark
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(WARM_WHITE);
-  doc.text("MINDCAST", M + 32, 23, { charSpace: 1.5 });
-
-  // Tagline
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(6);
-  doc.setTextColor(SILVER);
-  doc.text("notice. name. rewire.", M + 32, 33);
-
-  // Right: audience badge
-  doc.setFillColor(BLUE);
-  doc.roundedRect(W - M - 48, 12, 48, 18, 2, 2, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(6);
-  doc.setTextColor(WHITE);
-  doc.text(s.audience.toUpperCase(), W - M - 24, 24, { align: "center", charSpace: 1.5 });
-
-  // Week number badge
-  doc.setFillColor(SILVER);
-  doc.roundedRect(W - M - 48, 34, 48, 18, 2, 2, "F");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(7);
-  doc.setTextColor(NAVY);
-  doc.text(`WEEK ${s.week_number}`, W - M - 24, 46, { align: "center", charSpace: 1.5 });
-
-  // Phase
-  if (s.phase_name) {
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(5.5);
-    doc.setTextColor(SILVER);
-    doc.text((s.phase_name || "").toUpperCase(), W - M - 24, 63, { align: "center", charSpace: 1.2 });
-  }
+function registerFonts(doc: jsPDF) {
+  doc.addFileToVFS("BebasNeue-Regular.ttf", FONT_BEBAS_REGULAR);
+  doc.addFont("BebasNeue-Regular.ttf", "BebasNeue", "normal");
+  doc.addFileToVFS("Montserrat-Regular.ttf", FONT_MONTSERRAT_REGULAR);
+  doc.addFont("Montserrat-Regular.ttf", "Montserrat", "normal");
+  doc.addFileToVFS("Montserrat-SemiBold.ttf", FONT_MONTSERRAT_SEMIBOLD);
+  doc.addFont("Montserrat-SemiBold.ttf", "MontserratSemiBold", "normal");
+  doc.addFileToVFS("Montserrat-Bold.ttf", FONT_MONTSERRAT_BOLD);
+  doc.addFont("Montserrat-Bold.ttf", "MontserratBold", "normal");
+  doc.addFileToVFS("CormorantGaramond-Italic.ttf", FONT_CORMORANT_ITALIC);
+  doc.addFont("CormorantGaramond-Italic.ttf", "CormorantItalic", "normal");
 }
 
-/** Draw the theme title area below the header */
-function drawTitle(doc: jsPDF, s: WorksheetSession, W: number, M: number, y: number): number {
-  let yy = y;
+type Ctx = { doc: jsPDF };
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.setTextColor(NAVY);
-  const themeLines = doc.splitTextToSize(s.theme_title.toUpperCase(), W - M * 2);
-  doc.text(themeLines, M, yy);
-  yy += themeLines.length * 20 + 2;
-
-  if (s.session_title) {
-    doc.setFont("times", "italic");
-    doc.setFontSize(10);
-    doc.setTextColor(GREY);
-    doc.text(s.session_title, M, yy);
-    yy += 14;
-  }
-
-  return yy;
-}
-
-/** Draw a section label */
-function sectionLabel(doc: jsPDF, text: string, M: number, y: number, W: number): number {
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(7);
-  doc.setTextColor(BLUE);
-  doc.text(text.toUpperCase(), M, y, { charSpace: 2 });
-
-  doc.setDrawColor(BLUE);
-  doc.setLineWidth(0.5);
-  doc.line(M, y + 2, M + 40, y + 2);
-
+function label(ctx: Ctx, text: string, y: number): number {
+  const { doc } = ctx;
+  doc.setFont("MontserratBold", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...SIGNAL_DEEP);
+  doc.setCharSpace(1.6);
+  doc.text(text.toUpperCase(), M, y);
+  doc.setCharSpace(0);
   return y + 16;
 }
 
-/** Draw an italic quote (The Signal) */
-function drawQuote(doc: jsPDF, text: string, M: number, y: number, W: number): number {
-  let yy = y;
-
-  doc.setDrawColor(SOFT_BLUE);
-  doc.setLineWidth(2);
-  const lines = doc.splitTextToSize(`"${text}"`, W - M * 2 - 20);
-  const blockH = Math.max(34, lines.length * 13 + 6);
-  doc.line(M, yy, M, yy + blockH - 6);
-
-  doc.setFont("times", "italic");
-  doc.setFontSize(11);
-  doc.setTextColor(NAVY);
-  doc.text(lines, M + 14, yy + 6);
-  yy += blockH;
-
-  return yy;
+function bodyText(
+  ctx: Ctx, text: string, y: number,
+  opts: { size: number; leading: number; width?: number; x?: number; voice?: boolean; color?: [number, number, number] },
+): number {
+  const { doc } = ctx;
+  const width = opts.width ?? CW;
+  doc.setFont(opts.voice ? "CormorantItalic" : "Montserrat", "normal");
+  doc.setFontSize(opts.size);
+  doc.setTextColor(...(opts.color ?? INK));
+  const lines = doc.splitTextToSize(text, width) as string[];
+  doc.text(lines, opts.x ?? M, y);
+  return y + lines.length * opts.leading;
 }
 
-/** Draw the two video reflective questions, each with answer lines. */
-function drawVideoQuestions(
-  doc: jsPDF,
-  q1: string, q2: string,
-  M: number, y: number, W: number,
-  linesPerQuestion: number,
+function measure(
+  doc: jsPDF, text: string, size: number, width: number, leading: number, voice = false,
 ): number {
-  let yy = sectionLabel(doc, "While You Watch", M, y, W);
+  doc.setFont(voice ? "CormorantItalic" : "Montserrat", "normal");
+  doc.setFontSize(size);
+  const lines = doc.splitTextToSize(text, width) as string[];
+  return lines.length * leading;
+}
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(NAVY);
-
-  [q1, q2].forEach((q, i) => {
-    if (!q) return;
-    const qLines = doc.splitTextToSize(`${i + 1}. ${q}`, W - M * 2);
-    doc.text(qLines, M, yy);
-    yy += qLines.length * 11 + 4;
-
-    doc.setDrawColor(SILVER);
-    doc.setLineWidth(0.5);
-    for (let l = 0; l < linesPerQuestion; l++) {
-      yy += 16;
-      doc.line(M, yy, W - M, yy);
+// The ripple device: filled dot + 16 tapering arc polylines, clipped to a 20pt
+// band so the large radii read as near-vertical passing lines. Vector strokes
+// only (jsPDF core has no arc primitive; a 24-segment polyline is exact at
+// print resolution). Never raster.
+function drawRipple(ctx: Ctx, yTop: number) {
+  const { doc } = ctx;
+  const cy = yTop + 10;
+  const cx = M + 5;
+  const half = 10;
+  doc.setFillColor(...SIGNAL_BLUE);
+  doc.circle(cx, cy, 4.2, "F");
+  const arcs = 16;
+  const steps = 24;
+  for (let i = 1; i <= arcs; i++) {
+    const r = 4.2 + i * 3.4;
+    const weight = 2.4 - (i - 1) * (1.7 / (arcs - 1));
+    const opacity = 0.92 - (i - 1) * (0.87 / (arcs - 1));
+    const colour = i <= Math.round(arcs * 0.45) ? SIGNAL_BLUE : MIST;
+    doc.setDrawColor(...fade(colour, opacity));
+    doc.setLineWidth(Math.max(0.7, weight));
+    const a = Math.asin(Math.min(1, half / r));
+    let px = 0;
+    let py = 0;
+    for (let sIdx = 0; sIdx <= steps; sIdx++) {
+      const t = -a + (2 * a * sIdx) / steps;
+      const x = cx + r * Math.cos(t);
+      const y = cy + r * Math.sin(t);
+      if (sIdx > 0) doc.line(px, py, x, y);
+      px = x;
+      py = y;
     }
-    yy += 10;
-  });
-
-  return yy;
+  }
 }
 
-/** Height the video-questions block will need (without drawing). */
-function measureVideoQuestions(
-  doc: jsPDF,
-  q1: string, q2: string,
-  M: number, W: number,
-  linesPerQuestion: number,
-): number {
-  if (!q1 && !q2) return 0;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  let h = 16; // label
-  [q1, q2].forEach((q, i) => {
-    if (!q) return;
-    const qLines = (doc.splitTextToSize(`${i + 1}. ${q}`, W - M * 2) as string[]).length;
-    h += qLines * 11 + 4 + linesPerQuestion * 16 + 10;
-  });
-  return h;
+function drawLetterhead(ctx: Ctx, s: WorksheetSession) {
+  const { doc } = ctx;
+  const w = 120;
+  const h = (w * 75) / 488;
+  doc.addImage(`data:image/png;base64,${NAVY_WORDMARK_PNG}`, "PNG", M, M + 6, w, h);
+
+  // Outlined pills (no fills) — track and week on the right.
+  doc.setFont("MontserratSemiBold", "normal");
+  doc.setFontSize(7);
+  doc.setCharSpace(1.6);
+  doc.setLineWidth(0.75);
+  doc.setDrawColor(...SIGNAL_BLUE);
+  doc.setTextColor(...SIGNAL_DEEP);
+  const weekText = `WEEK ${s.week_number}`;
+  const trackText = s.audience.toUpperCase();
+  const weekW = doc.getTextWidth(weekText) + 14;
+  const trackW = doc.getTextWidth(trackText) + 14;
+  const y = M + 8;
+  doc.rect(PAGE_W - M - weekW, y, weekW, 16, "S");
+  doc.text(weekText, PAGE_W - M - weekW / 2, y + 10.5, { align: "center" });
+  doc.rect(PAGE_W - M - weekW - 8 - trackW, y, trackW, 16, "S");
+  doc.text(trackText, PAGE_W - M - weekW - 8 - trackW / 2, y + 10.5, { align: "center" });
+  doc.setCharSpace(0);
+  if (s.phase_name) {
+    doc.setFont("Montserrat", "normal");
+    doc.setFontSize(6.5);
+    doc.setCharSpace(1.4);
+    doc.text(s.phase_name.toUpperCase(), PAGE_W - M, y + 26, { align: "right" });
+    doc.setCharSpace(0);
+  }
 }
 
-/** Draw journaling prompt + writing lines */
-function drawReflection(doc: jsPDF, prompt: string, M: number, y: number, W: number, lineCount: number): number {
-  let yy = sectionLabel(doc, "Reflection", M, y, W);
-
-  doc.setFont("times", "italic");
-  doc.setFontSize(10);
-  doc.setTextColor(NAVY);
-  const lines = doc.splitTextToSize(`"${prompt}"`, W - M * 2);
-  doc.text(lines, M, yy);
-  yy += lines.length * 13 + 6;
-
-  doc.setDrawColor(SILVER);
+function drawFooter(ctx: Ctx, page: number, pages: number) {
+  const { doc } = ctx;
+  const y = PAGE_H - M + 4;
+  doc.setDrawColor(...RULE);
   doc.setLineWidth(0.5);
-  for (let i = 0; i < lineCount; i++) {
-    yy += 17;
-    doc.line(M, yy, W - M, yy);
+  doc.line(M, PAGE_H - M - 8, PAGE_W - M, PAGE_H - M - 8);
+  doc.setFont("Montserrat", "normal");
+  doc.setFontSize(7);
+  doc.setTextColor(...SIGNAL_DEEP);
+  doc.text("mindcast.co.nz", M, y + 8);
+  doc.setFont("BebasNeue", "normal");
+  doc.setFontSize(8);
+  doc.setCharSpace(1.6);
+  doc.text("NOTICE IT, NAME IT, DO IT", PAGE_W / 2, y + 8, { align: "center" });
+  doc.setCharSpace(0);
+  doc.setFont("Montserrat", "normal");
+  doc.setFontSize(7);
+  doc.text(`${page} / ${pages}`, PAGE_W - M, y + 8, { align: "right" });
+}
+
+type Layout = {
+  flowed: boolean;
+  writingSpace: number;
+  titleLines: string[];
+  subtitleLines: string[];
+  quoteLines: string[];
+  videoQ1Lines: string[];
+  videoQ2Lines: string[];
+  promptLines: string[];
+  activityLines: string[];
+  practiceCols: { day: string; lines: string[] }[];
+  h: {
+    letterhead: number; ripple: number; title: number; subtitle: number;
+    signal: number; video: number; reflection: number; writingLabel: number;
+    activity: number; practice: number;
+  };
+};
+
+function computeLayout(doc: jsPDF, s: WorksheetSession): Layout {
+  const titleLines = (doc.splitTextToSize((s.theme_title || "").toUpperCase(), CW) as string[]).slice(0, 3);
+  const subtitleLines = s.session_title
+    ? (doc.splitTextToSize(s.session_title, CW) as string[]).slice(0, 2)
+    : [];
+  const quoteLines = s.signal_metaphor
+    ? (doc.splitTextToSize(`“${s.signal_metaphor}”`, CW - 16) as string[])
+    : [];
+  const videoQ1Lines = s.video_question_1
+    ? (doc.splitTextToSize(s.video_question_1, CW) as string[])
+    : [];
+  const videoQ2Lines = s.video_question_2
+    ? (doc.splitTextToSize(s.video_question_2, CW) as string[])
+    : [];
+  const promptLines = s.journaling_prompt
+    ? (doc.splitTextToSize(`“${s.journaling_prompt}”`, CW) as string[])
+    : [];
+  const activityLines = s.experiential_exercise
+    ? (doc.splitTextToSize(s.experiential_exercise, CW) as string[])
+    : [];
+
+  doc.setFont("Montserrat", "normal");
+  doc.setFontSize(8.5);
+  const colW = (CW - 24) / 3;
+  const practiceCols = ([
+    ["MON", s.weekly_practice_mon], ["WED", s.weekly_practice_wed], ["SUN", s.weekly_practice_sun],
+  ] as [string, string | undefined][]).map(([day, t]) => ({
+    day,
+    lines: t ? (doc.splitTextToSize(t, colW - 14) as string[]) : [],
+  }));
+
+  const h = {
+    letterhead: 54,
+    ripple: 20,
+    title: titleLines.length * 26 + 4,
+    subtitle: subtitleLines.length * 14 + 4,
+    signal: quoteLines.length ? 16 + quoteLines.length * 14 + 8 : 0,
+    video: (videoQ1Lines.length || videoQ2Lines.length)
+      ? 16 + (videoQ1Lines.length * 12 + 60) + (videoQ2Lines.length * 12 + 60)
+      : 0,
+    reflection: promptLines.length ? 16 + promptLines.length * 13 + 6 : 0,
+    writingLabel: 16,
+    activity: activityLines.length ? 16 + activityLines.length * 13 + 8 : 0,
+    practice: practiceCols.some((c) => c.lines.length)
+      ? 16 + Math.max(...practiceCols.map((c) => 12 + c.lines.length * 11)) + 6
+      : 0,
+  };
+
+  // Inter-block gaps as drawn: after ripple 8, before signal 6, after
+  // reflection 4, and 10 between writing space and Activity on a single page.
+  const fixedTop =
+    h.letterhead + h.ripple + 8 + h.title + h.subtitle + 6 +
+    h.signal + h.video + h.reflection + 4 + h.writingLabel;
+  const fixedBottom = h.activity + h.practice;
+  let writingSpace = BOTTOM - (M + fixedTop) - fixedBottom - 10;
+  let flowed = false;
+  if (writingSpace < WRITING_MIN) {
+    flowed = true;
+    writingSpace = WRITING_MIN;
   }
-  yy += 8;
-
-  return yy;
+  return { flowed, writingSpace, titleLines, subtitleLines, quoteLines, videoQ1Lines, videoQ2Lines, promptLines, activityLines, practiceCols, h };
 }
 
-/** Measure the height the practice block will need (without drawing). */
-function measurePractice(
-  doc: jsPDF,
-  mon: string, wed: string, sun: string,
-  M: number, W: number
-): number {
-  const colW = (W - M * 2) / 3;
-  const boxSize = 10;
-  let maxH = 20;
-  [mon, wed, sun].forEach((text) => {
-    if (text) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      const tLines = doc.splitTextToSize(text, colW - boxSize - 6);
-      const h = 20 + tLines.length * 10 + 4;
-      if (h > maxH) maxH = h;
-    }
-  });
-  return 16 + maxH + 2; // label + grid + breathing room
-}
-
-/** Draw weekly practice checkboxes — compact 3-column grid */
-function drawPracticeCompact(
-  doc: jsPDF,
-  mon: string, wed: string, sun: string,
-  M: number, y: number, W: number
-): number {
-  let yy = sectionLabel(doc, "This Week's Practice", M, y, W);
-
-  const colW = (W - M * 2) / 3;
-  const boxSize = 10;
-
-  const items: [string, string][] = [
-    ["Mon", mon],
-    ["Wed", wed],
-    ["Sun", sun],
-  ];
-
-  let maxH = 0;
-  const cellY = yy;
-
-  items.forEach(([day, text], i) => {
-    const cx = M + i * colW;
-
-    doc.setDrawColor(BLUE);
-    doc.setLineWidth(0.8);
-    doc.rect(cx, cellY, boxSize, boxSize);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
-    doc.setTextColor(BLUE);
-    doc.text(day.toUpperCase(), cx + boxSize + 6, cellY + 7, { charSpace: 1.2 });
-
-    if (text) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      doc.setTextColor(NAVY);
-      const tLines = doc.splitTextToSize(text, colW - boxSize - 6);
-      doc.text(tLines, cx + boxSize + 6, cellY + 20);
-      const h = 20 + tLines.length * 10 + 4;
-      if (h > maxH) maxH = h;
-    } else {
-      if (20 > maxH) maxH = 20;
-    }
-  });
-
-  yy = cellY + maxH + 2;
-
-  return yy;
-}
-
-/** Draw exercise text; returns y after the text (box drawn separately). */
-function drawExerciseText(doc: jsPDF, text: string, M: number, y: number, W: number): number {
-  let yy = sectionLabel(doc, "Activity", M, y, W);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(NAVY);
-  const lines = doc.splitTextToSize(text, W - M * 2);
-  doc.text(lines, M, yy);
-  yy += lines.length * 11 + 6;
-
-  return yy;
-}
-
-function measureExerciseText(doc: jsPDF, text: string, M: number, W: number): number {
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  const lines = doc.splitTextToSize(text, W - M * 2);
-  return 16 + lines.length * 11 + 6; // label + text + gap
-}
-
-/** Draw a subtle footer on all pages */
-function drawFooter(doc: jsPDF, W: number, M: number) {
-  const pages = doc.getNumberOfPages();
-  for (let i = 1; i <= pages; i++) {
-    doc.setPage(i);
-    const H = doc.internal.pageSize.getHeight();
-
-    doc.setDrawColor(SILVER);
-    doc.setLineWidth(0.3);
-    doc.line(M, H - 30, W - M, H - 30);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(6);
-    doc.setTextColor(GREY);
-    doc.text("mindcast.co.nz  |  notice. name. rewire.", M, H - 18, { charSpace: 1.2 });
-    doc.text(`${i} / ${pages}`, W - M, H - 18, { align: "right" });
+function drawActivityAndPractice(ctx: Ctx, s: WorksheetSession, L: Layout, y: number): number {
+  const { doc } = ctx;
+  if (L.activityLines.length) {
+    y = label(ctx, "Activity", y);
+    y = bodyText(ctx, s.experiential_exercise || "", y, { size: 9.5, leading: 13 }) + 8;
   }
+  if (L.practiceCols.some((c) => c.lines.length)) {
+    y = label(ctx, "This Week's Practice", y);
+    const colW = (CW - 24) / 3;
+    L.practiceCols.forEach((col, i) => {
+      const x = M + i * (colW + 12);
+      doc.setDrawColor(...SIGNAL_BLUE);
+      doc.setLineWidth(0.75);
+      doc.rect(x, y, 8, 8, "S");
+      doc.setFont("MontserratSemiBold", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...SIGNAL_DEEP);
+      doc.setCharSpace(1.4);
+      doc.text(col.day, x + 12, y + 7);
+      doc.setCharSpace(0);
+      doc.setFont("Montserrat", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...INK);
+      doc.text(col.lines, x + 12, y + 20);
+    });
+    y += 12 + Math.max(...L.practiceCols.map((c) => c.lines.length)) * 11 + 6;
+  }
+  return y;
 }
 
-/**
- * One A4 portrait page, in slide order:
- * Header → Theme/Session title → The Signal → Reflection →
- * Activity (large blank space, no lines) → This Week's Practice → Footer.
- */
 export function generateWorksheetPdf(s: WorksheetSession): jsPDF {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
-  const W = doc.internal.pageSize.getWidth();
-  const H = doc.internal.pageSize.getHeight();
-  const M = 44;
-  const FOOTER_RESERVE = 38;
+  registerFonts(doc);
 
-  const mon = s.weekly_practice_mon || "";
-  const wed = s.weekly_practice_wed || "";
-  const sun = s.weekly_practice_sun || "";
-  const hasPractice = Boolean(mon || wed || sun);
+  doc.setProperties({
+    title: `Mindcast — Week ${s.week_number} ${s.audience} — ${s.theme_title}`,
+    subject: s.phase_name || "",
+    author: "Mindcast Limited",
+    keywords: `${s.audience} week ${s.week_number}`,
+    creator: "Mindcast",
+  });
 
-  // --- Measurement pass: reserve the bottom of the page for the practice ---
-  const practiceH = hasPractice ? measurePractice(doc, mon, wed, sun, M, W) : 0;
-  const exerciseTextH = s.experiential_exercise
-    ? measureExerciseText(doc, s.experiential_exercise, M, W)
-    : 0;
+  const L = computeLayout(doc, s);
+  const assert = (cond: boolean, msg: string) => {
+    if (!cond && import.meta.env.DEV) throw new Error(`worksheet layout: ${msg}`);
+  };
 
-  const vq1 = (s.video_question_1 || "").trim();
-  const vq2 = (s.video_question_2 || "").trim();
+  // ── Page 1 ──
+  let y = M;
+  drawLetterhead({ doc }, s);
+  y += L.h.letterhead;
+  drawRipple({ doc }, y);
+  y += L.h.ripple + 8;
 
-  // Fixed content above the activity box.
-  let y = 88; // after header
-  y += 20 + 2; // theme title (1 line typical)
-  if (s.session_title) y += 14;
-  if (s.signal_metaphor) {
-    doc.setFont("times", "italic");
+  doc.setFont("BebasNeue", "normal");
+  doc.setFontSize(24);
+  doc.setTextColor(...INK);
+  doc.text(L.titleLines, M, y + 18);
+  y += L.h.title;
+  if (L.subtitleLines.length) {
+    doc.setFont("CormorantItalic", "normal");
     doc.setFontSize(11);
-    const qLines = (doc.splitTextToSize(`"${s.signal_metaphor}"`, W - M * 2 - 20) as string[]).length;
-    y += 16 + Math.max(34, qLines * 13 + 6); // label + quote
+    doc.setTextColor(...SIGNAL_DEEP);
+    doc.text(L.subtitleLines, M, y + 8);
+    y += L.h.subtitle;
+  }
+  y += 6;
+
+  if (L.quoteLines.length) {
+    y = label({ doc }, "The Signal", y);
+    doc.setDrawColor(...SIGNAL_BLUE);
+    doc.setLineWidth(2);
+    const qH = L.quoteLines.length * 14;
+    doc.line(M, y, M, y + qH - 4);
+    doc.setFont("CormorantItalic", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(...INK);
+    doc.text(L.quoteLines, M + 16, y + 4);
+    y += qH + 8;
   }
 
-  // Video reflective questions (2 answer lines each; drop to 1 when tight).
-  const bottomLimit = H - FOOTER_RESERVE - practiceH;
-  let vqLineCount = 2;
-  let videoQH = measureVideoQuestions(doc, vq1, vq2, M, W, vqLineCount);
-
-  let reflectionPromptH = 0;
-  if (s.journaling_prompt) {
-    doc.setFont("times", "italic");
-    doc.setFontSize(10);
-    const pLines = (doc.splitTextToSize(`"${s.journaling_prompt}"`, W - M * 2) as string[]).length;
-    reflectionPromptH = 16 + pLines * 13 + 6; // label + prompt
+  if (L.videoQ1Lines.length || L.videoQ2Lines.length) {
+    y = label({ doc }, "While You Watch", y);
+    ([L.videoQ1Lines, L.videoQ2Lines] as string[][]).forEach((q, qi) => {
+      if (!q.length) return;
+      doc.setFont("MontserratSemiBold", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...INK);
+      doc.text(`${qi + 1}.  ${q[0]}`, M, y);
+      if (q.length > 1) {
+        doc.text(q.slice(1), M + 12, y + 12);
+      }
+      y += q.length * 12 + 6;
+      doc.setDrawColor(...RULE);
+      doc.setLineWidth(0.75);
+      for (let i = 0; i < 2; i++) {
+        y += 24;
+        doc.line(M, y, PAGE_W - M, y);
+      }
+      y += 6;
+    });
   }
 
-  // Reflection writing lines: fit as many as we can while leaving the
-  // activity a generous blank space (min 110pt).
-  let lineCount = 0;
-  if (s.journaling_prompt) {
-    let spaceForLines = bottomLimit - (y + videoQH + reflectionPromptH) - exerciseTextH - 110 - 16;
-    if (spaceForLines < 2 * 17 && vqLineCount === 2 && (vq1 || vq2)) {
-      // Tight — shrink the video-question answer space to one line each.
-      vqLineCount = 1;
-      videoQH = measureVideoQuestions(doc, vq1, vq2, M, W, vqLineCount);
-      spaceForLines = bottomLimit - (y + videoQH + reflectionPromptH) - exerciseTextH - 110 - 16;
-    }
-    lineCount = Math.max(2, Math.min(3, Math.floor(spaceForLines / 17)));
+  if (L.promptLines.length) {
+    y = label({ doc }, "Reflection", y);
+    doc.setFont("CormorantItalic", "normal");
+    doc.setFontSize(10.5);
+    doc.setTextColor(...INK);
+    doc.text(L.promptLines, M, y + 2);
+    y += L.promptLines.length * 13 + 6;
+  }
+  y += 4;
+
+  y = label({ doc }, "Your Reflection", y);
+  const lines = Math.floor((L.writingSpace - 8) / WRITING_PITCH);
+  doc.setDrawColor(...RULE);
+  doc.setLineWidth(0.75);
+  for (let i = 0; i < lines; i++) {
+    y += WRITING_PITCH;
+    doc.line(M, y, PAGE_W - M, y);
+  }
+  assert(y <= BOTTOM + 1, "writing space overflows page 1");
+
+  if (!L.flowed) {
+    y += 10;
+    y = drawActivityAndPractice({ doc }, s, L, y);
+    assert(y <= BOTTOM + 1, "single-page content exceeds the page");
   }
 
-  // --- Draw pass ---
-  drawHeader(doc, s, W, M);
-  y = 88;
-  y = drawTitle(doc, s, W, M, y);
-
-  if (s.signal_metaphor) {
-    y = sectionLabel(doc, "The Signal", M, y, W);
-    y = drawQuote(doc, s.signal_metaphor, M, y, W);
+  // ── Page 2 (explicit overflow) ──
+  if (L.flowed) {
+    doc.addPage();
+    const y2 = drawActivityAndPractice({ doc }, s, L, M + 8);
+    assert(y2 <= BOTTOM + 1, "overflow page exceeds the page");
   }
 
-  if (vq1 || vq2) {
-    y = drawVideoQuestions(doc, vq1, vq2, M, y, W, vqLineCount);
+  const pages = doc.getNumberOfPages();
+  for (let p = 1; p <= pages; p++) {
+    doc.setPage(p);
+    drawFooter({ doc }, p, pages);
   }
-
-  if (s.journaling_prompt) {
-    y = drawReflection(doc, s.journaling_prompt, M, y, W, lineCount);
-  }
-
-  // Activity: instructions, then a large blank box (no lines) that fills
-  // whatever space remains above This Week's Practice.
-  if (s.experiential_exercise) {
-    y = drawExerciseText(doc, s.experiential_exercise, M, y, W);
-    const boxTop = y;
-    const boxBottom = bottomLimit - 4;
-    const boxH = Math.max(40, boxBottom - boxTop);
-    doc.setDrawColor(SILVER);
-    doc.setLineWidth(0.8);
-    doc.roundedRect(M, boxTop, W - M * 2, boxH, 4, 4, "S");
-    y = boxTop + boxH + 8;
-  }
-
-  if (hasPractice) {
-    y = drawPracticeCompact(doc, mon, wed, sun, M, bottomLimit + 2, W);
-  }
-
-  drawFooter(doc, W, M);
 
   return doc;
 }
@@ -426,13 +416,11 @@ export function downloadWorksheetPdf(s: WorksheetSession) {
   doc.save(filename);
 }
 
-/** Generate PDF and return as a Blob (for server-side / storage upload) */
 export async function generateWorksheetPdfBlob(s: WorksheetSession): Promise<Blob> {
   const doc = generateWorksheetPdf(s);
   return doc.output("blob");
 }
 
-/** Generate PDF and return as base64 data URI */
 export async function generateWorksheetPdfDataUri(s: WorksheetSession): Promise<string> {
   const doc = generateWorksheetPdf(s);
   return doc.output("datauristring");

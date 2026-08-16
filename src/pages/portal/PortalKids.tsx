@@ -27,7 +27,16 @@ type KidWeek = {
   week_number: number; block_theme: string | null; weekly_theme: string | null;
   kids_title: string | null;
 };
-type KidContent = { kids_picture_book: string | null; kids_picture_book_note: string | null; kids_colouring_prompt: string | null; kids_source: string | null; kids_game: string | null };
+type KidContent = {
+  week_number: number;
+  kids_picture_book: string | null; kids_picture_book_note: string | null;
+  kids_picture_book_author: string | null; kids_picture_book_question: string | null;
+  kids_colouring_prompt: string | null; kids_source: string | null; kids_game: string | null;
+  kids_game_equipment: string | null; kids_game_under5: string | null;
+  kids_nz_alternative: string | null; kids_nz_alternative_author: string | null;
+  kids_nz_alternative_note: string | null; kids_nz_alternative_verified: boolean | null;
+  kids_read_aloud_source_check: string | null;
+};
 
 const PortalKids = () => {
   const { isMember, kidsAddon } = useEntitlement();
@@ -43,8 +52,9 @@ const PortalKids = () => {
       // weeks this member may read: active + unlocked).
       const [{ data: titles }, { data: body }] = await Promise.all([
         db.rpc("curriculum_public"),
-        db.from("curriculum_weeks")
-          .select("week_number, kids_picture_book, kids_picture_book_note, kids_colouring_prompt, kids_source, kids_game"),
+        (db.from("curriculum_weeks") as unknown as {
+          select: (cols: string) => Promise<{ data: KidContent[] | null }>
+        }).select("week_number, kids_picture_book, kids_picture_book_note, kids_picture_book_author, kids_picture_book_question, kids_colouring_prompt, kids_source, kids_game, kids_game_equipment, kids_game_under5, kids_nz_alternative, kids_nz_alternative_author, kids_nz_alternative_note, kids_nz_alternative_verified, kids_read_aloud_source_check"),
       ]);
       if (!active) return;
       setWeeks((titles || []).map((r) => ({
@@ -108,8 +118,26 @@ const PortalKids = () => {
                     {c?.kids_picture_book && (
                       <p className="text-sm text-foreground/80 font-body flex items-start gap-2">
                         <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
-                        <span><span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>{c.kids_picture_book}{c.kids_picture_book_note ? ` — ${c.kids_picture_book_note}` : ""}</span>
+                        <span>
+                          <span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>
+                          {c.kids_picture_book}{c.kids_picture_book_author ? ` — ${c.kids_picture_book_author}` : ""}{c.kids_picture_book_note ? ` · ${c.kids_picture_book_note}` : ""}
+                          {c.kids_picture_book_question && <span className="block text-foreground/60 italic mt-1">Ask: {c.kids_picture_book_question}</span>}
+                        </span>
                       </p>
+                    )}
+                    {c?.kids_nz_alternative && (
+                      <p className="text-sm text-foreground/70 font-body flex items-start gap-2">
+                        <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
+                        <span>
+                          <span className="portal-label text-foreground/40 mr-2">NZ BOOK</span>
+                          {c.kids_nz_alternative}{c.kids_nz_alternative_author ? ` — ${c.kids_nz_alternative_author}` : ""}
+                          {c.kids_nz_alternative_verified && <span className="ml-1.5 text-[9px] font-body uppercase tracking-widest text-primary">Verified</span>}
+                          {c.kids_nz_alternative_note && <span className="block text-foreground/50 text-xs mt-0.5">{c.kids_nz_alternative_note}</span>}
+                        </span>
+                      </p>
+                    )}
+                    {c?.kids_read_aloud_source_check && (
+                      <p className="text-xs text-foreground/50 font-body font-light">Read-aloud: {c.kids_read_aloud_source_check}</p>
                     )}
                     {c?.kids_colouring_prompt && (
                       <div className="text-sm text-foreground/70 font-body font-light flex items-start gap-2">
@@ -126,7 +154,12 @@ const PortalKids = () => {
                     {c?.kids_game && (
                       <div className="text-sm text-foreground/70 font-body font-light flex items-start gap-2">
                         <Clock size={14} className="text-primary mt-0.5 shrink-0" />
-                        <span><span className="portal-label text-foreground/40 mr-2">GROUP GAME</span>{c.kids_game}</span>
+                        <span>
+                          <span className="portal-label text-foreground/40 mr-2">GROUP GAME</span>
+                          {c.kids_game}
+                          {c.kids_game_equipment && <span className="block text-foreground/50 text-xs mt-0.5">Kit: {c.kids_game_equipment}</span>}
+                          {c.kids_game_under5 && <span className="block text-foreground/50 text-xs mt-0.5">Under-5s: {c.kids_game_under5}</span>}
+                        </span>
                       </div>
                     )}
                     <button

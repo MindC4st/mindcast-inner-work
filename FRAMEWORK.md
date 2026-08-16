@@ -11,25 +11,43 @@
 
 ## What This Document Is
 
-This is the foundational framework for Mindcast's content experience — its philosophy, its structure, its voice, and the full arc of its learning journey. It is written for the content team who will build and source each week's material, for facilitators who will guide the group experience, and for anyone who needs to hold the Mindcast vision clearly in mind.
+This is the foundational framework for Mindcast's content experience — its philosophy, its structure, its voice, and the full arc of its learning journey. It is written for the content team who build and source each week's material, for facilitators who guide the group experience, and for anyone who needs to hold the Mindcast vision clearly in mind.
 
 It is a living document. But its core should not change: this is what Mindcast is for, and this is how it moves.
 
+**Version 2.1** aligns the framework with the fifteen-slide lesson structure the app actually runs, restores an opening question to every week, and answers two questions version 2.0 left open: what happens after week 52, and what happens to someone who joins in the middle.
+
 ---
 
-## I. The North Star
+## I. Purpose and North Star
 
-**Mindcast exists to give people back what it means to be human.**
+### The Purpose
+
+This is the formal statement, and it is the one that governs. It is taken verbatim from the Company Charter (MC-GOV-001 §2), and the two documents must never drift apart:
+
+> **To help people become more aware of the patterns shaping their lives, build the courage and consistency to change them, and create communities where inner growth is practised together rather than consumed alone.**
+
+The problem Mindcast exists to solve is not a lack of information. It is the **implementation gap**: the distance between the podcast someone finished on Tuesday and the life they were still living on Friday. Content is abundant and follow-through is scarce. We supply the missing half — structure, rhythm, witness, and a return date.
+
+### The North Star
+
+This is the internal, poetic version. It is what the Purpose feels like from inside the room. Use it to orient content and voice; use the Purpose when you are writing anything formal.
+
+> **Mindcast exists to give people back what it means to be human.**
 
 Not productive. Not optimised. Not healed in thirty days or transformed by a five-step programme. Just — human. Present. Recognised. Able to feel the full texture of their own life without flinching from it.
 
-The premise is simple and it is ancient: before you can truly connect with another person, you have to be willing to meet yourself. That meeting — the slow, honest, sometimes difficult encounter with who you actually are — is both the hardest thing a person can do and the most necessary. Everything else that matters in a human life depends on it.
+The premise is simple and it is ancient: before you can truly connect with another person, you have to be willing to meet yourself. That meeting — the slow, honest, sometimes difficult encounter with who you actually are — is both the hardest thing a person can do and the most necessary.
 
 Most people never get there. Not because they don't want to, but because nothing in their environment makes it possible. The world is relentlessly outward — surface, performance, output, speed. There is almost nowhere to go inward.
 
 Mindcast is that somewhere.
 
-And Mindcast creates a specific context for that work: **the group**. Families and individuals come together each week — to watch something worth thinking about, to reflect in honest company, to hold each other to the small commitments that change a life. The group is not incidental to the experience. It is the experience. You can read a book alone. This work is better done witnessed.
+And Mindcast creates a specific context for that work: **the group**. Families and individuals come together each week — to think about something worth thinking about, to reflect in honest company, to hold each other to the small commitments that change a life. The group is not incidental to the experience. It is the experience. You can read a book alone. This work is better done witnessed.
+
+### Behaviour framework
+
+**Notice it. Name it. Do it.** Every week moves through all three. A session that only notices has not finished. A session that jumps to *do* has skipped the part that makes it stick.
 
 ---
 
@@ -39,7 +57,7 @@ Mindcast is built on four foundational beliefs. These are not features. They are
 
 ### 1. The inward journey comes first.
 
-Connection to other people is not something you can pursue directly. You cannot will yourself into deep relationship. Genuine empathy, genuine intimacy, genuine compassion — these are not skills you can acquire through practice alone. They are consequences of a prior piece of work: the work of knowing yourself, healing what you're carrying, and developing enough kindness toward your own inner life that you have something real to bring to someone else's.
+Connection to other people is not something you can pursue directly. You cannot will yourself into deep relationship. Genuine empathy, genuine intimacy, genuine compassion — these are not skills you can acquire through practice alone. They are consequences of a prior piece of work: the work of knowing yourself, setting down what you're carrying, and developing enough kindness toward your own inner life that you have something real to bring to someone else's.
 
 The sequence matters. Mindcast honours it.
 
@@ -48,6 +66,8 @@ The sequence matters. Mindcast honours it.
 This is not a course of answers. It is a practice of noticing. There are no revelations to arrive at, no milestones to hit, no moment when you are done and can stop paying attention. The goal is not to solve yourself but to understand yourself — and to develop enough warmth toward what you find there that you can begin to move.
 
 Mindcast does not offer a destination. It offers a quality of attention.
+
+> **This belief has a consequence for how this document is written.** Every week in Section IV names *territory* and asks a *question*. It does not state a conclusion. If you find yourself writing "the lesson of this week is…", you have stopped facilitating and started teaching. The Charter calls this **Draw out, don't preach**, and it is a hard limit, not a style note.
 
 ### 3. The ordinary is the sacred ground.
 
@@ -63,507 +83,373 @@ Insight arrived at alone stays private. Insight arrived at alongside other peopl
 
 ## III. How Mindcast Works
 
-Mindcast is not a podcast. It is not a meditation app. It is not a course. It is something else — a format shaped specifically for this kind of inner work, structured around a weekly gathering that creates rhythm, accountability, and depth over time.
+Mindcast is not a podcast. It is not a meditation app. It is not a course. It is a weekly gathering that creates rhythm, accountability and depth over time.
 
-### Curated Content — The Source
+### Membership — the room is the product
 
-Each week's session is anchored by a piece of content sourced from the world's best thinkers: long-form interviews, documentary segments, talks, and conversations from podcasts and platforms like Diary of a CEO, Rich Roll, On Being, Huberman Lab, and others. The content is curated to serve the theme — not the other way around.
+Attendance is members-only. There is no standing free tier — there is a **single-use free session pass** for anyone who wants to try the room once, and after that the choice is membership. Concession and pay-what-you-can places are permanent, published, and require no explanation.
 
-The standard is high. The piece must be honest, specific, and willing to go somewhere real. It should feel like something a thoughtful friend would send you because they couldn't stop thinking about it.
+This is deliberate. The group only works if it is the same people, every week, for a year. Membership is not a subscription to content. It is a decision to turn up.
 
-There are three parallel tracks: **Adults**, **Teens**, and **Kids**. Each watches age-appropriate content on the same weekly theme, then gathers separately for reflection before, in some configurations, coming back together. The same idea, lived at different depths.
+### The three tracks
 
-### The Weekly Gathering
+Three parallel rooms work the same weekly theme at their own depth:
 
-The session has a defined shape. The shape matters — not because ritual is the point, but because knowing the shape is part of what lets people go deeper. The structure holds the group so the group doesn't have to hold itself.
+- **Adults** — the full teaching arc, live journaling, an experiential exercise, and a curated video.
+- **Teens** — age-honest content on the identical theme. Real language, real questions, no talking down. A teen's private reflections stay private — invisible even to parents.
+- **Kids** — a picture book, a group game, a short video and colouring, all built on the same weekly theme.
 
-**The Landing** *(~10 min)*
-Arrival. Members check in via the app — a name, a word, a presence registered. The welcome wall is live on screen. There is no formal start. This is time to come out of the day and into the room.
+The aim is that a family can come back together afterwards and actually talk — because they've been thinking about the same thing from their own angle.
 
-**Looking Back** *(~8 min)*
-Members who set a goal at the previous session share how it went. The facilitator reads 2–3 updates. No commentary — let them land. This is accountability held lightly: not performance, not judgment. Just the fact of having been seen, and returning to say what happened.
+### The weekly rhythm
 
-**The Source** *(~40 min)*
-The video plays in full. Members have their workbook open. No interruptions. This is the core of the session — the thing everything else is built around. The facilitator's job here is to get out of the way.
+**Sunday — the gathering.** Three rooms, one theme. The session shape is §VII.
 
-**The Dig** *(~10 min)*
-Quiet reflection time. Questions appear on the workbook page and, if available, on the group screen. Members write in near-silence. Ambient music. No one is expected to share yet. This is the moment the content gets met with personal experience — the space between watching and understanding.
+**The week between — the practice.** Three named practices, Monday, Wednesday and Sunday, carried out of the room in the workbook.
 
-**The Edge** *(~5 min)*
-One thing to do differently this week. One small, specific, achievable commitment. Private — no group sharing required. This is not a performance of change. It is an honest answer to the question: given what I just noticed, what is one thing I could actually do?
+**Midweek — the Life Group.** A smaller circle revisits the Sunday session and goes deeper. Not to be taught. Just to do the work, side by side.
 
-**The Close** *(~5 min)*
-A leaving word. Members submit via the app; the word cloud builds on screen as they do. One brief closing thought from the facilitator. See you next week.
+### The commitment loop
 
-*Total runtime: approximately 78 minutes.*
+**Voices from Last Week** (slide 01) and **Weekly Practices** (slide 11) are not separate elements. They are two halves of the same loop. Every session opens by returning to what was carried out the door seven days ago: *Did it happen? What got in the way? Where did the old pattern win?* No shame, just honest data.
 
-### The Commitment Loop
+This loop is one of the most important things Mindcast does. Small commitments kept, again and again, compound. This is how lives change.
 
-The Edge and Looking Back are not separate elements — they are two halves of the same loop. The Edge is where intention is set. Looking Back is where it is honoured. Over time, this loop is one of the most important things Mindcast does: it builds the habit of making small, honest commitments and returning to account for them. Not perfectly. Not always. But consistently enough to matter.
+### Reflection
 
-Small commitments kept, again and again, compound. This is how lives change.
+Mindcast's reflection model is not about finding the right answer. It is about honest encounter with a genuine question. Prompts are open-ended, specific to the week's material, and imply no correct response. A good question should be answerable in three words or fill three pages, depending on what the person brings to it.
 
-### Reflection and The Dig
+### No self-help lexicon
 
-Mindcast's reflection model is not about finding the right answer. It is about honest encounter with a genuine question. The Dig questions are open-ended, specific to the week's content, and do not imply a correct response. They are invitations, not assignments. A good Dig question should be answerable in three words or fill three pages, depending on what the person brings to it.
+Mindcast avoids the language of the wellness industry. No manifestation. No high vibrational states. No unlocking your potential. **No abundance.** No toxic positivity. No jargon that creates distance between the words and what they describe.
 
-### No Self-Help Lexicon
+The language is plain, specific, honest and warm. The test is always: does this sound like a real person saying a real thing? If not, say it differently.
 
-Mindcast avoids the language of the wellness industry. No manifestation. No high vibrational states. No unlocking your potential. No toxic positivity. No jargon that creates distance between the words and what they describe.
+### No deity language
 
-The language is plain, specific, honest, and warm. In content selection, in workbook questions, in facilitator language — the test is always: does this sound like a real person saying a real thing? If not, say it differently.
+Slide 03 is **Ancient Wisdom** — the week's idea located in the long human tradition of thinking about this. It draws on philosophy, contemplative traditions, whakataukī and inherited proverb. It never invokes a god, a doctrine, or a belief the member is asked to hold. The reframe is always toward the person's **own inner wisdom**, never toward an external authority. This is a Charter obligation (MC-GOV-001 §7), not an editorial preference.
 
 ---
+## IV. The Learning Journey — 52 Weeks, Four Movements
 
-## IV. The Learning Journey: *The Long Way In*
+The full Mindcast journey is one year: four movements of thirteen weeks. Weeks 13, 26, 39 and 52 are **Integration weeks** — the movement closes by gathering up what has been met before the next begins.
 
-**"The Long Way In"** is the name of the full Mindcast journey arc — four consecutive movements through the inner life, each one building the conditions for the next.
-
-The arc is not linear in the sense of progress from worse to better. It is linear in the sense of depth: each movement takes the group further in before the final movement turns — with fuller awareness, with more capacity, with more gentleness — back toward the world and the people in it.
+The arc is not linear in the sense of progress from worse to better. It is linear in the sense of depth: each movement takes the group further in before the final movement turns — with fuller awareness, more capacity, more gentleness — back toward the world and the people in it.
 
 **The sequence:**
 
-You have to know yourself before you can heal yourself.  
-You have to begin healing before you can be genuinely kind to yourself.  
-You have to be genuinely kind to yourself before you can extend that kindness — authentically, sustainably, without resentment — to others.
+You have to see yourself clearly before you can set anything down.
+You have to set down what you're carrying before you can rebuild on honest ground.
+You have to rebuild before you can give what you've grown — authentically, sustainably, without resentment.
 
 The first three movements bend inward. The fourth is where the light starts to come through the edges.
 
-**Each movement spans a term — approximately 10 to 13 weeks.** The themes within each movement are sourced to video content that serves them; the session framework remains constant throughout. What changes, week by week, is the depth.
+| Movement | Weeks | The question it holds | Lineage (v1) |
+|---|---|---|---|
+| **I · See Clearly** | 1–13 | What is actually here — in me, around me, between us? | *Ground* |
+| **II · Unlearn** | 14–26 | What am I carrying that I could set down? | *Wound* |
+| **III · Rebuild** | 27–39 | Who am I, on purpose, when the inherited script is gone? | *Tend* |
+| **IV · Live It** | 40–52 | What does all of this become when other people meet it? | *Open* |
+
+### How to read the week tables
+
+**The territory** is what the week opens — the ground it covers. It is not what the member should conclude. Two people can walk the same territory and arrive somewhere completely different, and both are working correctly.
+
+**The opening question** is the seed for slide 07, Reflection 1. It is written here so the framework holds the *spirit* of each week; the live prompt in the app should be written after the specific video is chosen, and should be answerable only by someone who watched that piece.
 
 ---
 
-### ◆ Movement I: Ground
+### ◆ Movement I: See Clearly
 
-*Learning to Know Yourself*
+*Weeks 1–13 — Learning to know yourself*
 
----
+Before anything can change, a person needs to know who they are — not in the abstract terms we use at dinner parties, but at the level of what they actually feel, want, and fear when no one is watching.
 
-**The heart of this movement:**
+Most of us have been performing a version of ourselves for so long — the capable one, the easy-going one, the one who doesn't need much — that we've lost track of which parts are real and which are armour. See Clearly is about returning to the self beneath the performance. It is uncomfortable and it is essential. Nothing that comes after it works without it.
 
-Before any healing can begin, a person needs to know who they are. Not in the abstract terms we use at dinner parties — "I'm creative," "I'm an introvert," "I'm driven" — but at the level of what they actually feel, what they actually want, what they're actually afraid of when no one is watching.
-
-This is harder than it sounds. Most of us have been performing a version of ourselves for so long — the capable one, the easy-going one, the one who doesn't need much, the one who has it together — that we've genuinely lost track of which parts are real and which parts are armour.
-
-Ground is about returning to the self beneath the performance. It is uncomfortable and it is essential. Nothing that comes after it works without it.
-
----
-
-**Theme 1: The Question Underneath the Question**
-
-*What are you actually asking when you wonder who you are?*
-
-This opening week doesn't try to answer the question of identity. Instead, it invites members to notice that the question is usually a doorway — hiding something more specific underneath. A longing that hasn't been named. A confusion that has never been examined. A fear of what they might find if they looked. We begin there: not with answers, but with the real question.
-
-*Dig prompt: What is the version of yourself you show most often — and when does it feel effortless, and when does it feel like work?*
-
----
-
-**Theme 2: The Stories We Inherited**
-
-*How much of who you think you are was handed to you?*
-
-We are all, in part, the product of the stories told about us before we could consent to them. "You're the sensitive one." "You're difficult." "You're so resilient." "You're not the academic one." This week explores the self that was assembled by family, culture, and early experience — not to assign blame, but to begin distinguishing between what was absorbed and what was chosen. Most of us have never made that distinction. This is where it starts.
-
-*Dig prompt: What is one thing you believe about yourself that you have never once questioned? Where did that belief come from?*
+| Wk | Theme | The territory | The opening question |
+|---|---|---|---|
+| 1 | **The Signal and the Noise** | The difference between the mental noise and the awareness underneath it | What have you been carrying silently that no one else can see? |
+| 2 | **The Stories We Carry** | The beliefs we repeat about ourselves, and where they came from | What do you believe about yourself that you have never once questioned? |
+| 3 | **The Pattern Interrupt** | The space between what happens and how we respond | When did you last react in a way you didn't choose? |
+| 4 | **What Your Body Is Telling You** | Sensation as information, arriving before thought | Where in your body do you feel most at ease, and where most contracted? |
+| 5 | **The Mirror — How We See Ourselves** | Seeing yourself accurately, without flattery or attack | If you described yourself accurately — not aspirationally, not apologetically — what would you say? |
+| 6 | **The Comparison Loop** | Measuring your inside against someone else's outside | Who do you compare yourself to, and what do you imagine they have? |
+| 7 | **The Inner Critic** | The voice that narrates your failures, and where it learned to speak | If that voice were a person, would you choose to spend time with them? |
+| 8 | **Beneath the Surface — Emotions as Data** | What sits underneath the emotion you noticed first | What were you feeling just before you got angry? |
+| 9 | **The Wounds We Carry** | Old hurt, and what it costs to keep it unnamed | What is something you have never fully allowed yourself to grieve? |
+| 10 | **The Masks We Wear** | The gap between the public self and the private one | Is there something you feel or want that you have never let yourself express? |
+| 11 | **Seeing Others Clearly** | The unseen story behind someone else's behaviour | Think of someone you find difficult. What might they be carrying? |
+| 12 | **The Habit Loop — How We Got Here** | Trigger, action, reward, and the automatic life | What do you do — reliably, almost without deciding — when you are uncomfortable? |
+| 13 | **Integration — What We Now See** | Gathering the movement: signal, story, body, loop | What have you noticed about yourself in the last thirteen weeks that you hadn't before? |
 
 ---
 
-**Theme 3: The Performance and the Person**
+### ◆ Movement II: Unlearn
 
-*Who do you become when you know someone's watching?*
+*Weeks 14–26 — Learning to set down what you carry*
 
-Most of us have developed a public self — a version we manage carefully for external consumption — and a private self we rarely examine and even more rarely share. This week is about the gap between these two: how wide it is, what it costs to maintain it, and what it might mean to close it, even slightly. The gap is not a character flaw. It is almost universal. Understanding it is the work.
+Everyone is carrying something. And most of us have developed exquisite, often quite intelligent techniques for not looking at it directly. Busyness. Perfectionism. Humour deployed as deflection. Control exercised over everything in reach. These are not failures of character. They are adaptations. They worked once.
 
-*Dig prompt: Is there something you feel or want or believe privately that you have never allowed yourself to express? What would it cost you to let it be real?*
+But at some point carrying becomes more costly than putting things down. Unlearn is about naming what you've been holding and beginning, with great patience, to set it down. Not to dramatise it. Not to drown in it. To see it clearly, honour what it once protected, and loosen the grip.
 
----
+> This movement is not a substitute for therapy. Some of what surfaces here belongs with a skilled professional. But therapy requires you to know something is there. Mindcast helps you notice it first. Facilitators: MC-SAF-002 governs. You hold the room; you do not treat the person.
 
-**Theme 4: What Your Body Already Knows**
-
-*The intelligence you've been talking over.*
-
-The body is the most honest part of us. It does not perform. It does not manage impressions. It simply registers — tightening, lifting, shrinking, opening — long before the mind has caught up. This week introduces the body as a site of self-knowledge: what it signals, what it carries, how to begin listening to it rather than overriding it. For many members, this will be the most unfamiliar invitation in this movement.
-
-*Dig prompt: Where in your body do you feel most at ease? Where do you feel most contracted? Do you know why?*
-
----
-
-**Theme 5: The Parts That Don't Fit the Story**
-
-*What happens to the pieces of yourself you can't explain?*
-
-We are all more contradictory than we let on. The kind person who sometimes wants to be unkind. The confident professional who is privately terrified. The devoted parent who sometimes longs to disappear. This week is about the aspects of the self that resist our preferred narratives — the impulses we're ashamed of, the desires that embarrass, the thoughts we immediately disown. These are not problems. They are data. They are the parts that most need our attention.
-
-*Dig prompt: What is a part of yourself you have spent energy hiding or explaining away? What might it be trying to tell you?*
+| Wk | Theme | The territory | The opening question |
+|---|---|---|---|
+| 14 | **The Permission You're Still Waiting For** | Waiting to be authorised by someone who is not coming | What are you waiting for permission to do? |
+| 15 | **Letting Go of Who You Were Supposed to Be** | The inherited script of *should* | Whose expectations are you still living inside? |
+| 16 | **The Forgiveness Loop** | Resentment, and who it actually costs | What are you still holding against someone, and what does holding it give you? |
+| 17 | **Forgiving Yourself** | Accountability without self-attack | Is there something you have not forgiven yourself for? |
+| 18 | **Retraining the Critic — Building the Inner Coach** | Turning the harsh voice into an honest one | What would a fair version of that voice have said instead? |
+| 19 | **Breaking the People-Pleasing Pattern** | Kindness from fear against kindness from choice | When did you last say yes when you meant no? |
+| 20 | **Unlearning Scarcity — There Is Enough** | The belief that there is not enough to go round | What do you hold back on, in case there isn't enough? |
+| 21 | **The Relationships That Shaped You** | What we absorbed from the people who raised and marked us | What did you learn about love from the people who raised you? |
+| 22 | **Setting Down the Armour** | The defences that now keep connection out | What are you protecting, and who is it keeping out? |
+| 23 | **Grief and Growth — What Endings Make Possible** | Loss, and the ground it clears | What ended that you have not properly mourned? |
+| 24 | **Fear as Signal, Not Threat** | Reading the body's alarm as information | What are you afraid of that has never actually happened? |
+| 25 | **The Stories That No Longer Serve** | Honouring an old narrative, then rewriting it | What story about yourself protected you once and now costs you? |
+| 26 | **Integration — What We Have Released** | Gathering the movement: permission, resentment, armour, story | What have you set down, and what is still in your hands? |
 
 ---
 
-**Theme 6: A Portrait, Not a Blueprint**
+### ◆ Movement III: Rebuild
 
-*You don't have to know where you're going to know who you are.*
+*Weeks 27–39 — Learning to build who you are on purpose*
 
-Closing the movement. There is a cultural pressure to have yourself figured out — to be a coherent, directed, purposeful self who knows exactly what they're doing and why. This week makes a different case: that self-understanding is more like a portrait than a blueprint. It captures something true in this moment, without dictating what comes next. You don't need to have a plan. You need to have honest attention. That is enough.
+Once the inherited script is set down, a question opens that most people never get to ask honestly: *who am I now — and who do I choose to be?*
 
-*Dig prompt: If you could describe yourself accurately — not aspirationally, not apologetically, but accurately — what would you say?*
+Rebuild takes that seriously. Identity built on chosen values rather than absorbed labels. Habits as the quiet architecture of a self. The body as foundation, not vehicle. Rest as discipline, not collapse. Creativity, purpose, resources and the people you grow among — each examined not as self-improvement content but as building material.
 
----
+This movement also restores something the phrase *self-love* has almost lost: taking your own inner life seriously. Being toward yourself something like what a genuinely good parent is to a child — not permissive, not indulgent, but present, interested, patient and kind.
 
-### ◆ Movement II: Wound
-
-*Learning to Heal Yourself*
-
----
-
-**The heart of this movement:**
-
-Everyone is carrying something. Most of us are carrying several things — old hurts, accumulated grief, the weight of things we were never supposed to talk about, the residue of experiences we haven't finished processing.
-
-And most of us have developed exquisite, often quite intelligent techniques for not looking at them directly. Busyness. Perfectionism. Humour deployed as deflection. Control exercised over everything in reach. Withdrawal dressed up as preference. These are not failures of character. They are adaptations. They worked, once. They kept us safe when safety mattered most.
-
-But at some point, carrying becomes more costly than putting things down. Wound is about slowing down enough to notice what you've been holding. Not to dramatise it. Not to drown in it. To see it clearly — and begin, with great patience, to understand it.
-
-This movement is not a substitute for therapy. Some of what surfaces here belongs with a skilled professional. But therapy requires you to know something is there. Mindcast helps you notice it first.
-
----
-
-**Theme 1: What Are You Carrying?**
-
-*An honest inventory, taken gently.*
-
-An invitation to simply notice — without analysis, without judgment, without any pressure to do anything about it yet — what weight you are moving through the world with. Not the dramatic things, necessarily. The persistent low-grade things. The tiredness that isn't about sleep. The irritability that arrives without a clear cause. The feeling of something unfinished that you can't quite name.
-
-*Dig prompt: If you could put down one thing you've been carrying — just set it on the floor beside you — what would it be?*
+| Wk | Theme | The territory | The opening question |
+|---|---|---|---|
+| 27 | **Who Are You Now? — Rebuilding Identity** | Identity as something chosen rather than inherited | If nobody had told you who you were, who would you be? |
+| 28 | **What Do You Actually Value?** | The compass underneath the goals | What would you not trade, whatever you were offered for it? |
+| 29 | **The Habits That Build You** | Small daily practice as the architecture of a self | What do you do every day that is quietly making you someone? |
+| 30 | **Your Body as Foundation** | Sleep, movement, food, calm — the base everything sits on | What does your body need that you have been overriding? |
+| 31 | **The People You Choose** | The relationships that shape the life | Who do you become around the people you spend most time with? |
+| 32 | **How You Speak to Yourself** | The tone of the inner voice under pressure | What would you say to someone you loved who was where you are? |
+| 33 | **Creating Structure That Serves You** | Rhythm and routine as trellis rather than cage | What in your week is structure, and what is just habit? |
+| 34 | **Rest as a Practice, Not a Reward** | Restoration that isn't earned | When did you last rest without guilt? |
+| 35 | **Creativity and Expression** | Making things for their own sake | What did you love making before anyone told you if you were good at it? |
+| 36 | **Purpose — What You're Here For** | Where what you have meets what is needed | What are you doing when you lose track of time? |
+| 37 | **Money and What You Believe About It** | Inherited scripts about resources, need and enough | What did you learn about money before you were old enough to question it? |
+| 38 | **The Community You Build** | Contribution, and being part of something | What do you bring that a room is worse off without? |
+| 39 | **Integration — Who You Are Becoming** | Gathering the movement: values, habits, body, people | What is different about how you live now? |
 
 ---
 
-**Theme 2: The Smart Ways We Avoid**
+### ◆ Movement IV: Live It
 
-*On the genius of your coping mechanisms.*
-
-A warm, non-judgmental exploration of the ways people protect themselves from pain — and one that takes those protections seriously. They were intelligent responses to real circumstances. The overachiever who is never still enough to feel anxious. The caretaker who keeps themselves so busy helping others that their own needs never surface. The joker who turns everything into comedy before it can hurt. These are not character flaws. They are problem-solving. And they are worth understanding before they are challenged.
-
-*Dig prompt: What is the thing you do — reliably, almost automatically — when you are uncomfortable? Where did you learn it?*
-
----
-
-**Theme 3: The Wound You Didn't Choose**
-
-*What happened to you, and how it stayed.*
-
-On the experiences that shaped us without our consent: the things that happened in childhood, in relationships, in circumstances we didn't ask for and couldn't control. This week is not a deep-dive into trauma processing — that is careful, specialised work that belongs with a professional. But it is an honest acknowledgment that the past is not past in the way we pretend it is. It lives in the patterns, in the reactions, in the places we close off. Beginning to see that clearly is not weakness. It is the beginning of something else.
-
-*Dig prompt: Is there something that happened to you that you have never fully allowed yourself to grieve or acknowledge? What would it mean to give it that space?*
-
----
-
-**Theme 4: The Wound You Keep Reopening**
-
-*On the patterns that repeat.*
-
-The same argument, in different relationships. The same moment of self-sabotage, just before things get good. The same flinch, the same retreat, the same choice. We all have them. This week explores the patterns that recur — not as evidence of being broken, but as evidence of something unfinished. The pattern keeps trying to get your attention. This week helps the group begin to listen to what it's saying.
-
-*Dig prompt: What is a pattern in your life — in relationships, in work, in how you treat yourself — that keeps repeating? What might it be protecting?*
-
----
-
-**Theme 5: Grief as a Form of Love**
-
-*The things you haven't finished mourning.*
-
-Grief is not only for the death of people we love, though it is that too. It is for the death of versions of ourselves we had to let go of. For relationships that ended. For the life we thought we were going to have. For the childhood we deserved and didn't get. For the chances we didn't take and the chances we did take and which didn't work out. Most of us carry enormous amounts of unmourned grief — and the weight of it affects everything. This week holds grief gently and treats it as what it is: a form of love with nowhere to go yet.
-
-*Dig prompt: What have you lost that you have not yet allowed yourself to fully grieve? What would it mean to give that loss the attention it deserves?*
-
----
-
-**Theme 6: The Permission to Not Be Fine**
-
-*On the radical act of telling the truth about how you are.*
-
-"How are you?" "Fine, yeah, good." We say it a hundred times. We mean it almost never. This week explores the social contract of fine-ness — the pressure to perform wellness, stability, and composure — and what becomes available when you allow yourself, even privately, even just in the space of this session, to stop complying. Not for dramatic effect. Not to make others responsible for your feelings. Simply because the truth is truer, and something in you knows it.
-
-*Dig prompt: Right now, without performing or minimising: how are you, actually?*
-
----
-
-**Theme 7: What Healing Actually Looks Like**
-
-*It doesn't look like what you think.*
-
-Closing the movement. Healing is not linear. It is not a project with a completion date. It does not feel the way inspirational content suggests it feels — a clean release, a flood of relief, a definitive before and after. It looks like this: you react less strongly to something that used to undo you. You notice a pattern a few seconds earlier than you used to. You are slightly more honest with someone you love. You are slightly gentler with yourself on a day that goes wrong. This is what it looks like. This is enough.
-
-*Dig prompt: In what small way are you different — even slightly, even quietly — than you were a year ago? What made that possible?*
-
----
-
-### ◆ Movement III: Tend
-
-*Learning to Love Yourself*
-
----
-
-**The heart of this movement:**
-
-The phrase "self-love" has been so thoroughly co-opted by commodity culture — the candle, the face mask, the Instagram caption — that it barely means anything anymore. Tend is about restoring it to something real.
-
-To tend to yourself is to take your own inner life seriously. To stop treating your emotions as inconvenient interruptions. To stop treating your needs as evidence of weakness. To stop treating your suffering as a problem to be fixed as efficiently as possible. To be, toward yourself, something like what a genuinely good parent is to a child — not permissive, not indulgent, but present, interested, patient, and kind.
-
-This is harder than it sounds. For most people, the inner critic is louder than the inner companion. Self-compassion is not a natural state — it is a practice, and it takes the kind of repetition and patience that we more readily extend to others than to ourselves.
-
-Tend is about closing that gap.
-
----
-
-**Theme 1: The Voice in Your Head**
-
-*Who is narrating your inner life — and do you like them?*
-
-Everyone has an inner narrator. For most people, that narrator is critical, relentless, and impossible to satisfy. This week is an honest examination of that voice: where it came from, what it actually wants, why it says what it says. Not to silence it — that doesn't work, and the attempt tends to amplify it — but to understand it. A voice you understand has less power than a voice that remains mysterious.
-
-*Dig prompt: If the voice in your head were a person, what would they be like? Would you choose to spend time with them?*
-
----
-
-**Theme 2: Deserving**
-
-*On the feeling that you don't quite.*
-
-There is a belief that lives below the surface of many people — quiet, persistent, rarely examined: the belief that love, rest, care, good things, and basic ease have to be earned. That you are not quite entitled to them unless you have done enough, achieved enough, been good enough. This week explores where that belief comes from, what it costs to live under it, and what it might mean to begin releasing it. Not as a technique. As an act of basic justice toward yourself.
-
-*Dig prompt: Is there something you want — rest, help, connection, recognition — that you are withholding from yourself until you've earned it? What would it take to stop waiting?*
-
----
-
-**Theme 3: What You Would Say to Someone You Loved**
-
-*On the gap between how you speak to others and how you speak to yourself.*
-
-Here is a question: if a person you loved came to you in pain — confused, struggling, disappointed in themselves — what would you say to them? How would you hold them in the conversation? Most people, asked this, describe a quality of warmth, patience, and compassion that they would never dream of withholding from someone they care about. And then they describe the way they speak to themselves — and it is nothing like that. This week is about that gap, and about what it might mean to begin, just slightly, to close it.
-
-*Dig prompt: What is something you have said to yourself recently that you would never say to someone you love? What would you say instead?*
-
----
-
-**Theme 4: Rest as a Value, Not a Reward**
-
-*You don't have to earn your own restoration.*
-
-The culture tells us that rest is something you get when you've finished. When the work is done, when the list is clear, when you've justified it. But the list is never finished. And rest sought from depletion is not rest — it is collapse. This week makes a different case: that rest is not the end of productivity. It is the condition that makes everything else possible. And that you do not need to have earned it.
-
-*Dig prompt: When did you last rest without guilt? What would it take to do that regularly, not as a reward, but as a practice?*
-
----
-
-**Theme 5: The Need You Keep Deferring**
-
-*What is the thing you keep saying you'll get to?*
-
-Most people have a need — sometimes they can name it, sometimes they can only feel its absence — that they have been deprioritising for months or years. Connection. Creative expression. Stillness. Being known. Being helped, for once, instead of helping. This week is an invitation to notice that need, to take it seriously enough to name it, and to consider — just consider — one small movement toward it. Not a grand gesture. One step.
-
-*Dig prompt: What is the thing that, when you imagine having it in your life, makes something in you loosen? What is in the way?*
-
----
-
-**Theme 6: Forgiving Yourself for the Things You Did When You Were Surviving**
-
-*On self-forgiveness as a long and patient process.*
-
-This is the hardest week in the movement. It is about the decisions made from a wounded place — the things you said, the people you hurt, the choices you made when you were doing what you could with what you had. Self-forgiveness is not the same as excusing. It is not the same as forgetting. It is something more difficult: the slow, patient work of extending to your past self the same understanding you might extend to any other human being who was struggling and imperfect and doing their best. It is not finished quickly. It is worth starting.
-
-*Dig prompt: Is there something you have done that you have not forgiven yourself for? What would you need to believe about that version of yourself to begin?*
-
----
-
-**Theme 7: Becoming Your Own Companion**
-
-*On being genuinely at ease with yourself.*
-
-Closing the movement. There is a difference between solitude and loneliness. Solitude is chosen, inhabited, and can be deeply nourishing. Loneliness is the feeling of isolation — and you can feel it in a crowd. What determines which is which is often the quality of your own company: whether you can be alone with yourself without discomfort, without reaching immediately for a distraction, without feeling the absence of someone else as an accusation. This week is about that — about becoming, slowly, a place you can come back to.
-
-*Dig prompt: What does it feel like to spend time alone with yourself? What happens in the quiet?*
-
----
-
-### ◆ Movement IV: Open
-
-*Learning to Understand and Connect with Others*
-
----
-
-**The heart of this movement:**
+*Weeks 40–52 — Learning to give what you've grown*
 
 After three movements of turning inward, the fourth turns the gaze outward — not as an escape from the self, but as an expression of it.
 
-Having done some of the work of knowing yourself, having sat with some of what you've been carrying, having begun to develop a kinder relationship with your own inner life — you are now more able to see other people clearly. Not as threats, not as mirrors for your own unmet needs, not as sources of validation or disappointment, but as people doing the same difficult, imperfect, deeply human thing that you are.
+Having seen yourself clearly, having set down some of what you were carrying, having begun to build on honest ground — you are now more able to see other people clearly. Not as threats, not as mirrors for unmet needs, not as sources of validation, but as people doing the same difficult, imperfect, deeply human thing that you are.
 
-This is where empathy becomes possible as something more than a concept. Not a skill to perform, not a posture to adopt, but a natural consequence of self-understanding. When you know what it is to struggle with yourself, you recognise it in others. That recognition is the foundation of everything.
+This is where the inner work proves itself. Values under pressure. Conflict as contact. Generosity that doesn't deplete. The courage to be seen. The point was never self-improvement forever; it was to become someone other people are better for meeting.
 
----
-
-**Theme 1: Other People Are Also Trying**
-
-*On seeing the struggle that lives behind the surface.*
-
-The person who was cold to you this morning. The colleague who seems impossible to reach. The family member who keeps doing that thing. This week is an invitation — a gentle, honest one — to extend to other people the same quality of curiosity and patience we have been practising toward ourselves. Not to excuse behaviour that hurts you. Not to abandon discernment. But to remember that everyone you encounter is in some version of this journey too. Most of them have not had space to take it.
-
-*Dig prompt: Think of someone in your life you find difficult. What might they be carrying that you can't see?*
-
----
-
-**Theme 2: The Distance Between Us**
-
-*On why genuine connection is hard — and why it keeps mattering anyway.*
-
-Human beings are built for connection and terrified of it simultaneously. The vulnerability of being truly known — of letting someone see not the performance but the person — is enormous. And so we develop our distances: irony, competence, busyness, small talk, the managed conversation. This week is an honest look at those distances — where they come from, what they protect, and what they cost. People keep reaching toward each other anyway. That reaching is worth examining.
-
-*Dig prompt: Is there someone in your life you have been keeping at arm's length? What would it take to close the distance, even slightly?*
+| Wk | Theme | The territory | The opening question |
+|---|---|---|---|
+| 40 | **From Self-Development to Service** | What the inner work is ultimately for | Who is better off because of the work you've done this year? |
+| 41 | **Teaching What You've Learned** | Understanding something twice by passing it on | What do you know now that you wish someone had told you? |
+| 42 | **The Courage to Be Seen** | Exposure, and what lies past the fear of judgement | What is true about you that you have never let anyone see? |
+| 43 | **Living Your Values Under Pressure** | What holds when it costs something | When did you last act against your own values, and what was the pressure? |
+| 44 | **Conflict as a Growth Practice** | Staying in the difficulty rather than leaving it | What conflict have you been avoiding, and what are you protecting? |
+| 45 | **Generosity as a Way of Being** | Giving that grows the giver | What do you give that costs you nothing and matters to someone? |
+| 46 | **Enough — Living From Sufficiency** | Noticing what is already good | What is already enough that you keep treating as not yet? |
+| 47 | **The Long Game — Patience and Persistence** | Growth that is invisible before it is visible | What are you working on that has not shown results yet? |
+| 48 | **Leaving People Better Than You Found Them** | Small moments that ripple further than we see | Who left you better than they found you, and how? |
+| 49 | **Your Legacy — What You're Building Beyond Yourself** | The part of you that outlasts you | What do you want to be true because you were here? |
+| 50 | **Gratitude as a Practice, Not a Feeling** | Specific noticing, trained | What is good right now that you had stopped noticing? |
+| 51 | **The Ongoing Practice — There Is No Arrival** | Growth without a finish line | What will you keep doing when this year ends? |
+| 52 | **Integration — A Year of Becoming** | Gathering the whole arc | Who were you a year ago, and what would you tell them? |
 
 ---
 
-**Theme 3: Listening as an Act of Love**
+### Integration weeks
 
-*On the difference between hearing and actually listening.*
+Weeks 13, 26, 39 and 52 have a different shape, and it is deliberately lighter.
 
-Most conversations are two people waiting for their turn. Genuine listening — the kind where the other person feels truly heard, not just processed — is rare enough that it is often mistaken for something else. This week explores what listening actually involves: the suspension of your own interpretation, the willingness to be surprised, the setting aside of advice and reassurance in favour of simple presence. And it explores what it feels like, on the receiving end, when someone actually does this for you. That feeling is what you can offer.
+There is **no new teaching and no new video.** The room revisits the movement it has just lived: what was noticed, what was hard, what changed, what didn't. Slides 05 and 06 carry a summary of the movement rather than a new concept. Slide 08 is always a group exercise rather than an individual one. The Weekly Practices for an integration week are a **repeat of the three practices a member found hardest**, chosen by them.
 
-*Dig prompt: When did you last feel truly listened to? What did the other person do that made it feel that way?*
-
----
-
-**Theme 4: What You Project, What You Receive**
-
-*On how your inner world shapes what you see in others.*
-
-The way we see other people is not objective. It is filtered through everything we are carrying — our fears, our shame, our unmet needs, our accumulated assumptions. The colleague we're convinced dislikes us. The partner whose silence we interpret as rejection. The stranger whose behaviour we immediately read as threatening. This week is about those filters — how they form, how they distort, and how doing honest inner work slowly makes you more accurate about other people. You see them more clearly when you're not seeing yourself in everything.
-
-*Dig prompt: Is there a relationship in your life where your interpretation of the other person might be more about you than about them? What might you be projecting?*
+Integration weeks are also the natural **completion point** for a member finishing a year, and the natural **invitation point** — the week to bring someone.
 
 ---
 
-**Theme 5: Conflict as Contact**
+### Entering mid-year
 
-*On what happens when you stay in the difficulty.*
+The arc assumes a cohort starting at week 1. Real communities do not work that way, and the free trial pass drops a stranger into whatever week is running.
 
-Most people treat conflict as a failure — of relationship, of communication, of compatibility. This week offers a different frame: that conflict, handled with any degree of honesty and care, is one of the most direct routes to real intimacy. Not because it's pleasant, but because it requires both people to be actually present. To drop the performance. To say something real. To risk being wrong. To risk being known. The question is not whether to avoid conflict. It is whether, when it arrives, you can stay.
+**The rule: every week must stand alone.** A person walking in at week 23 — *Grief and Growth* — should be able to take part without having done weeks 1 to 22. That is a constraint on how every week is written, not a caveat.
 
-*Dig prompt: Think of a conflict you have been avoiding. What are you protecting yourself from by not having it? What might be on the other side of it?*
+In practice:
 
----
+- **Movement openers** — weeks 1, 14, 27 and 40 — are the promoted entry points, and where trial passes should be steered where the calendar allows.
+- **Integration weeks** are excellent first visits. Light, warm, no new material, and the room is at its most reflective.
+- **Every week carries a `first_time_note`** in the facilitator notes (slide 14): how to hold this week for someone who has never been here before, and what not to assume they already know.
+- **Heavy weeks** — 9, 16, 17, 23, 24, 42 — are flagged. A first-timer is welcome, and the facilitator is told they are present, so the room can be held accordingly.
 
-**Theme 6: Belonging vs. Fitting In**
-
-*On the difference between being accepted and being known.*
-
-There is a difference between the feeling of fitting in — of successfully performing the version of yourself that earns approval in a particular group — and the feeling of belonging, which is the experience of being known and valued for who you actually are. The first is exhausting and ultimately hollow. The second is rare and sustaining and almost universally craved. This week examines why people so often settle for the first — and what the risk and reward of reaching for the second might look like.
-
-*Dig prompt: Where in your life do you feel like you belong — not because you're performing, but because you're known? What made that possible?*
+No week is ever closed to a newcomer. The response to a difficult week is a better-briefed facilitator, not a locked door.
 
 ---
 
-**Theme 7: Vulnerability as the Point, Not the Risk**
+### After week 52
 
-*On how connection requires you to be seen.*
+The curriculum does not extend to a second year, and it should not.
 
-This is not a week about being vulnerable as a personal growth technique. It is an honest conversation about what it actually feels like to let someone see you — the exposure, the loss of control, the specific terror of being seen clearly and perhaps not being accepted. And then it is also a conversation about what happens on the other side of that: the connections that become possible when you stop managing the impression you're making and start simply showing up. The risk is real. It is also the only route to what you're looking for.
+**The year repeats. The member does not.** A second-year member walks the same 52 themes with a year of their own material behind them, and the questions land somewhere different because they are a different person asking. This is consistent with week 51: there is no arrival.
 
-*Dig prompt: Is there something true about you that you have never let someone else fully see? What has keeping it hidden cost you?*
+What changes in year two is **role, not content**:
 
----
+- Second-year members are the ones who make the room safe for first-year members. They are the ones who speak first when the silence has gone on too long.
+- **Life Group leadership** is drawn from second-year members, with training and safety checking (MC-HR-005).
+- Their workbook carries **last year's answer to the same question**, alongside this year's blank. That comparison is the most powerful single artefact Mindcast can offer, and it does not exist until someone has been here twice.
 
-**Theme 8: The Practice of Compassion**
-
-*It is never finished. That is not a problem.*
-
-Closing the movement and the full arc. Compassion — toward yourself and toward others — is not an achievement. It is not a state you arrive at and then inhabit permanently. It is a practice: something you do imperfectly, repeatedly, with better and worse days, for the rest of your life. This week is a homecoming — to the beginning, to the self, to the ongoing nature of this work — and a quiet acknowledgment that the fact that it is never finished is not a failure. It is the whole point. This is what it means to be human. This is what it looks like to stay in it.
-
-*Dig prompt: What is one small thing you could do today — for yourself, or for someone else — that comes from what you've noticed in yourself over this journey?*
+A third-year member who wants something different is telling us something useful. Listen, and do not manufacture content to hold them.
 
 ---
-
 ## V. Cross-Cutting Themes
 
-These themes run through all four movements. They surface differently at each stage, but they never disappear.
+These run through all four movements. They surface differently at each stage, but they never disappear.
 
-**The Body**
-The body is not a vehicle for the mind. It is a co-equal source of intelligence, and it is often the most honest one. In every movement, Mindcast returns to somatic experience — what the body registers, what it carries, what it knows — because the body does not perform, and cannot be argued with.
+**The Body.** The body is not a vehicle for the mind. It is a co-equal source of intelligence, and often the most honest one. It does not perform and cannot be argued with. *(Anchors: W4, W24, W30.)*
 
-**Story**
-Human beings are narrative animals. We understand ourselves through the stories we tell — about who we are, what happened to us, why we do what we do. Mindcast works with story as both a tool for understanding and a potential source of limitation. The stories that help us make sense of our lives can also become the container we cannot see past. Every movement examines the stories we live in.
+**Story.** Human beings are narrative animals. Mindcast works with story as both a tool for understanding and a source of limitation — the stories that help us make sense of our lives can become the container we cannot see past. *(Anchors: W2, W21, W25, W27.)*
 
-**Time**
-The past is present — more than we usually admit. The future is anticipated in ways that often take us out of now. Mindcast holds all three registers: the past that lives in the body and in pattern; the present moment as the only place real change happens; the future as something better approached with curiosity than with a plan.
+**Time.** The past is present more than we admit; the future is anticipated in ways that take us out of now. Mindcast holds all three registers. *(Anchors: W12, W47, W49.)*
 
-**The Ordinary**
-Mindcast does not trade in peak experiences. It does not promise transformation or breakthrough. It deals in the specific gravity of Tuesday afternoon — the unremarkable moments that, given attention, turn out to contain almost everything worth knowing. The ordinary is not the foyer to the meaningful. It is the meaningful.
+**The Ordinary.** Mindcast does not trade in peak experiences. It deals in the specific gravity of Tuesday afternoon. The ordinary is not the foyer to the meaningful. It is the meaningful. *(Anchors: W29, W33, W50.)*
 
-**Community**
-The group is not just a delivery mechanism. It is part of the content. Being witnessed matters. Being heard matters. The experience of showing up in the same room, week after week, with the same people — and slowly becoming more honest in that company — is itself a form of inner work. Some things you cannot learn alone.
+**Community.** The group is not just a delivery mechanism. It is part of the content. Being witnessed matters. Some things you cannot learn alone. *(Anchors: W11, W31, W38, W48.)*
 
 ---
 
 ## VI. The Facilitator Voice
 
-The Mindcast facilitator is not an expert addressing students. They are a companion who has walked this terrain themselves and who speaks from that place — not to instruct, but to accompany.
+The Mindcast facilitator is not an expert addressing students. They are a companion who has walked this terrain themselves and speaks from that place — not to instruct, but to accompany.
 
-**They earn the difficult things.** Before moving into something hard, they acknowledge that it is hard. They do not rush. They do not optimise for content delivery. They move at the speed of honesty.
+**They earn the difficult things.** Before moving into something hard, they acknowledge that it is hard. They do not rush. They move at the speed of honesty.
 
-**They do not tell people how to feel.** They describe. They ask. They invite. They name possibilities without prescribing them. The group's inner lives belong to the group.
+**They do not tell people how to feel.** They describe. They ask. They invite. The group's inner lives belong to the group.
 
 **They use specific detail.** Not "when you feel anxious" but "when that particular tightening begins in your chest before you've even understood why." Specificity creates recognition. Recognition creates trust.
 
-**They know when to stop.** Some things should be said once, and then the silence should be allowed to work. The facilitator trusts that silence. They do not fill it.
+**They know when to stop.** Some things should be said once, and then the silence should be allowed to work. Sixty seconds is not too long.
 
-**They hold the container, not the content.** The facilitator's job is not to have the best insight in the room. It is to make the room safe enough for everyone else to have their own. Restraint is a skill. Less is almost always more.
+**They hold the container, not the content.** The facilitator's job is not to have the best insight in the room. It is to make the room safe enough for everyone else to have their own. Restraint is a skill.
 
-**They never perform warmth.** Genuine warmth is particular and specific, not diffuse and general. The facilitator speaks to this person — the one in the room right now, in their specific circumstances — not to an audience.
+**They never perform warmth.** Genuine warmth is particular and specific. The facilitator speaks to this person, in their circumstances — not to an audience.
 
-**They speak in the first person plural, when it fits.** "We do this." "Most of us know this feeling." The group is not a collection of subjects being observed. They are people being walked alongside.
+**They speak in the first person plural, when it fits.** "We do this." "Most of us know this feeling."
+
+**They are not therapists, and they know the line.** A facilitator holds the room; they do not treat the person. Distress is met with presence and the escalation path (MC-SAF-002), never with improvised counselling. When something is beyond the room, the loving thing is to hand it on well.
+
+**They open the week, they do not conclude it.** No facilitator ends a session by telling the room what the week meant. The week means what it meant to each person in it.
 
 ---
 
-## VII. Session Architecture
+## VII. Session Architecture — the fifteen slides
 
-Each Mindcast session follows a defined structure — not a rigid script, but a consistent shape that creates safety and recognition for the group. Knowing the shape, even unconsciously, is part of what allows people to go deeper.
+Each session runs a fixed deck of fifteen slides. The shape is consistent so that knowing it, even unconsciously, is part of what lets people go deeper. Total runtime approximately **75 minutes**, plus arrival.
 
-**The Landing** *(~10 min)*
-Members arrive. The welcome wall is live. Check-in via the app — a name, a word, a presence registered. No formal opening. The facilitator is present but unhurried. This is transition time — from the noise of the day into the quality of attention that the session asks for.
+The deck is grouped into four beats. **Notice it** opens the room and names the territory. **Name it** is where the member meets it personally. **Do it** carries it out the door.
 
-**Looking Back** *(~8 min)*
-The facilitator reads 2–3 goal updates from members who chose to share their progress from the previous week. No commentary. No praise, no redirection. Let them land. The power of this moment is in the act of return — having set an intention, and having come back to account for it, however imperfectly.
+### Arrival — before the deck
 
-**The Source** *(~40 min)*
-The video plays in full. Workbooks are open. No interruptions. The facilitator's role here is to be fully present without being present-as-performer. They watch with the group. They are seen to take this seriously.
+Bracelets tap at the door. Membership status resolves. Names carry onto the welcome wall in each of the three rooms. Kids and teens are signed into their rooms against the parent's tap. No formal opening; the facilitator is present but unhurried.
 
-**The Dig** *(~10 min)*
-Quiet reflection. Questions appear on screen and in workbooks. Members write in near-silence. Ambient music, if the group is comfortable with it. No pressure to share. This is the moment the content gets met with personal experience — the conversion of watching into meaning.
+### ◆ Notice it
 
-**The Edge** *(~5 min)*
-One commitment. One small, specific, honest thing. The facilitator may model this — naming their own Edge from the previous week, and their Edge for the week ahead — to establish that this is not performance, and not perfection. It is intention.
+**00 · Title** — theme, session title, phase name and number. The room settles. Say the theme out loud once and let it sit.
 
-**The Close** *(~5 min)*
-A leaving word submitted to the app; the word cloud builds on screen. The facilitator offers a single, brief closing thought — something that stays in the room after people leave. Not a summary. A remainder.
+**01 · Voices from Last Week** *(~5 min)* — two or three reflections carried over from the previous session, read without commentary. No praise, no redirection. The power is in the act of return. This is the back half of the commitment loop that slide 11 opened seven days ago.
+
+**02 · Signal Metaphor** *(~2 min)* — the week's central image. One metaphor, held all session, referred back to. It is the handle people carry the week by.
+
+**03 · Ancient Wisdom** *(~3 min)* — the week's idea located in the long human conversation about it. Philosophy, contemplative tradition, whakataukī, inherited proverb. **The reframe is always toward the member's own inner wisdom — never toward a deity, doctrine or external authority.**
+
+**04 · Opening Hook** *(~2 min)* — the line that opens the room. One sentence, specific, slightly uncomfortable. It should make someone look up.
+
+### ◆ Name it
+
+**05 · Core Concept** *(~5 min)* — the teaching heart. Paragraphs separated by a blank line, revealed as the facilitator speaks. This is the longest continuous stretch of facilitator voice in the session, and it is still under five minutes.
+
+**06 · Teaching Points** *(~5 min)* — one point per line, revealed one at a time. Never all at once; the reveal is what keeps the room with you rather than reading ahead.
+
+**07 · Reflection 1** *(~8 min)* — the first journaling prompt, answered live. Quiet writing. Ambient sound if the room is comfortable with it. No pressure to share. This is where the content first meets a real life.
+
+**08 · Experiential Exercise** *(~15 min)* — the week's activity. In the kids' room this is the game; in the teen room it is often the conversation the video opened. **If the room is deep in real talk, the activity is optional.** Follow the room.
+
+**09 · Guided Reflection** *(~5 min)* — read aloud by the facilitator, slowly. This is a piece of writing, not a script to get through. Pauses are part of it.
+
+**10 · Reflection 2** *(~7 min)* — the second prompt, derived from the opening sentence of the guided reflection so the two land as one movement. Quiet writing, then conversation if the room wants it.
+
+### ◆ Do it
+
+**11 · Weekly Practices** *(~5 min)* — three named practices for Monday, Wednesday and Sunday. Small, specific, achievable. Written in the workbook and carried out the door. This is the front half of the loop that slide 01 will close next week.
+
+**12 · Video** *(~10 min)* — the curated piece, with two reflective questions shown beneath it and repeated in the journal and worksheet. The video sits *after* the personal work deliberately: members meet the material with their own reflection already in hand, so they watch as a participant rather than an audience.
+
+**13 · Affirmation** *(~1 min)* — the closing line. Said once, on screen, not explained.
+
+### Closing the room
+
+A single brief closing thought from the facilitator — not a summary, a remainder. Then the room closes properly: **in the kids' and teens' rooms, every child signed in is signed out to a named person before the door opens.** The container is only safe if it is counted.
+
+### 14 · Facilitator Notes
+
+Private. Never shown to members, never projected, never included in a printed worksheet.
+
+Should carry: how to hold this week, what to watch for in the room, the `first_time_note` for anyone attending for the first time, whether this is a flagged heavy week, and the escalation path if something surfaces that belongs outside the room.
+
+### On timing
+
+The times above total roughly 75 minutes and are a shape, not a schedule. **When a week genuinely needs more room, it takes more room.** The two things that should never be compressed to save time are Reflection 1 and the silence after the Guided Reflection. Cut the activity first.
 
 ---
 
 ## VIII. Content Sourcing Standards
 
-A few principles for the team sourcing video content each week:
+**Go specific, not general.** The temptation here is content that speaks in abstractions — "connection," "healing," "love." Resist it. The most powerful pieces go somewhere particular. Specificity is not the enemy of universality. It is the route to it.
 
-**Go specific, not general.** The temptation in this territory is to find content that speaks in abstract terms — "connection," "healing," "love." Resist it. The most powerful pieces will be the ones that go somewhere particular: a specific kind of grief, a specific kind of self-deception, a specific kind of reaching toward another person. Specificity is not the enemy of universality. It is the route to it.
+**Trust the group.** Members are not fragile and not beginners in their own lives. Do not seek content that explains too much or reassures too quickly.
 
-**Trust the group.** Mindcast members are not fragile, and they are not beginners in their own lives. They have lived things. Speak to the full intelligence and experience they bring. Do not seek out content that explains too much or reassures too quickly.
+**Resist resolution.** The impulse to find content that lifts and leaves people feeling better is understandable and worth resisting. Not every week should end in uplift. Some should end in honest complexity. That is also what trust looks like.
 
-**Resist resolution.** The impulse to find content that ends with hope, that lifts, that leaves people feeling better — that impulse is understandable, and it is worth resisting. Not every week should end in uplift. Some should end in honest complexity. That is also what trust looks like.
+**The three tracks must genuinely serve their audience.** The teen track is not a dumbed-down adult track. The kids track is not a distraction while the adults do the real work. Adults get the talk, teens get the honest version, kids get the picture book and the game — all on the same theme.
 
-**The three tracks must genuinely serve their audience.** The teen track is not a dumbed-down version of the adult track. The kids track is not a distraction while the adults do the real work. Each track holds the same theme with age-appropriate depth and specificity. The aim, wherever possible, is that a family could come back together after their parallel sessions and actually talk — because they've been thinking about the same thing from their own angle.
+**The workbook follows the content, not the theme.** Write the reflective questions after watching the specific piece. If the questions could apply to any piece on the general topic, they aren't specific enough. The questions in Section IV are the *seed*, not the final prompt.
 
-**The workbook follows the content, not the theme.** Write The Dig questions after watching the specific piece, not after reading the theme brief. The questions should be answerable only by someone who has watched what you watched. If the questions could apply to any piece on the general topic, they aren't specific enough.
+**Every week must stand alone.** Write for the person who walked in today, not only for the one who has been here since week 1. See *Entering mid-year*.
+
+**Safeguarding is a sourcing constraint.** Content touching self-harm, suicide, abuse or crisis is not banned — the real work touches these lives — but it is never left alone in the room. Such weeks carry the escalation path in the facilitator notes, and the kids' and teens' versions are built with particular care. When in doubt, MC-SAF-002 decides.
+
+**Copyright is a sourcing constraint too.** Third-party video is linked, never re-hosted, and never re-cut without permission. Transcripts are used to generate questions, not republished.
+
+---
+
+## IX. Version history
+
+**v2.1 — August 2026.**
+- Purpose taken verbatim from the Company Charter (MC-GOV-001 §2); the previous North Star retained and explicitly labelled as the internal poetic version, resolving the divergence between the two documents.
+- Section IV rebuilt: the *core learning* column replaced with **the territory** and **an opening question** for all 52 weeks, restoring the v1 Dig-prompt spirit. Stating a week's conclusion in advance contradicted Philosophy §2 and the Charter's *Draw out, don't preach*.
+- Section VII rewritten to the fifteen-slide deck the app actually runs, with the four-beat grouping and timings. The video's position after the personal reflection is now stated as deliberate.
+- **Integration weeks** given a defined shape for the first time.
+- **Entering mid-year** added — every week must stand alone, with promoted entry points, heavy-week flags and a `first_time_note` in slide 14.
+- **After week 52** answered: the year repeats, the member does not; year two changes role, not content.
+- *Abundance* removed from the lexicon and from the W37 title, per §III. *Rewiring* removed from W18 and W24 titles, consistent with retiring *Rewire* from the behaviour framework.
+
+> **Two week titles changed in this version — W18 and W24 — and W37 was reworded. The curriculum of record lives in `curriculum_weeks`; update the database to match, or this document is wrong.**
+
+**v2.0 — August 2026.** Carried the original framework into the 52-week curriculum across four movements; added membership model, three-track detail, safeguarding constraints, and the lineage map to v1.
+
+**v1.1 — May 2026.** Original framework: four movements (Ground, Wound, Tend, Open), theme prose and Dig prompts.
 
 ---
 
 *This framework is the foundation. Build from it carefully, and with the same quality of attention it invites the group to bring to themselves.*
 
----
-
-*Document version 1.1 — Mindcast, May 2026*
+*Document version 2.1 — Mindcast, August 2026. Supersedes v2.0. The curriculum of record lives in the database (`curriculum_weeks`); this document is its human narrative.*

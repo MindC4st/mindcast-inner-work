@@ -1,0 +1,1001 @@
+{
+  "generatedAt": "2026-08-16T00:52:28.909Z",
+  "site": "mindcast.co.nz",
+  "pages": {
+    "home": {
+      "notionId": "3be0d85f-784c-81a3-a96b-d2bab0f5ce7e",
+      "sections": [
+        {
+          "slug": "hero",
+          "title": "Hero",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "COMING SOON · AOTEAROA NEW ZEALAND"
+            },
+            {
+              "type": "p",
+              "text": "We consume more self-development than any generation before us — and apply almost none of it. Mindcast is a weekly live gathering built for follow-through: a room that holds you accountable to the things you already know you should do."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Join the waitlist →"
+            },
+            {
+              "type": "li",
+              "text": "CTA: See how it works"
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — hero — a family gathered together with open workbooks (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "manifesto",
+          "title": "Manifesto",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "You are unaware, and you don't change."
+            },
+            {
+              "type": "p",
+              "text": "You are aware, and you still don't change."
+            },
+            {
+              "type": "p",
+              "text": "You are aware — and you do."
+            },
+            {
+              "type": "p",
+              "text": "Mindcast is the room built for that third one."
+            },
+            {
+              "type": "quote",
+              "text": "UNCONSCIOUS → CONSCIOUS → CHANGED."
+            },
+            {
+              "type": "li",
+              "text": "NOT THERAPY · NOT RELIGION · NOT SELF-HELP · NOT A PODCAST"
+            },
+            {
+              "type": "p",
+              "text": "A STRUCTURED WEEKLY PRACTICE."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-idea",
+          "title": "The idea",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "WE ALL KNOW WHAT TO DO. WHY AREN'T WE DOING IT?"
+            },
+            {
+              "type": "p",
+              "text": "We've listened to the podcast. Read the book. Saved the reel. Then Monday arrives and nothing actually changes."
+            },
+            {
+              "type": "p",
+              "text": "Mindcast is a weekly live room built for the missing step — follow-through. A community that helps you bring the unconscious to the conscious, set one honest intention, and come back the following week to be held to it."
+            },
+            {
+              "type": "li",
+              "text": "Format — Live, in person"
+            },
+            {
+              "type": "li",
+              "text": "Cadence — Weekly"
+            },
+            {
+              "type": "li",
+              "text": "Tracks — Adults · Teens · Kids"
+            },
+            {
+              "type": "li",
+              "text": "Status — Coming soon"
+            },
+            {
+              "type": "li",
+              "text": "CTA: Join the waitlist →"
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — a facilitator leading a warm gathering (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "three-tracks-one-theme",
+          "title": "Three tracks · one theme",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "EVERY AGE. THE SAME WORK."
+            },
+            {
+              "type": "p",
+              "text": "Whānau-wide behaviour change starts with a shared language. Adults, teens and kids each have their own workbook — different depth, different words, same weekly theme — so the conversation keeps going in the car, at the dinner table, at bedtime."
+            },
+            {
+              "type": "h3",
+              "text": "Adults — A Reflective Workbook"
+            },
+            {
+              "type": "p",
+              "text": "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you."
+            },
+            {
+              "type": "h3",
+              "text": "Teens — A Teen Workbook"
+            },
+            {
+              "type": "p",
+              "text": "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down."
+            },
+            {
+              "type": "h3",
+              "text": "Children — Colouring & Picture-book"
+            },
+            {
+              "type": "p",
+              "text": "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice."
+            },
+            {
+              "type": "quote",
+              "text": "One wristband. One theme. One conversation the whole whānau can keep having."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — a Mindcast wristband being tapped at the door (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-weekly-rhythm",
+          "title": "The weekly rhythm",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "REFLECT. GATHER. COMMIT."
+            },
+            {
+              "type": "p",
+              "text": "A cadence built around the only thing that actually changes behaviour — coming back next week and being asked whether you did it."
+            },
+            {
+              "type": "h3",
+              "text": "1 · Reflect on last week"
+            },
+            {
+              "type": "p",
+              "text": "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data. This is the accountability loop most self-development is missing."
+            },
+            {
+              "type": "h3",
+              "text": "2 · This week's lesson"
+            },
+            {
+              "type": "p",
+              "text": "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious."
+            },
+            {
+              "type": "h3",
+              "text": "3 · One intention. Actioned."
+            },
+            {
+              "type": "p",
+              "text": "Before you leave, you write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-venue",
+          "title": "The venue",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "A SPACE BUILT FOR FOLLOW-THROUGH"
+            },
+            {
+              "type": "p",
+              "text": "Every detail designed so Sunday gatherings and Tuesday Life Groups have a permanent, purpose-built home — theatre, breakout rooms, cafe, and a playground so parents can stay present."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — Mindcast venue — theatre, breakout rooms, cafe, playground (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "li",
+              "text": "THEATRE — 120-seat auditorium with stage and LED wall"
+            },
+            {
+              "type": "li",
+              "text": "BREAKOUT ROOMS — glass-walled rooms for 15-person Life Groups"
+            },
+            {
+              "type": "li",
+              "text": "CAFE — espresso, communal tables, pre-session gathering"
+            },
+            {
+              "type": "li",
+              "text": "INDOOR PLAYGROUND — soft-play and climbing, visible from the cafe"
+            },
+            {
+              "type": "quote",
+              "text": "The structure was the container that made everything else possible."
+            },
+            {
+              "type": "p",
+              "text": "Ashleigh Carlson · Founder"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "founder",
+          "title": "Founder",
+          "blocks": [
+            {
+              "type": "quote",
+              "text": "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes that gap — together, every week."
+            },
+            {
+              "type": "p",
+              "text": "ASHLEIGH CARLSON · Founder · Mindcast"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "coming-soon",
+          "title": "Coming soon",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "STOP CONSUMING. START DOING."
+            },
+            {
+              "type": "p",
+              "text": "The first Mindcast gatherings are forming across Aotearoa. Add your name to the waitlist and we'll invite you when doors open near you."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Join the waitlist →"
+            },
+            {
+              "type": "li",
+              "text": "CTA: Read the story"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "footer",
+          "title": "Footer",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Mindcast · Taupō, New Zealand · mindcast.co.nz"
+            },
+            {
+              "type": "li",
+              "text": "Explore — About, Membership, Member Sign In"
+            },
+            {
+              "type": "li",
+              "text": "Connect — Instagram, Contact"
+            },
+            {
+              "type": "li",
+              "text": "Legal — Privacy Policy, Terms of Use, Refund Policy, Child Safety"
+            },
+            {
+              "type": "p",
+              "text": "© 2026 Mindcast. Built with intention."
+            },
+            {
+              "type": "p",
+              "text": "INNER WORK FOR REAL LIFE"
+            }
+          ]
+        }
+      ]
+    },
+    "membership": {
+      "notionId": "3be0d85f-784c-81a3-8900-f800b7304f54",
+      "sections": [
+        {
+          "slug": "membership",
+          "title": "Membership",
+          "blocks": []
+        },
+        {
+          "slug": "hero",
+          "title": "Hero",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "A ROOM IN TAUPŌ. THE SAME PEOPLE. EVERY WEEK."
+            },
+            {
+              "type": "p",
+              "text": "Nobody here buys a subscription. You decide to turn up — for a year, with people who will notice when you don't."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "come-and-sit-in-the-room-first",
+          "title": "Come and sit in the room first",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Before any of the prices below"
+            },
+            {
+              "type": "p",
+              "text": "A free trial pass gets you one full Sunday — the session, the room, the people. No card details, no obligation, and nobody in the room will know or care that you're on a pass."
+            },
+            {
+              "type": "p",
+              "text": "If it isn't for you, that's a fine answer and we won't chase you about it."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Get a free session pass"
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — a Mindcast session in progress — chairs in a circle, people talking (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "membership",
+          "title": "Membership",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "All prices in New Zealand dollars, GST inclusive."
+            },
+            {
+              "type": "h3",
+              "text": "ADULT — $29/week"
+            },
+            {
+              "type": "p",
+              "text": "The founding rate applies to the first hundred adult memberships and stays locked for twelve months. Standard rate $35/week."
+            },
+            {
+              "type": "p",
+              "text": "The full year: every Sunday session, your workbook and saved reflections, a midweek Life Group, and your wristband at the door."
+            },
+            {
+              "type": "h3",
+              "text": "TEEN — $22/week"
+            },
+            {
+              "type": "p",
+              "text": "The teen room, same rhythm. A private journal no one else reads — not even parents — and their own pass for the door."
+            },
+            {
+              "type": "h3",
+              "text": "KIDS ADD-ON — $15/week"
+            },
+            {
+              "type": "p",
+              "text": "Added to an adult or family membership. The kids' room: a picture book, a game, colouring that goes home on the fridge. Children are signed in and out by you, every week."
+            },
+            {
+              "type": "h3",
+              "text": "FAMILY BUNDLE — $79/week"
+            },
+            {
+              "type": "p",
+              "text": "Two adults plus up to three children or teens. One payment, the whole household. Everyone walks in on the same Sunday and everyone has their own room to be in."
+            },
+            {
+              "type": "h3",
+              "text": "CONCESSION — $19/week"
+            },
+            {
+              "type": "p",
+              "text": "Same membership. Everything included. If the standard rate is the thing standing between you and the room, this is the rate. One step to request. No means testing, no proof, no explanation — we don't ask, and nobody else can tell."
+            },
+            {
+              "type": "h3",
+              "text": "TRIAL PASS — $0, one session"
+            },
+            {
+              "type": "p",
+              "text": "One Sunday, the whole thing, free. Single use, requested in one click, delivered as a QR pass. Bring the family — they're on the same ticket."
+            },
+            {
+              "type": "p",
+              "text": "Not ready for any of it? The day's worksheet is $5 at the door or online, and you can follow the whole year that way. No account needed."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "what-s-in-it-and-what-isn-t",
+          "title": "What's in it — and what isn't",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "The Sunday session, every week of the year — Included"
+            },
+            {
+              "type": "li",
+              "text": "Your workbook — digital and printed, with your saved reflections — Included"
+            },
+            {
+              "type": "li",
+              "text": "A midweek Life Group — Included"
+            },
+            {
+              "type": "li",
+              "text": "Private journal (private means private — teens' journals are invisible to guardians) — Included"
+            },
+            {
+              "type": "li",
+              "text": "NFC wristband entry, replacement bracelets at cost — Included"
+            },
+            {
+              "type": "li",
+              "text": "One-to-one therapy or counselling — Not included (Mindcast is not a clinical service)"
+            },
+            {
+              "type": "li",
+              "text": "Locked-in commitment — Not included (cancel any time, two clicks, no questions)"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "leaving-is-two-clicks",
+          "title": "Leaving is two clicks",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Cancel any time from your account. Two clicks, no phone call, no retention offer, no 'are you sure?' survey. Your journal and reflections stay yours to export."
+            },
+            {
+              "type": "quote",
+              "text": "We would rather you left easily and remembered the room well."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — workbooks laid out on a table before a session (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "li",
+              "text": "CTA: Become a member"
+            }
+          ]
+        }
+      ]
+    },
+    "about": {
+      "notionId": "3be0d85f-784c-8153-824c-ec0cb55f8746",
+      "sections": [
+        {
+          "slug": "about",
+          "title": "About",
+          "blocks": [
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — about hero (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "h3",
+              "text": "WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION"
+            },
+            {
+              "type": "p",
+              "text": "A place to show up every week. A community that holds you accountable. Frameworks for the hard stuff. Tools you carry into real life."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-story",
+          "title": "The story",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "I loved podcasts the way some people love music. Driving was my favourite thing because it meant I could listen — really listen. But I could never retain what I was learning. The ideas would hit, stir something, then dissolve into the noise of the week."
+            },
+            {
+              "type": "p",
+              "text": "I tried the gym. I was only there out of necessity — external motivators chased, never truly wanted. I tried book clubs, but I only read non-fiction and I heard some people don't even read the book. Then I started a women in business group: we rotated roles, shared wins, and spoke our intentions aloud each week. Because we'd said them in front of each other, we actually followed through. The structure worked."
+            },
+            {
+              "type": "p",
+              "text": "But I was told to relax. To loosen the format. And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability — and I thought, surely there must be others out there who feel the same way."
+            },
+            {
+              "type": "p",
+              "text": "That's where Mindcast began. Not a book club, not a lecture — a facilitated weekly gathering. A 52-week journey where adults, teens and children each work through the same theme in their own live session, reflect in their course book, and leave with one thing to implement before next week. During the week, Life Groups meet to revisit the Sunday session and go deeper. Not to be taught. Just to do the work, side by side."
+            },
+            {
+              "type": "p",
+              "text": "So I built the room."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-room",
+          "title": "The room",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Mindcast is being designed as a permanent space — a building purpose-built for weekly gatherings. A 120-seat theatre for Sunday sessions. Glass-walled breakout rooms for Tuesday Life Groups. A cafe to linger in beforehand. An indoor playground so parents can stay present while kids play within view."
+            },
+            {
+              "type": "p",
+              "text": "Every element — from the auditorium stage to the breakout room acoustics — is designed to hold the rhythm: Reflect, Gather, Commit."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — Mindcast venue (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "quote",
+              "text": "I didn't invent the wisdom. I just built the room."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-mission",
+          "title": "The mission",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "COMMUNITY"
+            },
+            {
+              "type": "p",
+              "text": "A weekly gathering of people who show up for each other. Not followers. Not fans. A real group doing real work together — in person, face to face."
+            },
+            {
+              "type": "h3",
+              "text": "PRACTICE"
+            },
+            {
+              "type": "p",
+              "text": "A 52-week journey with a weekly rhythm: a facilitated Sunday session works through the theme, you reflect in your course book and set one intention, then a midweek Life Group revisits it and goes deeper — and every session opens by asking whether last week's intention actually happened."
+            },
+            {
+              "type": "h3",
+              "text": "TOOLS"
+            },
+            {
+              "type": "p",
+              "text": "A live digital course book, guided reflection and journaling, weekly practices, and Life Groups — designed to make the inner work tangible and trackable across the whole 52-week journey."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-founder",
+          "title": "The founder",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "ASHLEIGH CARLSON · FOUNDER & FACILITATOR"
+            },
+            {
+              "type": "p",
+              "text": "I'm not a teacher (anymore). I'm not a guru. I'm not a prophet, and I'm certainly not the source of whatever wisdom surfaces in a Mindcast session."
+            },
+            {
+              "type": "p",
+              "text": "Everything we draw from — the ideas, the thinkers, the frameworks — already exists in the world. I didn't invent the wisdom. I just built the room. I created the shape of the evening. I wrote the questions. I set the table. What happens at that table belongs to everyone who sits at it."
+            },
+            {
+              "type": "p",
+              "text": "I built Mindcast because I needed it myself. I needed a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone. I was looking to find my people: those who get stimulated intellectually, who want to understand themselves better, who are tired of surfaces and small talk and pretending they're fine."
+            },
+            {
+              "type": "p",
+              "text": "So if you need a label, here's the truest one: I'm the first participant. The one who needed this badly enough to build it — and then left the door open for whoever else might need it too."
+            },
+            {
+              "type": "p",
+              "text": "BASED IN TAUPŌ, NEW ZEALAND"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "our-values",
+          "title": "Our values",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "CONSENT BEFORE EVERYTHING — you decide what you share, what you explore, and how far you go. Always."
+            },
+            {
+              "type": "li",
+              "text": "EVIDENCE WHERE POSSIBLE, HONESTY ABOUT THE REST — we use what the research says. Where it's silent, we say so. No false certainty. No magic."
+            },
+            {
+              "type": "li",
+              "text": "INNER WORK IS FOR EVERYONE — not just the wealthy, the already-well, or those with time. This is for the rest of us."
+            },
+            {
+              "type": "li",
+              "text": "COMMUNITY OVER CONTENT — the most powerful thing we offer isn't a podcast or a framework. It's the room you walk into each week."
+            },
+            {
+              "type": "li",
+              "text": "SAFETY IS NON-NEGOTIABLE — physically, emotionally, psychologically. We build spaces where people can be honest without being harmed."
+            },
+            {
+              "type": "li",
+              "text": "ONE STEP AT A TIME — we don't ask you to transform. We ask you to notice one thing, name one thing, change one thing. Then come back next week."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "we-use-ai-here-s-why-we-re-proud-of-that",
+          "title": "We use AI. Here's why we're proud of that.",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A note on how Mindcast was built — and what we believe about the tools we use."
+            },
+            {
+              "type": "p",
+              "text": "The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone."
+            },
+            {
+              "type": "p",
+              "text": "We believe AI should make us more human, not less. It should free up the hours we waste on things that don't require a human touch — so we can spend more time in rooms with real people, having conversations that actually matter."
+            },
+            {
+              "type": "p",
+              "text": "Mindcast exists because of AI. Not in spite of it."
+            },
+            {
+              "type": "p",
+              "text": "Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or ample free time. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely."
+            },
+            {
+              "type": "p",
+              "text": "Our resources are evidence-based because AI lets us stand on the shoulders of the researchers, scientists, and authors who have spent decades studying human behaviour, healing, and connection. We don't make things up. We find the best thinking that exists, translate it into something you can actually use, and bring it into the room with us every week."
+            },
+            {
+              "type": "p",
+              "text": "That's the version of AI we're interested in: the one that makes human experience richer, more accessible, and more honest."
+            },
+            {
+              "type": "quote",
+              "text": "AI didn't replace the human work. It made the human work possible."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "ready-to-start",
+          "title": "Ready to start?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Become a member →"
+            }
+          ]
+        }
+      ]
+    },
+    "how it works": {
+      "notionId": "3be0d85f-784c-81e6-ae7c-d8717af2c376",
+      "sections": [
+        {
+          "slug": "how-it-works",
+          "title": "How it works",
+          "blocks": [
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — hero — a facilitator leading a warm gathering (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "h3",
+              "text": "WE ALL KNOW WHAT TO DO. WHY AREN'T WE DOING IT?"
+            },
+            {
+              "type": "p",
+              "text": "We've listened to the podcast. Read the book. Saved the reel. Then Monday arrives and nothing actually changes."
+            },
+            {
+              "type": "p",
+              "text": "Mindcast is a weekly live room built for the missing step — a community that helps you bring the unconscious to the conscious, set one honest intention, and come back the following week to be held to it."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Read the story"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "every-age-the-same-work",
+          "title": "Every age. The same work.",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "ONE THEME, THREE ROOMS"
+            },
+            {
+              "type": "p",
+              "text": "Whānau-wide behaviour change starts with a shared language. Adults, teens and kids each have their own workbook — different depth, different words, same weekly theme."
+            },
+            {
+              "type": "h3",
+              "text": "Adults"
+            },
+            {
+              "type": "p",
+              "text": "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — the adult workbook open mid-session (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "h3",
+              "text": "Teens"
+            },
+            {
+              "type": "p",
+              "text": "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — the teen workbook (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "h3",
+              "text": "Kids"
+            },
+            {
+              "type": "p",
+              "text": "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — a child's colouring page from the kids' room (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "stats",
+          "title": "Stats",
+          "blocks": [
+            {
+              "type": "li",
+              "text": "52 — weeks in the journey"
+            },
+            {
+              "type": "li",
+              "text": "3 — rooms, one theme"
+            },
+            {
+              "type": "li",
+              "text": "1 — intention, kept weekly"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "reflect-gather-commit",
+          "title": "Reflect. Gather. Commit.",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "THE RHYTHM"
+            },
+            {
+              "type": "p",
+              "text": "A cadence built around the only thing that actually changes behaviour — coming back next week and being asked whether you did it."
+            },
+            {
+              "type": "h3",
+              "text": "Sunday · The Gathering"
+            },
+            {
+              "type": "p",
+              "text": "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data."
+            },
+            {
+              "type": "h3",
+              "text": "In the Rooms"
+            },
+            {
+              "type": "p",
+              "text": "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious."
+            },
+            {
+              "type": "h3",
+              "text": "Before You Leave"
+            },
+            {
+              "type": "p",
+              "text": "You write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "coming-soon",
+          "title": "Coming soon",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "A SPACE BUILT FOR FOLLOW-THROUGH"
+            },
+            {
+              "type": "p",
+              "text": "Every detail designed so Sunday gatherings and midweek Life Groups have a permanent, purpose-built home — theatre, breakout rooms, cafe, and a playground so parents can stay present."
+            },
+            {
+              "type": "li",
+              "text": "THEATRE — 120-seat auditorium with stage and LED wall"
+            },
+            {
+              "type": "li",
+              "text": "LIFE GROUP ROOMS — glass-walled rooms for 15-person Life Groups"
+            },
+            {
+              "type": "li",
+              "text": "CAFE — espresso, communal tables, pre-session gathering"
+            },
+            {
+              "type": "li",
+              "text": "PLAYGROUND — soft-play and climbing, visible from the cafe"
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — Mindcast venue — theatre, breakout rooms, cafe, playground (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "quote",
+              "text": "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes that gap — together, every week."
+            },
+            {
+              "type": "p",
+              "text": "Ashleigh Carlson · Founder of Mindcast"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "taup-sundays",
+          "title": "Taupō · Sundays",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "STOP CONSUMING. START DOING."
+            },
+            {
+              "type": "p",
+              "text": "One room, the same people, every week, for a year. Come and sit in it once, free, and see what it is — no card, no chase, no countdown."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Get a free session pass"
+            },
+            {
+              "type": "li",
+              "text": "CTA: See membership"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "footer",
+          "title": "Footer",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Mindcast · Taupō, New Zealand · mindcast.co.nz"
+            },
+            {
+              "type": "li",
+              "text": "Explore — About, Membership, Member Sign In"
+            },
+            {
+              "type": "li",
+              "text": "Connect — Instagram, Contact"
+            },
+            {
+              "type": "li",
+              "text": "Legal — Privacy Policy, Terms of Use, Refund Policy"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

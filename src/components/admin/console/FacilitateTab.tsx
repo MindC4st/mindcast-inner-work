@@ -14,31 +14,31 @@ const FacilitateTab = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="font-display text-2xl text-white tracking-wider">Facilitate</h2>
-        <p className="text-[#8E9299] text-sm font-body mt-1">Open and start a live session. Adults, teens and children run in parallel on the same slide format.</p>
+        <h2 className="font-display text-2xl text-foreground tracking-wider">Facilitate</h2>
+        <p className="text-muted-foreground text-sm font-body mt-1">Open and start a live session. Adults, teens and children run in parallel on the same slide format.</p>
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-6 space-y-6">
+      <div className="rounded-lg border border-border bg-card p-6 space-y-6">
         <div className="grid sm:grid-cols-2 gap-6">
           <div>
-            <label className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] block mb-2">Session week</label>
+            <label className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground block mb-2">Session week</label>
             <input
               type="number" min={1} max={52} value={week}
               onChange={(e) => setWeek(Math.min(52, Math.max(1, parseInt(e.target.value || "1", 10) || 1)))}
-              className="w-full bg-transparent border border-white/10 rounded-md px-3 py-2.5 text-lg font-display tracking-wider text-white focus:outline-none focus:border-[#3585AF]/60 transition-colors"
+              className="w-full bg-transparent border border-border rounded-md px-3 py-2.5 text-lg font-display tracking-wider text-foreground focus:outline-none focus:border-primary/60 transition-colors"
             />
             {currentWeek && (
-              <button onClick={() => setWeek(currentWeek)} className="mt-2 text-[11px] font-body text-[#C5E3F3] underline underline-offset-2">
+              <button onClick={() => setWeek(currentWeek)} className="mt-2 text-[11px] font-body text-primary underline underline-offset-2">
                 Jump to current week ({currentWeek})
               </button>
             )}
           </div>
           <div>
-            <label className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] block mb-2">Track</label>
-            <div className="grid grid-cols-3 gap-1 rounded-md border border-white/10 p-1">
+            <label className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground block mb-2">Track</label>
+            <div className="grid grid-cols-3 gap-1 rounded-md border border-border p-1">
               {TRACKS.map((t) => (
                 <button key={t} onClick={() => setTrack(t)}
-                  className={`py-2 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${track === t ? "bg-[#3585AF] text-white" : "text-[#8E9299] hover:text-white"}`}>
+                  className={`py-2 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${track === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   {t}
                 </button>
               ))}
@@ -48,33 +48,33 @@ const FacilitateTab = () => {
 
         <button
           onClick={() => navigate(`/mindcast-live/facilitate/${week}?a=${track}`)}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-[#3585AF] text-white font-display text-lg tracking-[0.2em] rounded-md hover:bg-[#3585AF]/80 transition-colors">
+          className="w-full flex items-center justify-center gap-3 py-4 bg-primary text-primary-foreground font-display text-lg tracking-[0.2em] rounded-md hover:bg-primary/90 transition-colors">
           <Clapperboard size={18} /> OPEN WEEK {week} · {track.toUpperCase()} DECK <ArrowRight size={16} />
         </button>
 
-        <p className="text-[11px] font-body text-[#8E9299] text-center">
+        <p className="text-[11px] font-body text-muted-foreground text-center">
           The deck shows the join code + welcome wall, plays the video with captions and the two reflective questions, and runs the live activity + whiteboard.
         </p>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4">
         <button onClick={() => navigate("/admin/kiosk")}
-          className="flex flex-col items-start gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 hover:border-white/20 transition-colors text-left">
-          <Nfc size={16} className="text-[#3585AF]" />
-          <span className="text-sm font-body text-[#E2E8F0]">Check-in kiosk</span>
-          <span className="text-[11px] font-body text-[#8E9299]">Staff NFC bracelet scan mode for the door.</span>
+          className="flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-5 hover:border-border transition-colors text-left">
+          <Nfc size={16} className="text-primary" />
+          <span className="text-sm font-body text-foreground">Check-in kiosk</span>
+          <span className="text-[11px] font-body text-muted-foreground">Staff NFC bracelet scan mode for the door.</span>
         </button>
         <button onClick={() => navigate("/mindcast-live/library")}
-          className="flex flex-col items-start gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 hover:border-white/20 transition-colors text-left">
-          <BookOpen size={16} className="text-[#3585AF]" />
-          <span className="text-sm font-body text-[#E2E8F0]">52-week coursebook</span>
-          <span className="text-[11px] font-body text-[#8E9299]">Browse every week and open any deck.</span>
+          className="flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-5 hover:border-border transition-colors text-left">
+          <BookOpen size={16} className="text-primary" />
+          <span className="text-sm font-body text-foreground">52-week coursebook</span>
+          <span className="text-[11px] font-body text-muted-foreground">Browse every week and open any deck.</span>
         </button>
         <button onClick={() => navigate("/mindcast-live/coursebook")}
-          className="flex flex-col items-start gap-3 rounded-lg border border-white/[0.08] bg-white/[0.03] p-5 hover:border-white/20 transition-colors text-left">
-          <Printer size={16} className="text-[#3585AF]" />
-          <span className="text-sm font-body text-[#E2E8F0]">Print run sheet</span>
-          <span className="text-[11px] font-body text-[#8E9299]">Paper copy of the session framework.</span>
+          className="flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-5 hover:border-border transition-colors text-left">
+          <Printer size={16} className="text-primary" />
+          <span className="text-sm font-body text-foreground">Print run sheet</span>
+          <span className="text-[11px] font-body text-muted-foreground">Paper copy of the session framework.</span>
         </button>
       </div>
     </div>

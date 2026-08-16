@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import logoLight from "@/assets/logo-cream.png";
+import logoLight from "@/assets/logo-blue-wordmark.png";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -55,45 +55,45 @@ const ResetPassword = () => {
 
   if (!ready) {
     return (
-      <section className="bg-navy min-h-screen flex items-center justify-center">
+      <section className="bg-background min-h-screen flex items-center justify-center">
         <div className="text-center">
           <img src={logoLight} alt="Mindcast" className="h-10 mx-auto mb-6" />
-          <p className="text-cream/50 text-sm font-body">Verifying your reset link…</p>
+          <p className="text-muted-foreground text-sm font-body">Verifying your reset link…</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="bg-navy min-h-screen flex items-center justify-center">
+    <section className="bg-background min-h-screen flex items-center justify-center">
       <div className="w-full max-w-sm px-8">
         <div className="text-center mb-10">
           <img src={logoLight} alt="Mindcast" className="h-10 mx-auto mb-6" />
-          <h1 className="font-display text-lg tracking-[0.3em] text-cream/80">SET NEW PASSWORD</h1>
+          <h1 className="font-display text-lg tracking-[0.3em] text-foreground/90">SET NEW PASSWORD</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="text-[10px] tracking-[0.2em] text-cream/40 font-body block mb-2">NEW PASSWORD</label>
+            <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">NEW PASSWORD</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full bg-transparent border-b border-cream/20 text-cream px-0 py-3 text-sm font-body font-light placeholder:text-cream/25 focus:border-cream/50 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
               placeholder="••••••••"
             />
           </div>
           <div>
-            <label className="text-[10px] tracking-[0.2em] text-cream/40 font-body block mb-2">CONFIRM PASSWORD</label>
+            <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">CONFIRM PASSWORD</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full bg-transparent border-b border-cream/20 text-cream px-0 py-3 text-sm font-body font-light placeholder:text-cream/25 focus:border-cream/50 focus:outline-none transition-colors"
+              className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -101,7 +101,7 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-cream/10 text-cream py-4 text-[11px] tracking-[0.2em] font-body hover:bg-cream/20 transition-colors disabled:opacity-40"
+              className="w-full bg-primary text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
             >
               {loading ? "UPDATING..." : "UPDATE PASSWORD"}
             </button>

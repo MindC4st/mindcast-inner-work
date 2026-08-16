@@ -114,6 +114,51 @@ export type Database = {
           },
         ]
       }
+      authorised_collectors: {
+        Row: {
+          added_by: string
+          child_profile_id: string
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          added_by: string
+          child_profile_id: string
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          added_by?: string
+          child_profile_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorised_collectors_added_by_fkey"
+            columns: ["added_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorised_collectors_child_profile_id_fkey"
+            columns: ["child_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookmark_responses: {
         Row: {
           bookmark_id: string
@@ -180,6 +225,7 @@ export type Database = {
           share_goal_publicly: boolean | null
           source: string
           track: string | null
+          wall_hidden: boolean
           welcome_note: string | null
         }
         Insert: {
@@ -197,6 +243,7 @@ export type Database = {
           share_goal_publicly?: boolean | null
           source?: string
           track?: string | null
+          wall_hidden?: boolean
           welcome_note?: string | null
         }
         Update: {
@@ -214,6 +261,7 @@ export type Database = {
           share_goal_publicly?: boolean | null
           source?: string
           track?: string | null
+          wall_hidden?: boolean
           welcome_note?: string | null
         }
         Relationships: [
@@ -359,6 +407,33 @@ export type Database = {
           },
         ]
       }
+      concession_requests: {
+        Row: {
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          requested_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          requested_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          requested_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       curriculum_weeks: {
         Row: {
           activity_options: string | null
@@ -383,16 +458,23 @@ export type Database = {
           kids_source: string | null
           kids_theme_notes: string | null
           kids_title: string | null
+          movement_theme: string | null
+          opening_question: string | null
           pdf_reference: string | null
           reflective_question: string | null
+          revisits_weeks: string | null
           signal_metaphor: string | null
+          spiral_depth: string | null
+          spiral_thread: string | null
           teen_search_notes: string | null
           teen_signal_metaphor: string | null
           teen_source: string | null
           teen_video_title: string | null
+          the_territory: string | null
           updated_at: string
           video_position: string
           week_number: number
+          week_type: string | null
           weekly_theme: string
           workbook_activity: string | null
           youtube_runtime: string | null
@@ -422,16 +504,23 @@ export type Database = {
           kids_source?: string | null
           kids_theme_notes?: string | null
           kids_title?: string | null
+          movement_theme?: string | null
+          opening_question?: string | null
           pdf_reference?: string | null
           reflective_question?: string | null
+          revisits_weeks?: string | null
           signal_metaphor?: string | null
+          spiral_depth?: string | null
+          spiral_thread?: string | null
           teen_search_notes?: string | null
           teen_signal_metaphor?: string | null
           teen_source?: string | null
           teen_video_title?: string | null
+          the_territory?: string | null
           updated_at?: string
           video_position?: string
           week_number: number
+          week_type?: string | null
           weekly_theme?: string
           workbook_activity?: string | null
           youtube_runtime?: string | null
@@ -461,6 +550,94 @@ export type Database = {
           kids_source?: string | null
           kids_theme_notes?: string | null
           kids_title?: string | null
+          movement_theme?: string | null
+          opening_question?: string | null
+          pdf_reference?: string | null
+          reflective_question?: string | null
+          revisits_weeks?: string | null
+          signal_metaphor?: string | null
+          spiral_depth?: string | null
+          spiral_thread?: string | null
+          teen_search_notes?: string | null
+          teen_signal_metaphor?: string | null
+          teen_source?: string | null
+          teen_video_title?: string | null
+          the_territory?: string | null
+          updated_at?: string
+          video_position?: string
+          week_number?: number
+          week_type?: string | null
+          weekly_theme?: string
+          workbook_activity?: string | null
+          youtube_runtime?: string | null
+          youtube_title?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      curriculum_weeks_archive_v2: {
+        Row: {
+          activity_options: string | null
+          activity_type: string | null
+          adult_search_notes: string | null
+          adult_source: string | null
+          adult_video_title: string | null
+          block_number: number | null
+          block_theme: string | null
+          core_learning: string | null
+          created_at: string | null
+          id: string | null
+          inner_wisdom_alignment: string | null
+          interactive_activity: string | null
+          kids_activity_type: string | null
+          kids_colouring_prompt: string | null
+          kids_format: string | null
+          kids_game: string | null
+          kids_picture_book: string | null
+          kids_picture_book_note: string | null
+          kids_signal_metaphor: string | null
+          kids_source: string | null
+          kids_theme_notes: string | null
+          kids_title: string | null
+          pdf_reference: string | null
+          reflective_question: string | null
+          signal_metaphor: string | null
+          teen_search_notes: string | null
+          teen_signal_metaphor: string | null
+          teen_source: string | null
+          teen_video_title: string | null
+          updated_at: string | null
+          video_position: string | null
+          week_number: number | null
+          weekly_theme: string | null
+          workbook_activity: string | null
+          youtube_runtime: string | null
+          youtube_title: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          activity_options?: string | null
+          activity_type?: string | null
+          adult_search_notes?: string | null
+          adult_source?: string | null
+          adult_video_title?: string | null
+          block_number?: number | null
+          block_theme?: string | null
+          core_learning?: string | null
+          created_at?: string | null
+          id?: string | null
+          inner_wisdom_alignment?: string | null
+          interactive_activity?: string | null
+          kids_activity_type?: string | null
+          kids_colouring_prompt?: string | null
+          kids_format?: string | null
+          kids_game?: string | null
+          kids_picture_book?: string | null
+          kids_picture_book_note?: string | null
+          kids_signal_metaphor?: string | null
+          kids_source?: string | null
+          kids_theme_notes?: string | null
+          kids_title?: string | null
           pdf_reference?: string | null
           reflective_question?: string | null
           signal_metaphor?: string | null
@@ -468,10 +645,49 @@ export type Database = {
           teen_signal_metaphor?: string | null
           teen_source?: string | null
           teen_video_title?: string | null
-          updated_at?: string
-          video_position?: string
-          week_number?: number
-          weekly_theme?: string
+          updated_at?: string | null
+          video_position?: string | null
+          week_number?: number | null
+          weekly_theme?: string | null
+          workbook_activity?: string | null
+          youtube_runtime?: string | null
+          youtube_title?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          activity_options?: string | null
+          activity_type?: string | null
+          adult_search_notes?: string | null
+          adult_source?: string | null
+          adult_video_title?: string | null
+          block_number?: number | null
+          block_theme?: string | null
+          core_learning?: string | null
+          created_at?: string | null
+          id?: string | null
+          inner_wisdom_alignment?: string | null
+          interactive_activity?: string | null
+          kids_activity_type?: string | null
+          kids_colouring_prompt?: string | null
+          kids_format?: string | null
+          kids_game?: string | null
+          kids_picture_book?: string | null
+          kids_picture_book_note?: string | null
+          kids_signal_metaphor?: string | null
+          kids_source?: string | null
+          kids_theme_notes?: string | null
+          kids_title?: string | null
+          pdf_reference?: string | null
+          reflective_question?: string | null
+          signal_metaphor?: string | null
+          teen_search_notes?: string | null
+          teen_signal_metaphor?: string | null
+          teen_source?: string | null
+          teen_video_title?: string | null
+          updated_at?: string | null
+          video_position?: string | null
+          week_number?: number | null
+          weekly_theme?: string | null
           workbook_activity?: string | null
           youtube_runtime?: string | null
           youtube_title?: string | null
@@ -682,6 +898,50 @@ export type Database = {
         }
         Relationships: []
       }
+      guardian_consents: {
+        Row: {
+          consent_type: string
+          consented_at: string
+          guardian_email: string | null
+          guardian_name: string
+          guardian_phone: string | null
+          id: string
+          recorded_by: string | null
+          revoked_at: string | null
+          subject_profile_id: string
+        }
+        Insert: {
+          consent_type: string
+          consented_at?: string
+          guardian_email?: string | null
+          guardian_name: string
+          guardian_phone?: string | null
+          id?: string
+          recorded_by?: string | null
+          revoked_at?: string | null
+          subject_profile_id: string
+        }
+        Update: {
+          consent_type?: string
+          consented_at?: string
+          guardian_email?: string | null
+          guardian_name?: string
+          guardian_phone?: string | null
+          id?: string
+          recorded_by?: string | null
+          revoked_at?: string | null
+          subject_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guardian_consents_subject_profile_id_fkey"
+            columns: ["subject_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       household_members: {
         Row: {
           created_at: string
@@ -689,6 +949,7 @@ export type Database = {
           id: string
           profile_id: string
           role_in_household: string
+          teen_self_signout: boolean
         }
         Insert: {
           created_at?: string
@@ -696,6 +957,7 @@ export type Database = {
           id?: string
           profile_id: string
           role_in_household?: string
+          teen_self_signout?: boolean
         }
         Update: {
           created_at?: string
@@ -703,6 +965,7 @@ export type Database = {
           id?: string
           profile_id?: string
           role_in_household?: string
+          teen_self_signout?: boolean
         }
         Relationships: [
           {
@@ -1088,6 +1351,42 @@ export type Database = {
           },
         ]
       }
+      lesson_slides: {
+        Row: {
+          applies_to_tracks: string[]
+          beat: string
+          component_key: string
+          default_duration_seconds: number
+          id: string
+          is_active: boolean
+          position: number
+          slide_key: string
+          title: string
+        }
+        Insert: {
+          applies_to_tracks?: string[]
+          beat: string
+          component_key: string
+          default_duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          position: number
+          slide_key: string
+          title: string
+        }
+        Update: {
+          applies_to_tracks?: string[]
+          beat?: string
+          component_key?: string
+          default_duration_seconds?: number
+          id?: string
+          is_active?: boolean
+          position?: number
+          slide_key?: string
+          title?: string
+        }
+        Relationships: []
+      }
       life_group_members: {
         Row: {
           id: string
@@ -1216,8 +1515,13 @@ export type Database = {
       }
       mindcast_live_sessions: {
         Row: {
+          ancient_wisdom_captions_url: string | null
           ancient_wisdom_reframe: string | null
+          ancient_wisdom_video_url: string | null
+          ancient_wisdom_vo_script: string | null
           audience: string
+          closing_quote: string | null
+          closing_quote_attribution: string | null
           coloring_page_url: string | null
           coloring_pdf_url: string | null
           coloring_prompt: string | null
@@ -1226,18 +1530,29 @@ export type Database = {
           created_at: string
           experiential_exercise: string | null
           facilitator_notes: string | null
+          facilitator_prep_notes: string | null
           film_script_2min: string | null
+          first_time_note: string | null
           guided_reflection: string | null
+          heavy_week_flag: boolean | null
           id: string
+          intention_prompt: string | null
           journaling_prompt: string | null
           opening_hook: string | null
           phase: number
           phase_name: string
           previous_week_callback: string | null
+          private_write_prompt: string | null
+          s5_source_core_concept: string | null
+          s5_source_opening_hook: string | null
           session_title: string | null
           signal_metaphor: string | null
           teaching_points: string | null
           theme_title: string
+          todays_theme: string | null
+          todays_world_captions_url: string | null
+          todays_world_video_url: string | null
+          todays_world_vo_script: string | null
           updated_at: string
           video_backup_description: string | null
           video_description: string | null
@@ -1245,6 +1560,7 @@ export type Database = {
           video_question_1: string | null
           video_question_2: string | null
           video_transcript: string | null
+          watch_for: string | null
           week_number: number
           weekly_practice_mon: string | null
           weekly_practice_sun: string | null
@@ -1252,8 +1568,13 @@ export type Database = {
           worksheet_prompt: string | null
         }
         Insert: {
+          ancient_wisdom_captions_url?: string | null
           ancient_wisdom_reframe?: string | null
+          ancient_wisdom_video_url?: string | null
+          ancient_wisdom_vo_script?: string | null
           audience: string
+          closing_quote?: string | null
+          closing_quote_attribution?: string | null
           coloring_page_url?: string | null
           coloring_pdf_url?: string | null
           coloring_prompt?: string | null
@@ -1262,18 +1583,29 @@ export type Database = {
           created_at?: string
           experiential_exercise?: string | null
           facilitator_notes?: string | null
+          facilitator_prep_notes?: string | null
           film_script_2min?: string | null
+          first_time_note?: string | null
           guided_reflection?: string | null
+          heavy_week_flag?: boolean | null
           id?: string
+          intention_prompt?: string | null
           journaling_prompt?: string | null
           opening_hook?: string | null
           phase: number
           phase_name?: string
           previous_week_callback?: string | null
+          private_write_prompt?: string | null
+          s5_source_core_concept?: string | null
+          s5_source_opening_hook?: string | null
           session_title?: string | null
           signal_metaphor?: string | null
           teaching_points?: string | null
           theme_title?: string
+          todays_theme?: string | null
+          todays_world_captions_url?: string | null
+          todays_world_video_url?: string | null
+          todays_world_vo_script?: string | null
           updated_at?: string
           video_backup_description?: string | null
           video_description?: string | null
@@ -1281,6 +1613,7 @@ export type Database = {
           video_question_1?: string | null
           video_question_2?: string | null
           video_transcript?: string | null
+          watch_for?: string | null
           week_number: number
           weekly_practice_mon?: string | null
           weekly_practice_sun?: string | null
@@ -1288,8 +1621,13 @@ export type Database = {
           worksheet_prompt?: string | null
         }
         Update: {
+          ancient_wisdom_captions_url?: string | null
           ancient_wisdom_reframe?: string | null
+          ancient_wisdom_video_url?: string | null
+          ancient_wisdom_vo_script?: string | null
           audience?: string
+          closing_quote?: string | null
+          closing_quote_attribution?: string | null
           coloring_page_url?: string | null
           coloring_pdf_url?: string | null
           coloring_prompt?: string | null
@@ -1298,18 +1636,29 @@ export type Database = {
           created_at?: string
           experiential_exercise?: string | null
           facilitator_notes?: string | null
+          facilitator_prep_notes?: string | null
           film_script_2min?: string | null
+          first_time_note?: string | null
           guided_reflection?: string | null
+          heavy_week_flag?: boolean | null
           id?: string
+          intention_prompt?: string | null
           journaling_prompt?: string | null
           opening_hook?: string | null
           phase?: number
           phase_name?: string
           previous_week_callback?: string | null
+          private_write_prompt?: string | null
+          s5_source_core_concept?: string | null
+          s5_source_opening_hook?: string | null
           session_title?: string | null
           signal_metaphor?: string | null
           teaching_points?: string | null
           theme_title?: string
+          todays_theme?: string | null
+          todays_world_captions_url?: string | null
+          todays_world_video_url?: string | null
+          todays_world_vo_script?: string | null
           updated_at?: string
           video_backup_description?: string | null
           video_description?: string | null
@@ -1317,6 +1666,7 @@ export type Database = {
           video_question_1?: string | null
           video_question_2?: string | null
           video_transcript?: string | null
+          watch_for?: string | null
           week_number?: number
           weekly_practice_mon?: string | null
           weekly_practice_sun?: string | null
@@ -1324,6 +1674,59 @@ export type Database = {
           worksheet_prompt?: string | null
         }
         Relationships: []
+      }
+      notification_outbox: {
+        Row: {
+          channel: string | null
+          client_event_id: string | null
+          destination: string | null
+          error: string | null
+          event: string
+          id: string
+          occurred_at: string
+          payload: Json
+          queued_at: string
+          recipient_profile_id: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          channel?: string | null
+          client_event_id?: string | null
+          destination?: string | null
+          error?: string | null
+          event: string
+          id?: string
+          occurred_at?: string
+          payload?: Json
+          queued_at?: string
+          recipient_profile_id: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          channel?: string | null
+          client_event_id?: string | null
+          destination?: string | null
+          error?: string | null
+          event?: string
+          id?: string
+          occurred_at?: string
+          payload?: Json
+          queued_at?: string
+          recipient_profile_id?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_outbox_recipient_profile_id_fkey"
+            columns: ["recipient_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pilot_applications: {
         Row: {
@@ -1499,6 +1902,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_admin: boolean | null
+          is_safeguarding_lead: boolean | null
           kids_addon: boolean
           last_name: string | null
           live_display_mode: string | null
@@ -1509,6 +1913,7 @@ export type Database = {
           nfc_id: string | null
           notify_attendance_absent: boolean
           notify_attendance_present: boolean
+          notify_channel: string
           notify_practice_email: boolean
           notify_practice_push: boolean
           notify_sms: boolean
@@ -1519,6 +1924,7 @@ export type Database = {
           stripe_customer_id: string | null
           updated_at: string
           user_id: string
+          wall_opt_out: boolean
         }
         Insert: {
           age_group?: string | null
@@ -1534,6 +1940,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          is_safeguarding_lead?: boolean | null
           kids_addon?: boolean
           last_name?: string | null
           live_display_mode?: string | null
@@ -1544,6 +1951,7 @@ export type Database = {
           nfc_id?: string | null
           notify_attendance_absent?: boolean
           notify_attendance_present?: boolean
+          notify_channel?: string
           notify_practice_email?: boolean
           notify_practice_push?: boolean
           notify_sms?: boolean
@@ -1554,6 +1962,7 @@ export type Database = {
           stripe_customer_id?: string | null
           updated_at?: string
           user_id: string
+          wall_opt_out?: boolean
         }
         Update: {
           age_group?: string | null
@@ -1569,6 +1978,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_admin?: boolean | null
+          is_safeguarding_lead?: boolean | null
           kids_addon?: boolean
           last_name?: string | null
           live_display_mode?: string | null
@@ -1579,6 +1989,7 @@ export type Database = {
           nfc_id?: string | null
           notify_attendance_absent?: boolean
           notify_attendance_present?: boolean
+          notify_channel?: string
           notify_practice_email?: boolean
           notify_practice_push?: boolean
           notify_sms?: boolean
@@ -1589,6 +2000,7 @@ export type Database = {
           stripe_customer_id?: string | null
           updated_at?: string
           user_id?: string
+          wall_opt_out?: boolean
         }
         Relationships: []
       }
@@ -1622,6 +2034,216 @@ export type Database = {
           p256dh?: string
           user_agent?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      roll_events: {
+        Row: {
+          actor_user_id: string
+          client_event_id: string | null
+          collected_by_collector_id: string | null
+          collected_by_profile_id: string | null
+          departure_reason: string | null
+          destination_room: string | null
+          event: string
+          id: string
+          note: string | null
+          occurred_at: string
+          recorded_at: string
+          ref_event_id: string | null
+          room: string
+          session_date: string
+          subject_profile_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string
+          client_event_id?: string | null
+          collected_by_collector_id?: string | null
+          collected_by_profile_id?: string | null
+          departure_reason?: string | null
+          destination_room?: string | null
+          event: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          recorded_at?: string
+          ref_event_id?: string | null
+          room: string
+          session_date?: string
+          subject_profile_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string
+          client_event_id?: string | null
+          collected_by_collector_id?: string | null
+          collected_by_profile_id?: string | null
+          departure_reason?: string | null
+          destination_room?: string | null
+          event?: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          recorded_at?: string
+          ref_event_id?: string | null
+          room?: string
+          session_date?: string
+          subject_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roll_events_collected_by_collector_id_fkey"
+            columns: ["collected_by_collector_id"]
+            isOneToOne: false
+            referencedRelation: "authorised_collectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roll_events_collected_by_profile_id_fkey"
+            columns: ["collected_by_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roll_events_ref_event_id_fkey"
+            columns: ["ref_event_id"]
+            isOneToOne: false
+            referencedRelation: "roll_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roll_events_subject_profile_id_fkey"
+            columns: ["subject_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          session_date: string
+          source_room: string
+          subject_name: string
+          target_room: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          kind: string
+          session_date?: string
+          source_room: string
+          subject_name: string
+          target_room: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          session_date?: string
+          source_room?: string
+          subject_name?: string
+          target_room?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_roster: {
+        Row: {
+          created_at: string
+          duty: string
+          id: string
+          profile_id: string
+          room: string
+          session_date: string
+        }
+        Insert: {
+          created_at?: string
+          duty?: string
+          id?: string
+          profile_id: string
+          room: string
+          session_date?: string
+        }
+        Update: {
+          created_at?: string
+          duty?: string
+          id?: string
+          profile_id?: string
+          room?: string
+          session_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_roster_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_staffing: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          room: string
+          session_date: string
+          staffed_adults: number
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          room: string
+          session_date?: string
+          staffed_adults?: number
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          room?: string
+          session_date?: string
+          staffed_adults?: number
         }
         Relationships: []
       }
@@ -1831,6 +2453,54 @@ export type Database = {
           },
         ]
       }
+      session_evaluations: {
+        Row: {
+          content_flags: string | null
+          facilitator_id: string
+          follow_up_needed: boolean | null
+          follow_up_notes: string | null
+          id: string
+          room_energy: number | null
+          safeguarding_flag: boolean | null
+          session_id: string | null
+          submitted_at: string
+          timing_notes: string | null
+          track: string
+          what_didnt: string | null
+          what_worked: string | null
+        }
+        Insert: {
+          content_flags?: string | null
+          facilitator_id: string
+          follow_up_needed?: boolean | null
+          follow_up_notes?: string | null
+          id?: string
+          room_energy?: number | null
+          safeguarding_flag?: boolean | null
+          session_id?: string | null
+          submitted_at?: string
+          timing_notes?: string | null
+          track: string
+          what_didnt?: string | null
+          what_worked?: string | null
+        }
+        Update: {
+          content_flags?: string | null
+          facilitator_id?: string
+          follow_up_needed?: boolean | null
+          follow_up_notes?: string | null
+          id?: string
+          room_energy?: number | null
+          safeguarding_flag?: boolean | null
+          session_id?: string | null
+          submitted_at?: string
+          timing_notes?: string | null
+          track?: string
+          what_didnt?: string | null
+          what_worked?: string | null
+        }
+        Relationships: []
+      }
       session_pause_points: {
         Row: {
           context_start_seconds: number
@@ -1999,6 +2669,518 @@ export type Database = {
             columns: ["cohort_id"]
             isOneToOne: false
             referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_compliance_records: {
+        Row: {
+          category: string
+          created_at: string
+          detail: string
+          id: string
+          recorded_by: string | null
+          status: string
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          detail?: string
+          id?: string
+          recorded_by?: string | null
+          status?: string
+          user_id: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          detail?: string
+          id?: string
+          recorded_by?: string | null
+          status?: string
+          user_id?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      staff_document_signatures: {
+        Row: {
+          declaration: string
+          document_id: string
+          document_version: string
+          id: string
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          declaration: string
+          document_id: string
+          document_version: string
+          id?: string
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          declaration?: string
+          document_id?: string
+          document_version?: string
+          id?: string
+          signed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_document_signatures_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "staff_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_document_versions: {
+        Row: {
+          body_md: string | null
+          captured_at: string
+          document_id: string
+          id: string
+          version: string
+        }
+        Insert: {
+          body_md?: string | null
+          captured_at?: string
+          document_id: string
+          id?: string
+          version: string
+        }
+        Update: {
+          body_md?: string | null
+          captured_at?: string
+          document_id?: string
+          id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "staff_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_documents: {
+        Row: {
+          access: string
+          body_md: string | null
+          category: string
+          code: string
+          effective_date: string | null
+          id: string
+          issued_date: string | null
+          notion_page_id: string | null
+          source: string
+          status: string
+          storage_path: string | null
+          summary: string
+          sync_flag: string | null
+          synced_at: string | null
+          title: string
+          version: string
+        }
+        Insert: {
+          access?: string
+          body_md?: string | null
+          category?: string
+          code: string
+          effective_date?: string | null
+          id?: string
+          issued_date?: string | null
+          notion_page_id?: string | null
+          source?: string
+          status?: string
+          storage_path?: string | null
+          summary?: string
+          sync_flag?: string | null
+          synced_at?: string | null
+          title: string
+          version?: string
+        }
+        Update: {
+          access?: string
+          body_md?: string | null
+          category?: string
+          code?: string
+          effective_date?: string | null
+          id?: string
+          issued_date?: string | null
+          notion_page_id?: string | null
+          source?: string
+          status?: string
+          storage_path?: string | null
+          summary?: string
+          sync_flag?: string | null
+          synced_at?: string | null
+          title?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      staff_incident_training_records: {
+        Row: {
+          created_at: string
+          due_at: string | null
+          id: string
+          module_id: string | null
+          recorded_by: string | null
+          reference_code: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          module_id?: string | null
+          recorded_by?: string | null
+          reference_code: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          module_id?: string | null
+          recorded_by?: string | null
+          reference_code?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_incident_training_records_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_policy_acknowledgements: {
+        Row: {
+          acknowledged_at: string
+          declaration: string
+          evidence_progress_id: string | null
+          id: string
+          policy_code: string
+          policy_version: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string
+          declaration?: string
+          evidence_progress_id?: string | null
+          id?: string
+          policy_code: string
+          policy_version: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string
+          declaration?: string
+          evidence_progress_id?: string | null
+          id?: string
+          policy_code?: string
+          policy_version?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_policy_acknowledgements_evidence_progress_id_fkey"
+            columns: ["evidence_progress_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_progress"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_training_checkpoints: {
+        Row: {
+          correct: Json | null
+          id: string
+          kind: string
+          lesson_id: string | null
+          module_id: string | null
+          options: Json
+          policy_code: string | null
+          policy_version: string | null
+          position: number
+          prompt: string
+          required: boolean
+          scoreable: boolean
+        }
+        Insert: {
+          correct?: Json | null
+          id?: string
+          kind: string
+          lesson_id?: string | null
+          module_id?: string | null
+          options?: Json
+          policy_code?: string | null
+          policy_version?: string | null
+          position: number
+          prompt: string
+          required?: boolean
+          scoreable?: boolean
+        }
+        Update: {
+          correct?: Json | null
+          id?: string
+          kind?: string
+          lesson_id?: string | null
+          module_id?: string | null
+          options?: Json
+          policy_code?: string | null
+          policy_version?: string | null
+          position?: number
+          prompt?: string
+          required?: boolean
+          scoreable?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_training_checkpoints_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_training_checkpoints_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_training_lessons: {
+        Row: {
+          body: string
+          id: string
+          media_url: string | null
+          module_id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          body?: string
+          id?: string
+          media_url?: string | null
+          module_id: string
+          position: number
+          title: string
+        }
+        Update: {
+          body?: string
+          id?: string
+          media_url?: string | null
+          module_id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_training_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_training_modules: {
+        Row: {
+          ack_required: boolean
+          code: string
+          created_at: string
+          effective_date: string
+          est_minutes: number
+          gate: string
+          id: string
+          pass_mark: number | null
+          position: number
+          summary: string
+          title: string
+          version: number
+        }
+        Insert: {
+          ack_required?: boolean
+          code: string
+          created_at?: string
+          effective_date?: string
+          est_minutes?: number
+          gate: string
+          id?: string
+          pass_mark?: number | null
+          position: number
+          summary?: string
+          title: string
+          version?: number
+        }
+        Update: {
+          ack_required?: boolean
+          code?: string
+          created_at?: string
+          effective_date?: string
+          est_minutes?: number
+          gate?: string
+          id?: string
+          pass_mark?: number | null
+          position?: number
+          summary?: string
+          title?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      staff_training_progress: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          due_at: string | null
+          expires_at: string | null
+          id: string
+          module_code: string
+          module_id: string
+          module_version: number
+          score: number | null
+          started_at: string
+          status: string
+          superseded: boolean
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          due_at?: string | null
+          expires_at?: string | null
+          id?: string
+          module_code: string
+          module_id: string
+          module_version: number
+          score?: number | null
+          started_at?: string
+          status?: string
+          superseded?: boolean
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          due_at?: string | null
+          expires_at?: string | null
+          id?: string
+          module_code?: string
+          module_id?: string
+          module_version?: number
+          score?: number | null
+          started_at?: string
+          status?: string
+          superseded?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_training_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_training_requirements: {
+        Row: {
+          id: string
+          module_id: string
+          required: boolean
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          id?: string
+          module_id: string
+          required?: boolean
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          id?: string
+          module_id?: string
+          required?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_training_requirements_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_training_responses: {
+        Row: {
+          attempt: number
+          checkpoint_id: string
+          id: string
+          is_correct: boolean | null
+          progress_id: string
+          response: Json
+          saved_at: string
+        }
+        Insert: {
+          attempt?: number
+          checkpoint_id: string
+          id?: string
+          is_correct?: boolean | null
+          progress_id: string
+          response?: Json
+          saved_at?: string
+        }
+        Update: {
+          attempt?: number
+          checkpoint_id?: string
+          id?: string
+          is_correct?: boolean | null
+          progress_id?: string
+          response?: Json
+          saved_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_training_responses_checkpoint_id_fkey"
+            columns: ["checkpoint_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_checkpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_training_responses_progress_id_fkey"
+            columns: ["progress_id"]
+            isOneToOne: false
+            referencedRelation: "staff_training_progress"
             referencedColumns: ["id"]
           },
         ]
@@ -2230,6 +3412,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trial_tickets: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          follow_up_sent_at: string | null
+          full_name: string
+          guardian_consent_at: string | null
+          guardian_name: string | null
+          guests: Json
+          id: string
+          intended_date: string | null
+          marketing_opt_out: boolean
+          phone: string | null
+          redeemed_at: string | null
+          redeemed_by: string | null
+          token: string
+          track: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          follow_up_sent_at?: string | null
+          full_name: string
+          guardian_consent_at?: string | null
+          guardian_name?: string | null
+          guests?: Json
+          id?: string
+          intended_date?: string | null
+          marketing_opt_out?: boolean
+          phone?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          token: string
+          track?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          follow_up_sent_at?: string | null
+          full_name?: string
+          guardian_consent_at?: string | null
+          guardian_name?: string | null
+          guests?: Json
+          id?: string
+          intended_date?: string | null
+          marketing_opt_out?: boolean
+          phone?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          token?: string
+          track?: string
+        }
+        Relationships: []
       }
       unlocked_lessons: {
         Row: {
@@ -2560,8 +3799,72 @@ export type Database = {
         }
         Relationships: []
       }
+      session_evaluations_safe: {
+        Row: {
+          content_flags: string | null
+          facilitator_id: string | null
+          follow_up_needed: boolean | null
+          id: string | null
+          room_energy: number | null
+          session_id: string | null
+          submitted_at: string | null
+          timing_notes: string | null
+          track: string | null
+          what_didnt: string | null
+          what_worked: string | null
+        }
+        Insert: {
+          content_flags?: string | null
+          facilitator_id?: string | null
+          follow_up_needed?: boolean | null
+          id?: string | null
+          room_energy?: number | null
+          session_id?: string | null
+          submitted_at?: string | null
+          timing_notes?: string | null
+          track?: string | null
+          what_didnt?: string | null
+          what_worked?: string | null
+        }
+        Update: {
+          content_flags?: string | null
+          facilitator_id?: string | null
+          follow_up_needed?: boolean | null
+          id?: string | null
+          room_energy?: number | null
+          session_id?: string | null
+          submitted_at?: string | null
+          timing_notes?: string | null
+          track?: string | null
+          what_didnt?: string | null
+          what_worked?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      admin_insights_stats: { Args: never; Returns: Json }
+      admin_progress_stats: { Args: never; Returns: Json }
+      annual_report_counters: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: Json
+      }
+      can_access_room_roll: {
+        Args: { p_date: string; p_room: string }
+        Returns: boolean
+      }
+      close_room: {
+        Args: { p_date: string; p_room: string }
+        Returns: undefined
+      }
+      collection_options: {
+        Args: { p_child: string; p_date: string; p_room: string }
+        Returns: {
+          id: string
+          kind: string
+          name: string
+        }[]
+      }
       current_profile_id: { Args: never; Returns: string }
       curriculum_public: {
         Args: { p_week?: number }
@@ -2574,6 +3877,19 @@ export type Database = {
           teen_video_title: string
           week_number: number
           weekly_theme: string
+        }[]
+      }
+      door_roster_for_token: {
+        Args: { p_token: string }
+        Returns: {
+          checked_in_today: boolean
+          display_name: string
+          is_scanned_person: boolean
+          kids_addon: boolean
+          membership_status: string
+          profile_id: string
+          role_in_household: string
+          track: string
         }[]
       }
       guardians_to_notify: {
@@ -2594,12 +3910,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      household_children_for: {
+        Args: never
+        Returns: {
+          display_name: string
+          profile_id: string
+          role_in_household: string
+          teen_self_signout: boolean
+        }[]
+      }
       is_active_member: { Args: never; Returns: boolean }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_guardian_of_profile: {
         Args: { target_profile: string }
         Returns: boolean
       }
       is_household_member: { Args: { h: string }; Returns: boolean }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       lesson_unlocked: { Args: { week_number: number }; Returns: boolean }
       my_intention_for_week: {
         Args: { p_track?: string; p_week: number }
@@ -2609,6 +3936,84 @@ export type Database = {
           weekly_intention: string
         }[]
       }
+      queue_notification: {
+        Args: {
+          p_client_event_id?: string
+          p_event: string
+          p_occurred_at?: string
+          p_payload?: Json
+          p_recipient: string
+        }
+        Returns: string
+      }
+      raise_room_alert: {
+        Args: {
+          p_body: string
+          p_kind: string
+          p_session_date?: string
+          p_source_room: string
+          p_subject_name: string
+          p_target_room: string
+        }
+        Returns: string
+      }
+      rate_limit_check: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number }
+        Returns: undefined
+      }
+      record_departure: {
+        Args: {
+          p_child: string
+          p_client_event_id?: string
+          p_collected_by_collector?: string
+          p_collected_by_profile?: string
+          p_date: string
+          p_destination?: string
+          p_occurred_at?: string
+          p_reason: string
+          p_room: string
+        }
+        Returns: string
+      }
+      redeem_trial_ticket: {
+        Args: { p_staff: string; p_token: string }
+        Returns: {
+          full_name: string
+          guests: Json
+          ok: boolean
+          reason: string
+          track: string
+        }[]
+      }
+      room_roll: {
+        Args: { p_date: string; p_room: string }
+        Returns: {
+          departure_reason: string
+          display_name: string
+          guardian_name: string
+          guardian_phone: string
+          last_event: string
+          occurred_at: string
+          profile_id: string
+          state: string
+        }[]
+      }
+      room_roll_latest_events: {
+        Args: { p_date: string }
+        Returns: {
+          departure_reason: string
+          display_name: string
+          event: string
+          occurred_at: string
+          room: string
+          subject_profile_id: string
+        }[]
+      }
+      set_teen_self_signout: {
+        Args: { p_enabled: boolean; p_teen_profile: string }
+        Returns: undefined
+      }
+      wall_display_allowed: { Args: { p_profile: string }; Returns: boolean }
     }
     Enums: {
       app_role: "member" | "facilitator" | "admin"

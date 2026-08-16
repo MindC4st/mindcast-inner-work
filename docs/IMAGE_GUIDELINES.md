@@ -52,7 +52,7 @@ filing in wearing the bands.
 - Mix wide establishing shots with intimate close-ups (a hand writing in a
   workbook, a wristband tap, a child colouring, coffee being poured).
 - On-screen/signage text may show the logo tagline **"TUNE INTO YOUR INNER SELF"**
-  or the philosophy **"NOTICE. NAME. REWIRE."** — but most image models garble
+  or the philosophy **"NOTICE IT, NAME IT, DO IT"** — but most image models garble
   text, so treat legible on-image text as optional.
 
 ## Negative prompt (for tools that accept one)

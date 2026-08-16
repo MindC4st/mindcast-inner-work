@@ -15,15 +15,17 @@ const values = [
   { title: "ONE STEP AT A TIME", desc: "We don't ask you to transform. We ask you to notice one thing, name one thing, change one thing. Then come back next week." },
 ];
 
-const About = () => (
+// The page body, exported so the homepage can embed it as an ivory band
+// (/#about) while /about keeps working as a standalone route. Same content,
+// one source — no drift between the two.
+export const AboutContent = ({ membershipHref = "/membership" }: { membershipHref?: string }) => (
   <>
-    <Navbar />
-    <section className="section-navy min-h-[60vh] flex items-center pt-16">
+    <section className="section-cream min-h-[60vh] flex items-center pt-16">
       <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
           WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION
         </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-cream/60 font-body text-base max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-muted-foreground font-body text-base max-w-xl mx-auto leading-relaxed">
           A place to show up every week. A community that holds you accountable. Frameworks for the hard stuff. Tools you carry into real life.
         </motion.p>
       </div>
@@ -86,7 +88,7 @@ const About = () => (
     </section>
 
     {/* The Mission */}
-    <section className="section-navy py-24">
+    <section className="section-cream py-24">
       <div className="container mx-auto px-6">
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -95,9 +97,9 @@ const About = () => (
             { title: "PRACTICE", body: "A 52-week journey with a weekly rhythm: a facilitated Sunday session works through the theme, you reflect in your course book and set one intention, then a midweek Life Group revisits it and goes deeper — and every session opens by asking whether last week's intention actually happened." },
             { title: "TOOLS", body: "A live digital course book, guided reflection and journaling, weekly practices, and Life Groups — designed to make the inner work tangible and trackable across the whole 52-week journey." },
           ].map((pillar, i) => (
-            <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-cream/20 p-8 text-center">
+            <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-border p-8 text-center">
               <h3 className="font-display text-3xl tracking-widest mb-4">{pillar.title}</h3>
-              <p className="text-cream/50 text-sm font-body leading-relaxed">{pillar.body}</p>
+              <p className="text-muted-foreground text-sm font-body leading-relaxed">{pillar.body}</p>
             </motion.div>
           ))}
         </div>
@@ -136,14 +138,14 @@ const About = () => (
     </section>
 
     {/* Values */}
-    <section className="section-navy py-24">
+    <section className="section-cream py-24">
       <div className="container mx-auto px-6">
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR VALUES</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {values.map((v, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-cream/20 p-6">
-              <h3 className="font-display text-lg tracking-wider text-cream leading-snug mb-3">{v.title}</h3>
-              <p className="text-cream/50 text-sm font-body leading-relaxed">{v.desc}</p>
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-border p-6">
+              <h3 className="font-display text-lg tracking-wider text-foreground leading-snug mb-3">{v.title}</h3>
+              <p className="text-muted-foreground text-sm font-body leading-relaxed">{v.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -151,7 +153,7 @@ const About = () => (
     </section>
 
     {/* Our Relationship With AI */}
-    <section className="section-navy py-24 relative overflow-hidden">
+    <section className="section-cream py-24 relative overflow-hidden">
       <AmbientVideo
         src="/videos/hero-loop.mp4"
         className="absolute inset-0 w-full h-full object-cover opacity-15"
@@ -161,11 +163,11 @@ const About = () => (
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-3xl sm:text-4xl md:text-5xl text-center mb-4 leading-[1.1]">
           WE USE AI. HERE'S WHY WE'RE PROUD OF THAT.
         </motion.h2>
-        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-center text-cream/50 font-body text-sm tracking-wide mb-12">
+        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-center text-muted-foreground font-body text-sm tracking-wide mb-12">
           A note on how Mindcast was built — and what we believe about the tools we use.
         </motion.p>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-5 text-cream/70 font-body text-sm leading-relaxed">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-5 text-foreground/80 font-body text-sm leading-relaxed">
           <p>
             The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone.
           </p>
@@ -187,7 +189,7 @@ const About = () => (
         </motion.div>
 
         <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-16 text-center">
-          <p className="font-display text-2xl sm:text-3xl md:text-4xl tracking-wider text-cream leading-snug">
+          <p className="font-display text-2xl sm:text-3xl md:text-4xl tracking-wider text-foreground leading-snug">
             "AI didn't replace the human work. It made the human work possible."
           </p>
         </motion.blockquote>
@@ -203,12 +205,18 @@ const About = () => (
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
           The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō.
         </motion.p>
-        <motion.a href="/membership" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+        <motion.a href={membershipHref} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
           BECOME A MEMBER &rarr;
         </motion.a>
       </div>
     </section>
+  </>
+);
 
+const About = () => (
+  <>
+    <Navbar />
+    <AboutContent />
     <Footer />
   </>
 );

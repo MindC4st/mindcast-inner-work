@@ -6,9 +6,6 @@ verify_jwt = false
 [functions.generate-session-video]
 verify_jwt = true
 
-[functions.shotstack-webhook]
-verify_jwt = false
-
 [functions.bulk-generate-videos]
 verify_jwt = true
 
@@ -49,3 +46,31 @@ verify_jwt = false
 # pickup code, and price is read from our catalogue, never from the request.
 [functions.create-shop-checkout]
 verify_jwt = true
+
+# Staff-operated door scanner. Reads membership status and household
+# composition for other people, so it requires a signed-in facilitator/admin.
+[functions.door-scan]
+verify_jwt = true
+
+# Public by design: the person registering does not have an account yet.
+[functions.issue-trial-ticket]
+verify_jwt = false
+
+# One warm follow-up after a trial session. verify_jwt off; gated by
+# CRON_SECRET / service-role bearer inside the function.
+[functions.trial-followup]
+verify_jwt = false
+
+# Public one-click unsubscribe for trial guests (no accounts exist yet).
+# The token is unguessable and can only flip the opt-out flag.
+[functions.trial-unsubscribe]
+verify_jwt = false
+
+# Member data export — authenticated, returns only the caller's own rows.
+[functions.export-my-data]
+verify_jwt = true
+
+# Server-side brief-absence escalation backstop (cron). verify_jwt off;
+# gated by CRON_SECRET / service-role bearer inside the function.
+[functions.roll-absence-sweep]
+verify_jwt = false

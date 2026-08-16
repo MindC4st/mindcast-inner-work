@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense, type ReactNode } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { resolveColouringUrl } from "@/lib/colouringUrl";
+import SlideTimer from "@/components/session-runner/SlideTimer";
 
 // Data-driven deck: a session is an ordered list of slide "kinds", so the order
 // can change (and the video can flex position) without touching the renderer.
@@ -31,14 +32,31 @@ import { resolveColouringUrl } from "@/lib/colouringUrl";
 type SlideKind =
   | "title" | "intention" | "wisdom" | "metaphor" | "video"
   | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice"
-  | "commitment";
+  | "commitment" | "affirmation";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
   title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
   metaphor: "In Today's World", video: "Video", coloring: "Coloring Activity",
   core: "Go Deeper", reflect: "Reflect & Share", activity: "Together",
   guided: "Guided Reflection", practice: "This Week's Practice",
-  commitment: "Your Intention for the Week",
+  commitment: "Your Intention for the Week", affirmation: "Closing Affirmation",
+};
+
+// The v3 deck is data-driven: lesson_slides rows map to a render kind via the
+// stable slide_key. This map is the ONLY hard-coded link; order, active state,
+// track applicability and titles all come from the table.
+const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
+  welcome: "title",
+  voices: "intention",
+  ancient: "wisdom",
+  todays_world: "metaphor",
+  theme: "core",
+  video: "video",
+  exercise: "activity",
+  reflection: "reflect",
+  intention: "practice",
+  affirmation: "affirmation",
+  notes: null, // facilitator notes live in the drawer, not a projected slide
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
@@ -74,6 +92,17 @@ type Session = {
   weekly_practice_wed: string;
   weekly_practice_sun: string;
   core_affirmation: string;
+  closing_quote: string;
+  closing_quote_attribution: string;
+  private_write_prompt: string;
+  todays_theme: string;
+  ancient_wisdom_video_url: string;
+  ancient_wisdom_captions_url: string;
+  ancient_wisdom_approval: string;
+  todays_world_video_url: string;
+  todays_world_captions_url: string;
+  todays_world_approval: string;
+  video_local_url: string;
   video_link: string;
   video_description: string;
   video_backup_description: string;
@@ -146,6 +175,17 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     weekly_practice_wed: live?.weekly_practice_wed || "",
     weekly_practice_sun: live?.weekly_practice_sun || "",
     core_affirmation: live?.core_affirmation || "",
+    closing_quote: (live as unknown as { closing_quote?: string } | null)?.closing_quote || "",
+    closing_quote_attribution: (live as unknown as { closing_quote_attribution?: string } | null)?.closing_quote_attribution || "",
+    private_write_prompt: (live as unknown as { private_write_prompt?: string } | null)?.private_write_prompt || "",
+    todays_theme: (live as unknown as { todays_theme?: string } | null)?.todays_theme || "",
+    ancient_wisdom_video_url: (live as unknown as { ancient_wisdom_video_url?: string } | null)?.ancient_wisdom_video_url || "",
+    ancient_wisdom_captions_url: (live as unknown as { ancient_wisdom_captions_url?: string } | null)?.ancient_wisdom_captions_url || "",
+    ancient_wisdom_approval: (live as unknown as { ancient_wisdom_approval?: string } | null)?.ancient_wisdom_approval || "unapproved",
+    todays_world_video_url: (live as unknown as { todays_world_video_url?: string } | null)?.todays_world_video_url || "",
+    todays_world_captions_url: (live as unknown as { todays_world_captions_url?: string } | null)?.todays_world_captions_url || "",
+    todays_world_approval: (live as unknown as { todays_world_approval?: string } | null)?.todays_world_approval || "unapproved",
+    video_local_url: (live as unknown as { video_local_url?: string } | null)?.video_local_url || "",
     video_link: pick(live?.video_link, cur?.youtube_url),
     video_description: pick(live?.video_description, cur?.youtube_title),
     video_backup_description: live?.video_backup_description || "",
@@ -188,14 +228,42 @@ const FacilitatorView = () => {
   const [showResponses, setShowResponses] = useState(true);
   const [responses, setResponses] = useState<Response[]>([]);
   const [code] = useState(() => search.get("code") || genCode());
-  const [generatingVideo, setGeneratingVideo] = useState(false);
-  const [renderedMp4, setRenderedMp4] = useState<string | null>(null);
-  const [renderStatus, setRenderStatus] = useState<string | null>(null);
   const [callbacks, setCallbacks] = useState<Callback[]>([]);
+  // Gate G — facilitator-only elapsed-vs-expected per slide (never projected).
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    setElapsed(0);
+    const start = Date.now();
+    const iv = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(iv);
+  }, [slide]);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Data-driven deck (v3): load the active, track-applicable slides in order.
+  // Falls back to the hard-coded deck when lesson_slides has no rows yet.
+  const [slideDefs, setSlideDefs] = useState<{ slide_key: string; title: string; default_duration_seconds: number }[]>([]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data } = await db
+        .from("lesson_slides" as never)
+        .select("slide_key, title, default_duration_seconds")
+        .eq("is_active", true)
+        .contains("applies_to_tracks", [audience])
+        .order("position");
+      if (!active) return;
+      setSlideDefs((data ?? []) as unknown as { slide_key: string; title: string; default_duration_seconds: number }[]);
+    })();
+    return () => { active = false; };
+  }, [audience]);
+
   // The ordered deck; `slide` indexes it.
-  const deck = useMemo(() => buildDeck(session?.audience), [session?.audience]);
+  const deck = useMemo<SlideKind[]>(() => {
+    const dataDriven = slideDefs
+      .map((d) => SLIDE_KEY_TO_KIND[d.slide_key])
+      .filter((k): k is SlideKind => k != null);
+    return dataDriven.length ? dataDriven : buildDeck(session?.audience);
+  }, [slideDefs, session?.audience]);
   const lastSlide = deck.length - 1;
   const currentKind: SlideKind = deck[Math.min(slide, lastSlide)] ?? "title";
 
@@ -222,33 +290,20 @@ const FacilitatorView = () => {
     })();
   }, [week, audience]);
 
-  // Load + realtime-subscribe the worksheets row for this lesson so the
-  // generated MP4 appears the moment the Shotstack webhook completes.
+  // Gate F — preload the approved metaphor clips + the local video when the
+  // deck opens so there is no spinner mid-session.
   useEffect(() => {
-    let active = true;
-    (async () => {
-      const { data } = await db
-        .from("worksheets")
-        .select("video_mp4_url, render_status")
-        .eq("week_number", week).eq("audience_type", audience).maybeSingle();
-      if (!active) return;
-      setRenderedMp4(data?.video_mp4_url || null);
-      setRenderStatus(data?.render_status || null);
-    })();
-    const ch = supabase
-      .channel(`worksheet:${week}:${audience}`)
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "worksheets",
-          filter: `week_number=eq.${week}` },
-        (p) => {
-          const row = p.new as Partial<Tables<"worksheets">> | undefined;
-          if (row?.audience_type !== audience) return;
-          setRenderedMp4(row?.video_mp4_url || null);
-          setRenderStatus(row?.render_status || null);
-        })
-      .subscribe();
-    return () => { active = false; supabase.removeChannel(ch); };
-  }, [week, audience]);
+    if (!session) return;
+    const urls = [session.ancient_wisdom_video_url, session.todays_world_video_url, session.video_local_url]
+      .filter((u) => u && u.startsWith("http"));
+    for (const u of urls) {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "video";
+      link.href = u;
+      document.head.appendChild(link);
+    }
+  }, [session?.id, session?.ancient_wisdom_video_url, session?.todays_world_video_url, session?.video_local_url]);
 
   // Load up to 20 moderator-approved reflections from last week for the
   // "Voices from Last Week" slide. Selected by the Sun 9am cron and stored
@@ -472,15 +527,15 @@ const FacilitatorView = () => {
     setResponses(prev => prev.filter(r => r.id !== id));
   };
 
-  const handleGenerateVideo = async () => {
+  // Gate D — per-slide metaphor video (Ancient Wisdom / In Today's World).
+  const [metaphorBusy, setMetaphorBusy] = useState(false);
+  const handleGenerateMetaphor = async (slide: "ancient" | "todays_world") => {
     if (!isFacilitator && !isStaff) { toast({ title: "Facilitators only" }); return; }
-    setGeneratingVideo(true);
+    setMetaphorBusy(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-session-video", {
-        body: { week_number: week, audience },
+      const { data, error } = await supabase.functions.invoke("generate-metaphor-video", {
+        body: { week_number: week, audience, slide },
       });
-      // supabase-js gives a generic FunctionsHttpError on non-2xx — pull the real
-      // error message out of the response body when available.
       if (error) {
         let detail = error.message;
         try {
@@ -493,19 +548,39 @@ const FacilitatorView = () => {
         } catch { /* keep generic */ }
         throw new Error(detail);
       }
-      const fnError = (data as { error?: string } | null)?.error;
-      if (fnError) throw new Error(fnError);
-      setRenderStatus("processing");
-      toast({
-        title: "Video rendering started",
-        description: "Storyboard + narration uploaded. MP4 will appear on the slide when Shotstack finishes (~3–5 min).",
-      });
+      if (data?.error) throw new Error(data.error);
+      setSession((s) => s ? {
+        ...s,
+        ...(slide === "ancient"
+          ? { ancient_wisdom_video_url: data.video_url, ancient_wisdom_captions_url: data.captions_url, ancient_wisdom_approval: "unapproved" }
+          : { todays_world_video_url: data.video_url, todays_world_captions_url: data.captions_url, todays_world_approval: "unapproved" }),
+      } : s);
+      toast({ title: data.cached ? "Metaphor already current" : "Metaphor generated", description: data.cached ? undefined : "Review it, then Approve to go live." });
     } catch (e: unknown) {
-      console.error("generate-session-video failed:", e);
-      toast({ title: "Video generation failed", description: e instanceof Error ? e.message : undefined, variant: "destructive" });
+      toast({ title: "Metaphor generation failed", description: e instanceof Error ? e.message : undefined, variant: "destructive" });
     } finally {
-      setGeneratingVideo(false);
+      setMetaphorBusy(false);
     }
+  };
+  const handleApproveMetaphor = async (slide: "ancient" | "todays_world") => {
+    const col = slide === "ancient" ? "ancient_wisdom_approval" : "todays_world_approval";
+    const updater = db.from("mindcast_live_sessions") as unknown as {
+      update: (p: Record<string, unknown>) => {
+        eq: (c: string, v: unknown) => { eq: (c2: string, v2: unknown) => Promise<{ error: { message: string } | null }> }
+      }
+    };
+    const { error } = await updater.update({ [col]: "approved" }).eq("week_number", week).eq("audience", audience);
+    if (error) { toast({ title: "Could not approve", description: error.message, variant: "destructive" }); return; }
+    setSession((s) => s ? { ...s, ...(slide === "ancient" ? { ancient_wisdom_approval: "approved" } : { todays_world_approval: "approved" }) } : s);
+    toast({ title: "Metaphor approved" });
+  };
+
+  // Gate E — closing the session invalidates the join code (members see
+  // "session ended" the moment is_live flips false).
+  const handleCloseSession = async () => {
+    const { error } = await db.from("live_session_state").update({ is_live: false, closed_at: new Date().toISOString() }).eq("session_code", code);
+    if (error) { toast({ title: "Could not close session", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Session closed", description: "The join code is now invalid." });
   };
 
   if (!session) {
@@ -537,17 +612,38 @@ const FacilitatorView = () => {
             {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
           </button>
           <button onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><Download size={14} /></button>
+          {isFacilitator && (currentKind === "wisdom" || currentKind === "metaphor") && (() => {
+            const slideKey = currentKind === "wisdom" ? "ancient" : "todays_world";
+            const hasVideo = currentKind === "wisdom" ? session.ancient_wisdom_video_url : session.todays_world_video_url;
+            const approval = currentKind === "wisdom" ? session.ancient_wisdom_approval : session.todays_world_approval;
+            return (
+              <>
+                <button
+                  onClick={() => handleGenerateMetaphor(slideKey)}
+                  disabled={metaphorBusy}
+                  title="Generate 10s metaphor video (Gemini)"
+                  className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
+                >
+                  <Film size={12} />{metaphorBusy ? "Generating…" : "Generate metaphor"}
+                </button>
+                {hasVideo && approval === "unapproved" && (
+                  <button
+                    onClick={() => handleApproveMetaphor(slideKey)}
+                    className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--blue))] text-white hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))]"
+                  >
+                    <Check size={12} /> Approve
+                  </button>
+                )}
+              </>
+            );
+          })()}
+          <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
           {isFacilitator && (
-            <button
-              onClick={handleGenerateVideo}
-              disabled={generatingVideo}
-              title="Generate Session Video (Claude storyboard + ElevenLabs narration)"
-              className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
-            >
-              <Film size={12} />{generatingVideo ? "Generating…" : "Generate Video"}
+            <button onClick={handleCloseSession} title="Close the session — invalidates the join code"
+              className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10">
+              <Lock size={12} /> Close session
             </button>
           )}
-          <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
           <button onClick={toggleFs} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
         </div>
       </div>
@@ -560,7 +656,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} renderedMp4={renderedMp4} renderStatus={renderStatus} onSessionUpdate={setSession} />
+              <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} onSessionUpdate={setSession} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -629,6 +725,17 @@ const FacilitatorView = () => {
         <div className="flex flex-col items-center">
           <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLE[currentKind]}</span>
           <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / {deck.length}</span>
+          {(() => {
+            const expected = slideDefs.find((d) => SLIDE_KEY_TO_KIND[d.slide_key] === currentKind)?.default_duration_seconds ?? 0;
+            if (!expected) return null;
+            const mm = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+            const over = elapsed > expected;
+            return (
+              <span className={`text-[10px] font-mono ${over ? "text-amber-400" : "text-[hsl(var(--ivory))]/40"}`} title="Elapsed vs expected — facilitator only, never projected">
+                {mm(elapsed)} / {mm(expected)}{over ? " · over" : ""}
+              </span>
+            );
+          })()}
         </div>
         <div className="flex items-center gap-2">
           {onReflection && (
@@ -665,7 +772,34 @@ const FacilitatorView = () => {
 
 /* ---------------- Slide renderer ---------------- */
 
-const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedMp4, renderStatus, onSessionUpdate }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; renderedMp4: string | null; renderStatus: string | null; onSessionUpdate: (s: Session) => void }) => {
+// 90-second private write gate: projected, one-tap start, unskippable. When the
+// timer completes it quietly reveals the exercise beneath it.
+const PrivateWriteGate = ({ prompt, children }: { prompt: string; children: ReactNode }) => {
+  const [started, setStarted] = useState(false);
+  const [done, setDone] = useState(false);
+  if (done) return <>{children}</>;
+  const fallback = "Take 90 seconds — write what you actually think, before anyone else speaks.";
+  return (
+    <div className="text-center max-w-4xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">90-second private write</p>
+      {!started ? (
+        <button onClick={() => setStarted(true)}
+          className="px-8 py-4 bg-[hsl(var(--blue))] text-white font-display tracking-[0.2em] text-xl rounded-sm hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))] transition-colors">
+          START THE 90-SECOND WRITE
+        </button>
+      ) : (
+        <>
+          <SlideTimer seconds={90} running={started} projected onComplete={() => setDone(true)} />
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 italic mt-8 max-w-3xl mx-auto leading-snug">
+            {prompt || fallback}
+          </p>
+        </>
+      )}
+    </div>
+  );
+};
+
+const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSessionUpdate }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; onSessionUpdate: (s: Session) => void }) => {
   switch (kind) {
     case "title": return (
       <WelcomeWall
@@ -687,19 +821,22 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
     );
     // Inner Wisdom — the timeless principle, the basis of the teaching.
     case "wisdom": return (
-      <div className="max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Inner Wisdom</p>
-        <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed">{session.ancient_wisdom_reframe}</p>
-        </div>
-      </div>
+      <MetaphorVideoSlide
+        title="Inner Wisdom"
+        text={session.ancient_wisdom_reframe}
+        videoUrl={session.ancient_wisdom_video_url}
+        captionsUrl={session.ancient_wisdom_captions_url}
+        approval={session.ancient_wisdom_approval}
+      />
     );
     // In Today's World — the metaphor makes the principle concrete + how to apply.
     case "metaphor": return (
-      <SignalMetaphorSlide
+      <MetaphorVideoSlide
+        title="In Today's World"
         text={session.signal_metaphor}
-        mp4Url={renderedMp4}
-        renderStatus={renderStatus}
+        videoUrl={session.todays_world_video_url}
+        captionsUrl={session.todays_world_captions_url}
+        approval={session.todays_world_approval}
       />
     );
     // Go Deeper — unpack the topic.
@@ -733,13 +870,29 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
       const options = (session.activity_options || "")
         .split(/\r?\n/).map(o => o.trim()).filter(Boolean);
 
+      let inner: ReactNode;
       if (type === "wordcloud") {
-        return <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
+        inner = <WordCloudSlide text={session.experiential_exercise} responses={activityResponses} />;
+      } else if ((type === "poll" || type === "choice") && options.length > 0) {
+        inner = <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
+      } else if (type === "scale") {
+        inner = (
+          <ScaleSlide
+            text={session.experiential_exercise}
+            statement={options[0] || "How true does this feel for you right now?"}
+            minLabel={options[1] || "Not at all"}
+            maxLabel={options[2] || "Completely"}
+            responses={activityResponses}
+          />
+        );
+      } else if (type === "phrase") {
+        inner = <PhraseWallSlide text={session.experiential_exercise} responses={activityResponses} />;
+      } else {
+        inner = <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
       }
-      if (type === "poll" && options.length > 0) {
-        return <PollSlide text={session.experiential_exercise} options={options} responses={activityResponses} />;
-      }
-      return <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
+      // The whole-room exercise opens with a 90-second, projected, unskippable
+      // private write so the quiet half of the room writes their own answer.
+      return <PrivateWriteGate prompt={session.private_write_prompt}>{inner}</PrivateWriteGate>;
     }
     case "guided": return (
       <div className="max-w-4xl">
@@ -800,6 +953,19 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         <p className="text-[hsl(var(--ivory))]/30 text-[11px] font-body tracking-widest uppercase mt-6">Private to you — it is not shown on screen</p>
       </div>
     );
+    // Closing affirmation — a quote from the author or speaker in the video.
+    case "affirmation": return (
+      <div className="text-center max-w-4xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Closing Affirmation</p>
+        <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+          "{session.closing_quote || session.core_affirmation}"
+        </motion.p>
+        {session.closing_quote_attribution && (
+          <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">{session.closing_quote_attribution}</p>
+        )}
+      </div>
+    );
     // Video — supporting evidence / how-to / personal story (position flexes).
     // Presentation-only: URL / transcript / question generation live in the
     // lesson editor, never on the facilitation screen.
@@ -810,6 +976,7 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, renderedM
         backup={session.video_backup_description}
         question1={session.video_question_1}
         question2={session.video_question_2}
+        localUrl={session.video_local_url}
       />
     );
     case "coloring": return (
@@ -1020,6 +1187,112 @@ const WordCloudSlide = ({ text, responses }: { text: string; responses: Response
  * Live poll — members tap one of the facilitator's own options, so there is no
  * free text on screen and nothing to moderate.
  */
+/**
+ * ScaleSlide — the room's answer to a 1-10 statement, as a distribution.
+ *
+ * The average alone hides the interesting shape: a room split between 2s and
+ * 9s averages the same as a room of all 5s, and those are completely different
+ * conversations to facilitate. So the bars are the point; the average is the
+ * caption.
+ */
+const ScaleSlide = ({
+  text, statement, minLabel, maxLabel, responses,
+}: { text: string; statement: string; minLabel: string; maxLabel: string; responses: Response[] }) => {
+  const { buckets, total, average } = useMemo(() => {
+    const b = Array.from({ length: 10 }, () => 0);
+    let sum = 0, n = 0;
+    for (const r of responses) {
+      const v = Math.round(Number((r.response_text || "").trim()));
+      if (Number.isFinite(v) && v >= 1 && v <= 10) { b[v - 1] += 1; sum += v; n += 1; }
+    }
+    return { buckets: b, total: n, average: n ? sum / n : 0 };
+  }, [responses]);
+
+  const peak = Math.max(1, ...buckets);
+
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="font-body text-lg text-[hsl(var(--ivory))]/80 mb-8 text-center">{text}</p>
+      <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] mb-10 text-center italic">{statement}</p>
+
+      <div className="flex items-end justify-between gap-2 md:gap-3 h-56">
+        {buckets.map((count, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
+            <span className={`font-display text-lg mb-2 ${count ? "text-[hsl(var(--ivory))]" : "text-[hsl(var(--ivory))]/20"}`}>
+              {count || ""}
+            </span>
+            <motion.div
+              className="w-full rounded-t-sm bg-[hsl(var(--blue))]"
+              initial={{ height: 0 }}
+              animate={{ height: `${(count / peak) * 100}%` }}
+              transition={{ type: "spring", stiffness: 90, damping: 18 }}
+              style={{ minHeight: count ? 6 : 2, opacity: count ? 1 : 0.15 }}
+            />
+            <span className="font-body text-[11px] text-[hsl(var(--ivory))]/40 mt-2">{i + 1}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-between mt-4 text-[11px] tracking-[0.2em] font-body uppercase text-[hsl(var(--ivory))]/40">
+        <span>{minLabel}</span>
+        <span>{maxLabel}</span>
+      </div>
+
+      <p className="text-center mt-8 font-body text-sm text-[hsl(var(--ivory))]/50">
+        {total === 0
+          ? "Waiting for the room…"
+          : `${total} ${total === 1 ? "response" : "responses"} · average ${average.toFixed(1)}`}
+      </p>
+    </div>
+  );
+};
+
+/**
+ * PhraseWallSlide — completed sentence stems, newest first.
+ *
+ * Free text, so it obeys the same rule as the word cloud: only rows the
+ * moderator has approved ever reach the wall (filtered by the caller).
+ */
+const PhraseWallSlide = ({ text, responses }: { text: string; responses: Response[] }) => {
+  const phrases = useMemo(
+    () => responses.map(r => (r.response_text || "").trim()).filter(Boolean).slice(-12).reverse(),
+    [responses],
+  );
+
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="font-body text-lg text-[hsl(var(--ivory))]/80 mb-10 text-center">{text}</p>
+
+      {phrases.length === 0 ? (
+        <p className="text-center font-body text-sm text-[hsl(var(--ivory))]/40">Waiting for the room…</p>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          <AnimatePresence initial={false}>
+            {phrases.map((p, i) => (
+              <motion.p
+                key={`${p}-${i}`}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-snug border-l-2 border-[hsl(var(--blue))] pl-5 py-2"
+              >
+                {p}
+              </motion.p>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      <p className="text-center mt-10 font-body text-sm text-[hsl(var(--ivory))]/50">
+        {responses.length === 0 ? "" : `${responses.length} shared`}
+      </p>
+    </div>
+  );
+};
+
 const PollSlide = ({ text, options, responses }: { text: string; options: string[]; responses: Response[] }) => {
   const tally = useMemo(() => {
     const counts = new Map<string, number>(options.map(o => [o.toLowerCase(), 0]));
@@ -1329,17 +1602,27 @@ const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; a
  * visual rendering of this metaphor (city/noise → signal), so we play it
  * here when it exists. If no MP4 yet, the quote stands alone.
  */
-const SignalMetaphorSlide = ({
-  text, mp4Url, renderStatus,
-}: { text: string; mp4Url: string | null; renderStatus: string | null }) => {
-  const rendering = renderStatus === "processing" || renderStatus === "rendering" || renderStatus === "saving";
+const MetaphorVideoSlide = ({
+  title, text, videoUrl, captionsUrl, approval,
+}: { title: string; text: string; videoUrl: string; captionsUrl: string; approval: string }) => {
+  const isImage = /\.(png|jpe?g|webp)(\?|$)/i.test(videoUrl);
+  const approved = approval === "approved" && Boolean(videoUrl);
 
-  if (mp4Url) {
+  // 3-step fallback: approved video -> static branded card -> text. The text is
+  // ALWAYS present on the slide (a member with hearing loss must never depend
+  // on the voiceover).
+  if (approved) {
     return (
       <div className="max-w-5xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">In Today's World</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">{title}</p>
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
-          <video src={mp4Url} controls className="w-full h-full" />
+          {isImage ? (
+            <img src={videoUrl} alt="" className="w-full h-full object-contain" />
+          ) : (
+            <video src={videoUrl} controls preload="auto" className="w-full h-full">
+              {captionsUrl && <track kind="captions" src={captionsUrl} srcLang="en" label="English" default />}
+            </video>
+          )}
         </div>
         <motion.blockquote initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1 }}
           className="text-center mt-6 px-8">
@@ -1349,35 +1632,36 @@ const SignalMetaphorSlide = ({
     );
   }
 
-  if (rendering) {
+  if (videoUrl && approval === "unapproved") {
     return (
       <div className="max-w-5xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">In Today's World</p>
-        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex flex-col items-center justify-center bg-[hsl(var(--ivory))]/[0.03] gap-3">
-          <div className="w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse" />
-          <p className="text-[hsl(var(--ivory))]/60 text-xs font-body tracking-widest uppercase">Rendering session video…</p>
-          <p className="text-[hsl(var(--ivory))]/30 text-[10px] font-body">Shotstack typically takes 3–5 minutes</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">{title}</p>
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--bronze))]/30 bg-black flex items-center justify-center">
+          <video src={videoUrl} muted loop playsInline autoPlay className="w-full h-full opacity-40" />
+          <div className="absolute text-center">
+            <p className="text-[hsl(var(--ivory))]/70 text-xs font-body tracking-widest uppercase">Awaiting approval — not live yet</p>
+          </div>
         </div>
         <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-snug italic text-center mt-6 px-8">"{text}"</p>
       </div>
     );
   }
 
-  // Default — original full-bleed metaphor design with ambient gradient pulse.
+  // Text only — the metaphor stands alone (and is the fallback if generation fails).
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--bronze))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
       <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
         className="relative max-w-4xl text-center px-8">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">In Today's World</p>
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">{title}</p>
         <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--ivory))] leading-snug italic">"{text}"</p>
       </motion.blockquote>
     </div>
   );
 };
 
-const VideoSlide = ({ link, description, backup, question1, question2 }: {
-  link: string; description: string; backup: string; question1: string; question2: string;
+const VideoSlide = ({ link, description, backup, question1, question2, localUrl }: {
+  link: string; description: string; backup: string; question1: string; question2: string; localUrl: string;
 }) => {
   const ytMatch = link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/);
   const ytId = ytMatch?.[1];
@@ -1386,8 +1670,15 @@ const VideoSlide = ({ link, description, backup, question1, question2 }: {
     <div className="max-w-5xl w-full">
       <div className="flex items-center justify-center gap-3 mb-4">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
+        {localUrl && <span className="text-[hsl(var(--blue))] text-[9px] font-body tracking-widest uppercase">Local copy</span>}
       </div>
-      {ytId ? (
+      {localUrl ? (
+        // Pre-downloaded local copy — venue wifi cannot be trusted with a 20-min
+        // stream. Played from our storage instead of YouTube.
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
+          <video src={localUrl} controls preload="auto" className="w-full h-full" />
+        </div>
+      ) : ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
           <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>

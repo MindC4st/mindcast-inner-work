@@ -123,12 +123,12 @@ const ExportReports = () => {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {exports.map(ex => (
-          <div key={ex.key} className="border border-white/[0.08] rounded-lg p-5 bg-white/[0.02]">
+          <div key={ex.key} className="border border-border rounded-lg p-5 bg-card">
             <div className="flex items-center gap-2 mb-2">
-              <FileSpreadsheet size={14} className="text-[#3585AF]" />
-              <h3 className="text-[11px] font-body tracking-[0.15em] text-[#E2E8F0]">{ex.title}</h3>
+              <FileSpreadsheet size={14} className="text-primary" />
+              <h3 className="text-[11px] font-body tracking-[0.15em] text-foreground">{ex.title}</h3>
             </div>
-            <p className="text-[11px] font-body text-[#8E9299] mb-4">{ex.desc}</p>
+            <p className="text-[11px] font-body text-muted-foreground mb-4">{ex.desc}</p>
             <Button variant="outline" size="sm" onClick={ex.fn} disabled={loading !== null}
               className="gap-2">
               <Download size={13} /> {loading === ex.key ? "Exporting…" : "Export CSV"}

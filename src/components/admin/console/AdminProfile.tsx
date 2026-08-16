@@ -11,9 +11,9 @@ type Row = {
 };
 
 const Field = ({ label, value }: { label: string; value: string }) => (
-  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
-    <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-1">{label}</p>
-    <p className="text-sm font-body text-[#E2E8F0]">{value || "—"}</p>
+  <div className="rounded-lg border border-border bg-card p-4">
+    <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-1">{label}</p>
+    <p className="text-sm font-body text-foreground">{value || "—"}</p>
   </div>
 );
 
@@ -51,15 +51,15 @@ const AdminProfile = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="font-display text-2xl text-white tracking-wider">Profile</h2>
-        <p className="text-[#8E9299] text-sm font-body mt-1">Your staff account and how you appear on the welcome wall.</p>
+        <h2 className="font-display text-2xl text-foreground tracking-wider">Profile</h2>
+        <p className="text-muted-foreground text-sm font-body mt-1">Your staff account and how you appear on the welcome wall.</p>
       </div>
 
-      <div className="flex items-center gap-3 rounded-lg border border-[#3585AF]/30 bg-[#3585AF]/10 p-4">
-        <ShieldCheck size={16} className="text-[#3585AF]" />
-        <p className="text-sm font-body text-[#E2E8F0]">
+      <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/10 p-4">
+        <ShieldCheck size={16} className="text-primary" />
+        <p className="text-sm font-body text-foreground">
           Signed in as <span className="font-semibold">{row?.email || user?.email}</span>
-          <span className="ml-2 px-2 py-0.5 rounded-sm bg-[#3585AF]/20 text-[#C5E3F3] text-[10px] tracking-[0.15em] uppercase">{role || "staff"}</span>
+          <span className="ml-2 px-2 py-0.5 rounded-sm bg-primary/15 text-primary text-[10px] tracking-[0.15em] uppercase">{role || "staff"}</span>
         </p>
       </div>
 
@@ -67,29 +67,29 @@ const AdminProfile = () => {
         <Field label="Name" value={row?.name || ""} />
         <Field label="Membership" value={row?.membership_status || ""} />
         <Field label="Age group" value={row?.age_group || ""} />
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-1 flex items-center gap-1.5"><Nfc size={11} /> NFC bracelet</p>
-          <p className="text-sm font-body text-[#E2E8F0]">{row?.nfc_id || "Not linked"}</p>
+        <div className="rounded-lg border border-border bg-card p-4">
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-1 flex items-center gap-1.5"><Nfc size={11} /> NFC bracelet</p>
+          <p className="text-sm font-body text-foreground">{row?.nfc_id || "Not linked"}</p>
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
-        <label className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] block mb-2">Display name on the welcome wall</label>
+      <div className="rounded-lg border border-border bg-card p-5">
+        <label className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground block mb-2">Display name on the welcome wall</label>
         <div className="flex gap-3">
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="How members see you on screen"
-            className="flex-1 bg-transparent border border-white/10 rounded-md px-3 py-2 text-sm font-body text-[#E2E8F0] placeholder:text-[#8E9299]/50 focus:outline-none focus:border-[#3585AF]/60 transition-colors"
+            className="flex-1 bg-transparent border border-border rounded-md px-3 py-2 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
           />
           <button onClick={save} disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-[#3585AF] text-white text-xs font-body tracking-widest uppercase rounded-md hover:bg-[#3585AF]/80 transition-colors disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-xs font-body tracking-widest uppercase rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50">
             {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Save
           </button>
         </div>
-        <p className="text-[11px] font-body text-[#8E9299] mt-3">
+        <p className="text-[11px] font-body text-muted-foreground mt-3">
           Member-facing settings (reminders, live display, privacy) live in{" "}
-          <Link to="/portal/settings" className="text-[#C5E3F3] underline underline-offset-2">portal settings</Link>.
+          <Link to="/portal/settings" className="text-primary underline underline-offset-2">portal settings</Link>.
         </p>
       </div>
     </div>

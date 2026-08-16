@@ -20,20 +20,46 @@ import { LOGO_PNG_B64 } from "./logo.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY")!;
-// Gemini-native image models accessible via Gemini API key (AIza...)
-// gemini-2.5-flash-image (Nano Banana) — ~500 free images/day
-// gemini-3.1-flash-image-preview (Nano Banana 2) — newest, same API
-const GEMINI_MODELS = [
-  "gemini-2.5-flash-image",
-  "gemini-3.1-flash-image-preview",
-];
+const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
+// Gemini image models, tried in order. Overridable via GEMINI_IMAGE_MODELS
+// (comma-separated) so a renamed/retired model never requires a code deploy.
+const GEMINI_MODELS = (
+  Deno.env.get("GEMINI_IMAGE_MODELS") ||
+  "gemini-2.5-flash-image,gemini-2.0-flash-preview-image-generation"
+).split(",").map((s) => s.trim()).filter(Boolean);
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
+
+// Pull the human-readable reason out of a Gemini error body (quota / model
+// not found / invalid key) rather than echoing the whole JSON.
+const extractReason = (body: string): string => {
+  try {
+    const parsed = JSON.parse(body);
+    const msg = parsed?.error?.message || parsed?.message || parsed?.error?.status || "";
+    return String(msg).replace(/\s+/g, " ").slice(0, 240);
+  } catch {
+    return body.replace(/\s+/g, " ").slice(0, 240);
+  }
+};
+
+// Greedy word-wrap using the font's measured widths (pdf-lib drawText doesn't
+// wrap on its own).
+const wrapText = (text: string, font: { widthOfTextAtSize: (t: string, s: number) => number }, size: number, maxWidth: number): string[] => {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let line = "";
+  for (const w of words) {
+    const test = line ? `${line} ${w}` : w;
+    if (font.widthOfTextAtSize(test, size) <= maxWidth) line = test;
+    else { if (line) lines.push(line); line = w; }
+  }
+  if (line) lines.push(line);
+  return lines;
+};
 
 // Session date = program start Sunday + (week - 1) weeks, in the program tz.
 // deno-lint-ignore no-explicit-any
@@ -62,7 +88,7 @@ serve(async (req: Request) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
       },
     });
   }
@@ -83,8 +109,9 @@ serve(async (req: Request) => {
     .select("role")
     .eq("user_id", userRes.user.id)
     .in("role", ["facilitator", "admin"])
-    .maybeSingle();
-  if (!roleRow) return json({ error: "Facilitators only" }, 403);
+    .limit(1);
+  if (!roleRow || roleRow.length === 0) return json({ error: "Facilitators only" }, 403);
+  if (!GOOGLE_AI_API_KEY) return json({ error: "GOOGLE_AI_API_KEY is not configured", hint: "Set it under Supabase → Edge Functions → Secrets." }, 500);
   // -------------------------------------------------------------------------
 
   try {
@@ -94,13 +121,22 @@ serve(async (req: Request) => {
     }
     const orientation = rawOrientation === "landscape" ? "landscape" : "portrait";
 
-    // 1. Fetch the child lesson for this week
-    const { data: lesson, error: lessonError } = await supabase
-      .from("mindcast_live_sessions")
-      .select("*")
-      .eq("week_number", week_number)
-      .eq("audience", "Child")
-      .single();
+    // 1. Fetch the child lesson for this week, plus the week's kid-speak
+    //    metaphor straight from the curriculum table (the live-session
+    //    signal_metaphor mirror can drift stale after a content re-seed).
+    const [{ data: lesson, error: lessonError }, { data: cwWeek }] = await Promise.all([
+      supabase
+        .from("mindcast_live_sessions")
+        .select("*")
+        .eq("week_number", week_number)
+        .eq("audience", "Child")
+        .single(),
+      supabase
+        .from("curriculum_weeks")
+        .select("kids_signal_metaphor")
+        .eq("week_number", week_number)
+        .single(),
+    ]);
 
     if (lessonError || !lesson) {
       return json({ error: "Lesson not found for week " + week_number }, 404);
@@ -111,7 +147,7 @@ serve(async (req: Request) => {
     //    current theme so regeneration tracks content edits.
     const theme = (lesson.theme_title || "").trim();
     const sessionTitle = (lesson.session_title || "").trim();
-    const metaphor = (lesson.signal_metaphor || "").trim().slice(0, 220);
+    const metaphor = (cwWeek?.kids_signal_metaphor || lesson.signal_metaphor || "").trim().slice(0, 220);
     let prompt = (lesson.coloring_prompt || "").trim();
     if (!prompt) {
       prompt =
@@ -137,7 +173,7 @@ serve(async (req: Request) => {
     };
 
     let imageB64: string | null = null;
-    let lastError: string = "";
+    const attempts: string[] = [];
 
     for (const model of GEMINI_MODELS) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_AI_API_KEY}`;
@@ -149,14 +185,16 @@ serve(async (req: Request) => {
       });
 
       if (!geminiRes.ok) {
-        lastError = `${model}: ${geminiRes.status} ${await geminiRes.text()}`;
+        const bodyText = await geminiRes.text();
+        const reason = extractReason(bodyText);
+        attempts.push(`${model}: ${geminiRes.status} ${reason}`);
         continue;
       }
 
       const geminiData = await geminiRes.json();
       const candidate = geminiData.candidates?.[0];
       if (!candidate?.content?.parts) {
-        lastError = `${model}: no parts in response`;
+        attempts.push(`${model}: no parts in response`);
         continue;
       }
 
@@ -169,11 +207,12 @@ serve(async (req: Request) => {
       }
 
       if (imageB64) break;
-      lastError = `${model}: no image in response parts`;
+      attempts.push(`${model}: no image in response parts`);
     }
 
     if (!imageB64) {
-      return json({ error: "No image generated — all Gemini models failed", detail: lastError }, 502);
+      const summary = attempts.join(" · ");
+      return json({ error: `No image generated — ${summary}`, detail: summary }, 502);
     }
 
     const imageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
@@ -238,6 +277,19 @@ serve(async (req: Request) => {
       });
     }
 
+    // Subheading — the week's "In Today's World" metaphor, for a parent to
+    // read aloud to their child while they colour.
+    let imageTop = pageH - margin - 62;
+    if (metaphor) {
+      const lines = wrapText(metaphor, helvetica, 9, pageW - margin * 2);
+      lines.forEach((line, i) => {
+        page.drawText(line, {
+          x: margin, y: imageTop - i * 12, size: 9, font: helvetica, color: GREY,
+        });
+      });
+      imageTop = imageTop - lines.length * 12 - 6;
+    }
+
     // Embed the PNG.
     let pngImage;
     try {
@@ -251,8 +303,8 @@ serve(async (req: Request) => {
       });
     }
 
-    // Image area: between the title block and the name line.
-    const top = pageH - margin - 62;
+    // Image area: between the title/metaphor block and the name line.
+    const top = imageTop;
     const bottom = margin + 58;
     const maxW = pageW - margin * 2;
     const maxH = top - bottom;
@@ -275,7 +327,7 @@ serve(async (req: Request) => {
     });
 
     // Footer.
-    const footerText = "mindcast.co.nz  |  notice. name. rewire.";
+    const footerText = "mindcast.co.nz  |  NOTICE IT, NAME IT, DO IT";
     page.drawText(footerText, { x: margin, y: margin - 4, size: 6, font: helvetica, color: GREY });
     const pageLabel = `${orientation === "landscape" ? "A4 landscape" : "A4 portrait"} colouring page`;
     page.drawText(pageLabel, {

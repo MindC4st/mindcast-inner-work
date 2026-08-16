@@ -112,7 +112,7 @@ const CoursebookPrint = () => {
               <p className="cb-eyebrow">Mindcast</p>
               <h1 style={{ fontSize: 44, fontWeight: 800, letterSpacing: ".06em", margin: "12px 0" }}>THE 52-WEEK JOURNEY</h1>
               <p className="cb-body" style={{ color: "#5b7288" }}>{track} Coursebook{phase ? ` · Phase ${PHASES[phase]}` : ""}</p>
-              <p className="cb-body" style={{ marginTop: 24, color: "#8a97a5" }}>Notice · Name · Rewire</p>
+              <p className="cb-body" style={{ marginTop: 24, color: "#8a97a5" }}>Notice It · Name It · Do It</p>
             </div>
 
             {/* One page per week */}

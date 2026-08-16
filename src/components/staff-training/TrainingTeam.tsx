@@ -4,19 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   dueDateFor, memberContactCurrent, moduleStatus, type ModuleStatus,
 } from "@/lib/training";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, ShieldCheck, ShieldAlert, Users } from "lucide-react";
 import { toast } from "sonner";
 
 type StaffUser = { user_id: string; role: string; name: string | null; display_name: string | null; email: string | null; created_at: string };
 type ModuleLite = { id: string; code: string; title: string; position: number; gate: Parameters<typeof dueDateFor>[0] };
-type ProgressLite = { user_id: string; module_id: string; status: string; expires_at: string | null; due_at: string | null; module_version: number };
+type ProgressLite = { user_id: string; module_id: string; status: string; score: number | null; expires_at: string | null; due_at: string | null; module_version: number };
 
 const DOT: Record<ModuleStatus, string> = {
-  not_started: "bg-white/15",
-  in_progress: "bg-[#3585AF]",
-  passed: "bg-[#7FB6D9]",
-  acknowledged: "bg-[#7FB6D9]",
-  failed: "bg-white/40",
+  not_started: "bg-foreground/10",
+  in_progress: "bg-primary",
+  passed: "bg-primary",
+  acknowledged: "bg-primary",
+  failed: "bg-primary/50",
   overdue: "bg-red-400",
   expired: "bg-red-400",
 };
@@ -33,7 +33,7 @@ const TrainingTeam = () => {
       const [{ data: roles }, { data: m }, { data: p }, { data: sr }] = await Promise.all([
         supabase.from("user_roles" as never).select("user_id, role").in("role", ["facilitator", "admin"]),
         supabase.from("staff_training_modules" as never).select("id, code, title, position, gate").order("position"),
-        supabase.from("staff_training_progress" as never).select("user_id, module_id, status, expires_at, due_at, module_version").eq("superseded", false),
+        supabase.from("staff_training_progress" as never).select("user_id, module_id, status, score, expires_at, due_at, module_version").eq("superseded", false),
         supabase.from("staff_compliance_records" as never).select("user_id, valid_from").eq("category", "staff_start"),
       ]);
       const ids = ((roles ?? []) as { user_id: string; role: string }[]).map((r) => r.user_id);
@@ -57,6 +57,7 @@ const TrainingTeam = () => {
       const prog = progress.find((p) => p.user_id === s.user_id && p.module_id === mod.id) || null;
       return {
         mod,
+        score: prog?.score ?? null,
         status: moduleStatus({
           progress: prog,
           dueAt: dueDateFor(mod.gate, anchor),
@@ -64,22 +65,31 @@ const TrainingTeam = () => {
         }),
       };
     });
+    const completed = rows.filter((r) => r.status === "passed" || r.status === "acknowledged").length;
     return {
       staff: s,
       rows,
+      completed,
       current: memberContactCurrent(rows.map((r) => ({ gate: r.mod.gate, status: r.status }))),
     };
   }), [staff, modules, progress, starts]);
 
+  const summary = useMemo(() => ({
+    total: matrix.length,
+    current: matrix.filter((r) => r.current).length,
+    blocked: matrix.filter((r) => !r.current).length,
+  }), [matrix]);
+
   const exportCsv = () => {
     const esc = (v: string) => `"${(v || "").replace(/"/g, '""')}"`;
-    const head = ["Member", "Email", "Role", "Member-contact current", ...modules.map((m) => m.code)].map(esc).join(",");
+    const head = ["Member", "Email", "Role", "Completed", "Member-contact current", ...modules.map((m) => m.code)].map(esc).join(",");
     const lines = matrix.map((row) => [
       row.staff.display_name || row.staff.name || row.staff.email || "",
       row.staff.email || "",
       row.staff.role,
+      `${row.completed}/${modules.length}`,
       row.current ? "yes" : "no",
-      ...row.rows.map((r) => r.status),
+      ...row.rows.map((r) => (r.status === "passed" || r.status === "acknowledged" ? (r.score != null ? `${Math.round(r.score * 100)}%` : "ack") : r.status)),
     ].map(esc).join(","));
     const blob = new Blob([[head, ...lines].join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -91,29 +101,54 @@ const TrainingTeam = () => {
     toast.success("Compliance matrix exported — response content is never included.");
   };
 
-  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-[#8E9299]" /></div>;
+  if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-center gap-4 mb-6">
         <div>
-          <h2 className="font-display text-2xl text-white tracking-wider">Team compliance</h2>
-          <p className="text-[#8E9299] text-sm font-body mt-1">
+          <h2 className="font-display text-2xl text-foreground tracking-wider">Team compliance</h2>
+          <p className="text-muted-foreground text-sm font-body mt-1">
             Who is current, due soon or overdue — at a module level. Free-text answers stay private to each worker.
           </p>
         </div>
         <button onClick={exportCsv}
-          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-md border border-[#3585AF]/50 text-[#C5E3F3] text-[11px] font-body tracking-widest uppercase hover:bg-[#3585AF]/10 transition-colors">
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-md border border-primary/50 text-primary text-[11px] font-body tracking-widest uppercase hover:bg-primary/10 transition-colors">
           <Download size={13} /> Export
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
+      <div className="grid sm:grid-cols-3 gap-3 mb-6">
+        <div className="rounded-lg border border-border bg-card p-4 flex items-center gap-3">
+          <Users size={16} className="text-primary" />
+          <div>
+            <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">Staff</p>
+            <p className="font-display text-2xl text-foreground">{summary.total}</p>
+          </div>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4 flex items-center gap-3">
+          <ShieldCheck size={16} className="text-primary" />
+          <div>
+            <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">Current</p>
+            <p className="font-display text-2xl text-foreground">{summary.current}</p>
+          </div>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-4 flex items-center gap-3">
+          <ShieldAlert size={16} className="text-red-400" />
+          <div>
+            <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">Stand down</p>
+            <p className="font-display text-2xl text-red-400">{summary.blocked}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm font-body">
           <thead>
-            <tr className="bg-white/[0.04] text-left text-[10px] text-[#8E9299] uppercase tracking-widest">
+            <tr className="bg-card text-left text-[10px] text-muted-foreground uppercase tracking-widest">
               <th className="px-4 py-3">Team member</th>
               <th className="px-3 py-3">Gate</th>
+              <th className="px-3 py-3 text-center">Done</th>
               {modules.map((m) => (
                 <th key={m.id} className="px-2 py-3 text-center" title={m.title}>{String(m.position).padStart(2, "0")}</th>
               ))}
@@ -121,36 +156,46 @@ const TrainingTeam = () => {
           </thead>
           <tbody>
             {matrix.map((row) => (
-              <tr key={row.staff.user_id} className="border-t border-white/[0.06] hover:bg-white/[0.02] transition-colors">
+              <tr key={row.staff.user_id} className="border-t border-border hover:bg-foreground/[0.03] transition-colors">
                 <td className="px-4 py-3">
-                  <Link to={`/admin/staff-training/team/${row.staff.user_id}`} className="text-[#E2E8F0] hover:text-white underline-offset-2 hover:underline">
+                  <Link to={`/admin/staff-training/team/${row.staff.user_id}`} className="text-foreground hover:text-foreground underline-offset-2 hover:underline">
                     {row.staff.display_name || row.staff.name || row.staff.email}
                   </Link>
-                  <span className="block text-[10px] text-[#8E9299]">{row.staff.role}</span>
+                  <span className="block text-[10px] text-muted-foreground">{row.staff.role}</span>
                 </td>
                 <td className="px-3 py-3">
-                  <span className={`px-2 py-1 rounded-sm text-[10px] tracking-widest uppercase ${row.current ? "bg-[#3585AF]/20 text-[#C5E3F3]" : "bg-red-500/15 text-red-300"}`}>
+                  <span className={`px-2 py-1 rounded-sm text-[10px] tracking-widest uppercase ${row.current ? "bg-primary/15 text-primary" : "bg-red-500/15 text-red-300"}`}>
                     {row.current ? "Current" : "Stand down"}
                   </span>
                 </td>
-                {row.rows.map((r) => (
-                  <td key={r.mod.id} className="px-2 py-3 text-center" title={`${r.mod.title}: ${r.status}`}>
-                    <span className={`inline-block w-2.5 h-2.5 rounded-full ${DOT[r.status]}`} />
-                  </td>
-                ))}
+                <td className="px-3 py-3 text-center text-foreground font-body">{row.completed}/{modules.length}</td>
+                {row.rows.map((r) => {
+                  const completed = r.status === "passed" || r.status === "acknowledged";
+                  return (
+                    <td key={r.mod.id} className="px-2 py-3 text-center" title={`${r.mod.title}: ${r.status}`}>
+                      {completed ? (
+                        <span className="text-[10px] font-body text-primary">{r.score != null ? `${Math.round(r.score * 100)}%` : "✓"}</span>
+                      ) : r.status === "failed" ? (
+                        <span className="text-[10px] font-body text-red-300">{r.score != null ? `${Math.round(r.score * 100)}%` : "✗"}</span>
+                      ) : (
+                        <span className={`inline-block w-2.5 h-2.5 rounded-full ${DOT[r.status]}`} />
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
             {matrix.length === 0 && (
-              <tr><td colSpan={3 + modules.length} className="px-4 py-12 text-center text-[#8E9299]">No staff found.</td></tr>
+              <tr><td colSpan={4 + modules.length} className="px-4 py-12 text-center text-muted-foreground">No staff found.</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-body text-[#8E9299]">
-        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-white/15" /> Not started</span>
-        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-[#3585AF]" /> In progress</span>
-        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-[#7FB6D9]" /> Passed / acknowledged</span>
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-body text-muted-foreground">
+        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-foreground/10" /> Not started</span>
+        <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-primary" /> In progress</span>
+        <span className="flex items-center gap-2 text-primary">% / ✓ — passed</span>
         <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-400" /> Overdue / expired</span>
       </div>
     </div>

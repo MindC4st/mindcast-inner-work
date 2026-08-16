@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 import {
   LayoutDashboard, Clapperboard, CalendarDays, TrendingUp, CreditCard,
   Users, Download, LineChart, UserCircle, Layers, GraduationCap,
@@ -19,6 +20,8 @@ const AdminApplicationsPage = lazy(() => import("./AdminApplicationsPage"));
 const AdminMembers = lazy(() => import("./AdminMembers"));
 const AdminHouseholds = lazy(() => import("./AdminHouseholds"));
 const AdminLifeGroups = lazy(() => import("./AdminLifeGroups"));
+const AdminRoster = lazy(() => import("./AdminRoster"));
+const AdminConcessions = lazy(() => import("./AdminConcessions"));
 const AdminProgress = lazy(() => import("@/components/admin/console/AdminProgress"));
 const AdminInsights = lazy(() => import("@/components/admin/console/AdminInsights"));
 const AdminProfile = lazy(() => import("@/components/admin/console/AdminProfile"));
@@ -46,6 +49,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
 
 const SESSION_SUBTABS = [
   { id: "schedule", label: "Schedule" },
+  { id: "roster", label: "Roster" },
   { id: "program", label: "Program & Unlocks" },
   { id: "kids", label: "Kids Sessions" },
   { id: "moderation", label: "Moderation" },
@@ -57,13 +61,14 @@ const MEMBERSHIP_SUBTABS = [
   { id: "overview", label: "Subscriptions" },
   { id: "applications", label: "Applications" },
   { id: "members", label: "Members" },
+  { id: "concessions", label: "Concessions" },
   { id: "households", label: "Households" },
   { id: "bracelets", label: "Bracelets" },
 ] as const;
 
 const Fallback = () => (
   <div className="py-24 flex justify-center">
-    <span className="text-[#8E9299] text-xs font-body tracking-widest uppercase animate-pulse">Loading…</span>
+    <span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading…</span>
   </div>
 );
 
@@ -72,10 +77,10 @@ const SubTabBar = ({ tabs, active, onChange }: {
   active: string;
   onChange: (id: string) => void;
 }) => (
-  <div className="flex gap-1 rounded-md border border-white/[0.08] bg-white/[0.02] p-1 w-fit mb-6 overflow-x-auto max-w-full">
+  <div className="flex gap-1 rounded-md border border-border bg-card p-1 w-fit mb-6 overflow-x-auto max-w-full">
     {tabs.map((t) => (
       <button key={t.id} onClick={() => onChange(t.id)}
-        className={`px-3.5 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${active === t.id ? "bg-[#3585AF] text-white" : "text-[#8E9299] hover:text-white"}`}>
+        className={`px-3.5 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${active === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
         {t.label}
       </button>
     ))}
@@ -115,6 +120,7 @@ const AdminConsole = () => {
         <div>
           <SubTabBar tabs={SESSION_SUBTABS} active={sessionSub} onChange={setSessionSub} />
           {sessionSub === "schedule" && <AdminScheduling embedded />}
+          {sessionSub === "roster" && <AdminRoster embedded />}
           {sessionSub === "program" && <AdminProgram embedded />}
           {sessionSub === "kids" && <AdminKids embedded />}
           {sessionSub === "moderation" && <AdminModeration embedded />}
@@ -128,6 +134,7 @@ const AdminConsole = () => {
           {membershipSub === "overview" && <AdminMembership embedded />}
           {membershipSub === "applications" && <AdminApplicationsPage embedded />}
           {membershipSub === "members" && <AdminMembers embedded />}
+          {membershipSub === "concessions" && <AdminConcessions embedded />}
           {membershipSub === "households" && <AdminHouseholds embedded />}
           {membershipSub === "bracelets" && <BraceletStudio />}
         </div>
@@ -137,17 +144,16 @@ const AdminConsole = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A1120] text-[#E2E8F0]"
-      style={{ backgroundImage: "radial-gradient(circle at 15% 0%, rgba(53,133,175,0.12) 0%, transparent 45%), radial-gradient(circle at 85% 100%, rgba(197,227,243,0.05) 0%, transparent 40%)" }}>
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-[#0A1120]/80 border-b border-white/[0.06]">
+    <div className="min-h-screen portal-bg text-foreground">
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
-            <span className="font-display text-lg font-bold tracking-[0.25em] text-white">MINDCAST</span>
-            <span className="px-2 py-0.5 rounded-sm bg-[#3585AF]/20 text-[#C5E3F3] text-[10px] font-body tracking-[0.2em] uppercase">Admin</span>
+            <Link to="/"><img src={logoBlue} alt="Mindcast" className="h-6" /></Link>
+            <span className="px-2 py-0.5 rounded-sm bg-primary/15 text-primary text-[10px] font-body tracking-[0.2em] uppercase">Admin</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="hidden sm:block text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299]">{role}</span>
-            <Link to="/portal/dashboard" className="text-[11px] font-body tracking-widest uppercase text-[#8E9299] hover:text-white transition-colors">
+            <span className="hidden sm:block text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">{role}</span>
+            <Link to="/portal/dashboard" className="text-[11px] font-body tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors">
               Member portal →
             </Link>
           </div>
@@ -155,7 +161,7 @@ const AdminConsole = () => {
         <nav className="md:hidden flex gap-1 overflow-x-auto px-3 pb-2">
           {visibleTabs.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${tab === t.id ? "bg-[#3585AF] text-white" : "text-[#8E9299]"}`}>
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
               <t.icon size={12} /> {t.label}
             </button>
           ))}
@@ -163,18 +169,18 @@ const AdminConsole = () => {
       </header>
 
       <div className="flex">
-        <aside className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-white/[0.06] min-h-[calc(100vh-3.5rem)] sticky top-14 self-start">
+        <aside className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-border min-h-[calc(100vh-3.5rem)] sticky top-14 self-start">
           {visibleTabs.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${tab === t.id ? "bg-white/[0.06] text-white" : "text-[#8E9299] hover:text-white hover:bg-white/[0.03]"}`}>
-              {tab === t.id && <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-[#3585AF]" />}
-              <t.icon size={15} strokeWidth={1.75} className={tab === t.id ? "text-[#3585AF]" : ""} />
+              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${tab === t.id ? "bg-foreground/[0.05] text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-card"}`}>
+              {tab === t.id && <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-primary" />}
+              <t.icon size={15} strokeWidth={1.75} className={tab === t.id ? "text-primary" : ""} />
               <span className="text-xs font-body tracking-[0.15em] uppercase">{t.label}</span>
             </button>
           ))}
           <div className="mt-auto pt-6 px-3">
-            <p className="text-[9px] font-body tracking-[0.2em] uppercase text-[#8E9299]/60 flex items-center gap-1.5">
-              <Layers size={10} /> notice. name. rewire.
+            <p className="text-[9px] font-body tracking-[0.2em] uppercase text-muted-foreground/60 flex items-center gap-1.5">
+              <Layers size={10} /> Notice it. Name it. Do it.
             </p>
           </div>
         </aside>

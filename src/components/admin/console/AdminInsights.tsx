@@ -22,13 +22,13 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const Card = ({ icon: Icon, label, value, sub }: { icon: LucideIcon; label: string; value: string | number; sub?: string }) => (
-  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
+  <div className="rounded-lg border border-border bg-card p-5">
     <div className="flex items-center gap-2 mb-3">
-      <Icon size={14} className="text-[#3585AF]" />
-      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299]">{label}</p>
+      <Icon size={14} className="text-primary" />
+      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">{label}</p>
     </div>
-    <p className="font-display text-3xl text-white tracking-wider">{value}</p>
-    {sub && <p className="text-[11px] font-body text-[#8E9299] mt-1">{sub}</p>}
+    <p className="font-display text-3xl text-foreground tracking-wider">{value}</p>
+    {sub && <p className="text-[11px] font-body text-muted-foreground mt-1">{sub}</p>}
   </div>
 );
 
@@ -57,10 +57,10 @@ const AdminInsights = () => {
   }, [stats]);
 
   if (error) {
-    return <p className="text-[#8E9299] text-sm font-body py-12 text-center">Couldn't load insights: {error}</p>;
+    return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load insights: {error}</p>;
   }
   if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-[#8E9299] text-xs font-body tracking-widest uppercase animate-pulse">Loading insights…</span></div>;
+    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading insights…</span></div>;
   }
 
   const { totals, status_mix } = stats;
@@ -69,8 +69,8 @@ const AdminInsights = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-2xl text-white tracking-wider">Insights</h2>
-        <p className="text-[#8E9299] text-sm font-body mt-1">Membership health and community growth at a glance.</p>
+        <h2 className="font-display text-2xl text-foreground tracking-wider">Insights</h2>
+        <p className="text-muted-foreground text-sm font-body mt-1">Membership health and community growth at a glance.</p>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -81,8 +81,8 @@ const AdminInsights = () => {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-4">Membership mix</p>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-4">Membership mix</p>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -100,7 +100,7 @@ const AdminInsights = () => {
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2">
             {status_mix.map((s) => (
-              <span key={s.name} className="flex items-center gap-2 text-[11px] font-body text-[#8E9299]">
+              <span key={s.name} className="flex items-center gap-2 text-[11px] font-body text-muted-foreground">
                 <span className="w-2.5 h-2.5 rounded-sm" style={{ background: STATUS_COLORS[s.name] || "#64748B" }} />
                 {s.name} · {s.value}
               </span>
@@ -108,8 +108,8 @@ const AdminInsights = () => {
           </div>
         </div>
 
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-5">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-[#8E9299] mb-4">Cumulative members</p>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-4">Cumulative members</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={signups}>

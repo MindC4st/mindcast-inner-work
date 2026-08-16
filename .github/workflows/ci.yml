@@ -1,0 +1,57 @@
+# CI — every push and PR runs the same four gates a release depends on.
+# No deploy happens here; Vercel deploys from main on its own.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: ci-placeholder-publishable-key
+      - name: No service-role key in the client bundle
+        run: |
+          if grep -R "service_role" dist/assets --include="*.js" -l; then
+            echo "::error::service_role found in built output"
+            exit 1
+          fi
+          echo "Bundle clean."
+
+  e2e-smoke:
+    # Public critical paths against the deployed site. Runs on push to main
+    # (post-deploy smoke); PRs skip it unless PLAYWRIGHT_BASE_URL is set.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test
+        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_BASE_URL: https://www.mindcast.co.nz
+
