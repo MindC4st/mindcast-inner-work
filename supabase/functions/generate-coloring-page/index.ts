@@ -25,7 +25,7 @@ const GOOGLE_AI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
 // (comma-separated) so a renamed/retired model never requires a code deploy.
 const GEMINI_MODELS = (
   Deno.env.get("GEMINI_IMAGE_MODELS") ||
-  "gemini-2.5-flash-image,gemini-2.0-flash-preview-image-generation,gemini-3.1-flash-image-preview"
+  "gemini-2.5-flash-image,gemini-2.0-flash-preview-image-generation"
 ).split(",").map((s) => s.trim()).filter(Boolean);
 
 const json = (body: unknown, status = 200) =>
