@@ -1,24 +1,31 @@
 // WelcomeWall — the pre-session welcome slide. Subscribes to the
 // public.check_ins realtime feed; as members tap their NFC bracelet at the
-// door, names drift onto the screen at different sizes, orientations,
-// drift directions, and serif/display fonts.
+// door their name takes a place on the wall.
 //
-// Design: navy → bronze ambient gradient, theme + week name softly behind
-// the floating field. Anonymous check-ins still count attendance but stay
-// off the wall to keep the visual interesting.
+// Layout, not scatter. Names sit in a slot grid that reserves the centre for
+// the theme title and the bottom-left for the join code, so a name can never
+// land across the title or on top of another name. Density steps down as the
+// room fills (see src/lib/welcomeWall.ts) — eight names are large and
+// legible, fifty still fit without touching.
 //
-// Performance: positions/sizes/drift parameters are deterministically
-// derived from each row id so the wall doesn't jitter on re-render. We use
-// CSS keyframe transforms (GPU) rather than animating React state.
+// One family, one size per tier, no rotation: the old random serif/display
+// mix read as a different brand on every name. Movement is a small bounded
+// drift, well inside each slot, so it never reintroduces a collision.
+//
+// Anonymous check-ins still count toward attendance but stay off the wall.
 
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/lib/db";
+import {
+  assignSlots, buildSlots, fontScaleForName, formatWallName, pickTier,
+} from "@/lib/welcomeWall";
 
 type CheckIn = {
   id: string;
+  profile_id: string | null;
   display_name: string;
   is_anonymous: boolean;
   checked_in_at: string;
@@ -33,69 +40,50 @@ type Props = {
   joinUrl?: string;
 };
 
-/** Pluck a stable float in [0,1) from a string id via a small DJB2-style hash. */
+const isWallVisible = (c: Pick<CheckIn, "is_anonymous" | "display_name">) =>
+  !c.is_anonymous && !!c.display_name && c.display_name !== "Anonymous";
+
+/** Stable pseudo-random in [0,1) from a row id, for drift phase only. */
 const seededFloat = (id: string, salt: number): number => {
   let h = 5381 ^ salt;
   for (let i = 0; i < id.length; i++) h = (h * 33) ^ id.charCodeAt(i);
-  // map to 0..1
   return ((h >>> 0) % 100000) / 100000;
 };
 
-const FONT_CLASSES = [
-  "font-serif italic",
-  "font-display tracking-wider",
-  "font-serif",
-  "font-display tracking-wider",
-];
+const WallName = ({
+  checkIn, x, y, fontRem,
+}: { checkIn: CheckIn; x: number; y: number; fontRem: number }) => {
+  const name = useMemo(() => formatWallName(checkIn.display_name), [checkIn.display_name]);
 
-const COLOUR_CLASSES = [
-  "text-[hsl(var(--ivory))]/90",
-  "text-[hsl(var(--ivory))]/80",
-  "text-[hsl(var(--bronze))]/90",
-  "text-[hsl(var(--blue-light))]/85",
-  "text-[hsl(var(--ivory))]/70",
-];
-
-const FloatingName = ({ checkIn }: { checkIn: CheckIn }) => {
-  const { id, display_name } = checkIn;
-
-  // Deterministic params per row id.
-  const params = useMemo(() => {
-    const left = 4 + seededFloat(id, 1) * 88;       // % from left, padded from edges
-    const top  = 6 + seededFloat(id, 2) * 80;       // % from top
-    const size = 1.4 + seededFloat(id, 3) * 2.6;    // rem (1.4 → 4.0)
-    const rot  = -10 + seededFloat(id, 4) * 20;     // degrees (-10 → +10)
-    const fontIdx = Math.floor(seededFloat(id, 5) * FONT_CLASSES.length);
-    const colourIdx = Math.floor(seededFloat(id, 6) * COLOUR_CLASSES.length);
-    const driftX = -40 + seededFloat(id, 7) * 80;   // px drift on X
-    const driftY = -30 + seededFloat(id, 8) * 60;   // px drift on Y
-    const duration = 38 + seededFloat(id, 9) * 36;  // seconds (38 → 74)
-    const delay = -seededFloat(id, 10) * duration;  // negative so each starts at random phase
-    return { left, top, size, rot, fontIdx, colourIdx, driftX, driftY, duration, delay };
-  }, [id]);
+  // Drift phase and duration only — never position, size, font or rotation.
+  const drift = useMemo(() => ({
+    duration: 26 + seededFloat(checkIn.id, 9) * 22,
+    delay: -seededFloat(checkIn.id, 10) * 40,
+  }), [checkIn.id]);
 
   return (
     <motion.div
-      // Fade + scale in on first appearance.
-      initial={{ opacity: 0, scale: 0.4 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1.2, ease: "easeOut" }}
-      className="absolute select-none pointer-events-none"
+      className="absolute select-none pointer-events-none flex items-center justify-center"
+      initial={{ opacity: 0, scale: 0.7 }}
+      animate={{ opacity: 1, scale: 1, left: `${x}%`, top: `${y}%` }}
+      exit={{ opacity: 0, scale: 0.7, transition: { duration: 0.6 } }}
+      transition={{
+        opacity: { duration: 1.1, ease: "easeOut" },
+        scale: { type: "spring", stiffness: 200, damping: 22 },
+        left: { type: "spring", stiffness: 90, damping: 20 },
+        top: { type: "spring", stiffness: 90, damping: 20 },
+      }}
       style={{
-        left: `${params.left}%`,
-        top: `${params.top}%`,
-        // Use CSS custom properties for the keyframe to read.
-        "--drift-x": `${params.driftX}px`,
-        "--drift-y": `${params.driftY}px`,
-        "--rot": `${params.rot}deg`,
-        animation: `mc-float ${params.duration}s ease-in-out ${params.delay}s infinite`,
+        // Centre the name on its slot; the drift keyframe adds to this.
+        "--mc-drift": `${6 + seededFloat(checkIn.id, 7) * 5}px`,
+        animation: `mc-drift ${drift.duration}s ease-in-out ${drift.delay}s infinite`,
       } as CSSProperties}
     >
       <span
-        className={`${FONT_CLASSES[params.fontIdx]} ${COLOUR_CLASSES[params.colourIdx]} whitespace-nowrap drop-shadow-[0_0_30px_rgba(184,137,90,0.15)]`}
-        style={{ fontSize: `${params.size}rem`, transform: `rotate(${params.rot}deg)`, display: "inline-block" }}
+        className="font-display tracking-wide text-[hsl(var(--ivory))]/90 whitespace-nowrap -translate-x-1/2 -translate-y-1/2"
+        style={{ fontSize: `${fontRem * fontScaleForName(name)}rem` }}
       >
-        {display_name}
+        {name}
       </span>
     </motion.div>
   );
@@ -111,11 +99,11 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
       const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
       const { data } = await db
         .from("check_ins")
-        .select("id, display_name, is_anonymous, checked_in_at")
+        .select("id, profile_id, display_name, is_anonymous, checked_in_at")
         .gt("checked_in_at", fourHoursAgo)
         .order("checked_in_at", { ascending: true });
       if (!active) return;
-      setCheckIns((data || []).filter((c: CheckIn) => !c.is_anonymous && c.display_name && c.display_name !== "Anonymous"));
+      setCheckIns((data || []).filter(isWallVisible) as CheckIn[]);
     })();
 
     const ch = supabase
@@ -124,12 +112,36 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
         { event: "INSERT", schema: "public", table: "check_ins" },
         (p) => {
           const row = p.new as CheckIn;
-          if (row.is_anonymous || !row.display_name || row.display_name === "Anonymous") return;
+          if (!isWallVisible(row)) return;
           setCheckIns(prev => prev.some(c => c.id === row.id) ? prev : [...prev, row]);
         })
       .subscribe();
     return () => { active = false; supabase.removeChannel(ch); };
   }, []);
+
+  // One tile per person. A member who taps again later in the evening (or
+  // whose first tap fell outside the edge function's dedupe window) must not
+  // appear twice — keep their first arrival so the name doesn't jump slots.
+  const people = useMemo(() => {
+    const seen = new Set<string>();
+    return checkIns.filter((c) => {
+      const key = c.profile_id ?? `row:${c.id}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [checkIns]);
+
+  const tier = useMemo(() => pickTier(people.length), [people.length]);
+  const slots = useMemo(() => buildSlots(tier.cols, tier.rows, tier.safe), [tier]);
+
+  // Slot index → the check-in occupying it (newest wins when we run out).
+  const placed = useMemo(() => {
+    const byId = new Map(people.map((p) => [p.id, p]));
+    return assignSlots(people.map((p) => p.id), slots.length)
+      .map((id, i) => (id ? { checkIn: byId.get(id)!, slot: slots[i] } : null))
+      .filter((v): v is { checkIn: CheckIn; slot: { x: number; y: number } } => v !== null);
+  }, [people, slots]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -144,25 +156,34 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
         }}
       />
 
-      {/* Centre title — soft, sits behind names. */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+      {/* Centre title — sits in the reserved safe zone, so nothing covers it. */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none px-8">
         <p className="text-[hsl(var(--bronze))]/70 text-[10px] tracking-[0.6em] font-body uppercase mb-4">
           Week {weekNumber} · {phaseName}
         </p>
-        <h1 className="font-display text-6xl md:text-8xl tracking-wide text-[hsl(var(--ivory))]/15 text-center px-8 leading-none">
-          {(themeTitle || "").toUpperCase()}
-        </h1>
-        <p className="text-[hsl(var(--ivory))]/30 font-serif italic text-xl md:text-2xl mt-4 text-center px-8">
-          {sessionTitle}
-        </p>
-        <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-[0.5em] font-body uppercase mt-10">
-          {checkIns.length === 0
+        {/* Title scales back as the room fills so names keep their space —
+            the reserved zone shrinks with it (see TIERS in lib/welcomeWall). */}
+        <motion.div
+          className="flex flex-col items-center"
+          animate={{ scale: tier.titleScale }}
+          transition={{ type: "spring", stiffness: 80, damping: 18 }}
+          style={{ transformOrigin: "center" }}
+        >
+          <h1 className="font-display text-6xl md:text-8xl tracking-wide text-[hsl(var(--ivory))]/25 text-center leading-none">
+            {(themeTitle || "").toUpperCase()}
+          </h1>
+          <p className="text-[hsl(var(--ivory))]/40 font-serif italic text-xl md:text-2xl mt-4 text-center">
+            {sessionTitle}
+          </p>
+        </motion.div>
+        <p className="text-[hsl(var(--ivory))]/45 text-[10px] tracking-[0.5em] font-body uppercase mt-10">
+          {people.length === 0
             ? "Tap your bracelet to join the room"
-            : `${checkIns.length} in the room`}
+            : `${people.length} in the room`}
         </p>
       </div>
 
-      {/* Join code badge — bottom-left, always visible */}
+      {/* Join code badge — bottom-left, in its own reserved zone. */}
       {joinCode && (
         <div className="absolute bottom-8 left-8 z-30 flex flex-col items-start gap-1">
           <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase">Join Code</p>
@@ -175,24 +196,35 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
         </div>
       )}
 
-      {/* Floating names — above the title layer. */}
+      {/* Names — one per slot. */}
       <div className="absolute inset-0 z-20">
         <AnimatePresence>
-          {checkIns.map(c => (
-            <FloatingName key={c.id} checkIn={c} />
+          {placed.map(({ checkIn, slot }) => (
+            <WallName
+              key={checkIn.id}
+              checkIn={checkIn}
+              x={slot.x}
+              y={slot.y}
+              fontRem={tier.fontRem}
+            />
           ))}
         </AnimatePresence>
       </div>
 
-      {/* Keyframes for the drift. Defined inline so we don't need a global
-          CSS edit. Reads --drift-x / --drift-y / --rot from each name's style. */}
+      {/* Bounded drift. Amplitude is a handful of pixels — small enough that a
+          name always stays inside its own slot, so movement can never
+          reintroduce the overlap this layout exists to prevent. */}
       <style>{`
-        @keyframes mc-float {
-          0%   { transform: translate(0, 0) rotate(var(--rot)); }
-          25%  { transform: translate(calc(var(--drift-x) * 0.5),  calc(var(--drift-y) * -1)) rotate(var(--rot)); }
-          50%  { transform: translate(var(--drift-x), calc(var(--drift-y) * 0.4)) rotate(var(--rot)); }
-          75%  { transform: translate(calc(var(--drift-x) * -0.4), calc(var(--drift-y) * 0.8)) rotate(var(--rot)); }
-          100% { transform: translate(0, 0) rotate(var(--rot)); }
+        @keyframes mc-drift {
+          0%   { transform: translate(0, 0); }
+          33%  { transform: translate(var(--mc-drift), calc(var(--mc-drift) * -0.6)); }
+          66%  { transform: translate(calc(var(--mc-drift) * -0.7), calc(var(--mc-drift) * 0.5)); }
+          100% { transform: translate(0, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes mc-drift {
+            0%, 100% { transform: translate(0, 0); }
+          }
         }
       `}</style>
     </div>
