@@ -35,3 +35,23 @@ jobs:
             exit 1
           fi
           echo "Bundle clean."
+
+  e2e-smoke:
+    # Public critical paths against the deployed site. Runs on push to main
+    # (post-deploy smoke); PRs skip it unless PLAYWRIGHT_BASE_URL is set.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test
+        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_BASE_URL: https://www.mindcast.co.nz
+

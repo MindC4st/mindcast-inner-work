@@ -90,23 +90,27 @@ const PortalLogin = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">EMAIL</label>
+              <label htmlFor="login-email" className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">EMAIL</label>
               <input
+                id="login-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
                 placeholder="your@email.com"
               />
             </div>
             <div>
-              <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">PASSWORD</label>
+              <label htmlFor="login-password" className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">PASSWORD</label>
               <input
+                id="login-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
                 placeholder="••••••••"
               />

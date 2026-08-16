@@ -64,3 +64,8 @@ verify_jwt = false
 # Member data export — authenticated, returns only the caller's own rows.
 [functions.export-my-data]
 verify_jwt = true
+
+# Server-side brief-absence escalation backstop (cron). verify_jwt off;
+# gated by CRON_SECRET / service-role bearer inside the function.
+[functions.roll-absence-sweep]
+verify_jwt = false
