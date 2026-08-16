@@ -7,7 +7,8 @@ import {
   isAnswered, type Checkpoint, type ResponseValue,
 } from "@/lib/training";
 import { stt } from "@/lib/stt";
-import { ArrowLeft, Check, CheckCircle2, Loader2, RefreshCw, XCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, CheckCircle2, Loader2, RefreshCw, X, XCircle } from "lucide-react";
+import controlledDocs from "@/data/controlledDocs.json";
 import type { ModuleRow } from "./TrainingHome";
 
 type LessonRow = { id: string; position: number; title: string; body: string };
@@ -51,7 +52,19 @@ const ModuleRunner = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<"passed" | "failed" | null>(null);
+  const [docOpen, setDocOpen] = useState<string | null>(null);
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  // Documents referenced by this module (policy acknowledgements + any
+  // MC-XXX codes cited in lesson copy) — shown as clickable "read" links.
+  const referencedCodes = useMemo(() => {
+    const codes = new Set<string>();
+    checkpoints.forEach((c) => { if (c.policy_code) codes.add(c.policy_code); });
+    lessons.forEach((l) => {
+      for (const m of l.body.matchAll(/MC-[A-Z]{2,3}-\d{3,4}/g)) codes.add(m[0]);
+    });
+    return [...codes];
+  }, [checkpoints, lessons]);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -215,6 +228,23 @@ const ModuleRunner = () => {
       </p>
       <h2 className="font-display text-3xl text-foreground tracking-wider mb-6">{module.title}</h2>
 
+      {referencedCodes.length > 0 && (
+        <div className="mb-6 rounded-lg border border-border bg-card p-4">
+          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-3">Referenced documents</p>
+          <div className="flex flex-wrap gap-2">
+            {referencedCodes.map((code) => {
+              const doc = controlledDocs.find((d) => d.code === code);
+              return (
+                <button key={code} onClick={() => setDocOpen(code)}
+                  className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-xs font-body text-foreground hover:border-primary hover:text-primary transition-colors">
+                  <BookOpen size={13} /> {code} — {doc?.title || "document"}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {versionChanged && !done && (
         <div className="mb-6 rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-[12px] font-body text-primary flex items-center justify-between gap-3">
           This module was updated to v{module.version}. Your in-progress attempt is on v{progress?.module_version}.
@@ -296,6 +326,30 @@ const ModuleRunner = () => {
           Not passed this time ({Math.round((evaluation.score ?? 0) * 100)}% of {Math.round((module.pass_mark ?? 0) * 100)}% required). Review the marked answers and submit again when ready.
         </div>
       )}
+
+      {docOpen && (() => {
+        const doc = controlledDocs.find((d) => d.code === docOpen);
+        if (!doc) return null;
+        return (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setDocOpen(null)}>
+            <div className="bg-background border border-border rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <h3 className="font-display text-xl text-foreground">{doc.code} — {doc.title}</h3>
+                <button onClick={() => setDocOpen(null)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
+              </div>
+              <div className="space-y-2">
+                {doc.body.split("\n").map((line, i) => {
+                  if (/^#+\s/.test(line)) return <h4 key={i} className="font-display text-lg text-foreground mt-4">{line.replace(/^#+\s*/, "")}</h4>;
+                  if (/^-\s/.test(line)) return <p key={i} className="text-sm font-body text-foreground/80 pl-3">· {line.slice(2)}</p>;
+                  if (/^>\s?/.test(line)) return <p key={i} className="text-sm font-body italic text-muted-foreground border-l-2 border-primary/30 pl-3">{line.replace(/^>\s?/, "")}</p>;
+                  if (line.trim() === "") return null;
+                  return <p key={i} className="text-sm font-body text-foreground/80 leading-relaxed">{line}</p>;
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
