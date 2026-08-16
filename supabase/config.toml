@@ -6,9 +6,6 @@ verify_jwt = false
 [functions.generate-session-video]
 verify_jwt = true
 
-[functions.shotstack-webhook]
-verify_jwt = false
-
 [functions.bulk-generate-videos]
 verify_jwt = true
 
@@ -52,4 +49,14 @@ verify_jwt = true
 
 # Public by design: the person registering does not have an account yet.
 [functions.issue-trial-ticket]
+verify_jwt = false
+
+# One warm follow-up after a trial session. verify_jwt off; gated by
+# CRON_SECRET / service-role bearer inside the function.
+[functions.trial-followup]
+verify_jwt = false
+
+# Public one-click unsubscribe for trial guests (no accounts exist yet).
+# The token is unguessable and can only flip the opt-out flag.
+[functions.trial-unsubscribe]
 verify_jwt = false
