@@ -1,38 +1,34 @@
 {
-  "generatedAt": "2026-08-16T00:42:03.806Z",
+  "generatedAt": "2026-08-16T00:47:55.067Z",
   "site": "mindcast.co.nz",
   "pages": {
     "home": {
-      "notionId": "3be0d85f-784c-8167-bc8d-c992a92ee903",
+      "notionId": "3be0d85f-784c-81e8-ab71-f0fdd143cf69",
       "sections": [
         {
-          "slug": "home",
-          "title": "Home",
+          "slug": "hero",
+          "title": "Hero",
           "blocks": [
+            {
+              "type": "p",
+              "text": "COMING SOON · AOTEAROA NEW ZEALAND"
+            },
+            {
+              "type": "p",
+              "text": "We consume more self-development than any generation before us — and apply almost none of it. Mindcast is a weekly live gathering built for follow-through: a room that holds you accountable to the things you already know you should do."
+            },
+            {
+              "type": "li",
+              "text": "CTA: Join the waitlist →"
+            },
+            {
+              "type": "li",
+              "text": "CTA: See how it works"
+            },
             {
               "type": "callout",
-              "text": "IMAGE SLOT — hero — full-width navy/ivory, wordmark + broadcast/ripple device (drag your image here; delete this line if none)",
+              "text": "IMAGE SLOT — hero — a family gathered together with open workbooks (drag your image here; delete this line if none)",
               "emoji": "🖼️"
-            }
-          ]
-        },
-        {
-          "slug": "headline",
-          "title": "Headline",
-          "blocks": [
-            {
-              "type": "p",
-              "text": "Mindcast exists to close the gap between knowing and doing."
-            }
-          ]
-        },
-        {
-          "slug": "subcopy",
-          "title": "Subcopy",
-          "blocks": [
-            {
-              "type": "p",
-              "text": "A weekly facilitated gathering where ordinary people become more themselves — together, every week, for as long as they want to keep coming."
             },
             {
               "type": "divider"
@@ -40,16 +36,236 @@
           ]
         },
         {
-          "slug": "the-method",
-          "title": "The method",
+          "slug": "manifesto",
+          "title": "Manifesto",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "You are unaware, and you don't change."
+            },
+            {
+              "type": "p",
+              "text": "You are aware, and you still don't change."
+            },
+            {
+              "type": "p",
+              "text": "You are aware — and you do."
+            },
+            {
+              "type": "p",
+              "text": "Mindcast is the room built for that third one."
+            },
+            {
+              "type": "quote",
+              "text": "UNCONSCIOUS → CONSCIOUS → CHANGED."
+            },
+            {
+              "type": "li",
+              "text": "NOT THERAPY · NOT RELIGION · NOT SELF-HELP · NOT A PODCAST"
+            },
+            {
+              "type": "p",
+              "text": "A STRUCTURED WEEKLY PRACTICE."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-idea",
+          "title": "The idea",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "WE ALL KNOW WHAT TO DO. WHY AREN'T WE DOING IT?"
+            },
+            {
+              "type": "p",
+              "text": "We've listened to the podcast. Read the book. Saved the reel. Then Monday arrives and nothing actually changes."
+            },
+            {
+              "type": "p",
+              "text": "Mindcast is a weekly live room built for the missing step — follow-through. A community that helps you bring the unconscious to the conscious, set one honest intention, and come back the following week to be held to it."
+            },
+            {
+              "type": "li",
+              "text": "Format — Live, in person"
+            },
+            {
+              "type": "li",
+              "text": "Cadence — Weekly"
+            },
+            {
+              "type": "li",
+              "text": "Tracks — Adults · Teens · Kids"
+            },
+            {
+              "type": "li",
+              "text": "Status — Coming soon"
+            },
+            {
+              "type": "li",
+              "text": "CTA: Join the waitlist →"
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — a facilitator leading a warm gathering (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "three-tracks-one-theme",
+          "title": "Three tracks · one theme",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "EVERY AGE. THE SAME WORK."
+            },
+            {
+              "type": "p",
+              "text": "Whānau-wide behaviour change starts with a shared language. Adults, teens and kids each have their own workbook — different depth, different words, same weekly theme — so the conversation keeps going in the car, at the dinner table, at bedtime."
+            },
+            {
+              "type": "h3",
+              "text": "Adults — A Reflective Workbook"
+            },
+            {
+              "type": "p",
+              "text": "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you."
+            },
+            {
+              "type": "h3",
+              "text": "Teens — A Teen Workbook"
+            },
+            {
+              "type": "p",
+              "text": "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down."
+            },
+            {
+              "type": "h3",
+              "text": "Children — Colouring & Picture-book"
+            },
+            {
+              "type": "p",
+              "text": "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice."
+            },
+            {
+              "type": "quote",
+              "text": "One wristband. One theme. One conversation the whole whānau can keep having."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — a Mindcast wristband being tapped at the door (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-weekly-rhythm",
+          "title": "The weekly rhythm",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "REFLECT. GATHER. COMMIT."
+            },
+            {
+              "type": "p",
+              "text": "A cadence built around the only thing that actually changes behaviour — coming back next week and being asked whether you did it."
+            },
+            {
+              "type": "h3",
+              "text": "1 · Reflect on last week"
+            },
+            {
+              "type": "p",
+              "text": "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data. This is the accountability loop most self-development is missing."
+            },
+            {
+              "type": "h3",
+              "text": "2 · This week's lesson"
+            },
+            {
+              "type": "p",
+              "text": "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious."
+            },
+            {
+              "type": "h3",
+              "text": "3 · One intention. Actioned."
+            },
+            {
+              "type": "p",
+              "text": "Before you leave, you write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes."
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "the-venue",
+          "title": "The venue",
+          "blocks": [
+            {
+              "type": "h3",
+              "text": "A SPACE BUILT FOR FOLLOW-THROUGH"
+            },
+            {
+              "type": "p",
+              "text": "Every detail designed so Sunday gatherings and Tuesday Life Groups have a permanent, purpose-built home — theatre, breakout rooms, cafe, and a playground so parents can stay present."
+            },
+            {
+              "type": "callout",
+              "text": "IMAGE SLOT — Mindcast venue — theatre, breakout rooms, cafe, playground (drag your image here; delete this line if none)",
+              "emoji": "🖼️"
+            },
+            {
+              "type": "li",
+              "text": "THEATRE — 120-seat auditorium with stage and LED wall"
+            },
+            {
+              "type": "li",
+              "text": "BREAKOUT ROOMS — glass-walled rooms for 15-person Life Groups"
+            },
+            {
+              "type": "li",
+              "text": "CAFE — espresso, communal tables, pre-session gathering"
+            },
+            {
+              "type": "li",
+              "text": "INDOOR PLAYGROUND — soft-play and climbing, visible from the cafe"
+            },
+            {
+              "type": "quote",
+              "text": "The structure was the container that made everything else possible."
+            },
+            {
+              "type": "p",
+              "text": "Ashleigh Carlson · Founder"
+            },
+            {
+              "type": "divider"
+            }
+          ]
+        },
+        {
+          "slug": "founder",
+          "title": "Founder",
           "blocks": [
             {
               "type": "quote",
-              "text": "Notice it. Name it. Do it."
+              "text": "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the room that finally closes that gap — together, every week."
             },
             {
               "type": "p",
-              "text": "UNCONSCIOUS → CONSCIOUS → CHANGED"
+              "text": "ASHLEIGH CARLSON · Founder · Mindcast"
             },
             {
               "type": "divider"
@@ -57,37 +273,24 @@
           ]
         },
         {
-          "slug": "the-rhythm",
-          "title": "The rhythm",
+          "slug": "coming-soon",
+          "title": "Coming soon",
           "blocks": [
             {
               "type": "h3",
-              "text": "Sunday · The Gathering"
+              "text": "STOP CONSUMING. START DOING."
             },
             {
               "type": "p",
-              "text": "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? No shame, just honest data."
+              "text": "The first Mindcast gatherings are forming across Aotearoa. Add your name to the waitlist and we'll invite you when doors open near you."
             },
             {
-              "type": "h3",
-              "text": "In the Rooms"
+              "type": "li",
+              "text": "CTA: Join the waitlist →"
             },
             {
-              "type": "p",
-              "text": "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation."
-            },
-            {
-              "type": "h3",
-              "text": "Before You Leave"
-            },
-            {
-              "type": "p",
-              "text": "You write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday."
-            },
-            {
-              "type": "callout",
-              "text": "IMAGE SLOT — rooms — three tracks side by side (Adults / Teens / Children) (drag your image here; delete this line if none)",
-              "emoji": "🖼️"
+              "type": "li",
+              "text": "CTA: Read the story"
             },
             {
               "type": "divider"
@@ -95,44 +298,39 @@
           ]
         },
         {
-          "slug": "tracks",
-          "title": "Tracks",
+          "slug": "footer",
+          "title": "Footer",
           "blocks": [
             {
-              "type": "li",
-              "text": "Adults — the same theme, worked deeply"
+              "type": "p",
+              "text": "Mindcast · Taupō, New Zealand · mindcast.co.nz"
             },
             {
               "type": "li",
-              "text": "Teens — their own room, their own journal (private, even from parents)"
+              "text": "Explore — About, Membership, Member Sign In"
             },
             {
               "type": "li",
-              "text": "Children — picture book, game and colouring that goes home on the fridge"
-            },
-            {
-              "type": "divider"
-            }
-          ]
-        },
-        {
-          "slug": "what-mindcast-is-not",
-          "title": "What Mindcast is not",
-          "blocks": [
-            {
-              "type": "li",
-              "text": "Not therapy, medicine, a church or a guru-led teaching"
+              "text": "Connect — Instagram, Contact"
             },
             {
               "type": "li",
-              "text": "No pressure, no scarcity, no guilt — ever"
+              "text": "Legal — Privacy Policy, Terms of Use, Refund Policy, Child Safety"
+            },
+            {
+              "type": "p",
+              "text": "© 2026 Mindcast. Built with intention."
+            },
+            {
+              "type": "p",
+              "text": "INNER WORK FOR REAL LIFE"
             }
           ]
         }
       ]
     },
     "membership": {
-      "notionId": "3be0d85f-784c-81d6-a10f-de836b3f8815",
+      "notionId": "3be0d85f-784c-81c9-810d-d9121396e150",
       "sections": [
         {
           "slug": "membership",
@@ -203,7 +401,7 @@
       ]
     },
     "about": {
-      "notionId": "3be0d85f-784c-81f9-bf28-c1cfd5f613f5",
+      "notionId": "3be0d85f-784c-817f-a116-c30952759f5c",
       "sections": [
         {
           "slug": "about",
