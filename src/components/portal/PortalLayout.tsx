@@ -132,16 +132,16 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
 
         {isStaff && (
           <Link
-            to="/portal/admin"
+            to="/admin"
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
-              isActive("/portal/admin")
+              isActive("/admin")
             ? "bg-primary/10 text-primary"
             : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
             }`}
           >
             <Settings size={15} strokeWidth={1.5} />
-            Admin Panel
+            Admin Console
           </Link>
         )}
       </nav>

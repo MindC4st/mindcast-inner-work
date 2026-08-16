@@ -39,7 +39,6 @@ const PortalSettings = lazy(() => import("./pages/portal/PortalSettings"));
 const PortalProgress = lazy(() => import("./pages/portal/PortalProgress"));
 const PortalCheckIn = lazy(() => import("./pages/portal/PortalCheckIn"));
 const PortalKids = lazy(() => import("./pages/portal/PortalKids"));
-const PortalAdmin = lazy(() => import("./pages/portal/PortalAdmin"));
 const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
@@ -160,7 +159,7 @@ const AppRoutes = () => (
       <Route path="/portal/checkin" element={<ProtectedRoute><PortalCheckIn /></ProtectedRoute>} />
       <Route path="/portal/kids" element={<ProtectedRoute><PortalKids /></ProtectedRoute>} />
       <Route path="/portal/pass" element={<ProtectedRoute><PortalPass /></ProtectedRoute>} />
-      <Route path="/portal/admin" element={<ProtectedRoute><PortalAdmin /></ProtectedRoute>} />
+      <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
 
       {/* Sunday Live (facilitator + members) */}
