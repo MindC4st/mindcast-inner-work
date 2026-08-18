@@ -454,6 +454,7 @@ export type Database = {
           kids_game: string | null
           kids_picture_book: string | null
           kids_picture_book_note: string | null
+          kids_parent_handout: string | null
           kids_signal_metaphor: string | null
           kids_source: string | null
           kids_theme_notes: string | null
@@ -500,6 +501,7 @@ export type Database = {
           kids_game?: string | null
           kids_picture_book?: string | null
           kids_picture_book_note?: string | null
+          kids_parent_handout?: string | null
           kids_signal_metaphor?: string | null
           kids_source?: string | null
           kids_theme_notes?: string | null
@@ -546,6 +548,7 @@ export type Database = {
           kids_game?: string | null
           kids_picture_book?: string | null
           kids_picture_book_note?: string | null
+          kids_parent_handout?: string | null
           kids_signal_metaphor?: string | null
           kids_source?: string | null
           kids_theme_notes?: string | null
@@ -595,6 +598,7 @@ export type Database = {
           kids_game: string | null
           kids_picture_book: string | null
           kids_picture_book_note: string | null
+          kids_parent_handout: string | null
           kids_signal_metaphor: string | null
           kids_source: string | null
           kids_theme_notes: string | null
@@ -634,6 +638,7 @@ export type Database = {
           kids_game?: string | null
           kids_picture_book?: string | null
           kids_picture_book_note?: string | null
+          kids_parent_handout?: string | null
           kids_signal_metaphor?: string | null
           kids_source?: string | null
           kids_theme_notes?: string | null
@@ -673,6 +678,7 @@ export type Database = {
           kids_game?: string | null
           kids_picture_book?: string | null
           kids_picture_book_note?: string | null
+          kids_parent_handout?: string | null
           kids_signal_metaphor?: string | null
           kids_source?: string | null
           kids_theme_notes?: string | null
@@ -1562,6 +1568,7 @@ export type Database = {
           video_transcript: string | null
           watch_for: string | null
           week_number: number
+          weekly_practice_fri: string | null
           weekly_practice_mon: string | null
           weekly_practice_sun: string | null
           weekly_practice_wed: string | null
@@ -1615,6 +1622,7 @@ export type Database = {
           video_transcript?: string | null
           watch_for?: string | null
           week_number: number
+          weekly_practice_fri?: string | null
           weekly_practice_mon?: string | null
           weekly_practice_sun?: string | null
           weekly_practice_wed?: string | null
@@ -1668,6 +1676,7 @@ export type Database = {
           video_transcript?: string | null
           watch_for?: string | null
           week_number?: number
+          weekly_practice_fri?: string | null
           weekly_practice_mon?: string | null
           weekly_practice_sun?: string | null
           weekly_practice_wed?: string | null
@@ -3741,6 +3750,7 @@ export type Database = {
           video_question_1: string | null
           video_question_2: string | null
           week_number: number | null
+          weekly_practice_fri: string | null
           weekly_practice_mon: string | null
           weekly_practice_sun: string | null
           weekly_practice_wed: string | null
@@ -3767,6 +3777,7 @@ export type Database = {
           video_question_1?: string | null
           video_question_2?: string | null
           week_number?: number | null
+          weekly_practice_fri?: string | null
           weekly_practice_mon?: string | null
           weekly_practice_sun?: string | null
           weekly_practice_wed?: string | null
@@ -3793,6 +3804,7 @@ export type Database = {
           video_question_1?: string | null
           video_question_2?: string | null
           week_number?: number | null
+          weekly_practice_fri?: string | null
           weekly_practice_mon?: string | null
           weekly_practice_sun?: string | null
           weekly_practice_wed?: string | null

@@ -163,44 +163,82 @@ function generateWorksheetPdf(s) {
     y += 10;
   }
 
+  // ── Private write (weeks 32+) ──
+  if (s.private_write_prompt) {
+    if (y + 60 > H - M) { doc.addPage(); y = M; }
+    sectionLabel("Private Write");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(NAVY);
+    const pwLines = doc.splitTextToSize(s.private_write_prompt, W - M * 2);
+    doc.text(pwLines, M, y);
+    y += pwLines.length * 11 + 4;
+    doc.setDrawColor(WARM_BORDER);
+    doc.setLineWidth(0.5);
+    for (let i = 0; i < 3; i++) { y += 18; doc.line(M, y, W - M, y); }
+    y += 10;
+  }
+
   // ── Weekly Practice ──
-  if (s.weekly_practice_mon || s.weekly_practice_wed || s.weekly_practice_sun) {
+  if (s.weekly_practice_mon || s.weekly_practice_wed || s.weekly_practice_fri || s.weekly_practice_sun) {
     if (y + 90 > H - M) {
       doc.addPage();
       y = M;
     }
     sectionLabel("This Week's Practice");
 
-    const colW = (W - M * 2) / 3;
-    const boxSize = 10;
     const items = [
       ["Mon", s.weekly_practice_mon || ""],
       ["Wed", s.weekly_practice_wed || ""],
+      ["Fri", s.weekly_practice_fri || ""],
       ["Sun", s.weekly_practice_sun || ""],
-    ];
+    ].filter(([, txt]) => txt);
+    const cols = items.length >= 4 ? 2 : items.length || 1;
+    const colW = (W - M * 2) / cols;
+    const boxSize = 10;
 
     let maxH = 0;
     const cellY = y;
     items.forEach(([day, text], i) => {
-      const cx = M + i * colW;
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const cx = M + col * colW;
+      const cy = cellY + row * 60;
       doc.setDrawColor(BLUE);
       doc.setLineWidth(0.8);
-      doc.rect(cx, cellY, boxSize, boxSize);
+      doc.rect(cx, cy, boxSize, boxSize);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7);
       doc.setTextColor(BLUE);
-      doc.text(day.toUpperCase(), cx + boxSize + 6, cellY + 7, { charSpace: 1.2 });
+      doc.text(day.toUpperCase(), cx + boxSize + 6, cy + 7, { charSpace: 1.2 });
       if (text) {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor(NAVY);
         const tLines = doc.splitTextToSize(text, colW - boxSize - 6);
-        doc.text(tLines, cx + boxSize + 6, cellY + 20);
+        doc.text(tLines, cx + boxSize + 6, cy + 20);
         const h = 20 + tLines.length * 10 + 6;
         if (h > maxH) maxH = h;
       } else if (20 > maxH) maxH = 20;
     });
-    y = cellY + maxH + 4;
+    const rows = Math.ceil(items.length / cols);
+    y = cellY + Math.max(maxH, 20) + (rows - 1) * 60 + 4;
+  }
+
+  // ── Intention (weeks 32+) ──
+  if (s.intention_prompt) {
+    if (y + 50 > H - M) { doc.addPage(); y = M; }
+    sectionLabel("Intention");
+    doc.setFont("times", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(NAVY);
+    const iLines = doc.splitTextToSize(s.intention_prompt, W - M * 2);
+    doc.text(iLines, M, y);
+    y += iLines.length * 11 + 4;
+    doc.setDrawColor(WARM_BORDER);
+    doc.setLineWidth(0.5);
+    for (let i = 0; i < 2; i++) { y += 18; doc.line(M, y, W - M, y); }
+    y += 10;
   }
 
   // ── Exercise / Activity ──
@@ -268,8 +306,9 @@ async function main() {
     .from("mindcast_live_sessions")
     .select(
       "week_number, audience, phase_name, theme_title, session_title, " +
-      "signal_metaphor, journaling_prompt, experiential_exercise, " +
-      "weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, " +
+      "signal_metaphor, private_write_prompt, journaling_prompt, intention_prompt, " +
+      "experiential_exercise, guided_reflection, " +
+      "weekly_practice_mon, weekly_practice_wed, weekly_practice_fri, weekly_practice_sun, " +
       "core_affirmation"
     )
     .order("week_number", { ascending: true });
