@@ -43,12 +43,9 @@ const PortalWeeks = () => {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      // Direct table query — for admins, RLS (with has_role fallback) allows full access.
-      // curriculum_public RPC is SECURITY DEFINER and also works.
-      const { data } = await db
-        .from("curriculum_weeks")
-        .select("week_number, block_theme, adult_video_title, teen_video_title, kids_title, core_learning")
-        .order("week_number", { ascending: true });
+      // Titles and descriptions are the public browse surface. Paid lesson
+      // bodies come from the track-safe RPC on the individual week page.
+      const { data } = await db.rpc("curriculum_public");
       if (cancelled) return;
       const rows = (data || []).map(r => ({
         week_number: r.week_number,

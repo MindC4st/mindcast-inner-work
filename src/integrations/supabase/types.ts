@@ -3877,6 +3877,7 @@ export type Database = {
           name: string
         }[]
       }
+      can_access_track: { Args: { p_audience: string }; Returns: boolean }
       current_profile_id: { Args: never; Returns: string }
       curriculum_public: {
         Args: { p_week?: number }
@@ -3890,6 +3891,10 @@ export type Database = {
           week_number: number
           weekly_theme: string
         }[]
+      }
+      curriculum_for_track: {
+        Args: { p_audience: string; p_week?: number }
+        Returns: Json[]
       }
       door_roster_for_token: {
         Args: { p_token: string }

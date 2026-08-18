@@ -16,6 +16,7 @@ DROP POLICY IF EXISTS "teen_workbook_facilitator_read" ON public.teen_workbook_e
 CREATE POLICY "teen_workbook_own" ON public.teen_workbook_entries FOR ALL
   USING (profile_id = public.current_profile_id())
   WITH CHECK (profile_id = public.current_profile_id());
+DROP POLICY IF EXISTS "teen_workbook_guardian_read" ON public.teen_workbook_entries;
 CREATE POLICY "teen_workbook_guardian_read" ON public.teen_workbook_entries FOR SELECT
   USING (public.is_guardian_of_profile(profile_id));
 
@@ -24,6 +25,7 @@ DROP POLICY IF EXISTS "kids_workbook_facilitator_read" ON public.kids_workbook_e
 CREATE POLICY "kids_workbook_own" ON public.kids_workbook_entries FOR ALL
   USING (profile_id = public.current_profile_id())
   WITH CHECK (profile_id = public.current_profile_id());
+DROP POLICY IF EXISTS "kids_workbook_guardian_read" ON public.kids_workbook_entries;
 CREATE POLICY "kids_workbook_guardian_read" ON public.kids_workbook_entries FOR SELECT
   USING (public.is_guardian_of_profile(profile_id));
 

@@ -1,12 +1,18 @@
 project_id = "pjyelgogdsuiugaudecc"
 
+# Printed worksheet checkout. A signed-in profile is required so the Stripe
+# webhook can create a fulfilment order and pickup code for the right member.
 [functions.buy-worksheet]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-session-video]
 verify_jwt = true
 
 [functions.bulk-generate-videos]
+verify_jwt = true
+
+# Staff-only AI analysis. Role is checked in the function as well as at the gateway.
+[functions.analyse-video]
 verify_jwt = true
 
 [functions.send-practice-reminder]

@@ -7,7 +7,9 @@
 // 404s without leaking anything.
 //
 // POST body:  { nfc_id: string, track?: 'Adult'|'Teen'|'Child',
-//               source?: 'kiosk'|'member_app'|'manual', scheduled_session_id?: string }
+//               source?: 'kiosk'|'member_app'|'manual', scheduled_session_id?: string,
+//               action?: 'checkin'|'left_early' }
+// left_early is staff-only even though ordinary check-in remains token-based.
 // Response:   { ok: true, display_name, track } | { error: string }
 //
 // The member's own-phone tap and the staff kiosk scan both call this endpoint;
@@ -47,6 +49,26 @@ const computeDisplayName = (
   return last ? `${first} ${last[0].toUpperCase()}.` : first;
 };
 
+const isStaffCaller = async (req: Request, admin: any, serviceKey: string): Promise<boolean> => {
+  const authHeader = req.headers.get("Authorization") || "";
+  if (serviceKey && authHeader === `Bearer ${serviceKey}`) return true;
+  if (!authHeader.startsWith("Bearer ")) return false;
+
+  const { data: userResult, error: userError } = await admin.auth.getUser(
+    authHeader.slice("Bearer ".length),
+  );
+  if (userError || !userResult.user) return false;
+
+  const { data: role, error: roleError } = await admin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userResult.user.id)
+    .in("role", ["facilitator", "admin"])
+    .limit(1)
+    .maybeSingle();
+  return !roleError && !!role;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -83,6 +105,10 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supa = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    if (action === "left_early" && !(await isStaffCaller(req, supa, SERVICE_KEY))) {
+      return json({ error: "Staff authorisation required" }, 403);
+    }
 
     const { data: profile, error: pErr } = await supa
       .from("profiles")

@@ -76,21 +76,22 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
       setLoading(true);
       // Header (title + description) is public; the paid body only returns rows
       // RLS lets this member read (active + unlocked), else null.
-      const [{ data: pubRows }, { data: content }, { data: wsData }] = await Promise.all([
+      const [{ data: pubRows }, { data: contentRows }, { data: wsData }] = await Promise.all([
         db.rpc("curriculum_public", { p_week: weekNum }),
-        db.from("curriculum_weeks").select("*").eq("week_number", weekNum).maybeSingle(),
+        db.rpc("curriculum_for_track", { p_audience: track, p_week: weekNum }),
         db.from("mindcast_live_sessions").select(
           "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description, video_question_1, video_question_2"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
       setPub(Array.isArray(pubRows) ? pubRows[0] ?? null : null);
+      const content = Array.isArray(contentRows) ? contentRows[0] ?? null : null;
       setRow(content as CurriculumRow | null);
       setWsRow(wsData as WorksheetRow | null);
       setLoading(false);
     })();
     return () => { active = false; };
-  }, [weekNum]);
+  }, [weekNum, track]);
 
   if (loading || schedLoading) {
     return (

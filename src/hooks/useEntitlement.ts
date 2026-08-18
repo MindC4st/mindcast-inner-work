@@ -1,33 +1,36 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { trackForAgeGroup } from "@/hooks/useCurriculumWeeks";
 
-// Coarse membership gate for the member's own track. The portal only ever
-// serves a member their own track's content (resolved from age_group), so
-// "teen tier = teen only" is enforced naturally — a teen never sees adult
-// weeks. Access to a member's own lessons therefore = paid + active.
-// Kids content is a separate view gated by the kids_addon flag.
+// The UI mirrors the server's can_access_track() check. The database remains
+// authoritative; these values only decide which locked state to render.
 
 export type TrackLabel = "Adult" | "Teen" | "Child";
 
 export type Entitlement = {
-  isMember: boolean;          // active or trialing
-  track: TrackLabel;          // this member's own track
-  kidsAddon: boolean;         // paid adult who bought a kids membership
-  tier: string;               // 'none' | 'adult' | 'teen' (Stripe-owned)
+  isMember: boolean;          // active/trialing seat for this profile's own track
+  track: TrackLabel;          // this profile's age-appropriate track
+  kidsAddon: boolean;         // active payer with at least one child seat
+  tier: string;               // 'none' | 'adult' | 'teen' | 'child' (Stripe-owned)
   membershipStatus: string;
 };
 
 export function useEntitlement(): Entitlement {
   const { profile, membershipStatus } = useAuth();
   const p = profile;
-  const isMember = membershipStatus === "active" || membershipStatus === "trialing";
+  const active = membershipStatus === "active" || membershipStatus === "trialing";
   const age = trackForAgeGroup(p?.age_group); // 'adult' | 'teen' | 'child'
   const track: TrackLabel = age === "teen" ? "Teen" : age === "child" ? "Child" : "Adult";
+  const tier = p?.membership_tier || "none";
+  const hasOwnSeat =
+    (track === "Adult" && tier === "adult") ||
+    (track === "Teen" && tier === "teen") ||
+    (track === "Child" && tier === "child");
+
   return {
-    isMember,
+    isMember: active && hasOwnSeat,
     track,
-    kidsAddon: !!p?.kids_addon,
-    tier: p?.membership_tier || "none",
+    kidsAddon: active && !!p?.kids_addon,
+    tier,
     membershipStatus: membershipStatus || "none",
   };
 }

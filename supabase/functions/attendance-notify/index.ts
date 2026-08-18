@@ -22,7 +22,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), {
@@ -30,10 +30,33 @@ const json = (b: unknown, status = 200) =>
     status,
   });
 
+const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const admin = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  serviceRoleKey,
 );
+
+async function canInvoke(req: Request): Promise<boolean> {
+  const authHeader = req.headers.get("Authorization") || "";
+  if (serviceRoleKey && authHeader === `Bearer ${serviceRoleKey}`) return true;
+
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (cronSecret && req.headers.get("x-cron-secret") === cronSecret) return true;
+
+  if (!authHeader.startsWith("Bearer ")) return false;
+  const token = authHeader.slice("Bearer ".length);
+  const { data: userResult, error: userError } = await admin.auth.getUser(token);
+  if (userError || !userResult.user) return false;
+
+  const { data: role, error: roleError } = await admin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userResult.user.id)
+    .in("role", ["facilitator", "admin"])
+    .limit(1)
+    .maybeSingle();
+  return !roleError && !!role;
+}
 
 const TZ = "Pacific/Auckland";
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: TZ }); // YYYY-MM-DD
@@ -137,6 +160,8 @@ serve(async (req) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
   try {
+    if (!(await canInvoke(req))) return json({ error: "Not authorised" }, 403);
+
     const body = await req.json().catch(() => ({}));
     const event = String(body.event || "");
 
@@ -174,6 +199,7 @@ serve(async (req) => {
 
     return json({ error: "Unknown event" }, 400);
   } catch (e: any) {
-    return json({ error: e?.message ?? String(e) }, 500);
+    console.error("attendance-notify failed:", e);
+    return json({ error: "Attendance notification failed" }, 500);
   }
 });

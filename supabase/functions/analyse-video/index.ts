@@ -42,6 +42,12 @@ async function fetchTranscript(videoUrl: string): Promise<{ transcript: string; 
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "POST only" }), {
+      status: 405,
+      headers: { ...corsHeaders, "content-type": "application/json" },
+    });
+  }
 
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -49,7 +55,52 @@ serve(async (req) => {
   );
 
   try {
-    const { session_id, video_url, age_group = "adult" } = await req.json();
+    const authHeader = req.headers.get("Authorization") || "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "content-type": "application/json" },
+      });
+    }
+
+    const { data: userResult, error: userError } = await supabaseAdmin.auth.getUser(
+      authHeader.slice("Bearer ".length),
+    );
+    if (userError || !userResult.user) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401,
+        headers: { ...corsHeaders, "content-type": "application/json" },
+      });
+    }
+
+    const { data: role, error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userResult.user.id)
+      .in("role", ["facilitator", "admin"])
+      .limit(1)
+      .maybeSingle();
+    if (roleError) throw roleError;
+    if (!role) {
+      return new Response(JSON.stringify({ error: "Staff authorisation required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "content-type": "application/json" },
+      });
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const session_id = typeof body.session_id === "string" ? body.session_id : null;
+    const video_url = typeof body.video_url === "string" ? body.video_url.trim() : "";
+    const requestedAgeGroup = typeof body.age_group === "string" ? body.age_group.toLowerCase() : "adult";
+    const age_group = ["adult", "teen", "child"].includes(requestedAgeGroup)
+      ? requestedAgeGroup
+      : "adult";
+    if (!video_url || !extractVideoId(video_url)) {
+      return new Response(JSON.stringify({ error: "A valid YouTube URL is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "content-type": "application/json" },
+      });
+    }
 
     const { transcript, title } = await fetchTranscript(video_url);
 
@@ -133,20 +184,21 @@ Return ONLY valid JSON:
     const questions = JSON.parse(jsonMatch[0]);
 
     if (session_id) {
-      await supabaseAdmin.from("sessions").update({
+      const { error: updateError } = await supabaseAdmin.from("sessions").update({
         video_title: title,
         title: questions.session_title || title,
         video_transcript: transcript,
         ai_questions: questions,
       }).eq("id", session_id);
+      if (updateError) throw updateError;
     }
 
     return new Response(JSON.stringify({ questions, video_title: title }), {
       headers: { ...corsHeaders, "content-type": "application/json" },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("analyse-video error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: "Video analysis failed" }), {
       status: 500,
       headers: { ...corsHeaders, "content-type": "application/json" },
     });

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
 // Onboarding with the age gate the safeguarding policy requires:
 //   - Under-13s cannot self-register. A guardian adds them to a household
@@ -46,10 +47,46 @@ const Onboarding = () => {
 
   const finish = async () => {
     if (!user || age === null || isChild) return;
-    if (isTeen && (!guardianName.trim() || !guardianAgrees)) return;
+    if (isTeen && (!guardianName.trim() || !guardianContact.trim() || !guardianAgrees)) return;
     setSaving(true);
     try {
-      await supabase
+      // Teen consent is written first. Only after that succeeds do we mark
+      // onboarding complete, so a partial save cannot bypass the age gate.
+      if (isTeen) {
+        let profileId = profile?.id as string | undefined;
+        if (!profileId) {
+          const { data, error } = await supabase
+            .from("profiles").select("id").eq("user_id", user.id).maybeSingle();
+          if (error) throw error;
+          profileId = data?.id;
+        }
+        if (!profileId) throw new Error("Profile not found");
+
+        const { data: existingConsent, error: consentReadError } = await supabase
+          .from("guardian_consents")
+          .select("id")
+          .eq("subject_profile_id", profileId)
+          .eq("consent_type", "teen_membership")
+          .is("revoked_at", null)
+          .limit(1)
+          .maybeSingle();
+        if (consentReadError) throw consentReadError;
+
+        if (!existingConsent) {
+          const contact = guardianContact.trim();
+          const { error: consentWriteError } = await supabase.from("guardian_consents").insert({
+            subject_profile_id: profileId,
+            consent_type: "teen_membership",
+            guardian_name: guardianName.trim(),
+            guardian_email: contact.includes("@") ? contact : null,
+            guardian_phone: contact.includes("@") ? null : contact,
+            recorded_by: user.id,
+          });
+          if (consentWriteError) throw consentWriteError;
+        }
+      }
+
+      const { data: updatedProfile, error: profileError } = await supabase
         .from("profiles")
         .update({
           display_name: displayName || undefined,
@@ -58,28 +95,20 @@ const Onboarding = () => {
           opt_in_public_goals: optIn ?? false,
           onboarding_complete: true,
         })
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id")
+        .maybeSingle();
+      if (profileError) throw profileError;
+      if (!updatedProfile) throw new Error("Profile not found");
 
-      if (isTeen) {
-        // Resolve the profile id (consents key on profiles.id, not auth id).
-        let profileId = profile?.id as string | undefined;
-        if (!profileId) {
-          const { data } = await supabase
-            .from("profiles").select("id").eq("user_id", user.id).maybeSingle();
-          profileId = data?.id;
-        }
-        if (profileId) {
-          await supabase.from("guardian_consents").insert({
-            subject_profile_id: profileId,
-            consent_type: "teen_membership",
-            guardian_name: guardianName.trim(),
-            guardian_email: guardianContact.includes("@") ? guardianContact.trim() : null,
-            guardian_phone: guardianContact.includes("@") ? null : guardianContact.trim() || null,
-            recorded_by: user.id,
-          });
-        }
-      }
       navigate("/dashboard");
+    } catch (error: any) {
+      console.error("onboarding save failed:", error);
+      toast({
+        title: "Couldn't finish setup",
+        description: "Nothing was marked complete. Please check your connection and try again.",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
@@ -193,7 +222,7 @@ const Onboarding = () => {
               </label>
               <button
                 onClick={() => setStep(4)}
-                disabled={!guardianName.trim() || !guardianAgrees}
+                disabled={!guardianName.trim() || !guardianContact.trim() || !guardianAgrees}
                 className={primaryBtn}
               >
                 CONTINUE

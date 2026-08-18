@@ -52,23 +52,21 @@ const PortalKids = () => {
       // weeks this member may read: active + unlocked).
       const [{ data: titles }, { data: body }] = await Promise.all([
         db.rpc("curriculum_public"),
-        (db.from("curriculum_weeks") as unknown as {
-          select: (cols: string) => Promise<{ data: KidContent[] | null }>
-        }).select("week_number, kids_picture_book, kids_picture_book_note, kids_picture_book_author, kids_picture_book_question, kids_colouring_prompt, kids_source, kids_game, kids_game_equipment, kids_game_under5, kids_nz_alternative, kids_nz_alternative_author, kids_nz_alternative_note, kids_nz_alternative_verified, kids_read_aloud_source_check"),
+        db.rpc("curriculum_for_track", { p_audience: "Child" }),
       ]);
       if (!active) return;
       setWeeks((titles || []).map((r) => ({
         week_number: r.week_number, block_theme: r.block_theme, weekly_theme: r.weekly_theme, kids_title: r.kids_title,
       })) as KidWeek[]);
       const map: Record<number, KidContent> = {};
-      (body || []).forEach((r) => { map[r.week_number] = r; });
+      ((body || []) as unknown as KidContent[]).forEach((r) => { map[r.week_number] = r; });
       setContent(map);
       setLoading(false);
     })();
     return () => { active = false; };
   }, []);
 
-  const gated = !isMember || !kidsAddon;
+  const gated = !kidsAddon;
 
   return (
     <PortalLayout>

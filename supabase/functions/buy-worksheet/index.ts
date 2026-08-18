@@ -33,7 +33,44 @@ const safeOrigin = (raw: string | null): string => {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "POST only" }), {
+      status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
+    const authHeader = req.headers.get("Authorization") || "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supa = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: userResult, error: userError } = await supa.auth.getUser();
+    if (userError || !userResult.user) {
+      return new Response(JSON.stringify({ error: "Not authenticated" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: profile, error: profileError } = await supa
+      .from("profiles")
+      .select("id, email")
+      .eq("user_id", userResult.user.id)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile) {
+      return new Response(JSON.stringify({ error: "Profile not found" }), {
+        status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { week_number, audience } = await req.json();
     const week = Number(week_number);
     if (!Number.isInteger(week) || week < 1 || week > 52 || !AUDIENCES.includes(audience)) {
@@ -44,25 +81,8 @@ serve(async (req) => {
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
 
-    // Try to read a custom price from worksheets table if present
-    let priceId = DEFAULT_PRICE;
-    try {
-      const supa = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "");
-      const { data } = await supa.from("worksheets").select("price_nzd").eq("week_number", week).eq("audience_type", audience).maybeSingle();
-      // (price_nzd is just informational; we always use the Stripe price for now)
-      void data;
-    } catch (_) { /* ignore */ }
-
-    // Optional: attach user email if logged in
-    let customerEmail: string | undefined;
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader) {
-      try {
-        const supa = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "");
-        const { data } = await supa.auth.getUser(authHeader.replace("Bearer ", ""));
-        customerEmail = data.user?.email ?? undefined;
-      } catch (_) { /* guest checkout */ }
-    }
+    const priceId = DEFAULT_PRICE;
+    const customerEmail = profile.email || userResult.user.email || undefined;
 
     const origin = safeOrigin(req.headers.get("origin"));
     const session = await stripe.checkout.sessions.create({
@@ -71,7 +91,18 @@ serve(async (req) => {
       customer_email: customerEmail,
       success_url: `${origin}/mindcast-live/lesson/${week}?purchase=success`,
       cancel_url: `${origin}/mindcast-live/lesson/${week}?purchase=cancelled`,
-      metadata: { week_number: String(week), audience },
+      metadata: {
+        kind: "shop",
+        profile_id: profile.id,
+        product_slug: `worksheet-week-${week}-${String(audience).toLowerCase()}`,
+        product_name: `Printed ${audience} worksheet · Week ${week}`,
+        quantity: "1",
+        unit_price_cents: "500",
+        fulfilment: "counter",
+        order_note: `Worksheet for Week ${week} (${audience})`,
+        week_number: String(week),
+        audience,
+      },
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

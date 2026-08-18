@@ -3,8 +3,8 @@
 // Handles the NEW multi-tier model (Jul 2026). Instead of a single tier +
 // kids_addon, subscriptions now have multiple line items (adult, teen, child)
 // with quantities. The webhook extracts the bundle composition from metadata
-// or line item prices, upserts public.subscriptions, and mirrors membership
-// status onto all household members.
+// or line item prices, upserts public.subscriptions, and asks the database to
+// allocate only the purchased number of adult, teen, and child seats.
 //
 // verify_jwt MUST be false; signature verification via stripe-signature header.
 //
@@ -45,9 +45,10 @@ async function parseBundle(sub: Stripe.Subscription): Promise<{
   const meta = sub.metadata as Record<string, string>;
 
   // Preferred: metadata written at checkout time
-  const adults = parseInt(meta?.adults || "0", 10);
-  const teens = parseInt(meta?.teens || "0", 10);
-  const children = parseInt(meta?.children || "0", 10);
+  const count = (value: string | undefined) => Math.max(0, parseInt(value || "0", 10) || 0);
+  const adults = count(meta?.adults);
+  const teens = count(meta?.teens);
+  const children = count(meta?.children);
   const plan = meta?.plan || "monthly";
 
   // If metadata has explicit bundle counts, use them
@@ -98,21 +99,40 @@ const toMembershipStatus = (s: string): string => {
   }
 };
 
+async function refreshEntitlements(householdId: string | null, profileId: string | null) {
+  if (!householdId && !profileId) return;
+  const { error } = await admin.rpc("refresh_membership_entitlements", {
+    p_household: householdId,
+    p_profile: householdId ? null : profileId,
+  });
+  if (error) throw new Error(`Entitlement refresh failed: ${error.message}`);
+}
+
 async function syncSubscription(sub: Stripe.Subscription) {
   const meta = sub.metadata as Record<string, string>;
-  const profileId = meta?.profile_id || null;
-  const householdId = meta?.household_id || null;
-  const bundle = await parseBundle(sub);
 
-  // Aggregate: derive a "tier" from the bundle for backward compat with
-  // profiles.membership_tier (use the highest tier present)
+  // Read the existing owner first. Older subscriptions may predate metadata,
+  // but the database row still tells us whose entitlement must be refreshed.
+  const { data: previous, error: previousError } = await admin
+    .from("subscriptions")
+    .select("profile_id, household_id")
+    .eq("stripe_subscription_id", sub.id)
+    .maybeSingle();
+  if (previousError) throw new Error(`Subscription lookup failed: ${previousError.message}`);
+
+  const profileId = meta?.profile_id || previous?.profile_id || null;
+  const householdId = meta?.household_id || previous?.household_id || null;
+  if (!profileId && !householdId) {
+    throw new Error(`Subscription ${sub.id} has no profile or household owner`);
+  }
+
+  const bundle = await parseBundle(sub);
   const highestTier = bundle.children > 0 ? "child" : bundle.teens > 0 ? "teen" : "adult";
 
-  // Upsert the subscriptions record with bundle details
-  await admin.from("subscriptions").upsert(
+  const { error: upsertError } = await admin.from("subscriptions").upsert(
     {
       profile_id: profileId,
-      household_id: householdId || null,
+      household_id: householdId,
       stripe_customer_id: String(sub.customer),
       stripe_subscription_id: sub.id,
       status: sub.status,
@@ -132,32 +152,36 @@ async function syncSubscription(sub: Stripe.Subscription) {
     },
     { onConflict: "stripe_subscription_id" },
   );
+  if (upsertError) throw new Error(`Subscription upsert failed: ${upsertError.message}`);
 
-  // Mirror status onto every household member
-  const status = toMembershipStatus(sub.status);
-  if (householdId) {
-    const { data: members } = await admin
-      .from("household_members")
-      .select("profile_id")
-      .eq("household_id", householdId);
-    const ids = (members ?? []).map((m) => m.profile_id);
-    if (ids.length) {
-      await admin.from("profiles").update({ membership_status: status }).in("id", ids);
-    }
-  } else if (profileId) {
-    await admin.from("profiles").update({ membership_status: status }).eq("id", profileId);
+  await refreshEntitlements(householdId, profileId);
+
+  const previousHousehold = previous?.household_id ?? null;
+  const previousProfile = previous?.profile_id ?? null;
+  if (previousHousehold && previousHousehold !== householdId) {
+    await refreshEntitlements(previousHousehold, null);
+  } else if (!previousHousehold && previousProfile &&
+      (householdId !== null || previousProfile !== profileId)) {
+    await refreshEntitlements(null, previousProfile);
   }
 
-  // Update payer profile with bundle-aware tier info
-  if (profileId) {
-    const active = status === "active" || status === "trialing";
-    await admin.from("profiles").update({
-      membership_tier: active ? highestTier : "none",
-      membership_bundle: active
-        ? JSON.stringify({ adults: bundle.adults, teens: bundle.teens, children: bundle.children })
-        : null,
-      family_discount: active ? bundle.familyDiscount : false,
-    }).eq("id", profileId);
+  // Preserve useful billing state for a payer whose last active entitlement
+  // just ended, without overwriting access from another active subscription.
+  if (profileId && sub.status !== "active" && sub.status !== "trialing") {
+    const { data: payer, error: payerError } = await admin
+      .from("profiles")
+      .select("membership_status")
+      .eq("id", profileId)
+      .maybeSingle();
+    if (payerError) throw new Error(`Payer lookup failed: ${payerError.message}`);
+
+    if (payer && !["active", "trialing"].includes(payer.membership_status)) {
+      const { error: statusError } = await admin
+        .from("profiles")
+        .update({ membership_status: toMembershipStatus(sub.status) })
+        .eq("id", profileId);
+      if (statusError) throw new Error(`Payer status update failed: ${statusError.message}`);
+    }
   }
 }
 
@@ -176,10 +200,11 @@ async function recordShopOrder(s: Stripe.Checkout.Session) {
 
   // Name the product as it was at purchase time, so a later rename doesn't
   // rewrite an order that's already been placed.
-  let productName = meta.product_slug || "Mindcast product";
+  let productName = meta.product_name || meta.product_slug || "Mindcast product";
   if (meta.product_id) {
-    const { data: product } = await admin
+    const { data: product, error: productError } = await admin
       .from("shop_products").select("name").eq("id", meta.product_id).maybeSingle();
+    if (productError) throw new Error(`Product lookup failed: ${productError.message}`);
     if (product?.name) productName = product.name;
   }
 
@@ -200,6 +225,7 @@ async function recordShopOrder(s: Stripe.Checkout.Session) {
       stripe_session_id: s.id,
       stripe_payment_intent: s.payment_intent ? String(s.payment_intent) : null,
       status: "paid",
+      note: meta.order_note || null,
     },
     { onConflict: "stripe_session_id", ignoreDuplicates: true },
   );
@@ -211,11 +237,12 @@ async function markShopOrderRefunded(charge: Stripe.Charge) {
   if (!pi) return;
   // Partial refunds leave the order collectable; only a full refund voids it.
   if (charge.amount_refunded < charge.amount) return;
-  await admin
+  const { error } = await admin
     .from("shop_orders")
     .update({ status: "refunded", updated_at: new Date().toISOString() })
     .eq("stripe_payment_intent", pi)
     .in("status", ["paid", "collected"]);
+  if (error) throw new Error(`Refund update failed: ${error.message}`);
 }
 
 serve(async (req) => {
