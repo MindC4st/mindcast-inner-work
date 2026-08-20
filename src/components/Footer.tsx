@@ -10,6 +10,7 @@ type FooterProps = { variant?: "light" | "dark" };
 const LINKS = {
   explore: [
     { to: "/about", label: "About" },
+    { to: "/curriculum", label: "Curriculum" },
     { to: "/membership", label: "Membership" },
     { to: "/portal/login", label: "Member Sign In" },
   ],

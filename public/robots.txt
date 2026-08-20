@@ -1,14 +1,40 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# Mindcast — https://www.mindcast.co.nz
+#
+# Public marketing pages are open. Member, staff and live-session surfaces are
+# not, and neither are single-use token links.
+#
+# /b/ is the most important line here: those are bracelet sign-in links. An
+# indexed one would publish a member's door credential in a search result.
+#
+# Disallow stops crawling, not listing — a URL linked from elsewhere can still
+# appear in results without being fetched. src/components/Seo.tsx also emits
+# `noindex, nofollow` on every private route, which is what actually removes
+# them. The two work together; neither is sufficient alone.
+#
+# Keep these prefixes in step with PRIVATE_PREFIXES in src/lib/seo.ts —
+# src/test/seo.test.ts asserts they match.
+#
+# One `User-agent: *` group rather than a list of named bots: a named group
+# REPLACES the wildcard for that crawler rather than adding to it, so the old
+# per-bot `Allow: /` blocks meant Googlebot, Bingbot, Twitterbot and
+# facebookexternalhit would each have ignored every Disallow below.
 
 User-agent: *
 Allow: /
+Disallow: /portal
+Disallow: /admin
+Disallow: /mindcast-live
+Disallow: /display
+Disallow: /kiosk
+Disallow: /live
+Disallow: /join
+Disallow: /b/
+Disallow: /checkin
+Disallow: /dashboard
+Disallow: /workbook
+Disallow: /onboarding
+Disallow: /reset-password
+Disallow: /training
+Disallow: /marketing
+
+Sitemap: https://www.mindcast.co.nz/sitemap.xml
