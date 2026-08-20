@@ -30,9 +30,6 @@ type DownloadItem = {
   video_question_2: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
-  weekly_practice_mon: string | null;
-  weekly_practice_wed: string | null;
-  weekly_practice_sun: string | null;
   practice_sun_today: string | null;
   practice_midweek: string | null;
   practice_fri: string | null;
@@ -72,12 +69,12 @@ const PortalDownloads = () => {
     (async () => {
       const { data } = await db
         .from("mindcast_live_sessions")
-        .select("week_number, audience, phase_name, theme_title, session_title, signal_metaphor, video_question_1, video_question_2, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, practice_sun_today, practice_midweek, practice_fri, core_affirmation, coloring_page_url, coloring_pdf_url")
+        .select("week_number, audience, phase_name, theme_title, session_title, signal_metaphor, video_question_1, video_question_2, journaling_prompt, experiential_exercise, practice_sun_today, practice_midweek, practice_fri, core_affirmation, coloring_page_url, coloring_pdf_url")
         .eq("audience", audience)
         .order("week_number", { ascending: true });
 
       if (!active) return;
-      const rows: DownloadItem[] = (data || []).map(r => ({
+      const rows: DownloadItem[] = ((data || []) as unknown as DownloadItem[]).map(r => ({
         ...r,
         worksheet_url: null, // will be filled from worksheets table
       }));
@@ -99,9 +96,6 @@ const PortalDownloads = () => {
     video_question_2: item.video_question_2 || undefined,
     journaling_prompt: item.journaling_prompt || undefined,
     experiential_exercise: item.experiential_exercise || undefined,
-    weekly_practice_mon: item.weekly_practice_mon || undefined,
-    weekly_practice_wed: item.weekly_practice_wed || undefined,
-    weekly_practice_sun: item.weekly_practice_sun || undefined,
     practice_sun_today: item.practice_sun_today || undefined,
     practice_midweek: item.practice_midweek || undefined,
     practice_fri: item.practice_fri || undefined,
@@ -114,48 +108,15 @@ const PortalDownloads = () => {
     downloadWorksheetPdf(session);
   };
 
-  const saveBlob = (blob: Blob, filename: string) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  // Download the week's colouring page.
+  // Download coloring page as a lightweight A4 landscape PDF.
   //
-  // Prefer the branded A4 PDF produced by the admin "Generate A4 PDF" flow
-  // (stored as coloring_pdf_url). Once a week has been generated there, members
-  // get exactly that file. Stored values are paths in the PRIVATE `colouring`
-  // bucket (legacy rows may hold an absolute public URL), so resolve to a
-  // short-lived signed URL first — only staff or an active member with the kids
-  // add-on can mint one.
-  //
-  // Legacy fallback: weeks that only have the raw PNG wrap it into a landscape
-  // PDF client-side so older content still downloads.
-  const handleDownloadColoring = async (item: DownloadItem) => {
-    const weekNumber = item.week_number;
-    const filename = `mindcast-coloring-week-${String(weekNumber).padStart(2, "0")}.pdf`;
+  // The stored value is a PNG path in the PRIVATE `colouring` bucket (legacy
+  // rows may still hold an absolute public URL). Resolve it to a short-lived
+  // signed URL first — only staff or an active member with the kids add-on can
+  // mint one — then render that PNG into the PDF.
+  const handleDownloadColoring = async (stored: string, weekNumber: number) => {
     try {
-      if (item.coloring_pdf_url) {
-        const pdfUrl = await resolveColouringUrl(item.coloring_pdf_url);
-        if (!pdfUrl) {
-          toast({
-            title: "Couldn't open colouring page",
-            description: "It may not be available for your membership yet.",
-          });
-          return;
-        }
-        const res = await fetch(pdfUrl);
-        if (!res.ok) throw new Error("Failed to load PDF");
-        saveBlob(await res.blob(), filename);
-        return;
-      }
-
-      const imageUrl = await resolveColouringUrl(item.coloring_page_url);
+      const imageUrl = await resolveColouringUrl(stored);
       if (!imageUrl) {
         toast({
           title: "Couldn't open colouring page",
@@ -174,7 +135,7 @@ const PortalDownloads = () => {
         const H = doc.internal.pageSize.getHeight();
         const margin = 6;
         doc.addImage(dataUrl, "PNG", margin, margin, W - margin * 2, H - margin * 2);
-        doc.save(filename);
+        doc.save(`mindcast-coloring-week-${String(weekNumber).padStart(2, "0")}.pdf`);
       };
       reader.readAsDataURL(blob);
     } catch (e) {
@@ -282,7 +243,7 @@ const PortalDownloads = () => {
                   {sorted.map((item) => {
                     const unlocked = weekIsUnlocked(item.week_number);
                     const opensOn = formatUnlockDate(item.week_number);
-                    const hasColoring = audience === "Child" && Boolean(item.coloring_pdf_url || coloringUrlFor(item.week_number));
+                    const coloringImageUrl = audience === "Child" ? coloringUrlFor(item.week_number) : null;
 
                     return (
                       <motion.div
@@ -366,9 +327,9 @@ const PortalDownloads = () => {
                             </button>
 
                             {/* Coloring page (Child only) */}
-                            {hasColoring && (
+                            {audience === "Child" && coloringImageUrl && (
                               <button
-                                onClick={() => unlocked && handleDownloadColoring(item)}
+                                onClick={() => unlocked && handleDownloadColoring(coloringImageUrl, item.week_number)}
                                 disabled={!unlocked}
                                 className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
                                   unlocked

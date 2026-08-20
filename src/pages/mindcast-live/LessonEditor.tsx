@@ -30,9 +30,9 @@ type Draft = {
   journaling_prompt: string;
   experiential_exercise: string;
   guided_reflection: string;
-  weekly_practice_mon: string;
-  weekly_practice_wed: string;
-  weekly_practice_sun: string;
+  practice_sun_today: string;
+  practice_midweek: string;
+  practice_fri: string;
   video_link: string;
   video_description: string;
   video_backup_description: string;
@@ -92,9 +92,9 @@ const SLIDES: SlideDef[] = [
   ]},
   { idx: 10, title: "Reflection 2", blurb: "Auto-derived from the first sentence of the Guided Reflection — edit that slide.", fields: [] },
   { idx: 11, title: "Weekly Practices", blurb: "Small daily practices to carry home.", fields: [
-    { key: "weekly_practice_mon", label: "Monday", kind: "area", rows: 2 },
-    { key: "weekly_practice_wed", label: "Wednesday", kind: "area", rows: 2 },
-    { key: "weekly_practice_sun", label: "Sunday", kind: "area", rows: 2 },
+    { key: "practice_sun_today", label: "Monday", kind: "area", rows: 2 },
+    { key: "practice_midweek", label: "Wednesday", kind: "area", rows: 2 },
+    { key: "practice_fri", label: "Sunday", kind: "area", rows: 2 },
   ]},
   { idx: 12, title: "Video", blurb: "Swap the YouTube video and its captions. The two reflective questions show under the video and in the journal + worksheet.", fields: [
     { key: "video_link", label: "YouTube URL", kind: "video", hint: "Paste any YouTube link — watch, share, or embed." },
@@ -117,7 +117,7 @@ const EMPTY = (week: number, audience: string): Draft => ({
   week_number: week, audience, phase: 0, phase_name: "", theme_title: "", session_title: "",
   previous_week_callback: "", signal_metaphor: "", ancient_wisdom_reframe: "", opening_hook: "",
   core_concept: "", teaching_points: "", journaling_prompt: "", experiential_exercise: "",
-  guided_reflection: "", weekly_practice_mon: "", weekly_practice_wed: "", weekly_practice_sun: "",
+  guided_reflection: "", practice_sun_today: "", practice_midweek: "", practice_fri: "",
   video_link: "", video_description: "", video_backup_description: "", video_local_url: "",
   video_transcript: "", video_question_1: "", video_question_2: "",
   core_affirmation: "",

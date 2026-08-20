@@ -37,9 +37,6 @@ type WorksheetRow = {
   ancient_wisdom_reframe: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
-  weekly_practice_mon: string | null;
-  weekly_practice_wed: string | null;
-  weekly_practice_sun: string | null;
   practice_sun_today: string | null;
   practice_midweek: string | null;
   practice_fri: string | null;
@@ -83,14 +80,14 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         db.rpc("curriculum_public", { p_week: weekNum }),
         db.rpc("curriculum_for_track", { p_audience: track, p_week: weekNum }),
         db.from("mindcast_live_sessions").select(
-          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, practice_sun_today, practice_midweek, practice_fri, core_affirmation, video_link, video_description, video_question_1, video_question_2"
+          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, practice_sun_today, practice_midweek, practice_fri, core_affirmation, video_link, video_description, video_question_1, video_question_2"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
       setPub(Array.isArray(pubRows) ? pubRows[0] ?? null : null);
       const content = Array.isArray(contentRows) ? contentRows[0] ?? null : null;
       setRow(content as CurriculumRow | null);
-      setWsRow(wsData as WorksheetRow | null);
+      setWsRow(wsData as unknown as WorksheetRow | null);
       setLoading(false);
     })();
     return () => { active = false; };
@@ -312,11 +309,9 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   const activityLabel = wsRow?.experiential_exercise
     ? `ACTIVITY · ${wsRow.experiential_exercise}`
     : "FROM THE ACTIVITY";
-  
-  // New cadence columns with fallback to legacy
-  const practiceSunToday = wsRow?.practice_sun_today ?? wsRow?.weekly_practice_sun;
-  const practiceMidweek = wsRow?.practice_midweek ?? wsRow?.weekly_practice_wed;
-  const practiceFri = wsRow?.practice_fri ?? wsRow?.weekly_practice_mon;
+  const practiceMon = wsRow?.practice_sun_today;
+  const practiceWed = wsRow?.practice_midweek;
+  const practiceSun = wsRow?.practice_fri;
   const affirmation = wsRow?.core_affirmation;
 
   return (
@@ -347,26 +342,26 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       </div>
 
       {/* Weekly practice prompts (from worksheet) */}
-      {(practiceSunToday || practiceMidweek || practiceFri) && (
+      {(practiceMon || practiceWed || practiceSun) && (
         <div className="mt-6 p-4 border border-primary/10 bg-primary/[0.03] rounded-sm">
           <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary mb-3">This Week's Practice</p>
           <div className="space-y-2">
-            {practiceSunToday && (
+            {practiceMon && (
               <div className="flex gap-2 text-xs font-body text-foreground/70">
-                <span className="text-primary font-bold shrink-0 w-10">SUN</span>
-                <span>{practiceSunToday}</span>
+                <span className="text-primary font-bold shrink-0 w-8">Mon</span>
+                <span>{practiceMon}</span>
               </div>
             )}
-            {practiceMidweek && (
+            {practiceWed && (
               <div className="flex gap-2 text-xs font-body text-foreground/70">
-                <span className="text-primary font-bold shrink-0 w-10">MIDWEEK</span>
-                <span>{practiceMidweek}</span>
+                <span className="text-primary font-bold shrink-0 w-8">Wed</span>
+                <span>{practiceWed}</span>
               </div>
             )}
-            {practiceFri && (
+            {practiceSun && (
               <div className="flex gap-2 text-xs font-body text-foreground/70">
-                <span className="text-primary font-bold shrink-0 w-10">FRI</span>
-                <span>{practiceFri}</span>
+                <span className="text-primary font-bold shrink-0 w-8">Sun</span>
+                <span>{practiceSun}</span>
               </div>
             )}
           </div>
