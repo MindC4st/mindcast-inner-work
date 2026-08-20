@@ -14,6 +14,7 @@ import lifeGroup from "@/assets/home-life-group.jpg";
 import founderPortrait from "@/assets/founder-portrait.jpg";
 import mindcastBuilding from "@/assets/mindcast-building.png";
 import logoNavLight from "@/assets/logo-cream.png";
+import logoBlue from "@/assets/logo-blue-wordmark.png";
 import { useAuth } from "@/contexts/AuthContext";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
@@ -41,7 +42,7 @@ gsap.registerPlugin(ScrollTrigger);
 const prefersReduce = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ── NAV — transparent over the hero, morphs to glass on scroll ─────────── */
+/* ── NAV — light theme, matches About/Membership pages ──────────────────── */
 
 const CinematicNav = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -55,10 +56,6 @@ const CinematicNav = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ABOUT and MEMBERSHIP are ivory bands further down THIS page — the nav
-  // scrolls to them the same way it scrolls to #rhythm, instead of leaving
-  // the homepage. The standalone /about and /membership routes still exist
-  // for direct links, the footer and search.
   const links = [
     { label: "HOW IT WORKS", href: "#gathering" },
     { label: "THE RHYTHM", href: "#rhythm" },
@@ -69,36 +66,36 @@ const CinematicNav = () => {
   return (
     <nav
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-        scrolled ? "glass-panel border-x-0 border-t-0 rounded-none py-2" : "bg-transparent py-4"
+        scrolled ? "bg-white/95 backdrop-blur-sm border-b border-border py-2" : "bg-transparent py-4"
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         <Link to="/" aria-label="Mindcast home">
-          <img src={logoNavLight} alt="Mindcast" className="h-8 md:h-9 w-auto" />
+          <img src={logoBlue} alt="Mindcast" className="h-8 md:h-9 w-auto" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-10">
           {links.map((l) =>
             l.href.startsWith("#") ? (
-              <a key={l.label} href={l.href} className="text-cream/60 hover:text-cream text-xs font-body font-semibold tracking-[0.2em] transition-colors">
+              <a key={l.label} href={l.href} className="text-foreground/60 hover:text-foreground text-xs font-body font-semibold tracking-[0.2em] transition-colors">
                 {l.label}
               </a>
             ) : (
-              <Link key={l.label} to={l.href} className="text-cream/60 hover:text-cream text-xs font-body font-semibold tracking-[0.2em] transition-colors">
+              <Link key={l.label} to={l.href} className="text-foreground/60 hover:text-foreground text-xs font-body font-semibold tracking-[0.2em] transition-colors">
                 {l.label}
               </Link>
             ),
           )}
           <Link
             to={session ? "/portal/dashboard" : "/portal/login"}
-            className="border border-cream/25 hover:border-glow hover:text-glow text-cream text-xs font-body font-semibold tracking-[0.2em] px-6 py-2.5 transition-colors"
+            className="border border-primary hover:bg-primary hover:text-primary-foreground text-primary text-xs font-body font-semibold tracking-[0.2em] px-6 py-2.5 transition-colors"
           >
             PORTAL
           </Link>
         </div>
 
         <button
-          className="lg:hidden text-cream w-11 h-11 flex items-center justify-center"
+          className="lg:hidden text-foreground w-11 h-11 flex items-center justify-center"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
           aria-expanded={mobileOpen}
@@ -115,20 +112,20 @@ const CinematicNav = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="lg:hidden fixed inset-0 top-14 z-40 bg-surface-0"
+          className="lg:hidden fixed inset-0 top-14 z-40 bg-white"
         >
           <div className="flex flex-col items-center justify-center h-full gap-8 safe-area-bottom">
             {links.map((l, i) => (
               <motion.div key={l.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
                 {l.href.startsWith("#") ? (
-                  <a href={l.href} onClick={() => setMobileOpen(false)} className="text-cream text-2xl font-display tracking-widest">{l.label}</a>
+                  <a href={l.href} onClick={() => setMobileOpen(false)} className="text-foreground text-2xl font-display tracking-widest">{l.label}</a>
                 ) : (
-                  <Link to={l.href} onClick={() => setMobileOpen(false)} className="text-cream text-2xl font-display tracking-widest">{l.label}</Link>
+                  <Link to={l.href} onClick={() => setMobileOpen(false)} className="text-foreground text-2xl font-display tracking-widest">{l.label}</Link>
                 )}
               </motion.div>
             ))}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-              <Link to={session ? "/portal/dashboard" : "/portal/login"} onClick={() => setMobileOpen(false)} className="mt-4 px-10 py-4 border border-cream/40 text-cream text-sm tracking-widest font-body min-h-[56px] flex items-center">
+              <Link to={session ? "/portal/dashboard" : "/portal/login"} onClick={() => setMobileOpen(false)} className="mt-4 px-10 py-4 border border-primary text-primary text-sm tracking-widest font-body min-h-[56px] flex items-center">
                 PORTAL
               </Link>
             </motion.div>
@@ -139,7 +136,7 @@ const CinematicNav = () => {
   );
 };
 
-/* ── HERO — scroll-driven scale + mask ──────────────────────────────────── */
+/* ── HERO — light theme, Front Entrance photo ───────────────────────────── */
 
 const HeroSection = () => {
   const ref = useRef<HTMLElement>(null);
@@ -148,13 +145,6 @@ const HeroSection = () => {
     if (prefersReduce()) return;
     const ctx = gsap.context(() => {
       gsap.from(".hero-word", { y: 70, opacity: 0, stagger: 0.08, duration: 0.9, delay: 0.3, ease: "power3.out" });
-      // Scroll scrub: the image scales up and dims as the headline leaves.
-      gsap.to(".hero-media", {
-        scale: 1.12,
-        opacity: 0.35,
-        ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true },
-      });
       gsap.to(".hero-copy", {
         y: -80,
         opacity: 0,
@@ -168,29 +158,28 @@ const HeroSection = () => {
   const words = ["TUNE", "INTO", "YOUR", "INNER", "SELF."];
 
   return (
-    <section ref={ref} className="relative min-h-[100svh] surface-dark flex items-center overflow-hidden">
+    <section ref={ref} className="relative min-h-[100svh] bg-white flex items-center overflow-hidden">
       <div className="hero-media absolute inset-0 will-change-transform">
         <img
-          src={heroFamily}
-          alt="A family gathered together with open workbooks"
+          src={mindcastBuilding}
+          alt="Mindcast venue front entrance"
           className="w-full h-full object-cover"
           width={1920}
           height={1280}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, hsl(var(--surface-0) / 0.55) 0%, hsl(var(--surface-0) / 0.75) 60%, hsl(var(--surface-0)) 100%)" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/95 to-white" />
       </div>
-      <div className="absolute inset-0 gradient-hero pointer-events-none" />
 
       <div className="hero-copy container mx-auto px-6 relative z-10 pt-24 pb-16 text-center">
-        <p className="font-body text-[11px] font-bold tracking-[0.5em] text-glow uppercase mb-8">
+        <p className="font-body text-[11px] font-bold tracking-[0.5em] text-primary uppercase mb-8">
           Coming soon · Taupō, Aotearoa New Zealand
         </p>
-        <h1 className="font-display leading-[0.88] tracking-tight text-cream text-[17vw] sm:text-[13vw] lg:text-[10rem]">
+        <h1 className="font-display leading-[0.88] tracking-tight text-foreground text-[17vw] sm:text-[13vw] lg:text-[10rem]">
           {words.map((w) => (
             <span key={w} className="hero-word inline-block mr-[0.2em]">{w}</span>
           ))}
         </h1>
-        <p className="font-body text-cream/70 text-base md:text-lg max-w-2xl mx-auto mt-8 leading-relaxed">
+        <p className="font-body text-muted-foreground text-base md:text-lg max-w-2xl mx-auto mt-8 leading-relaxed">
           We consume more self-development than any generation before us — and apply almost none
           of it. Mindcast is a weekly live gathering built for follow-through: a room that holds
           you accountable to the things you already know.
@@ -201,7 +190,7 @@ const HeroSection = () => {
         </div>
       </div>
 
-      <a href="#manifesto" aria-label="Scroll to the manifesto" className="absolute bottom-6 left-1/2 -translate-x-1/2 text-cream/40 hover:text-cream transition-colors">
+      <a href="#manifesto" aria-label="Scroll to the manifesto" className="absolute bottom-6 left-1/2 -translate-x-1/2 text-muted-foreground/40 hover:text-muted-foreground transition-colors">
         <ChevronDown className="animate-float" size={26} />
       </a>
     </section>
@@ -234,16 +223,16 @@ const ManifestoSection = () => {
   }, []);
 
   return (
-    <section id="manifesto" ref={ref} className="surface-dark relative py-32 md:py-44 grain-overlay">
+    <section id="manifesto" ref={ref} className="section-cream relative py-32 md:py-44">
       <div className="container mx-auto px-6 max-w-4xl">
-        <p className="font-body text-[11px] font-bold tracking-[0.35em] text-glow uppercase mb-12">Three kinds of people</p>
+        <p className="font-body text-[11px] font-bold tracking-[0.35em] text-primary uppercase mb-12">Three kinds of people</p>
         {MANIFESTO.map((line, i) => (
-          <p key={i} className="manifesto-line font-display text-cream text-4xl sm:text-5xl md:text-6xl leading-[1.05] mb-8">
+          <p key={i} className="manifesto-line font-display text-foreground text-4xl sm:text-5xl md:text-6xl leading-[1.05] mb-8">
             {line}
           </p>
         ))}
         <Reveal delay={0.1}>
-          <p className="font-serif italic text-glow text-2xl md:text-3xl mt-14">
+          <p className="font-serif italic text-primary text-2xl md:text-3xl mt-14">
             Mindcast is the room built for that third one.
           </p>
         </Reveal>
@@ -255,12 +244,12 @@ const ManifestoSection = () => {
 /* ── CONNECTIVE RIBBON ──────────────────────────────────────────────────── */
 
 const Ribbon = () => (
-  <div className="surface-dark border-y border-cream/10 py-7">
+  <div className="section-cream border-y border-border py-7">
     <Marquee items={["NOTICE IT, NAME IT, DO IT", "UNCONSCIOUS → CONSCIOUS → CHANGED", "A STRUCTURED WEEKLY PRACTICE", "EVERY AGE, THE SAME WORK"]} />
   </div>
 );
 
-/* ── THE GATHERING ──────────────────────────────────────────────────────── */
+/* ── THE GATHERING (How it works) — light theme ─────────────────────────── */
 
 const GatheringSection = () => {
   const ref = useRef<HTMLElement>(null);
@@ -278,7 +267,7 @@ const GatheringSection = () => {
   }, []);
 
   return (
-    <section id="gathering" ref={ref} className="surface-dark-1 relative py-28 md:py-36 overflow-hidden">
+    <section id="gathering" ref={ref} className="section-white relative py-28 md:py-36 overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <Reveal className="relative overflow-hidden aspect-[4/5] shadow-cinematic">
@@ -297,11 +286,11 @@ const GatheringSection = () => {
               title={<>WE ALL KNOW WHAT TO DO.<br />WHY AREN'T WE DOING IT?</>}
             />
             <Reveal delay={0.15}>
-              <p className="font-body text-cream/70 text-base leading-relaxed mt-8 mb-6">
+              <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-6">
                 We've listened to the podcast. Read the book. Saved the reel. Then Monday arrives
                 and nothing actually changes.
               </p>
-              <p className="font-body text-cream/70 text-base leading-relaxed mb-10">
+              <p className="font-body text-muted-foreground text-base leading-relaxed mb-10">
                 Mindcast is a weekly live room built for the missing step — a community that helps
                 you bring the unconscious to the conscious, set one honest intention, and come
                 back the following week to be held to it.
@@ -315,7 +304,7 @@ const GatheringSection = () => {
   );
 };
 
-/* ── THREE TRACKS — scroll-pinned sequence ──────────────────────────────── */
+/* ── THREE TRACKS — light theme ─────────────────────────────────────────── */
 
 const TRACKS = [
   {
@@ -371,21 +360,21 @@ const TracksSection = () => {
       <div className="relative overflow-hidden aspect-[4/3] md:aspect-[4/5] max-h-[60vh] shadow-cinematic">
         <img src={t.image} alt={t.alt} className="w-full h-full object-cover" loading="lazy" width={1200} height={1500} />
       </div>
-      <GlassCard className="p-8 md:p-10">
-        <t.icon className="text-glow mb-5" size={30} aria-hidden />
-        <h3 className="font-display text-cream text-5xl md:text-6xl tracking-wide mb-4">{t.name}</h3>
-        <p className="font-body text-cream/70 text-base leading-relaxed">{t.desc}</p>
-      </GlassCard>
+      <div className="bg-card border border-border p-8 md:p-10">
+        <t.icon className="text-primary mb-5" size={30} aria-hidden />
+        <h3 className="font-display text-foreground text-5xl md:text-6xl tracking-wide mb-4">{t.name}</h3>
+        <p className="font-body text-muted-foreground text-base leading-relaxed">{t.desc}</p>
+      </div>
     </div>
   );
 
   return (
-    <div ref={wrapRef} className="surface-dark relative">
+    <div ref={wrapRef} className="relative">
       <section className={`container mx-auto px-6 ${pinned ? "h-screen flex flex-col justify-center" : "py-28"}`}>
         <div className="text-center mb-10">
           <SectionHeading label="Every age. The same work." title="ONE THEME, THREE ROOMS" />
           <Reveal delay={0.1}>
-            <p className="font-body text-cream/60 text-sm max-w-xl mx-auto mt-5">
+            <p className="font-body text-muted-foreground text-sm max-w-xl mx-auto mt-5">
               Whānau-wide behaviour change starts with a shared language. Adults, teens and kids
               each have their own workbook — different depth, different words, same weekly theme.
             </p>
@@ -393,7 +382,7 @@ const TracksSection = () => {
           {pinned && (
             <div className="flex justify-center gap-3 mt-6" aria-hidden>
               {TRACKS.map((t, i) => (
-                <span key={t.key} className={`h-1.5 rounded-full transition-all duration-400 ${active === i ? "w-10 bg-[hsl(var(--glow))]" : "w-4 bg-cream/15"}`} />
+                <span key={t.key} className={`h-1.5 rounded-full transition-all duration-400 ${active === i ? "w-10 bg-primary" : "w-4 bg-muted"}`} />
               ))}
             </div>
           )}
@@ -409,7 +398,7 @@ const TracksSection = () => {
 /* ── STATS — the shape of the practice ──────────────────────────────────── */
 
 const StatsBand = () => (
-  <section className="surface-dark-1 border-y border-cream/10 py-20 relative glow-behind">
+  <section className="section-cream border-y border-border py-20 relative">
     <div className="container mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-14">
       <Reveal><StatCounter value={52} label="Weeks in the journey" /></Reveal>
       <Reveal delay={0.1}><StatCounter value={3} label="Rooms, one theme" /></Reveal>
@@ -455,12 +444,12 @@ const RhythmSection = () => {
   }, []);
 
   return (
-    <section id="rhythm" ref={ref} className="surface-dark relative py-28 md:py-36 grain-overlay">
+    <section id="rhythm" ref={ref} className="section-white relative py-28 md:py-36">
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="text-center mb-20">
           <SectionHeading label="Reflect. Gather. Commit." title="THE RHYTHM" />
           <Reveal delay={0.1}>
-            <p className="font-body text-cream/60 text-sm max-w-xl mx-auto mt-5">
+            <p className="font-body text-muted-foreground text-sm max-w-xl mx-auto mt-5">
               A cadence built around the only thing that actually changes behaviour — coming back
               next week and being asked whether you did it.
             </p>
@@ -469,19 +458,19 @@ const RhythmSection = () => {
 
         <div className="relative">
           {/* The spine: draws itself as you move through the week. */}
-          <div className="rhythm-spine absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[hsl(var(--glow))] via-[hsl(var(--blue))] to-transparent" aria-hidden />
+          <div className="rhythm-spine absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--blue))] to-transparent" aria-hidden />
           {RHYTHM_STEPS.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.05} className={`relative mb-20 md:w-[calc(50%-3rem)] pl-12 md:pl-0 ${i % 2 ? "md:ml-auto" : ""}`}>
-              <span className="absolute -left-0.5 md:left-auto top-1 text-glow" style={i % 2 ? { left: "-4.05rem" } : { right: "-4.05rem" }} aria-hidden>
+              <span className="absolute -left-0.5 md:left-auto top-1 text-primary" style={i % 2 ? { left: "-4.05rem" } : { right: "-4.05rem" }} aria-hidden>
                 <Ripple size={30} />
               </span>
-              <GlassCard className="p-7">
+              <div className="bg-card border border-border p-7">
                 <div className="overflow-hidden aspect-[16/9] mb-5 -mx-7 -mt-7">
                   <img src={s.image} alt="" className="w-full h-full object-cover" loading="lazy" width={1200} height={675} />
                 </div>
-                <h3 className="font-display text-cream text-2xl tracking-wide mb-3">{s.title}</h3>
-                <p className="font-body text-cream/70 text-sm leading-relaxed">{s.body}</p>
-              </GlassCard>
+                <h3 className="font-display text-foreground text-2xl tracking-wide mb-3">{s.title}</h3>
+                <p className="font-body text-muted-foreground text-sm leading-relaxed">{s.body}</p>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -500,13 +489,13 @@ const VENUE_POINTS = [
 ];
 
 const VenueSection = () => (
-  <section className="surface-dark-1 py-28 md:py-36">
+  <section className="section-cream py-28 md:py-36">
     <div className="container mx-auto px-6">
       <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
         <div>
           <SectionHeading label="Coming soon" title="A SPACE BUILT FOR FOLLOW-THROUGH" />
           <Reveal delay={0.1}>
-            <p className="font-body text-cream/70 text-base leading-relaxed mt-8 mb-10">
+            <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-10">
               Every detail designed so Sunday gatherings and midweek Life Groups have a permanent,
               purpose-built home — theatre, breakout rooms, cafe, and a playground so parents can
               stay present.
@@ -515,15 +504,15 @@ const VenueSection = () => (
           <div className="grid sm:grid-cols-2 gap-4">
             {VENUE_POINTS.map((v, i) => (
               <Reveal key={v.label} delay={0.05 * i}>
-                <GlassCard className="p-5 h-full">
-                  <p className="font-display text-glow tracking-[0.2em] text-sm mb-1.5">{v.label}</p>
-                  <p className="font-body text-cream/65 text-sm leading-relaxed">{v.desc}</p>
-                </GlassCard>
+                <div className="bg-card border border-border p-5 h-full">
+                  <p className="font-display text-primary tracking-[0.2em] text-sm mb-1.5">{v.label}</p>
+                  <p className="font-body text-muted-foreground text-sm leading-relaxed">{v.desc}</p>
+                </div>
               </Reveal>
             ))}
           </div>
         </div>
-        <Reveal className="relative overflow-hidden aspect-[4/3] shadow-cinematic glow-behind">
+        <Reveal className="relative overflow-hidden aspect-[4/3] shadow-cinematic">
           <img
             src={mindcastBuilding}
             alt="Mindcast venue — theatre, breakout rooms, cafe, playground"
@@ -541,19 +530,19 @@ const VenueSection = () => (
 /* ── VISION QUOTE ───────────────────────────────────────────────────────── */
 
 const VisionQuote = () => (
-  <section className="surface-dark py-28 md:py-40 grain-overlay">
-    <div className="container mx-auto px-6 max-w-3xl text-center relative glow-behind">
+  <section className="section-white py-28 md:py-40">
+    <div className="container mx-auto px-6 max-w-3xl text-center relative">
       <Reveal>
-        <Ripple size={40} className="mx-auto mb-10 text-glow" animate />
-        <blockquote className="font-serif italic text-cream text-2xl sm:text-3xl md:text-4xl leading-snug mb-10">
+        <Ripple size={40} className="mx-auto mb-10 text-primary" animate />
+        <blockquote className="font-serif italic text-foreground text-2xl sm:text-3xl md:text-4xl leading-snug mb-10">
           "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the
           room that finally closes that gap — together, every week."
         </blockquote>
         <div className="flex items-center justify-center gap-4">
           <img src={founderPortrait} alt="Ashleigh Carlson, founder of Mindcast" className="w-14 h-14 rounded-full object-cover" width={112} height={112} loading="lazy" />
-          <p className="font-body text-cream/60 text-sm text-left">
+          <p className="font-body text-muted-foreground text-sm text-left">
             Ashleigh Carlson
-            <span className="block text-cream/35 text-xs">Founder</span>
+            <span className="block text-muted-foreground/60 text-xs">Founder</span>
           </p>
         </div>
       </Reveal>
@@ -564,17 +553,16 @@ const VisionQuote = () => (
 /* ── FINAL CTA ──────────────────────────────────────────────────────────── */
 
 const FinalCTA = () => (
-  <section className="surface-dark-1 border-t border-cream/10 py-28 md:py-36 relative overflow-hidden">
-    <div className="absolute inset-0 gradient-hero pointer-events-none" aria-hidden />
+  <section className="section-cream border-t border-border py-28 md:py-36 relative overflow-hidden">
     <div className="container mx-auto px-6 max-w-3xl text-center relative">
       <Reveal>
-        <p className="font-body text-[11px] font-bold tracking-[0.5em] text-glow uppercase mb-6">Taupō · Sundays</p>
-        <h2 className="font-display text-cream leading-[0.92] tracking-tight text-6xl sm:text-7xl md:text-8xl mb-8">
+        <p className="font-body text-[11px] font-bold tracking-[0.5em] text-primary uppercase mb-6">Taupō · Sundays</p>
+        <h2 className="font-display text-foreground leading-[0.92] tracking-tight text-6xl sm:text-7xl md:text-8xl mb-8">
           STOP CONSUMING.
           <br />
           START DOING.
         </h2>
-        <p className="font-body text-cream/65 text-base leading-relaxed max-w-xl mx-auto mb-12">
+        <p className="font-body text-muted-foreground text-base leading-relaxed max-w-xl mx-auto mb-12">
           One room, the same people, every week, for a year. Come and sit in it once, free, and
           see what it is — no card, no chase, no countdown.
         </p>
@@ -601,7 +589,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="surface-dark">
+    <div className="min-h-screen bg-white">
       {!reduce && <CustomCursor />}
       <ScrollProgress />
       <CinematicNav />
@@ -625,7 +613,7 @@ const Home = () => {
       </div>
 
       <FinalCTA />
-      <Footer variant="dark" />
+      <Footer variant="light" />
     </div>
   );
 };
