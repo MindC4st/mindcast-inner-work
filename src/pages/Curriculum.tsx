@@ -709,10 +709,6 @@ const Curriculum = () => {
   // marketing page without a deploy.
   const weekOneTheme = weeks.find((w) => w.week_number === 1)?.weekly_theme || WEEK1_THEME;
 
-  useEffect(() => {
-    document.title = "The Curriculum — Mindcast";
-  }, []);
-
   return (
     <div className="min-h-screen bg-background">
       <ScrollProgress />

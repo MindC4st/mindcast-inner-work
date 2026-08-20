@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import DevPageMenu from "@/components/DevPageMenu";
+import Seo from "@/components/Seo";
 
 // Route-level code splitting: every page loads on demand so first paint only
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
@@ -237,61 +238,6 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Per-route document titles so browser tabs, history and search results are
-// meaningful. Longest prefix wins; falls back to the brand default.
-const DEFAULT_TITLE = "Mindcast — Tune Into Your Inner Self";
-const TITLE_MAP: [string, string][] = [
-  ["/portal/dashboard", "Dashboard · Mindcast Portal"],
-  ["/portal/weeks", "Weekly Sessions · Mindcast Portal"],
-  ["/portal/week", "Week · Mindcast Portal"],
-  ["/portal/group", "Group · Mindcast Portal"],
-  ["/portal/insights", "Insights · Mindcast Portal"],
-  ["/portal/downloads", "Downloads · Mindcast Portal"],
-  ["/portal/settings", "Settings · Mindcast Portal"],
-  ["/portal/progress", "Progress · Mindcast Portal"],
-  ["/portal/checkin", "Check-In · Mindcast Portal"],
-  ["/portal/kids", "Kid Sessions · Mindcast Portal"],
-  ["/portal/orders", "My Orders · Mindcast Portal"],
-  ["/portal/family", "Family & Safety · Mindcast Portal"],
-  ["/portal/login", "Member Login · Mindcast"],
-  ["/shop", "Shop · Mindcast"],
-  ["/mindcast-live/library", "Coursebook Library · Mindcast"],
-  ["/mindcast-live/lesson", "Lesson · Mindcast"],
-  ["/mindcast-live/facilitate", "Facilitate · Mindcast"],
-  ["/mindcast-live/edit", "Edit Lesson · Mindcast"],
-  ["/mindcast-live/coursebook", "Coursebook (Print) · Mindcast"],
-  ["/admin/dashboard", "Dashboard · Admin"],
-  ["/admin/life-groups", "Life Groups · Admin"],
-  ["/admin/scan", "Door Scan · Mindcast"],
-  ["/portal/pass", "Door Pass · Mindcast Portal"],
-  ["/try", "Try a Session · Mindcast"],
-  ["/admin/staff-training", "Staff Training · Mindcast"],
-  ["/admin", "Admin · Mindcast"],
-  ["/workbook", "Workbook · Mindcast"],
-  ["/dashboard", "Dashboard · Mindcast"],
-  ["/checkin", "Check In · Mindcast"],
-  ["/join", "Join a Session · Mindcast"],
-  ["/live", "Live Session · Mindcast"],
-  ["/membership", "Membership · Mindcast"],
-  ["/about", "About · Mindcast"],
-  ["/auth", "Sign In · Mindcast"],
-  ["/terms", "Terms of Use · Mindcast"],
-  ["/privacy", "Privacy Policy · Mindcast"],
-  ["/refund", "Refund Policy · Mindcast"],
-  ["/safeguarding", "Safeguarding · Mindcast"],
-];
-
-const RouteTitle = () => {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    const match = TITLE_MAP
-      .filter(([prefix]) => pathname === prefix || pathname.startsWith(prefix + "/") || pathname.startsWith(prefix))
-      .sort((a, b) => b[0].length - a[0].length)[0];
-    document.title = match ? match[1] : DEFAULT_TITLE;
-  }, [pathname]);
-  return null;
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -300,7 +246,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ScrollToTop />
-          <RouteTitle />
+          <Seo />
           <ErrorBoundary>
             <AppRoutes />
           </ErrorBoundary>
