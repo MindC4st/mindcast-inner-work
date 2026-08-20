@@ -637,7 +637,7 @@ const Home = () => {
       {/* Ivory contrast bands — the About and Membership pages live in-page
           here, reached from the nav exactly like #rhythm. */}
       <div id="about" className="scroll-mt-14">
-        <AboutContent membershipHref="#membership" />
+        <AboutContent />
       </div>
       <div id="membership" className="scroll-mt-14">
         <MembershipContent />

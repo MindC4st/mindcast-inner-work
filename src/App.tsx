@@ -25,6 +25,7 @@ const StaffTrainingTeamMember = lazy(() => import("@/components/staff-training/T
 const WelcomeWall = lazy(() => import("./pages/display/WelcomeWall"));
 const About = lazy(() => import("./pages/About"));
 const Membership = lazy(() => import("./pages/Membership"));
+const Curriculum = lazy(() => import("./pages/Curriculum"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
@@ -190,6 +191,7 @@ const AppRoutes = () => (
 
       {/* Marketing */}
       <Route path="/about" element={<About />} />
+      <Route path="/curriculum" element={<Curriculum />} />
       <Route path="/membership" element={<Membership />} />
       <Route path="/pilot" element={<LegacyRedirect to="/membership" />} />
       <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />

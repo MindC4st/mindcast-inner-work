@@ -9,6 +9,7 @@ import logoBlue from "@/assets/logo-blue-wordmark.png";
 
 const navLinks = [
   { label: "ABOUT", to: "/about" },
+  { label: "CURRICULUM", to: "/curriculum" },
   { label: "MEMBERSHIP", to: "/membership" },
 ];
 

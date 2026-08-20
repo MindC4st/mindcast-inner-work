@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
@@ -19,7 +20,7 @@ const values = [
 // The page body, exported so the homepage can embed it as an ivory band
 // (/#about) while /about keeps working as a standalone route. Same content,
 // one source — no drift between the two.
-export const AboutContent = ({ membershipHref = "/membership" }: { membershipHref?: string }) => (
+export const AboutContent = () => (
   <>
     <section className="section-cream min-h-[60vh] flex items-center pt-16">
       <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
@@ -216,9 +217,14 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
           The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō.
         </motion.p>
-        <motion.a href={membershipHref} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
-          BECOME A MEMBER &rarr;
-        </motion.a>
+        {/* Exploration before the ask. Someone who has just read the founder's
+            story is ready to look inside the curriculum, not to be sold a
+            membership — /curriculum closes with the join CTA instead. */}
+        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
+          <Link to="/curriculum" className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+            LOOK INSIDE OUR CURRICULUM &rarr;
+          </Link>
+        </motion.div>
       </div>
     </section>
   </>
