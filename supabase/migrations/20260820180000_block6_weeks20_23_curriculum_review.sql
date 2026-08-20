@@ -157,6 +157,13 @@ SET
     'Model the approach yourself as a facilitator: let something real show in how you hold the room.',
     'DO NOT MODEL VULNERABILITY BY DISCLOSING YOUR OWN. In a room where you hold the floor, your disclosure sets the depth everyone else feels they should match, and it moves you to the emotional centre of a session that is supposed to be theirs. What you model instead is STEADINESS: you don''t flinch when someone else says something hard, you don''t fill silences, and you don''t reward the most dramatic share. If a member asks whether you''ve done this work, "yes, and not in this room" is a complete answer.'
   ),
+  updated_at        = now()
+WHERE week_number = 22 AND audience = 'Adult';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes = CASE
     WHEN facilitator_notes LIKE '%NOBODY IS LOWERING ANYTHING TODAY%' THEN facilitator_notes
     ELSE facilitator_notes || $b6w22a$

@@ -4,7 +4,73 @@
 // a pickup code is still valid decides whether someone walks away with a
 // product, so it is worth asserting rather than trusting a glance at the UI.
 
-export type OrderStatus = "paid" | "collected" | "refunded" | "cancelled" | string;
+export type OrderStatus = "paid" | "collected" | "shipped" | "refunded" | "cancelled" | string;
+
+// Shipping mirrors the constants in create-shop-checkout. Kept here (pure,
+// testable) so the checkout function and the shop page can't drift apart
+// silently — if one changes, the tests around describeShipping notice.
+export const SHIPPING_FLAT_CENTS = 800;
+export const FREE_SHIPPING_THRESHOLD_CENTS = 12000;
+
+/** Shipping cost for a given merchandise subtotal (NZD cents). */
+export const shippingForSubtotal = (subtotalCents: number): number =>
+  subtotalCents <= 0 ? 0
+    : subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0
+    : SHIPPING_FLAT_CENTS;
+
+/** "Free over $120" — the plain-language version shown in the cart. */
+export const describeShipping = (subtotalCents: number): string => {
+  if (subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS) return "Shipping — free";
+  const remaining = FREE_SHIPPING_THRESHOLD_CENTS - subtotalCents;
+  return `Shipping $${(SHIPPING_FLAT_CENTS / 100).toFixed(2)} · free with $${(remaining / 100).toFixed(2)} more`;
+};
+
+// ── Cart ────────────────────────────────────────────────────────────────────
+export type CartLine = { slug: string; quantity: number };
+
+const CART_KEY = "mindcast.shop.cart.v1";
+export const MAX_QUANTITY_PER_ITEM = 20;
+
+export const readCart = (): CartLine[] => {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((l): l is CartLine => Boolean(l) && typeof l.slug === "string" && Number.isInteger(l.quantity))
+      .filter((l) => l.slug.length > 0 && l.quantity > 0 && l.quantity <= MAX_QUANTITY_PER_ITEM);
+  } catch {
+    return [];
+  }
+};
+
+export const writeCart = (lines: CartLine[]): void => {
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(lines.filter((l) => l.quantity > 0)));
+  } catch { /* private mode — cart lives for this render only */ }
+};
+
+export const addToCart = (lines: CartLine[], slug: string, quantity: number): CartLine[] => {
+  const existing = lines.find((l) => l.slug === slug);
+  const next = existing
+    ? lines.map((l) => l.slug === slug
+      ? { ...l, quantity: Math.min(MAX_QUANTITY_PER_ITEM, l.quantity + quantity) }
+      : l)
+    : [...lines, { slug, quantity: Math.min(MAX_QUANTITY_PER_ITEM, quantity) }];
+  writeCart(next);
+  return next;
+};
+
+export const setCartQuantity = (lines: CartLine[], slug: string, quantity: number): CartLine[] => {
+  const next = quantity <= 0
+    ? lines.filter((l) => l.slug !== slug)
+    : lines.map((l) => l.slug === slug ? { ...l, quantity: Math.min(MAX_QUANTITY_PER_ITEM, quantity) } : l);
+  writeCart(next);
+  return next;
+};
+
+export const cartCount = (lines: CartLine[]): number => lines.reduce((n, l) => n + l.quantity, 0);
 
 /** "$45.00" — cents in, display string out. */
 export const formatMoney = (cents: number, currency = "nzd"): string => {
@@ -41,6 +107,13 @@ export const describeOrder = (
         helper: collectedAt
           ? `Collected ${formatCollectedAt(collectedAt)}. This code has been used.`
           : "This code has already been used.",
+        redeemable: false,
+      };
+    case "shipped":
+      return {
+        label: "ON ITS WAY",
+        tone: "ready",
+        helper: "Your order has been shipped.",
         redeemable: false,
       };
     case "refunded":

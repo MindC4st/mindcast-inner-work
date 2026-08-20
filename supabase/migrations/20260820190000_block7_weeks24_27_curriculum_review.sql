@@ -56,6 +56,13 @@ Note on the exposure point (curriculum review): avoidance does feed fear, and gr
     'voluntarily expanding the window of tolerance',
     'moving through discomfort that isn''t danger'
   ),
+  updated_at        = now()
+WHERE week_number = 24 AND audience = 'Adult';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes = CASE
     WHEN facilitator_notes LIKE '%THE ALARM CAN BE RIGHT%' THEN facilitator_notes
     ELSE facilitator_notes || $b7w24a$
@@ -155,6 +162,13 @@ If you'd like to read one line of it aloud, you can. Nobody has to, nobody is go
     'Research on post-traumatic growth (Tedeschi and Calhoun) shows that the period of integration — when growth is consolidated and a new life narrative is emerging — is characterised by: increased appreciation for life, greater personal strength, new possibilities, improved relationships, and spiritual/existential enrichment. These are the fruits of honest unlearning.',
     'Some people find that honest unlearning brings real gains — more appreciation for life, a sense of strength, new possibilities, closer relationships. Post-traumatic growth research describes those reports. They are possible, not promised, and none of them is a test you sit at the end of Phase 2.'
   ),
+  updated_at            = now()
+WHERE week_number = 26 AND audience = 'Adult';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes     = CASE
     WHEN facilitator_notes LIKE '%DELIBERATELY THIN, AND SAY SO. THERE IS NO MEASUREMENT%' THEN facilitator_notes
     ELSE facilitator_notes || $b7w26a$
@@ -190,6 +204,13 @@ If you'd like to read one line of it aloud, you can. Nobody has to, nobody is go
     'The research on psychological change shows that integration — the period when new awareness becomes consolidated — is characterised by a genuine sense of relief, clearer self-perception, and increased capacity for what comes next. This is where you are.',
     'There''s no study that says how you''re supposed to feel at the end of thirteen weeks. Some people feel lighter. Some feel unsettled, because looking at things stirs them up before it settles them. Some feel nothing much today and something next month. All of those are fine and none of them means you did it wrong.'
   ),
+  updated_at            = now()
+WHERE week_number = 26 AND audience = 'Teen';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes     = CASE
     WHEN facilitator_notes LIKE '%DELIBERATELY THIN, AND SAY SO. THERE IS NO MEASUREMENT%' THEN facilitator_notes
     ELSE facilitator_notes || $b7w26t$

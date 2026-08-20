@@ -1,7 +1,17 @@
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Download, Check, Facebook, Instagram, Linkedin, Mail, MessageCircle, Twitter } from "lucide-react";
+import {
+  Download, Check, Copy, Facebook, Instagram, Linkedin, Mail, MessageCircle,
+  Twitter, CalendarDays, Clapperboard,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { toast } from "sonner";
+import ThreeTracksCampaign from "@/components/marketing/ThreeTracksCampaign";
+import posterSundayIsFree from "@/assets/marketing/social-sunday-is-free.png";
+import posterKidsNextRoom from "@/assets/marketing/social-kids-next-room.png";
+import posterNoPhones from "@/assets/marketing/social-no-phones.png";
+import posterComeBack from "@/assets/marketing/social-come-back.png";
+import posterThoughtful from "@/assets/marketing/social-thoughtful-conversations.png";
+import posterOneCommunity from "@/assets/marketing/social-one-community.png";
 
 /* ── Asset content (Mindcast 52-week membership, Taupō NZ) ────────────── */
 
@@ -131,7 +141,7 @@ const TWITTER_THREAD = `1/ You learn brilliant ideas every week. You nod along. 
 
 5/ Want in? DM me or head to mindcast.co.nz. Let's do this together.`;
 
-/* ── Asset definitions ───────────────────────────────────────────────── */
+/* ── Copy kit definitions ──────────────────────────────────────────────── */
 
 interface Asset {
   title: string;
@@ -201,7 +211,107 @@ const assets: Asset[] = [
   },
 ];
 
-/* ── Download helper ─────────────────────────────────────────────────── */
+/* ── Figma poster designs (Campaign 08) ────────────────────────────────── */
+
+interface Poster {
+  headline: string;
+  subtitle: string;
+  caption: string;
+  filename: string;
+  src: string;
+}
+
+const POSTERS: Poster[] = [
+  {
+    headline: "Sunday is free.",
+    subtitle: "Every week. No cost. No catch.",
+    caption: `Sunday is free. Every week. No cost. No catch. Come and see what Mindcast feels like — one theme, on the big screen, together. #Mindcast #MindcastNZ #InnerWork #Taupō`,
+    filename: "mindcast-social-sunday-is-free.png",
+    src: posterSundayIsFree,
+  },
+  {
+    headline: "Your kids are in the next room.",
+    subtitle: "They learn while you grow.",
+    caption: `Your kids are in the next room. They learn while you grow. One Sunday, the whole family doing the inner work — each in their own track. #Mindcast #MindcastNZ #FamilyGrowth #Taupō`,
+    filename: "mindcast-social-kids-next-room.png",
+    src: posterKidsNextRoom,
+  },
+  {
+    headline: "No phones. Real talk.",
+    subtitle: "Teens at Mindcast",
+    caption: `No phones. Real talk. Teens at Mindcast get a room of their own — honest conversations, zero cringe. #Mindcast #MindcastNZ #RealTalk #Teens`,
+    filename: "mindcast-social-no-phones.png",
+    src: posterNoPhones,
+  },
+  {
+    headline: "Come back in seven days.",
+    subtitle: "Same table. Same hour. New conversation.",
+    caption: `Come back in seven days. Same table. Same hour. New conversation. 52 weeks of showing up for yourself, together. #Mindcast #MindcastNZ #InnerWork #WeeklyRhythm`,
+    filename: "mindcast-social-come-back.png",
+    src: posterComeBack,
+  },
+  {
+    headline: "Thoughtful conversations.",
+    subtitle: "Every Sunday in Taupō",
+    caption: `Thoughtful conversations. Every Sunday in Taupō. Not another app — a room full of people who show up for each other. #Mindcast #MindcastNZ #Community #Taupō`,
+    filename: "mindcast-social-thoughtful-conversations.png",
+    src: posterThoughtful,
+  },
+  {
+    headline: "One community. Many rooms.",
+    subtitle: "Adults connect. Teens belong. Children play.",
+    caption: `One community. Many rooms. Adults connect. Teens belong. Children play. One theme every week, for the whole family. #Mindcast #MindcastNZ #OneCommunity #Taupō`,
+    filename: "mindcast-social-one-community.png",
+    src: posterOneCommunity,
+  },
+];
+
+const THREE_TRACKS_CAPTION = `Adults connect. Teens belong. Children play. Three tracks. One theme. One community. Membership is open now in Taupō. #Mindcast #MindcastNZ #InnerWork #Taupō`;
+
+/* ── Social content calendar ───────────────────────────────────────────── */
+
+interface CalendarEntry {
+  day: string;
+  platform: string;
+  icon: LucideIcon;
+  title: string;
+  detail: string;
+}
+
+interface CalendarWeek {
+  label: string;
+  theme: string;
+  entries: CalendarEntry[];
+}
+
+const CALENDAR: CalendarWeek[] = [
+  {
+    label: "Week 1",
+    theme: "Awareness",
+    entries: [
+      { day: "Mon", platform: "Instagram", icon: Instagram, title: "One community. Many rooms.", detail: "Poster + caption — introduce the three tracks." },
+      { day: "Tue", platform: "Facebook", icon: Facebook, title: "Facebook post", detail: "Copy kit — founder-voice intro post." },
+      { day: "Wed", platform: "Instagram", icon: Instagram, title: "Thoughtful conversations.", detail: "Poster + caption — Sunday sessions in Taupō." },
+      { day: "Thu", platform: "DM / Text", icon: MessageCircle, title: "Personal outreach", detail: "Copy kit — send to your first 20 names." },
+      { day: "Fri", platform: "Stories", icon: Instagram, title: "Instagram story script", detail: "Copy kit — 5 slides, run the poll + question box." },
+    ],
+  },
+  {
+    label: "Week 2",
+    theme: "Launch",
+    entries: [
+      { day: "Mon", platform: "Instagram", icon: Instagram, title: "Sunday is free.", detail: "Poster + caption — open invite to come and see." },
+      { day: "Tue", platform: "LinkedIn", icon: Linkedin, title: "LinkedIn post", detail: "Copy kit — professional pivot angle." },
+      { day: "Wed", platform: "Instagram", icon: Instagram, title: "No phones. Real talk.", detail: "Poster + caption — teen track spotlight." },
+      { day: "Thu", platform: "Instagram", icon: Instagram, title: "Your kids are in the next room.", detail: "Poster + caption — children track spotlight." },
+      { day: "Fri", platform: "Email", icon: Mail, title: "Email template", detail: "Copy kit — send to your list." },
+      { day: "Sat", platform: "Twitter / X", icon: Twitter, title: "Twitter thread", detail: "Copy kit — 5 tweets." },
+      { day: "Sun", platform: "In person", icon: Clapperboard, title: "Live Sunday session", detail: "Run the session — post “Come back in seven days.” on Monday." },
+    ],
+  },
+];
+
+/* ── Helpers ───────────────────────────────────────────────────────────── */
 
 function downloadFile(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain" });
@@ -213,7 +323,23 @@ function downloadFile(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-/* ── Card component ──────────────────────────────────────────────────── */
+function downloadPoster(poster: Poster) {
+  const a = document.createElement("a");
+  a.href = poster.src;
+  a.download = poster.filename;
+  a.click();
+}
+
+async function copyText(text: string, label: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success(`${label} copied to clipboard`);
+  } catch {
+    toast.error("Couldn't access the clipboard");
+  }
+}
+
+/* ── Copy kit card ─────────────────────────────────────────────────────── */
 
 const AssetCard = ({ asset }: { asset: Asset }) => {
   const [downloaded, setDownloaded] = useState(false);
@@ -228,7 +354,6 @@ const AssetCard = ({ asset }: { asset: Asset }) => {
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-body font-bold text-foreground text-base">{asset.title}</h3>
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] tracking-[0.15em] font-semibold uppercase font-body">
@@ -237,74 +362,166 @@ const AssetCard = ({ asset }: { asset: Asset }) => {
         </span>
       </div>
 
-      {/* Description */}
       <p className="text-muted-foreground text-sm font-body mb-4 leading-relaxed">{asset.description}</p>
 
-      {/* Preview */}
       <div className="bg-muted/50 rounded-lg p-4 mb-5 flex-1 overflow-hidden">
         <pre className="text-xs text-foreground/70 font-body whitespace-pre-wrap leading-relaxed line-clamp-5">
           {preview}
         </pre>
       </div>
 
-      {/* Download button */}
-      <button
-        onClick={handleDownload}
-        className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-xs tracking-[0.15em] uppercase font-body font-semibold transition-all duration-200 ${
-          downloaded
-            ? "bg-green-600 text-white"
-            : "bg-primary text-primary-foreground hover:opacity-90"
-        }`}
-      >
-        {downloaded ? (
-          <>
-            <Check className="w-4 h-4" />
-            Downloaded
-          </>
-        ) : (
-          <>
-            <Download className="w-4 h-4" />
-            Download {asset.filename.split(".").pop()?.toUpperCase()}
-          </>
-        )}
-      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => copyText(asset.content, asset.title)}
+          className="flex items-center justify-center gap-2 py-3 rounded-lg border border-border text-[10px] tracking-[0.15em] uppercase font-body font-semibold text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Copy className="w-4 h-4" />
+          Copy
+        </button>
+        <button
+          onClick={handleDownload}
+          className={`flex items-center justify-center gap-2 py-3 rounded-lg text-[10px] tracking-[0.15em] uppercase font-body font-semibold transition-all duration-200 ${
+            downloaded
+              ? "bg-green-600 text-white"
+              : "bg-primary text-primary-foreground hover:opacity-90"
+          }`}
+        >
+          {downloaded ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+          {downloaded ? "Downloaded" : "Download TXT"}
+        </button>
+      </div>
     </div>
   );
 };
 
-/* ── Page ─────────────────────────────────────────────────────────────── */
+/* ── Poster card ───────────────────────────────────────────────────────── */
 
-const Marketing = () => (
-  <>
-    <Navbar />
+const PosterCard = ({ poster }: { poster: Poster }) => (
+  <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col">
+    <img src={poster.src} alt={poster.headline} className="w-full aspect-[4/5] object-cover" />
+    <div className="p-5 flex flex-col gap-3">
+      <div>
+        <h3 className="font-display text-xl text-foreground tracking-wide">{poster.headline}</h3>
+        <p className="text-[11px] font-body text-muted-foreground mt-0.5">{poster.subtitle}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={() => downloadPoster(poster)}
+          className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-[10px] tracking-[0.15em] uppercase font-body font-semibold hover:opacity-90 transition-colors"
+        >
+          <Download className="w-3.5 h-3.5" />
+          PNG
+        </button>
+        <button
+          onClick={() => copyText(poster.caption, "Caption")}
+          className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border text-[10px] tracking-[0.15em] uppercase font-body font-semibold text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Copy className="w-3.5 h-3.5" />
+          Caption
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
-    {/* Hero */}
-    <section className="section-cream pt-32 pb-20 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <span className="inline-block text-[10px] tracking-[0.3em] uppercase text-muted-foreground/70 font-body mb-4">
-          Membership Growth Kit
-        </span>
-        <h1 className="font-display text-4xl md:text-5xl text-foreground tracking-tight mb-4">
-          Grow Your Mindcast Community
-        </h1>
-        <p className="font-body text-muted-foreground text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-          Download and share these ready-to-go assets across Facebook, Instagram, LinkedIn and email.
-          Everything is written and designed — just post it.
+/* ── Tab ───────────────────────────────────────────────────────────────── */
+
+type SubTab = "calendar" | "designs" | "copy";
+
+const SUBTABS: { id: SubTab; label: string }[] = [
+  { id: "calendar", label: "Content Calendar" },
+  { id: "designs", label: "Posters & Designs" },
+  { id: "copy", label: "Copy Kit" },
+];
+
+const Marketing = () => {
+  const [sub, setSub] = useState<SubTab>("calendar");
+
+  return (
+    <div className="space-y-6 max-w-5xl">
+      <div>
+        <h2 className="font-display text-2xl text-foreground tracking-wider">Marketing</h2>
+        <p className="text-muted-foreground text-sm font-body mt-1">
+          Campaign 08 asset library — the social content calendar, Figma posters and the ready-to-post copy kit. In-house only, not public facing.
         </p>
       </div>
-    </section>
 
-    {/* Assets grid */}
-    <section className="bg-background py-16 px-6">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {assets.map((asset) => (
-          <AssetCard key={asset.filename} asset={asset} />
+      <div className="flex gap-1 rounded-md border border-border bg-card p-1 w-fit mb-2 overflow-x-auto max-w-full">
+        {SUBTABS.map((t) => (
+          <button key={t.id} onClick={() => setSub(t.id)}
+            className={`px-3.5 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${sub === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            {t.label}
+          </button>
         ))}
       </div>
-    </section>
 
-    <Footer />
-  </>
-);
+      {sub === "calendar" && (
+        <div className="space-y-8">
+          {CALENDAR.map((week) => (
+            <div key={week.label}>
+              <div className="flex items-baseline gap-3 mb-3">
+                <h3 className="font-body font-bold text-foreground text-sm">{week.label}</h3>
+                <span className="text-[10px] font-body tracking-[0.2em] uppercase text-primary">{week.theme}</span>
+              </div>
+              <div className="rounded-lg border border-border bg-card divide-y divide-border">
+                {week.entries.map((e) => (
+                  <div key={`${week.label}-${e.day}`} className="flex items-start gap-4 px-5 py-4">
+                    <span className="w-10 shrink-0 text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground pt-0.5">{e.day}</span>
+                    <span className="inline-flex items-center gap-1.5 w-28 shrink-0 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] tracking-[0.12em] font-semibold uppercase font-body">
+                      <e.icon size={11} />
+                      {e.platform}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-body font-semibold text-foreground">{e.title}</p>
+                      <p className="text-[11px] font-body text-muted-foreground mt-0.5">{e.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <p className="text-[11px] font-body text-muted-foreground flex items-center gap-2">
+            <CalendarDays size={12} />
+            Pair every calendar entry with its poster or copy from the other two tabs.
+          </p>
+        </div>
+      )}
+
+      {sub === "designs" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col">
+              <ThreeTracksCampaign />
+              <div className="p-5 flex flex-col gap-3">
+                <div>
+                  <h3 className="font-display text-xl text-foreground tracking-wide">Three tracks. One theme. One community.</h3>
+                  <p className="text-[11px] font-body text-muted-foreground mt-0.5">Live component — scales to any width.</p>
+                </div>
+                <button
+                  onClick={() => copyText(THREE_TRACKS_CAPTION, "Caption")}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border text-[10px] tracking-[0.15em] uppercase font-body font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  Caption
+                </button>
+              </div>
+            </div>
+            {POSTERS.map((p) => (
+              <PosterCard key={p.filename} poster={p} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {sub === "copy" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {assets.map((asset) => (
+            <AssetCard key={asset.filename} asset={asset} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default Marketing;

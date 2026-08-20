@@ -329,11 +329,6 @@ serve(async (req: Request) => {
     // Footer.
     const footerText = "mindcast.co.nz  |  NOTICE IT, NAME IT, DO IT";
     page.drawText(footerText, { x: margin, y: margin - 4, size: 6, font: helvetica, color: GREY });
-    const pageLabel = `${orientation === "landscape" ? "A4 landscape" : "A4 portrait"} colouring page`;
-    page.drawText(pageLabel, {
-      x: pageW - margin - helvetica.widthOfTextAtSize(pageLabel, 6),
-      y: margin - 4, size: 6, font: helvetica, color: GREY,
-    });
 
     const pdfBytes = await pdfDoc.save();
 
@@ -354,13 +349,16 @@ serve(async (req: Request) => {
     // Path, not a public URL — see the PNG note above.
     const coloringPdfUrl = pdfPath;
 
-    // 7. Update the lesson record
+    // 7. Update the lesson record. New generations land 'unapproved' — a
+    //    facilitator must approve before the page can display or print, so an
+    //    unreviewed AI image can never reach children in one tap.
     const { error: updateError } = await supabase
       .from("mindcast_live_sessions")
       .update({
         coloring_page_url: coloringPageUrl,
         coloring_pdf_url: coloringPdfUrl,
         coloring_prompt: prompt,
+        coloring_approval: "unapproved",
       })
       .eq("week_number", week_number)
       .eq("audience", "Child");

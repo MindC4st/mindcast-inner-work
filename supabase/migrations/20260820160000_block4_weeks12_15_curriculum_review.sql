@@ -103,6 +103,13 @@ SET
     'This is a ceremonial session — treat it as such. Create intentional ritual: candles, music, a physical symbol of crossing a threshold if appropriate to your group.',
     'MARK THE THRESHOLD, DON''T RITUALISE IT. This session should feel significant. It should not feel ceremonial. No candles, no darkened room, no incense, no circle-and-symbol staging, no facilitator at the centre of a ring. A photograph of this session taken by a stranger should look like a community hall on a Sunday, because that is what it is. What works instead: name the milestone plainly, read the week numbers out, put the thirteen weekly themes up on the wall, let people read their letters aloud if they consent, and finish on time. If you want a physical object, use something ordinary and useful — a printed card of the thirteen themes.'
   ),
+  updated_at        = now()
+WHERE week_number = 13 AND audience = 'Adult';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes = CASE
     WHEN facilitator_notes LIKE '%DELIBERATELY THIN, AND SAY SO%' THEN facilitator_notes
     ELSE facilitator_notes || $b4w13a$
@@ -132,6 +139,13 @@ SET
     'Create ritual and ceremony — teenagers respond powerfully to being genuinely seen and acknowledged.',
     'MARK THE THRESHOLD, DON''T RITUALISE IT — no candles, no darkened room, no staging that puts a facilitator at the centre of a circle. Teenagers respond powerfully to being genuinely seen and acknowledged; that''s what to deliver, plainly.'
   ),
+  updated_at        = now()
+WHERE week_number = 13 AND audience = 'Teen';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes = CASE
     WHEN facilitator_notes LIKE '%DELIBERATELY THIN, AND SAY SO%' THEN facilitator_notes
     ELSE facilitator_notes || $b4w13t$
@@ -172,8 +186,7 @@ READ THE POINT 0 RULE BEFORE FACILITATING. POINT 0 IS MANDATORY AND VERBATIM. Th
 
 THE EVIDENCE. Approval-seeking as a learned and persistent pattern is well described across developmental and clinical literature; we don't need a specific citation for the observation that people trained to seek authorisation keep seeking it. Keep the claims modest here — the session works on recognition, not on research.
 
-WE DELIBERATELY DON'T CLAIM. That waiting is always fear — sometimes waiting is judgment, or safety, or care for someone else. That autonomy means not consulting anyone. That any decision needs to be made today.$b4w14t$
-  END,
+WE DELIBERATELY DON'T CLAIM. That waiting is always fear — sometimes waiting is judgment, or safety, or care for someone else. That autonomy means not consulting anyone. That any decision needs to be made today.$b4w14t$,
   updated_at        = now()
 WHERE week_number = 14 AND audience = 'Teen';
 

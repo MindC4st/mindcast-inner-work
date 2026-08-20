@@ -30,3 +30,12 @@ dist-ssr
 test-results/
 playwright-report/
 
+# Marketing image assets (large binaries)
+.stitch/designs/
+.stitch/finals/
+
+# Generated backups + CLI temp + scratch files
+backups/
+supabase/.temp/
+review-warnings.txt
+

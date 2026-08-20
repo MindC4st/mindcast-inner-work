@@ -13,6 +13,8 @@ import { resolve } from "node:path";
 const root = resolve(__dirname, "../..");
 const migration = readFileSync(
   resolve(root, "supabase/migrations/20260820120001_lesson_flow_v4_eight_slides.sql"), "utf8");
+const childMigration = readFileSync(
+  resolve(root, "supabase/migrations/20260823130000_child_track_variants.sql"), "utf8");
 const view = readFileSync(
   resolve(root, "src/pages/mindcast-live/FacilitatorView.tsx"), "utf8");
 
@@ -23,6 +25,16 @@ const slidesFromMigration = () => {
   return rows.map(([, key, pos, tracks]) => ({
     key, position: Number(pos), tracks: tracks.split(",").map(t => t.trim()),
   }));
+};
+
+/** Apply later `UPDATE ... applies_to_tracks` statements (child variants). */
+const applyTrackUpdates = (slides: { key: string; position: number; tracks: string[] }[]) => {
+  for (const [, tracks, key] of childMigration.matchAll(
+    /applies_to_tracks\s*=\s*'\{([^}]*)\}'\s*\n\s*WHERE\s+slide_key\s*=\s*'([a-z_]+)'/g)) {
+    const slide = slides.find(s => s.key === key);
+    if (slide) slide.tracks = tracks.split(",").map(t => t.trim());
+  }
+  return slides;
 };
 
 /** The client's slide_key -> render kind map. */
@@ -37,7 +49,7 @@ const kindMap = () => {
 };
 
 describe("lesson flow v4", () => {
-  const slides = slidesFromMigration();
+  const slides = applyTrackUpdates(slidesFromMigration());
   const map = kindMap();
 
   it("every slide the migration activates is known to the client", () => {
@@ -57,14 +69,15 @@ describe("lesson flow v4", () => {
     }
   });
 
-  it("Child gets the same 8 plus colouring after the video", () => {
+  it("Child runs the same 8 positions with colouring replacing Go Deeper", () => {
     const projected = slides
       .filter(s => s.tracks.includes("Child") && map[s.key] !== null)
       .sort((a, b) => a.position - b.position)
       .map(s => s.key);
     expect(projected).toEqual([
-      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "affirmation",
+      "welcome", "voices", "ancient", "video", "coloring", "reflection", "intention", "affirmation",
     ]);
+    expect(projected).not.toContain("deeper");
   });
 
   it("the video lands straight after In Today's World, not after Go Deeper", () => {

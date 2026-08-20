@@ -633,6 +633,27 @@ if (INSPECT) {
   process.exit(0);
 }
 
+if (process.argv.includes("--dump-weeks")) {
+  const out = [];
+  for (let wk = 1; wk <= 52; wk++) {
+    const w = weeks.get(wk);
+    out.push({
+      week: wk,
+      phase: sessions.get(`${wk}|Adult`)?.phase,
+      phase_name: sessions.get(`${wk}|Adult`)?.phase_name,
+      block: w?.block_number,
+      block_theme: w?.block_theme,
+      weekly_theme: w?.weekly_theme,
+      movement_theme: w?.movement_theme,
+      adult: sessions.get(`${wk}|Adult`)?.session_title,
+      teen: sessions.get(`${wk}|Teen`)?.session_title,
+      child: sessions.get(`${wk}|Child`)?.session_title,
+    });
+  }
+  console.log(JSON.stringify(out));
+  process.exit(0);
+}
+
 if (DRY_RUN) {
   if (OVERRIDES.length) {
     const byResult = {};

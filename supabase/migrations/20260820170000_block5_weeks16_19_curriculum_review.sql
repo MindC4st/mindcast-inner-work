@@ -153,6 +153,13 @@ SET
     'Reinforce: this is brain training, not positive thinking.',
     'Reinforce: this is a skill with reps, like anything else you practise. It feels fake for the first dozen goes. That''s normal and it''s not a sign it isn''t working.'
   ),
+  updated_at        = now()
+WHERE week_number = 18 AND audience = 'Teen';
+
+-- Split from the statement above: Postgres forbids assigning the same column
+-- twice in one SET, so the evidence-base append runs as its own UPDATE.
+UPDATE public.mindcast_live_sessions
+SET
   facilitator_notes = CASE
     WHEN facilitator_notes LIKE '%WISE FEEDBACK (YEAGER, COHEN AND COLLEAGUES)%' THEN facilitator_notes
     ELSE facilitator_notes || $b5w18t$

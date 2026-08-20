@@ -30,7 +30,6 @@ const GROUPS: Group[] = [
   ]},
   { label: "Admin", links: [
     ["/admin", "Admin console"], ["/admin/kiosk", "Kiosk"], ["/admin/framework", "Framework"],
-    ["/marketing", "Marketing"],
   ]},
   { label: "Displays / Legal", links: [
     ["/display", "Welcome wall"],

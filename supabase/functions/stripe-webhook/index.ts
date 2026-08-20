@@ -1,19 +1,23 @@
-// stripe-webhook — single source of truth for membership status.
+// stripe-webhook — single source of truth for money events.
 //
-// Handles the NEW multi-tier model (Jul 2026). Instead of a single tier +
-// kids_addon, subscriptions now have multiple line items (adult, teen, child)
-// with quantities. The webhook extracts the bundle composition from metadata
-// or line item prices, upserts public.subscriptions, and asks the database to
-// allocate only the purchased number of adult, teen, and child seats.
+// Two responsibilities:
+//   1. Membership subscriptions (multi-tier model, Jul 2026) — upserts
+//      subscriptions and refreshes entitlements.
+//   2. Commerce — orders are written HERE when Stripe confirms payment, never
+//      at checkout time. Webhooks are authenticated (signature), idempotent
+//      (stripe_session_id unique + processed-event guard) and retry-safe.
 //
 // verify_jwt MUST be false; signature verification via stripe-signature header.
 //
 // Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
-//      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+//      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, FROM_EMAIL
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import {
+  addressBlock, audit, emailShell, itemsTable, money, orderEvent, sendCommerceEmail,
+} from "./commerce-email.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2025-08-27.basil",
@@ -186,63 +190,356 @@ async function syncSubscription(sub: Stripe.Subscription) {
 }
 
 // ---------------------------------------------------------------------------
-// Shop orders. The order row is created HERE, not at checkout time, so a
-// pickup code only ever exists against a payment Stripe has confirmed.
+// COMMERCE — the order row is created HERE, not at checkout time, so an order
+// only ever exists against a payment Stripe has confirmed. Idempotency comes
+// from the UNIQUE stripe_session_id (duplicate deliveries are no-ops that
+// re-attempt only unsent emails) plus processed-event bookkeeping below.
 // ---------------------------------------------------------------------------
+type ShopItem = {
+  productId: string | null;
+  variantId: string | null;
+  slug: string;
+  sku: string;
+  name: string;
+  unitPriceCents: number;
+  quantity: number;
+};
+
+/** Expand the session's line items and map them back to our catalogue. */
+async function shopLineItems(sessionId: string): Promise<ShopItem[]> {
+  const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ["line_items"],
+  });
+  const items: ShopItem[] = [];
+  for (const li of session.line_items?.data ?? []) {
+    const meta = ((li.price?.product as Stripe.Product | undefined)?.metadata ?? {}) as Record<string, string>;
+    // Discount lines carry no product metadata — skip them (the discount is
+    // recorded from the session metadata amounts).
+    if (!meta.product_id && !meta.slug) continue;
+    items.push({
+      productId: meta.product_id || null,
+      variantId: meta.variant_id || null,
+      slug: meta.slug || "",
+      sku: meta.sku || "",
+      name: li.description || "Mindcast product",
+      unitPriceCents: li.amount_total && li.quantity
+        ? Math.round(li.amount_total / li.quantity)
+        : (li.price?.unit_amount ?? 0),
+      quantity: li.quantity ?? 1,
+    });
+  }
+  return items;
+}
+
+/** Idempotency guard for arbitrary Stripe events (refunds, failures). */
+async function eventAlreadyProcessed(eventId: string): Promise<boolean> {
+  const { data } = await admin
+    .from("shop_order_events")
+    .select("id")
+    .eq("type", "stripe_event_processed")
+    .filter("metadata->>event_id", "eq", eventId)
+    .limit(1);
+  return Boolean(data && data.length > 0);
+}
+async function markEventProcessed(orderId: string, eventId: string, kind: string) {
+  await orderEvent(admin, {
+    orderId,
+    type: "stripe_event_processed",
+    note: `${kind} (${eventId})`,
+    metadata: { event_id: eventId, kind },
+  });
+}
+
+/** Upsert the commerce customer (member by profile, guest by email). */
+async function upsertCustomer(profileId: string | null, email: string | null, name: string | null): Promise<string | null> {
+  if (!profileId && !email) return null;
+  const first = name?.split(" ").slice(0, -1).join(" ") || null;
+  const last = name?.split(" ").slice(-1)[0] || null;
+  if (profileId) {
+    const { data } = await admin
+      .from("shop_customers")
+      .upsert({ profile_id: profileId, email, first_name: first, last_name: last }, { onConflict: "profile_id" })
+      .select("id").maybeSingle();
+    return data?.id ?? null;
+  }
+  const { data: existing } = await admin
+    .from("shop_customers").select("id").eq("email", email).is("profile_id", null).maybeSingle();
+  if (existing) return existing.id;
+  const { data: created } = await admin
+    .from("shop_customers")
+    .insert({ email, first_name: first, last_name: last })
+    .select("id").maybeSingle();
+  return created?.id ?? null;
+}
+
 async function recordShopOrder(s: Stripe.Checkout.Session) {
   const meta = (s.metadata ?? {}) as Record<string, string>;
+  const isShipped = meta.fulfilment === "ship";
+  const email = s.customer_details?.email || s.customer_email || null;
+  const name = s.customer_details?.name || s.shipping_details?.name || null;
 
-  const quantity = Math.max(1, parseInt(meta.quantity || "1", 10) || 1);
-  const unitPrice = parseInt(meta.unit_price_cents || "0", 10) || 0;
-  // Trust Stripe's amount_total for what was actually charged; fall back to our
-  // own arithmetic only if Stripe didn't provide one.
-  const amountTotal = typeof s.amount_total === "number" ? s.amount_total : unitPrice * quantity;
+  const amountTotal = typeof s.amount_total === "number"
+    ? s.amount_total
+    : (parseInt(meta.subtotal_cents || "0", 10) || 0);
+  const discountCents = parseInt(meta.discount_cents || "0", 10) || 0;
+  const shippingCents = isShipped ? (s.shipping_cost?.amount ?? parseInt(meta.shipping_cents || "0", 10) || 0) : 0;
+  const gstCents = parseInt(meta.gst_cents || "0", 10) || 0;
 
-  // Name the product as it was at purchase time, so a later rename doesn't
-  // rewrite an order that's already been placed.
-  let productName = meta.product_name || meta.product_slug || "Mindcast product";
-  if (meta.product_id) {
-    const { data: product, error: productError } = await admin
-      .from("shop_products").select("name").eq("id", meta.product_id).maybeSingle();
-    if (productError) throw new Error(`Product lookup failed: ${productError.message}`);
-    if (product?.name) productName = product.name;
-  }
+  const items = await shopLineItems(s.id);
+  const itemCount = items.reduce((n, it) => n + it.quantity, 0) || 1;
+  const firstName = items[0]?.name || "Mindcast product";
+  const productName = items.length > 1 ? `${firstName} + ${items.length - 1} more` : firstName;
 
-  // stripe_session_id is UNIQUE and Stripe retries deliveries, so ignore a
-  // duplicate rather than minting a second pickup code for one payment.
-  const { error } = await admin.from("shop_orders").upsert(
+  const customerId = await upsertCustomer(meta.profile_id || null, email, name);
+
+  // stripe_session_id is UNIQUE and Stripe retries deliveries: a duplicate
+  // delivery skips creation and re-attempts only the confirmation email.
+  const { data: inserted, error } = await admin.from("shop_orders").upsert(
     {
       profile_id: meta.profile_id || null,
-      product_id: meta.product_id || null,
+      customer_id: customerId,
+      product_id: items[0]?.productId || null,
       product_name: productName,
-      unit_price_cents: unitPrice,
-      quantity,
+      unit_price_cents: items[0]?.unitPriceCents ?? 0,
+      quantity: itemCount,
       amount_total_cents: amountTotal,
+      shipping_cents: shippingCents,
+      discount_cents: discountCents,
+      discount_code: meta.discount_code || null,
+      gst_cents: gstCents,
       currency: (s.currency || "nzd").toLowerCase(),
-      fulfilment: meta.fulfilment === "partner" ? "partner" : "counter",
+      fulfilment: isShipped ? "ship" : (meta.fulfilment === "partner" ? "partner" : "counter"),
       partner_name: meta.partner_name || null,
       scheduled_session_id: meta.scheduled_session_id || null,
       stripe_session_id: s.id,
       stripe_payment_intent: s.payment_intent ? String(s.payment_intent) : null,
       status: "paid",
+      payment_status: "paid",
+      fulfilment_status: "unfulfilled",
       note: meta.order_note || null,
+      customer_email: email,
+      customer_first_name: name?.split(" ").slice(0, -1).join(" ") || null,
+      customer_last_name: name?.split(" ").slice(-1)[0] || null,
+      customer_phone: s.customer_details?.phone || null,
+      ship_name: s.shipping_details?.name || null,
+      ship_line1: s.shipping_details?.address?.line1 || null,
+      ship_line2: s.shipping_details?.address?.line2 || null,
+      ship_city: s.shipping_details?.address?.city || null,
+      ship_postcode: s.shipping_details?.address?.postal_code || null,
+      ship_country: s.shipping_details?.address?.country || null,
+      // Billing defaults to shipping (Stripe Checkout collects one address).
+      bill_name: s.shipping_details?.name || name,
+      bill_line1: s.shipping_details?.address?.line1 || null,
+      bill_line2: s.shipping_details?.address?.line2 || null,
+      bill_city: s.shipping_details?.address?.city || null,
+      bill_postcode: s.shipping_details?.address?.postal_code || null,
+      bill_country: s.shipping_details?.address?.country || null,
     },
     { onConflict: "stripe_session_id", ignoreDuplicates: true },
-  );
+  ).select("id, order_number").maybeSingle();
   if (error) throw error;
+
+  let orderId: string;
+  let orderNumber: string | null;
+  let isNew = false;
+
+  if (inserted) {
+    isNew = true;
+    orderId = inserted.id;
+    orderNumber = inserted.order_number;
+
+    // Order items with snapshots (variant, SKU, GST component per line).
+    if (items.length > 0) {
+      const { error: itemsError } = await admin.from("shop_order_items").insert(
+        items.map((it) => ({
+          order_id: orderId,
+          product_id: it.productId,
+          variant_id: it.variantId,
+          slug: it.slug,
+          sku: it.sku,
+          product_name: it.name,
+          unit_price_cents: it.unitPriceCents,
+          quantity: it.quantity,
+          line_total_cents: it.unitPriceCents * it.quantity,
+          gst_cents: Math.round(it.unitPriceCents * it.quantity * 15 / 115),
+        })),
+      );
+      if (itemsError) throw new Error(`Order items insert failed: ${itemsError.message}`);
+    }
+
+    // Inventory: convert the checkout reservation into committed sales.
+    const { error: convError } = await admin.rpc("shop_convert_reservation", {
+      p_session_key: s.id,
+      p_order_id: orderId,
+    });
+    if (convError) throw new Error(`Stock conversion failed: ${convError.message}`);
+
+    // Discount redemption — the unique (discount_id, order_id) constraint
+    // makes this retry-safe: only the first delivery increments the counter.
+    if (meta.discount_id) {
+      const { data: redemption, error: redErr } = await admin
+        .from("shop_discount_redemptions")
+        .upsert({ discount_id: meta.discount_id, order_id: orderId }, { ignoreDuplicates: true })
+        .select("id");
+      if (!redErr && redemption && redemption.length > 0) {
+        await admin.rpc("shop_increment_discount", { p_discount_id: meta.discount_id }).catch(() => {});
+      }
+    }
+
+    // Payments ledger.
+    await admin.from("shop_payments").insert({
+      order_id: orderId,
+      kind: "payment",
+      amount_cents: amountTotal,
+      currency: (s.currency || "nzd").toLowerCase(),
+      status: "succeeded",
+      stripe_id: s.payment_intent ? String(s.payment_intent) : s.id,
+    }).catch(() => {});
+
+    // Timeline.
+    await orderEvent(admin, {
+      orderId, type: "order_placed",
+      note: `Order placed — ${itemCount} item${itemCount === 1 ? "" : "s"}`,
+      metadata: { item_count: itemCount, amount_total_cents: amountTotal },
+    });
+    await orderEvent(admin, {
+      orderId, type: "payment_confirmed",
+      note: "Stripe payment confirmed",
+      metadata: { stripe_session_id: s.id },
+    });
+  } else {
+    const { data: existing } = await admin
+      .from("shop_orders").select("id, order_number").eq("stripe_session_id", s.id).maybeSingle();
+    if (!existing) return;
+    orderId = existing.id;
+    orderNumber = existing.order_number;
+  }
+
+  // Confirmation email — idempotent via confirmation_email_sent_at.
+  const { data: orderRow } = await admin.from("shop_orders").select("*").eq("id", orderId).maybeSingle();
+  if (orderRow && email && !orderRow.confirmation_email_sent_at) {
+    const { data: itemRows } = await admin
+      .from("shop_order_items").select("product_name, quantity, line_total_cents")
+      .eq("order_id", orderId).order("created_at");
+    const rows = itemRows && itemRows.length > 0
+      ? itemRows
+      : [{ product_name: orderRow.product_name, quantity: orderRow.quantity, line_total_cents: orderRow.unit_price_cents * orderRow.quantity }];
+    const html = emailShell(`
+      <h1 style="font-size:22px;margin:8px 0 4px;">Thank you — we've received your order</h1>
+      <p style="color:#555;margin:0 0 16px;">Order ${orderNumber || ""} · ${new Date(orderRow.created_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric" })}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:15px;">
+        ${itemsTable(rows)}
+        ${orderRow.discount_cents > 0 ? `<tr><td style="padding:6px 0;color:#555;">Discount${orderRow.discount_code ? ` (${orderRow.discount_code})` : ""}</td><td style="padding:6px 0;text-align:right;">−${money(orderRow.discount_cents)}</td></tr>` : ""}
+        ${isShipped ? `<tr><td style="padding:6px 0;color:#555;">Shipping</td><td style="padding:6px 0;text-align:right;">${orderRow.shipping_cents > 0 ? money(orderRow.shipping_cents) : "Free"}</td></tr>` : ""}
+        <tr>
+          <td style="padding:10px 0;border-top:1px solid #ddd;"><strong>Total (incl. GST)</strong></td>
+          <td style="padding:10px 0;border-top:1px solid #ddd;text-align:right;"><strong>${money(orderRow.amount_total_cents)}</strong></td>
+        </tr>
+      </table>
+      ${isShipped ? addressBlock(orderRow) : `<p style="margin:16px 0 4px;color:#555;">Collect at the Mindcast counter — show your pickup code <strong>${orderRow.pickup_code}</strong>.</p>`}
+      <p style="margin:20px 0 4px;color:#555;">${isShipped ? "We'll email you again when your order ships." : "We'll have it ready for you."} Prices are in NZD and include GST.</p>
+    `);
+    const sent = await sendCommerceEmail(admin, {
+      orderId,
+      type: "order_confirmation",
+      to: email,
+      subject: `We've received your MINDCAST order — #${orderNumber || ""}`,
+      html,
+    });
+    if (sent) {
+      await admin.from("shop_orders").update({ confirmation_email_sent_at: new Date().toISOString() }).eq("id", orderId);
+      await orderEvent(admin, { orderId, type: "email_sent", note: "Order confirmation email sent", metadata: { email_type: "order_confirmation" } });
+    } else if (isNew) {
+      // A failed email must surface so Stripe redelivers and we retry it.
+      throw new Error("Order confirmation email could not be sent");
+    }
+  }
 }
 
-async function markShopOrderRefunded(charge: Stripe.Charge) {
+/** Checkout expired or async payment failed — release the stock hold. */
+async function releaseShopReservation(s: Stripe.Checkout.Session, kind: string) {
+  if ((s.metadata as Record<string, string>)?.kind !== "shop") return;
+  await admin.rpc("shop_release_reservation", { p_session_key: s.id }).catch(() => {});
+  const { data: order } = await admin.from("shop_orders").select("id").eq("stripe_session_id", s.id).maybeSingle();
+  if (order) {
+    await orderEvent(admin, { orderId: order.id, type: kind === "expired" ? "checkout_expired" : "payment_failed", note: kind === "expired" ? "Checkout expired — stock released" : "Payment failed — stock released" });
+  }
+}
+
+/** Refund reconciliation — covers refunds issued by us AND from Stripe dashboard. */
+async function reconcileRefund(charge: Stripe.Charge, eventId: string) {
   const pi = charge.payment_intent ? String(charge.payment_intent) : null;
   if (!pi) return;
-  // Partial refunds leave the order collectable; only a full refund voids it.
-  if (charge.amount_refunded < charge.amount) return;
-  const { error } = await admin
-    .from("shop_orders")
-    .update({ status: "refunded", updated_at: new Date().toISOString() })
-    .eq("stripe_payment_intent", pi)
-    .in("status", ["paid", "collected"]);
-  if (error) throw new Error(`Refund update failed: ${error.message}`);
+  const { data: order } = await admin
+    .from("shop_orders").select("*").eq("stripe_payment_intent", pi).maybeSingle();
+  if (!order) return;
+  if (await eventAlreadyProcessed(eventId)) return;
+
+  const refundedTotal = charge.amount_refunded ?? 0;
+  const isFull = refundedTotal >= charge.amount;
+  const previouslyRecorded = order.refunded_cents ?? 0;
+  const delta = Math.max(0, refundedTotal - previouslyRecorded);
+
+  // Record the refund if we didn't create it ourselves (dashboard refund).
+  if (delta > 0) {
+    const { data: existingRefund } = await admin
+      .from("shop_refunds").select("id").eq("order_id", order.id)
+      .filter("stripe_refund_id", "eq", pi).limit(1);
+    if (!existingRefund || existingRefund.length === 0) {
+      await admin.from("shop_refunds").insert({
+        order_id: order.id,
+        amount_cents: delta,
+        reason: "Refunded via Stripe dashboard",
+        stripe_refund_id: pi,
+        status: "succeeded",
+      }).catch(() => {});
+    }
+  }
+
+  const paymentStatus = isFull ? "refunded" : (refundedTotal > 0 ? "partially_refunded" : order.payment_status);
+  await admin.from("shop_orders").update({
+    refunded_cents: refundedTotal,
+    payment_status: paymentStatus,
+    ...(isFull ? { status: "refunded" } : {}),
+  }).eq("id", order.id);
+
+  await admin.from("shop_payments").insert({
+    order_id: order.id,
+    kind: "refund",
+    amount_cents: delta,
+    currency: order.currency,
+    status: "succeeded",
+    stripe_id: pi,
+  }).catch(() => {});
+
+  await orderEvent(admin, {
+    orderId: order.id,
+    type: "refund_confirmed",
+    note: `${isFull ? "Full" : "Partial"} refund confirmed — ${money(refundedTotal)} of ${money(charge.amount)}`,
+    metadata: { refunded_cents: refundedTotal, full: isFull },
+  });
+  await markEventProcessed(order.id, eventId, "charge.refunded");
+
+  // Refund confirmation email (once per refund event).
+  if (order.customer_email && delta > 0) {
+    const html = emailShell(`
+      <h1 style="font-size:22px;margin:8px 0 4px;">Your refund has been processed</h1>
+      <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
+      <p style="font-size:15px;">${money(delta)} has been refunded to your original payment method. It can take a few business days to appear.</p>
+      ${isFull ? `<p style="font-size:15px;color:#555;">This order has been fully refunded.</p>` : ""}
+      <p style="margin:20px 0 4px;color:#555;">If you have questions about this refund, reply to this email.</p>
+    `);
+    const sent = await sendCommerceEmail(admin, {
+      orderId: order.id,
+      type: "refund_confirmation",
+      to: order.customer_email,
+      subject: `Your MINDCAST refund — #${order.order_number || ""}`,
+      html,
+    });
+    if (sent) {
+      await orderEvent(admin, { orderId: order.id, type: "email_sent", note: "Refund confirmation email sent", metadata: { email_type: "refund_confirmation" } });
+    }
+  }
 }
 
 serve(async (req) => {
@@ -281,11 +578,19 @@ serve(async (req) => {
         }
         break;
       }
-      // A refunded payment must stop reading as a valid pickup. Without this a
-      // refunded order still shows a live code on the member's phone.
+      // Stock holds released when a checkout dies without paying.
+      case "checkout.session.expired": {
+        await releaseShopReservation(event.data.object as Stripe.Checkout.Session, "expired");
+        break;
+      }
+      case "checkout.session.async_payment_failed": {
+        await releaseShopReservation(event.data.object as Stripe.Checkout.Session, "payment_failed");
+        break;
+      }
+      // A refunded payment must stop reading as a valid pickup and must keep
+      // the financial ledger accurate. Idempotent via event bookkeeping.
       case "charge.refunded": {
-        const charge = event.data.object as Stripe.Charge;
-        await markShopOrderRefunded(charge);
+        await reconcileRefund(event.data.object as Stripe.Charge, event.id);
         break;
       }
       case "invoice.payment_failed": {
