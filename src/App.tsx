@@ -43,6 +43,8 @@ const PortalFamily = lazy(() => import("./pages/portal/PortalFamily"));
 const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const PortalOrders = lazy(() => import("./pages/portal/PortalOrders"));
 const Shop = lazy(() => import("./pages/Shop"));
+const ShopProduct = lazy(() => import("./pages/ShopProduct"));
+const GuestOrderLookup = lazy(() => import("./pages/GuestOrderLookup"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
@@ -166,8 +168,10 @@ const AppRoutes = () => (
       <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
       <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
       <Route path="/portal/orders" element={<ProtectedRoute><PortalOrders /></ProtectedRoute>} />
-      {/* Public catalogue — browsing needs no account, buying does. */}
+      {/* Public catalogue — browsing and guest checkout need no account. */}
       <Route path="/shop" element={<Shop />} />
+      <Route path="/shop/:slug" element={<ShopProduct />} />
+      <Route path="/orders/lookup" element={<GuestOrderLookup />} />
 
       {/* Sunday Live (facilitator + members) */}
       <Route path="/live" element={<ComingSoon />} />

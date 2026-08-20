@@ -216,18 +216,23 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
       </div>
     </section>
 
-    {/* Closing CTA */}
+    {/* Closing CTA — an EXPLORATION cta, not a conversion one.
+        Someone who has just read the founder's story is ready to look inside
+        the curriculum, not to be sold a membership. The join CTA lives at the
+        bottom of /curriculum, after they have actually seen the year. */}
     <section className="section-white py-24">
       <div className="container mx-auto px-6 text-center max-w-3xl">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-4xl md:text-6xl text-primary mb-6">
-          READY TO START?
+          CURIOUS WHAT MINDCAST LOOKS LIKE?
         </motion.h2>
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
-          The Mindcast journey is 52 weeks of showing up, reflecting, and following through — for adults, teens and children, together. Founding membership is coming soon in Taupō.
+          Explore inside the MINDCAST curriculum and see how the 52-week journey helps adults, teens and children build greater awareness, intention and follow-through — one week at a time.
         </motion.p>
-        <motion.a href={membershipHref} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
-          BECOME A MEMBER &rarr;
-        </motion.a>
+        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
+          <Link to="/curriculum" className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+            LOOK INSIDE OUR CURRICULUM &rarr;
+          </Link>
+        </motion.div>
       </div>
     </section>
   </>
