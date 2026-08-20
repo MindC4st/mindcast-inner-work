@@ -15,6 +15,10 @@ import founderPortrait from "@/assets/founder-portrait.jpg";
 import mindcastBuilding from "@/assets/mindcast-building.png";
 import logoNavLight from "@/assets/logo-cream.png";
 import logoBlue from "@/assets/logo-blue-wordmark.png";
+import trackAdult from "@/assets/track-adult.jpg";
+import trackTeen from "@/assets/track-teen.jpg";
+import trackKids from "@/assets/track-kids.jpg";
+import rhythmBeforeYouLeave from "@/assets/rhythm-before-you-leave.jpg";
 import { useAuth } from "@/contexts/AuthContext";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
@@ -312,24 +316,24 @@ const TRACKS = [
     icon: Users,
     name: "ADULTS",
     desc: "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you.",
-    image: adultWorkbook,
-    alt: "The adult workbook open mid-session",
+    image: trackAdult,
+    alt: "Adults in a seminar room session",
   },
   {
     key: "teen",
     icon: GraduationCap,
     name: "TEENS",
     desc: "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down.",
-    image: teenWorkbook,
-    alt: "The teen workbook",
+    image: trackTeen,
+    alt: "Teens working together in a community session",
   },
   {
     key: "kids",
     icon: Baby,
     name: "KIDS",
     desc: "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice.",
-    image: childColouring,
-    alt: "A child's colouring page from the kids' room",
+    image: trackKids,
+    alt: "Kids coloring in the kids room",
   },
 ];
 
@@ -357,8 +361,8 @@ const TracksSection = () => {
   const Panel = ({ t, i }: { t: (typeof TRACKS)[number]; i: number }) => (
     <div className={`grid md:grid-cols-2 gap-10 items-center ${pinned ? "absolute inset-0 transition-opacity duration-500" : "mb-20"}`}
       style={pinned ? { opacity: active === i ? 1 : 0, pointerEvents: active === i ? "auto" : "none" } : undefined}>
-      <div className="relative overflow-hidden aspect-[4/3] md:aspect-[4/5] max-h-[60vh] shadow-cinematic">
-        <img src={t.image} alt={t.alt} className="w-full h-full object-cover" loading="lazy" width={1200} height={1500} />
+      <div className="relative overflow-hidden aspect-[4/3] shadow-cinematic">
+        <img src={t.image} alt={t.alt} className="w-full h-full object-cover" loading="lazy" width={1600} height={1200} />
       </div>
       <div className="bg-card border border-border p-8 md:p-10">
         <t.icon className="text-primary mb-5" size={30} aria-hidden />
@@ -413,17 +417,17 @@ const RHYTHM_STEPS = [
   {
     title: "SUNDAY · THE GATHERING",
     body: "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data.",
-    image: lifeGroup,
+    image: mindcastBuilding,
   },
   {
     title: "IN THE ROOMS",
     body: "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious.",
-    image: threeWorkbooks,
+    image: teenWorkbook,
   },
   {
     title: "BEFORE YOU LEAVE",
     body: "You write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes.",
-    image: heroFamily,
+    image: rhythmBeforeYouLeave,
   },
 ];
 

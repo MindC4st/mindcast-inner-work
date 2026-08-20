@@ -9,6 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PRICING, formatWeekly } from "@/lib/membershipPricing";
 import lifeGroup from "@/assets/home-life-group.jpg";
 import familyWorkbooks from "@/assets/home-family-workbooks.jpg";
+import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
+import membershipTrial from "@/assets/membership-trial.jpg";
 
 // /membership — the most commercially important page in the product, built to
 // the charter, not to SaaS convention. The rules this page must never break:
@@ -221,8 +223,8 @@ export const MembershipContent = () => (
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <motion.div {...fadeUp} className="relative overflow-hidden aspect-[4/3]">
             <img
-              src={lifeGroup}
-              alt="A Mindcast session in progress — chairs in a circle, people talking"
+              src={membershipTrial}
+              alt="Mindcast playground and gathering space"
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -329,8 +331,8 @@ export const MembershipContent = () => (
           </p>
           <div className="relative overflow-hidden max-w-2xl mx-auto aspect-[5/2] mb-10">
             <img
-              src={familyWorkbooks}
-              alt="Workbooks laid out on a table before a session"
+              src={threeWorkbooks}
+              alt="Binders and stationery set on display"
               className="w-full h-full object-cover"
               loading="lazy"
             />
