@@ -282,7 +282,7 @@ async function recordShopOrder(s: Stripe.Checkout.Session) {
     ? s.amount_total
     : (parseInt(meta.subtotal_cents || "0", 10) || 0);
   const discountCents = parseInt(meta.discount_cents || "0", 10) || 0;
-  const shippingCents = isShipped ? (s.shipping_cost?.amount ?? parseInt(meta.shipping_cents || "0", 10) || 0) : 0;
+  const shippingCents = isShipped ? ((s.shipping_cost?.amount ?? parseInt(meta.shipping_cents || "0", 10)) || 0) : 0;
   const gstCents = parseInt(meta.gst_cents || "0", 10) || 0;
 
   const items = await shopLineItems(s.id);
@@ -452,6 +452,46 @@ async function recordShopOrder(s: Stripe.Checkout.Session) {
     } else if (isNew) {
       // A failed email must surface so Stripe redelivers and we retry it.
       throw new Error("Order confirmation email could not be sent");
+    }
+  }
+
+  // Admin notification — ping orders@mindcast.co.nz once per new order, so the
+  // team knows to prepare pickup / ship the moment payment is confirmed.
+  // Idempotent via admin_notified_at (Stripe redelivers webhooks).
+  if (orderRow && !orderRow.admin_notified_at) {
+    const ORDERS_EMAIL = Deno.env.get("ORDERS_EMAIL") || "orders@mindcast.co.nz";
+    const { data: adminItems } = await admin
+      .from("shop_order_items").select("product_name, quantity, line_total_cents")
+      .eq("order_id", orderId).order("created_at");
+    const adminRows = adminItems && adminItems.length > 0
+      ? adminItems
+      : [{ product_name: orderRow.product_name, quantity: orderRow.quantity, line_total_cents: orderRow.unit_price_cents * orderRow.quantity }];
+    const customerName = [orderRow.customer_first_name, orderRow.customer_last_name]
+      .filter(Boolean).join(" ") || "Unknown customer";
+    const adminHtml = emailShell(`
+      <h1 style="font-size:22px;margin:8px 0 4px;">New order — #${orderNumber || ""}</h1>
+      <p style="color:#555;margin:0 0 16px;">${customerName} · ${orderRow.customer_email || "no email on file"}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:15px;">
+        ${itemsTable(adminRows)}
+        ${orderRow.discount_cents > 0 ? `<tr><td style="padding:6px 0;color:#555;">Discount${orderRow.discount_code ? ` (${orderRow.discount_code})` : ""}</td><td style="padding:6px 0;text-align:right;">−${money(orderRow.discount_cents)}</td></tr>` : ""}
+        ${isShipped ? `<tr><td style="padding:6px 0;color:#555;">Shipping</td><td style="padding:6px 0;text-align:right;">${orderRow.shipping_cents > 0 ? money(orderRow.shipping_cents) : "Free"}</td></tr>` : ""}
+        <tr>
+          <td style="padding:10px 0;border-top:1px solid #ddd;"><strong>Total (incl. GST)</strong></td>
+          <td style="padding:10px 0;border-top:1px solid #ddd;text-align:right;"><strong>${money(orderRow.amount_total_cents)}</strong></td>
+        </tr>
+      </table>
+      ${isShipped ? addressBlock(orderRow) : `<p style="margin:16px 0 4px;color:#555;">Pickup code <strong>${orderRow.pickup_code}</strong>.</p>`}
+    `);
+    const notified = await sendCommerceEmail(admin, {
+      orderId,
+      type: "admin_order_notification",
+      to: ORDERS_EMAIL,
+      subject: `New MINDCAST order — #${orderNumber || ""}`,
+      html: adminHtml,
+    });
+    if (notified) {
+      await admin.from("shop_orders").update({ admin_notified_at: new Date().toISOString() }).eq("id", orderId);
+      await orderEvent(admin, { orderId, type: "admin_notified", note: "New-order notification sent to admin", metadata: { email_type: "admin_order_notification" } });
     }
   }
 }

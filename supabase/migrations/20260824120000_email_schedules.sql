@@ -16,7 +16,7 @@
 --    Queued every Thursday evening (NZST Fri 06:00 = UTC Thu 18:00)
 -- ────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.queue_session_reminders()
-RETURNS TABLE (queued int)
+RETURNS int
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
@@ -59,7 +59,7 @@ BEGIN
       AND p.marketing_opt_out = false
   LOOP
     -- Member's own intention from last week
-    SELECT intention_text INTO v_intention
+    SELECT weekly_intention INTO v_intention
     FROM public.lesson_journal
     WHERE profile_id = v_member.id
     ORDER BY created_at DESC
@@ -92,7 +92,7 @@ $$;
 --    Queued every Wednesday (NZST Wed 09:00 = UTC Tue 20:00)
 -- ────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.queue_practice_reminders()
-RETURNS TABLE (queued int)
+RETURNS int
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
@@ -101,7 +101,7 @@ DECLARE
   v_count int := 0;
 BEGIN
   FOR v_member IN
-    SELECT p.id, p.first_name, lj.intention_text
+    SELECT p.id, p.first_name, lj.weekly_intention
     FROM public.profiles p
     JOIN public.user_roles ur ON ur.user_id = p.id
     LEFT JOIN public.lesson_journal lj ON lj.profile_id = p.id
@@ -109,14 +109,14 @@ BEGIN
     WHERE ur.role = 'member'
       AND p.membership_status = 'active'
       AND p.marketing_opt_out = false
-      AND lj.intention_text IS NOT NULL
+      AND lj.weekly_intention IS NOT NULL
   LOOP
     PERFORM public.queue_notification(
       v_member.id,
       'practice.midweek',
       jsonb_build_object(
         'first_name', v_member.first_name,
-        'intention_text', v_member.intention_text
+        'intention_text', v_member.weekly_intention
       ),
       now(),
       NULL
@@ -133,7 +133,7 @@ $$;
 --    Queued every Monday (NZST Mon 09:00 = UTC Sun 20:00)
 -- ────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.queue_absence_notices()
-RETURNS TABLE (queued int)
+RETURNS int
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
@@ -177,21 +177,21 @@ $$;
 -- SELECT cron.schedule(
 --   'session-weekly-reminder',
 --   '0 18 * * 4',
---   $$ SELECT * FROM public.queue_session_reminders(); $$
+--   $$ SELECT public.queue_session_reminders(); $$
 -- );
 --
 -- -- Practice reminder: Tue 20:00 UTC = Wed 09:00 NZST
 -- SELECT cron.schedule(
 --   'practice-midweek-reminder',
 --   '0 20 * * 2',
---   $$ SELECT * FROM public.queue_practice_reminders(); $$
+--   $$ SELECT public.queue_practice_reminders(); $$
 -- );
 --
 -- -- Absence notice: Sun 20:00 UTC = Mon 09:00 NZST
 -- SELECT cron.schedule(
 --   'absence-two-weeks',
 --   '0 20 * * 0',
---   $$ SELECT * FROM public.queue_absence_notices(); $$
+--   $$ SELECT public.queue_absence_notices(); $$
 -- );
 --
 -- END cron schedule block

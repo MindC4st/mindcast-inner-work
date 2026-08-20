@@ -34,7 +34,8 @@ export const addressBlock = (o: any): string => o.ship_name
 
 export type EmailType =
   | "order_confirmation" | "order_shipped" | "order_partially_shipped"
-  | "refund_confirmation" | "order_cancelled" | "payment_failed";
+  | "refund_confirmation" | "order_cancelled" | "payment_failed"
+  | "admin_order_notification";
 
 /** Send a commerce email and record it in shop_notification_log. Never throws. */
 export async function sendCommerceEmail(
