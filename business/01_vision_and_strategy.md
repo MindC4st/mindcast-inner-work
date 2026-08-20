@@ -86,7 +86,29 @@ not customers who *buy*.
 - **Honest about what we are.** We're not therapy, not medicine, not a church.
   We say so, clearly (see [L1](legal/01_disclaimer_and_participation_terms.md)).
 
-## Legal structure — the biggest open decision
+## Legal structure — RESOLVED: incorporated as an NZ Limited Company (27 Mar 2026)
+
+**Current entity (as of 21 Aug 2026):**
+
+| Field | Value |
+|---|---|
+| Entity type | NZ Limited Company |
+| Company number | 9416927 |
+| NZBN | 9429053553157 |
+| Incorporation date | 27 March 2026 |
+| Status | Registered |
+| Constitution filed | Yes |
+| Annual return filing month | July |
+| Ultimate holding company | No |
+| Director | Ashleigh Anne Carlson (sole director) |
+| Registered office / service address | Ashleigh Carlson, 111 Jarden Mile, Nukuhau, Taupō 3330 |
+| Companies Office record | https://app.companiesoffice.govt.nz/co/9416927 |
+
+**Still open:** whether to add the **hybrid's second limb** — a charitable
+trust / incorporated society to run the local community arm (grant-eligible,
+mission-locked) while the Ltd owns IP and does licensing. The options table
+below is kept for that decision.
+
 Your goals point two directions at once: a **not-for-profit community** locally,
 and a **for-profit licensing** business nationally/globally. NZ options:
 
@@ -97,14 +119,13 @@ and a **for-profit licensing** business nationally/globally. NZ options:
 | **Charitable Trust / Incorporated Society** | Best for the community mission | Access to grants + koha, strong "not a cult / for-the-people" signal, but restricts private profit and licensing. |
 | **Hybrid (recommended to explore)** | Best of both | A **charitable trust or incorporated society** runs the *local community* (grant-eligible, mission-locked, anti-cult optics) **+** a separate **Ltd company** that owns the *IP and does the licensing*, and licenses to the trust for $0/nominal. |
 
-**Recommendation:** start as a **sole trader for the first pilot term only**
-while cash is zero, and in parallel get 30 minutes with a NZ community-law
-solicitor and an accountant to set up the **hybrid** before you take real
-membership money or hire anyone. The structure affects tax, liability,
-safeguarding obligations, and grant eligibility — do it early.
+**Status:** the Ltd company (above) is incorporated — the sole-trader phase is
+over. Remaining decision is whether/when to register the charitable arm of the
+hybrid before taking grant applications that require it.
 
 ## Decisions to confirm
-- Legal structure (above) — **highest priority**, get advice this month.
+- ~~Legal structure~~ — **done**: NZ Ltd incorporated 27 Mar 2026 (details above).
+  Charitable arm of the hybrid still to decide.
 - Brand name lock: is "Mindcast" trademark-clear in NZ? (Check IPONZ.)
 - Is the mission framed as charitable (grant-eligible) or purely commercial?
 - Do you want a governance group / advisory board from day one (strongly
