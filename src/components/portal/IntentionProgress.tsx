@@ -8,10 +8,14 @@ import { Loader2 } from "lucide-react";
 // The member's own self-assessment over time: how far along Notice -> Name -> Do
 // they got, week by week.
 //
-// Deliberately not a score. There is no "12/52", no streak and no percentage,
-// because the ladder exists precisely to stop members reading an honest "I
-// didn't notice it" as failure. What it shows instead is SHAPE: which rung is
-// most common, and whether the recent weeks sit higher than the early ones.
+// Deliberately not a score. No average, no total out of 4, no trend line, no
+// streak, and no comparison to other members — a member looking at twenty weeks
+// of 1s and 2s would have been handed evidence they are failing, in a programme
+// whose whole premise is that noticing IS the win.
+//
+// What it shows instead is COVERAGE ("you've checked in 31 of 34 weeks"), which
+// is true of everyone who keeps turning up, plus where their weeks actually
+// landed. Level 1 is a completed week, not a gap.
 //
 // Private by construction — my_intention_history is SECURITY DEFINER scoped to
 // current_profile_id(), so this can only ever return the caller's own rows. A
@@ -73,13 +77,12 @@ const IntentionProgress = () => {
   const peak = Math.max(1, ...counts);
   const mostCommon = LADDER[counts.indexOf(Math.max(...counts))];
 
-  // Shape over time: average rung of the first half vs the most recent weeks.
-  const recent = rows.slice(-4);
-  const recentAvg = recent.reduce((n, r) => n + ladderRung(r.intention_outcome), 0) / recent.length;
-  const earlier = rows.slice(0, -4);
-  const earlierAvg = earlier.length
-    ? earlier.reduce((n, r) => n + ladderRung(r.intention_outcome), 0) / earlier.length
-    : null;
+  // Coverage, not progress. "You've checked in 31 of 34 weeks" is true of
+  // everyone who keeps turning up, and it rewards the behaviour the programme
+  // actually depends on rather than the rung they happened to reach.
+  const firstWeek = rows[0].week_number;
+  const lastWeek = rows[rows.length - 1].week_number;
+  const weeksElapsed = Math.max(rows.length, lastWeek - firstWeek + 1);
 
   return (
     <div className="portal-card p-6 md:p-8">
@@ -122,15 +125,10 @@ const IntentionProgress = () => {
         ))}
       </div>
 
-      {earlierAvg !== null && (
-        <p className="mt-6 text-sm font-body text-muted-foreground leading-relaxed">
-          {recentAvg > earlierAvg + 0.25
-            ? "Your recent weeks are landing further along the ladder than your earlier ones."
-            : recentAvg < earlierAvg - 0.25
-              ? "Your recent weeks are sitting earlier on the ladder than they were. That is worth noticing, not fixing today."
-              : "Your recent weeks are sitting about where they have been."}
-        </p>
-      )}
+      <p className="mt-6 text-sm font-body text-foreground/80 leading-relaxed">
+        You've checked in {rows.length} of {weeksElapsed}{" "}
+        {weeksElapsed === 1 ? "week" : "weeks"} so far.
+      </p>
 
       <p className="mt-4 text-xs font-body text-muted-foreground/60 leading-relaxed">
         This is yours alone. Facilitators cannot see it, and it is never shown in the room.
