@@ -172,7 +172,7 @@ const HeroSection = () => {
           width={1920}
           height={1280}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/95 to-white" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/50 to-white/70" />
       </div>
 
       <div className="hero-copy container mx-auto px-6 relative z-10 pt-24 pb-16 text-center">
