@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 // /portal/set-password — a newly invited user (teen) lands here after the
@@ -9,9 +10,18 @@ import { toast } from "@/hooks/use-toast";
 
 const SetPassword = () => {
   const navigate = useNavigate();
+  const { session, loading: authLoading } = useAuth();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // updateUser requires an active session. If a user lands here without one
+  // (e.g. the invite link wasn't followed), send them to sign-in.
+  useEffect(() => {
+    if (!authLoading && !session) {
+      navigate("/portal/login", { replace: true });
+    }
+  }, [authLoading, session, navigate]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -32,6 +42,14 @@ const SetPassword = () => {
     }
     navigate("/portal/dashboard", { replace: true });
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center">
+        <Loader2 size={20} className="animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
