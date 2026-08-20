@@ -11,8 +11,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, Loader2, ShoppingBag, Truck } from "lucide-react";
+import { Check, Loader2, ShoppingBag, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import PortalLayout from "@/components/portal/PortalLayout";
 import { db } from "@/lib/db";
 import { describeOrder, formatMoney, spacedCode } from "@/lib/shop";
 
@@ -118,14 +119,7 @@ const PortalOrders = () => {
   const pending = justPurchased && orders.length === 0 && !loading;
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-[hsl(var(--navy))]/[0.08]">
-        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-[hsl(var(--navy))]">MINDCAST</Link>
-        <Link to="/portal/dashboard" className="flex items-center gap-2 text-[10px] tracking-[0.12em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-          <ArrowLeft size={12} /> Dashboard
-        </Link>
-      </nav>
-
+    <PortalLayout>
       <div className="max-w-lg mx-auto px-6 pt-12 pb-20">
         <p className="text-[10px] font-body tracking-[0.35em] uppercase text-primary mb-2">Shop</p>
         <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">MY ORDERS</h1>
@@ -253,7 +247,7 @@ const PortalOrders = () => {
 
         {error && <p className="text-sm text-red-700 font-body mt-6">{error}</p>}
       </div>
-    </div>
+    </PortalLayout>
   );
 };
 

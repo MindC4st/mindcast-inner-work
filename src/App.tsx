@@ -30,6 +30,7 @@ const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PortalLogin = lazy(() => import("./pages/portal/PortalLogin"));
+const SetPassword = lazy(() => import("./pages/portal/SetPassword"));
 const PortalDashboard = lazy(() => import("./pages/portal/PortalDashboard"));
 const PortalWeek = lazy(() => import("./pages/portal/PortalWeek"));
 const PortalWeeks = lazy(() => import("./pages/portal/PortalWeeks"));
@@ -153,6 +154,7 @@ const AppRoutes = () => (
 
       {/* Portal (life-group companion) */}
       <Route path="/portal/login" element={<PortalLogin />} />
+      <Route path="/portal/set-password" element={<SetPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
       <Route path="/portal/dashboard" element={<ProtectedRoute><PortalDashboard /></ProtectedRoute>} />

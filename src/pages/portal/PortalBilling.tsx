@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, Check, ArrowLeft } from "lucide-react";
+import PortalLayout from "@/components/portal/PortalLayout";
+import { Loader2, Check } from "lucide-react";
 
 // Authenticated membership management. Logged-in members build a household
 // bundle (adults / teens / children), pick a billing cadence, and are sent to
@@ -74,14 +75,7 @@ const PortalBilling = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-foreground/[0.06]">
-        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em]">MINDCAST</Link>
-        <Link to="/portal/dashboard" className="flex items-center gap-2 text-[10px] tracking-[0.12em] font-body text-foreground/40 hover:text-foreground/70">
-          <ArrowLeft size={12} /> DASHBOARD
-        </Link>
-      </nav>
-
+    <PortalLayout>
       <div className="max-w-2xl mx-auto px-6 pt-12 pb-20">
         <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Membership</p>
         <h1 className="font-display text-4xl md:text-5xl tracking-wider mb-3">YOUR PLAN</h1>
@@ -198,7 +192,7 @@ const PortalBilling = () => {
         {error && <p className="text-sm text-destructive font-body mt-6">{error}</p>}
         {authLoading && <p className="text-xs font-body uppercase tracking-widest text-foreground/40 mt-6">Loading…</p>}
       </div>
-    </div>
+    </PortalLayout>
   );
 };
 

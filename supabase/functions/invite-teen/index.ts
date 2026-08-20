@@ -77,7 +77,7 @@ serve(async (req) => {
     // Invite the teen — sends the magic link and returns the new user.
     const { data: invite, error: inviteErr } = await admin.auth.admin.inviteUserByEmail(email, {
       data: { first_name, age_group: "teen" },
-      redirectTo: `${SUPABASE_URL.replace(/\/$/, "")}/portal/dashboard`,
+      redirectTo: "https://www.mindcast.co.nz/portal/set-password",
     });
     if (inviteErr) return json({ error: `Invite failed: ${inviteErr.message}` }, 400);
     const teenUserId = invite.user?.id;
