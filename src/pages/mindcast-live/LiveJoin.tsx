@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import RateScale from "@/components/session/RateScale";
 import MultipleChoiceReflection from "@/components/session/MultipleChoiceReflection";
 import WordPhraseBuilder from "@/components/session/WordPhraseBuilder";
+import IntentionLadder, { LadderValue } from "@/components/session/IntentionLadder";
 import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -75,6 +76,9 @@ const LiveJoin = () => {
   // Loop-back: the member's own intention from last week, shown on their phone
   // during the opening "Return to Your Intention" slide. Private to them.
   const [lastIntention, setLastIntention] = useState<string | null>(null);
+  // The Notice -> Name -> Do rung the member records against LAST week.
+  const [lastOutcome, setLastOutcome] = useState<LadderValue | null>(null);
+  const [savingOutcome, setSavingOutcome] = useState(false);
 
   // Once we know who they are (or that they're not signed in), auto-pick a
   // mode. A signed-in member skips the gate; an anon visitor sees the gate.
@@ -144,10 +148,34 @@ const LiveJoin = () => {
     db
       .rpc("my_intention_for_week", { p_week: prevWeek, p_track: state.audience || "Adult" })
       .then(({ data }) => {
-        const row = (Array.isArray(data) ? data[0] : data) as unknown as { weekly_intention: string | null } | null | undefined;
+        const row = (Array.isArray(data) ? data[0] : data) as unknown as
+          { weekly_intention: string | null; intention_outcome: string | null } | null | undefined;
         setLastIntention((row?.weekly_intention || "").trim() || null);
-      }, () => setLastIntention(null));
+        setLastOutcome((row?.intention_outcome as LadderValue | null) ?? null);
+      }, () => { setLastIntention(null); setLastOutcome(null); });
   }, [user, state?.promptType, state?.week, state?.audience]);
+
+  // Record how far along Notice -> Name -> Do the member got with LAST week's
+  // intention. Saved against the previous week, which is the week the intention
+  // belongs to. Private: it never reaches the room screen.
+  const saveOutcome = async (v: LadderValue) => {
+    if (!user || !state?.week) return;
+    const prevWeek = state.week - 1;
+    if (prevWeek < 1) return;
+    setLastOutcome(v);           // optimistic — a tap should feel instant
+    setSavingOutcome(true);
+    const { error } = await (db as unknown as {
+      rpc: (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }>;
+    }).rpc("set_intention_outcome", {
+      p_week: prevWeek,
+      p_track: state.audience || "Adult",
+      p_outcome: v,
+    });
+    setSavingOutcome(false);
+    if (error) {
+      toast({ title: "Couldn't save that", description: "Tap it again in a moment.", variant: "destructive" });
+    }
+  };
 
   // Persist a display-mode change back to the profile so it's the new default.
   const updateDisplayMode = async (next: DisplayMode) => {
@@ -402,6 +430,11 @@ const LiveJoin = () => {
                     <>
                       <p className="font-serif italic text-xl text-[hsl(var(--navy))] leading-snug">"{lastIntention}"</p>
                       <p className="text-[hsl(var(--navy-mid))]/70 font-body text-sm mt-4">Did you do it? What got in the way?</p>
+                      <IntentionLadder
+                        value={lastOutcome}
+                        onChange={saveOutcome}
+                        disabled={savingOutcome}
+                      />
                     </>
                   ) : (
                     <p className="text-[hsl(var(--navy-mid))]/70 font-body text-sm">

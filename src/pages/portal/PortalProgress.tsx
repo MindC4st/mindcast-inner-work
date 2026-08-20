@@ -6,6 +6,7 @@ import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { WEEKS } from "@/data/weekData";
+import IntentionProgress from "@/components/portal/IntentionProgress";
 
 interface WeekProgress {
   weekNumber: number;
@@ -91,8 +92,15 @@ const PortalProgress = () => {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <h1 className="portal-heading text-3xl mb-2">My Progress</h1>
         <p className="text-sm text-muted-foreground mb-8 font-body font-light">
-          Your implementation journey across all 10 sessions.
+          Your journey across the 52 weeks.
         </p>
+
+        {/* The self-assessment tracker sits above the session list: it is the
+            member's own answer to "is this working for me", and unlike the rest
+            of this page it does not depend on a cohort being assigned. */}
+        <div className="mb-10">
+          <IntentionProgress />
+        </div>
 
         {loading ? (
           <div className="py-20 text-center">

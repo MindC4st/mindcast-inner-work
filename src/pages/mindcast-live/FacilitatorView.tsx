@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense, type ReactNode } from "react";
+import { CanvasSurface, isCanvasSurface } from "@/components/session/activitySurfaces";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -29,17 +30,30 @@ import SlideTimer from "@/components/session-runner/SlideTimer";
 // Check In → Return to Your Intention → Inner Wisdom → In Today's World →
 // [Video (Evidence)] → [Coloring Activity (Child only)] → Go Deeper →
 // Reflect & Share → Together (Activity) → Guided Reflection → This Week's Practice
+// v4 deck — 8 projected slides (9 for Child, which adds colouring).
+// `wisdomworld` merges Inner Wisdom with In Today's World; `deeper` merges Go
+// Deeper with the Together activity. The retired kinds are kept so any stored
+// per-week override still type-checks, but nothing maps to them any more.
 type SlideKind =
-  | "title" | "intention" | "wisdom" | "metaphor" | "video"
-  | "coloring" | "core" | "reflect" | "activity" | "guided" | "practice"
-  | "commitment" | "affirmation";
+  | "title" | "intention" | "wisdomworld" | "video" | "coloring"
+  | "deeper" | "reflect" | "practice" | "affirmation"
+  // retired from projection in v4:
+  | "wisdom" | "metaphor" | "core" | "activity" | "guided" | "commitment";
 
 const SLIDE_TITLE: Record<SlideKind, string> = {
-  title: "Check In", intention: "Return to Your Intention", wisdom: "Inner Wisdom",
-  metaphor: "In Today's World", video: "Video", coloring: "Coloring Activity",
-  core: "Go Deeper", reflect: "Reflect & Share", activity: "Together",
-  guided: "Guided Reflection", practice: "This Week's Practice",
-  commitment: "Your Intention for the Week", affirmation: "Closing Affirmation",
+  title: "Welcome + Opening Question",
+  intention: "Return to Your Intention",
+  wisdomworld: "Inner Wisdom + In Today's World",
+  video: "This Week's Listen",
+  coloring: "Colouring Activity",
+  deeper: "Go Deeper + Together",
+  reflect: "Reflect & Share",
+  practice: "Before You Leave",
+  affirmation: "Closing Affirmation",
+  // retired
+  wisdom: "Inner Wisdom", metaphor: "In Today's World", core: "Go Deeper",
+  activity: "Together", guided: "Guided Reflection",
+  commitment: "Your Intention for the Week",
 };
 
 // The v3 deck is data-driven: lesson_slides rows map to a render kind via the
@@ -48,21 +62,25 @@ const SLIDE_TITLE: Record<SlideKind, string> = {
 const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
   welcome: "title",
   voices: "intention",
-  ancient: "wisdom",
-  todays_world: "metaphor",
-  theme: "core",
+  ancient: "wisdomworld",   // now carries BOTH wisdom and today's world
   video: "video",
-  exercise: "activity",
+  coloring: "coloring",     // Child track only, via applies_to_tracks
+  deeper: "deeper",         // now carries BOTH go-deeper and the activity
   reflection: "reflect",
-  intention: "practice",
+  intention: "practice",    // 90s write + weekly practice table
   affirmation: "affirmation",
-  notes: null, // facilitator notes live in the drawer, not a projected slide
+  notes: null,              // facilitator notes live in the drawer, not projected
+  // Retired in v4; deactivated in the DB but mapped to null so an old row
+  // can never reintroduce a slide the deck no longer has.
+  todays_world: null,
+  theme: null,
+  exercise: null,
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
   const base: SlideKind[] = [
-    "title", "intention", "wisdom", "metaphor", "video",
-    "core", "reflect", "activity", "guided", "practice", "commitment",
+    "title", "intention", "wisdomworld", "video",
+    "deeper", "reflect", "practice", "affirmation",
   ];
   // Insert coloring slide after video for Child sessions
   if (audience === "Child") {
@@ -115,6 +133,7 @@ type Session = {
   coloring_page_url: string | null;
   coloring_pdf_url: string | null;
   // Which live widget the Together slide runs, and the poll's choices.
+  thought_provoking_question: string;
   activity_type: string;
   activity_options: string;
 };
@@ -195,6 +214,12 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     facilitator_notes: [live?.facilitator_notes, cur?.inner_wisdom_alignment ? `Inner-wisdom alignment: ${cur.inner_wisdom_alignment}` : ""].filter(Boolean).join("\n\n"),
     previous_week_callback: live?.previous_week_callback || "",
     video_position: cur?.video_position || "early",
+    // Added by migration 20260820120000. src/integrations/supabase/types.ts is
+    // generated from the deployed schema, so it will not know this column until
+    // `supabase db push` + a types regen — narrow cast until then.
+    thought_provoking_question:
+      (live as { thought_provoking_question?: string } | null)?.thought_provoking_question ||
+      (cur as { thought_provoking_question?: string } | null)?.thought_provoking_question || "",
     activity_type: (cur?.activity_type || "reflection"),
     activity_options: (cur?.activity_options || ""),
     coloring_page_url: live?.coloring_page_url || null,
@@ -819,37 +844,37 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
         themeTitle={session.theme_title}
       />
     );
-    // Inner Wisdom — the timeless principle, the basis of the teaching.
-    case "wisdom": return (
-      <MetaphorVideoSlide
-        title="Inner Wisdom"
-        text={session.ancient_wisdom_reframe}
-        videoUrl={session.ancient_wisdom_video_url}
-        captionsUrl={session.ancient_wisdom_captions_url}
-        approval={session.ancient_wisdom_approval}
+    // Slide 3 — Inner Wisdom AND In Today's World together. The principle and
+    // its modern form are one idea; splitting them made the metaphor read as a
+    // separate teaching rather than the same teaching made concrete.
+    case "wisdomworld": return (
+      <WisdomWorldSlide
+        wisdom={session.ancient_wisdom_reframe}
+        world={session.signal_metaphor}
+        wisdomVideoUrl={session.ancient_wisdom_video_url}
+        worldVideoUrl={session.todays_world_video_url}
       />
     );
-    // In Today's World — the metaphor makes the principle concrete + how to apply.
-    case "metaphor": return (
-      <MetaphorVideoSlide
-        title="In Today's World"
-        text={session.signal_metaphor}
-        videoUrl={session.todays_world_video_url}
-        captionsUrl={session.todays_world_captions_url}
-        approval={session.todays_world_approval}
-      />
-    );
-    // Go Deeper — unpack the topic.
-    case "core": return (
-      <div className="max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Go Deeper</p>
-        <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-2">
-          {session.core_concept.split(/\n+/).filter(Boolean).map((para, i) => (
-            <p key={i} className="text-[hsl(var(--ivory))]/90 text-xl md:text-2xl font-body leading-relaxed">{para}</p>
-          ))}
-        </div>
-      </div>
-    );
+    // Slide 5 — Go Deeper AND the Together activity. The thought-provoking
+    // question is the SUBHEADING of the activity, not a prompt members answer,
+    // so it sits between the teaching and the exercise.
+    case "deeper": {
+      const deeperResponses = responses.filter(
+        r => r.prompt_type === "activity" && !r.hidden && r.moderation_status === "approved",
+      );
+      return (
+        <DeeperSlide
+          coreConcept={session.core_concept}
+          question={session.thought_provoking_question}
+          exercise={session.experiential_exercise}
+          activityType={(session.activity_type || "reflection").toLowerCase()}
+          options={(session.activity_options || "").split(/\r?\n/).map(o => o.trim()).filter(Boolean)}
+          responses={deeperResponses}
+          week={session.week_number}
+          audience={session.audience}
+        />
+      );
+    }
     case "reflect": return (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
@@ -1289,6 +1314,100 @@ const PhraseWallSlide = ({ text, responses }: { text: string; responses: Respons
       <p className="text-center mt-10 font-body text-sm text-[hsl(var(--ivory))]/50">
         {responses.length === 0 ? "" : `${responses.length} shared`}
       </p>
+    </div>
+  );
+};
+
+/**
+ * WisdomWorldSlide — the principle and its modern form, side by side.
+ *
+ * Two columns on a room screen, stacked on anything narrow. Deliberately no
+ * scroll: if a week's text does not fit at this size it is too long to read
+ * aloud, and the facilitator drawer holds the full version.
+ */
+const WisdomWorldSlide = ({
+  wisdom, world, wisdomVideoUrl, worldVideoUrl,
+}: { wisdom: string; world: string; wisdomVideoUrl?: string | null; worldVideoUrl?: string | null }) => (
+  <div className="w-full max-w-6xl">
+    <div className="grid md:grid-cols-2 gap-10 md:gap-14">
+      <div>
+        <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">Inner Wisdom</p>
+        {wisdomVideoUrl ? (
+          <video src={wisdomVideoUrl} autoPlay muted loop playsInline className="w-full rounded-sm mb-5" />
+        ) : null}
+        <p className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">{wisdom}</p>
+      </div>
+
+      <div className="md:border-l md:border-[hsl(var(--ivory))]/15 md:pl-14">
+        <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">In Today's World</p>
+        {worldVideoUrl ? (
+          <video src={worldVideoUrl} autoPlay muted loop playsInline className="w-full rounded-sm mb-5" />
+        ) : null}
+        <p className="font-body text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-relaxed">{world}</p>
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * DeeperSlide — the teaching and the activity as one beat.
+ *
+ * Order on screen: what we are unpacking, then the question that frames it,
+ * then the exercise itself and whatever the room has submitted. The question
+ * is a subheading, never a field — members answer the exercise, not the
+ * question.
+ */
+const DeeperSlide = ({
+  coreConcept, question, exercise, activityType, options, responses, week, audience,
+}: {
+  coreConcept: string; question: string; exercise: string; activityType: string;
+  options: string[]; responses: Response[]; week: number; audience: string;
+}) => {
+  const paras = (coreConcept || "").split(/\n+/).filter(Boolean);
+  return (
+    <div className="w-full max-w-6xl">
+      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">Go Deeper</p>
+
+      {paras.length > 0 && (
+        <div className="space-y-4 mb-8 max-h-[26vh] overflow-y-auto pr-2">
+          {paras.map((para, i) => (
+            <p key={i} className="text-[hsl(var(--ivory))]/85 text-lg md:text-xl font-body leading-relaxed">{para}</p>
+          ))}
+        </div>
+      )}
+
+      {question ? (
+        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] italic leading-snug border-l-2 border-[hsl(var(--blue))] pl-6 mb-8">
+          {question}
+        </p>
+      ) : null}
+
+      <div className="border-t border-[hsl(var(--ivory))]/10 pt-8">
+        {isCanvasSurface(activityType) ? (
+          <>
+            {exercise ? (
+              <p className="font-body text-base text-[hsl(var(--ivory))]/70 mb-4 leading-relaxed">{exercise}</p>
+            ) : null}
+            <CanvasSurface activityType={activityType} week={week} audience={audience} />
+          </>
+        ) : activityType === "wordcloud" ? (
+          <WordCloudSlide text={exercise} responses={responses} />
+        ) : (activityType === "poll" || activityType === "choice") && options.length > 0 ? (
+          <PollSlide text={exercise} options={options} responses={responses} />
+        ) : activityType === "scale" ? (
+          <ScaleSlide
+            text={exercise}
+            statement={options[0] || "How true does this feel for you right now?"}
+            minLabel={options[1] || "Not at all"}
+            maxLabel={options[2] || "Completely"}
+            responses={responses}
+          />
+        ) : activityType === "phrase" ? (
+          <PhraseWallSlide text={exercise} responses={responses} />
+        ) : (
+          <ExerciseSlide text={exercise} week={week} audience={audience} />
+        )}
+      </div>
     </div>
   );
 };
