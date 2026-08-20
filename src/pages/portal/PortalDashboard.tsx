@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ElementType } from "react";
+import { useCallback, useEffect, useMemo, useState, type ElementType } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -60,10 +60,10 @@ const PortalDashboard = () => {
       });
   }, [profile, track, view]);
 
-  const openTodaysSession = () => {
+  const openTodaysSession = useCallback(() => {
     if (liveCode) navigate(`/live/${liveCode}`);
     else setJoinOpen(true);
-  };
+  }, [liveCode, navigate, setJoinOpen]);
 
   const submitCode = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +71,7 @@ const PortalDashboard = () => {
     if (c) navigate(`/live/${c}`);
   };
 
-  const tiles = useMemo<Tile[]>(() => {
+const tiles = useMemo<Tile[]>(() => {
     if (view === "admin") {
       return [
         { key: "console", title: "Admin Console", subtitle: "Dashboard, membership, insights & training", icon: LayoutDashboard, to: "/admin", accent: true },
@@ -104,7 +104,7 @@ const PortalDashboard = () => {
       member.splice(3, 0, { key: "kids", title: "Kid Sessions", subtitle: "Kids lessons & colouring pages", icon: Baby, to: "/portal/kids", badge: "KIDS" });
     }
     return member;
-  }, [view, liveCode, hasKids, isTeen, weekNo]);
+  }, [view, liveCode, hasKids, isTeen, weekNo, openTodaysSession]);
 
   const roleLabel = view === "admin" ? "Admin" : view === "facilitator" ? "Facilitator" : isTeen ? "Teen member" : hasKids ? "Family membership" : "Member";
 

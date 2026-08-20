@@ -102,7 +102,7 @@ const Onboarding = () => {
       if (!updatedProfile) throw new Error("Profile not found");
 
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("onboarding save failed:", error);
       toast({
         title: "Couldn't finish setup",

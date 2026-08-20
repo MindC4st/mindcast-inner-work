@@ -26,7 +26,7 @@ const AdminApplicationsPage = ({ embedded = false }: { embedded?: boolean }) => 
           navigate("/");
         }
       });
-  }, [user, loading]);
+  }, [user, loading, navigate, toast]);
 
   return (
     <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>

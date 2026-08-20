@@ -79,7 +79,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate("/"); return; }
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     (async () => {

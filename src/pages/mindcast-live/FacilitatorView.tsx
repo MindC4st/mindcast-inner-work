@@ -21,6 +21,7 @@ import { toast } from "@/hooks/use-toast";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { resolveColouringUrl } from "@/lib/colouringUrl";
 import SlideTimer from "@/components/session-runner/SlideTimer";
+import { enqueue, flush, type Room } from "@/lib/rollOffline";
 
 // Data-driven deck: a session is an ordered list of slide "kinds", so the order
 // can change (and the video can flex position) without touching the renderer.
@@ -78,16 +79,18 @@ const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
-  const base: SlideKind[] = [
+  // Child runs the same eight positions with the content swapped: colouring IS
+  // the child's Go Deeper slot, so deeper is replaced rather than added.
+  if (audience === "Child") {
+    return [
+      "title", "intention", "wisdomworld", "video",
+      "coloring", "reflect", "practice", "affirmation",
+    ];
+  }
+  return [
     "title", "intention", "wisdomworld", "video",
     "deeper", "reflect", "practice", "affirmation",
   ];
-  // Insert coloring slide after video for Child sessions
-  if (audience === "Child") {
-    const idx = base.indexOf("video");
-    base.splice(idx + 1, 0, "coloring");
-  }
-  return base;
 };
 
 type Session = {
@@ -132,6 +135,21 @@ type Session = {
   video_position: string;
   coloring_page_url: string | null;
   coloring_pdf_url: string | null;
+  // Approval gate: generated colouring pages land 'unapproved' and cannot be
+  // displayed or printed until a facilitator approves them.
+  coloring_approval: string;
+  // Child-track content (curriculum_weeks kids_* columns).
+  kids_picture_book: string;
+  kids_picture_book_author: string;
+  kids_picture_book_question: string;
+  kids_game: string;
+  kids_game_equipment: string;
+  kids_game_under5: string;
+  kids_source: string;
+  kids_read_aloud_source_check: string;
+  kids_signal_metaphor: string;
+  // Child Slide 2 recap — last week's theme in child terms.
+  last_week_theme: string;
   // Which live widget the Together slide runs, and the poll's choices.
   thought_provoking_question: string;
   activity_type: string;
@@ -172,7 +190,7 @@ const genCode = () => Array.from({ length: 6 }, () => "ABCDEFGHJKMNPQRSTUVWXYZ23
 // curriculum row in as a fallback so the CSV lessons drive the live session and
 // any week that exists only in curriculum_weeks still renders.
 const pick = (a: string | null | undefined, b: string | null | undefined): string => (a && String(a).trim() ? String(a) : (b ? String(b) : "")) || "";
-const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables<"curriculum_weeks"> | null, wk: number, aud: string): Session | null => {
+const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables<"curriculum_weeks"> | null, wk: number, aud: string, lastWeekTheme = ""): Session | null => {
   if (!live && !cur) return null;
   return {
     id: live?.id || `curriculum-${wk}-${aud}`,
@@ -224,6 +242,19 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     activity_options: (cur?.activity_options || ""),
     coloring_page_url: live?.coloring_page_url || null,
     coloring_pdf_url: live?.coloring_pdf_url || null,
+    // Added by migration 20260820180000 — narrow cast until types regen.
+    coloring_approval:
+      (live as { coloring_approval?: string } | null)?.coloring_approval || "unapproved",
+    kids_picture_book: cur?.kids_picture_book || "",
+    kids_picture_book_author: cur?.kids_picture_book_author || "",
+    kids_picture_book_question: cur?.kids_picture_book_question || "",
+    kids_game: cur?.kids_game || "",
+    kids_game_equipment: cur?.kids_game_equipment || "",
+    kids_game_under5: cur?.kids_game_under5 || "",
+    kids_source: cur?.kids_source || "",
+    kids_read_aloud_source_check: cur?.kids_read_aloud_source_check || "",
+    kids_signal_metaphor: cur?.kids_signal_metaphor || "",
+    last_week_theme: lastWeekTheme,
   };
 };
 
@@ -299,18 +330,22 @@ const FacilitatorView = () => {
       next.set("code", code);
       setSearch(next, { replace: true });
     }
-  }, []);
+  }, [code, search, setSearch]);
 
   // Load session — merge the live slide content with the 52-week CSV lesson row.
   useEffect(() => {
     (async () => {
-      const [{ data: live }, { data: cur }] = await Promise.all([
+      const [{ data: live }, { data: cur }, { data: prevCur }] = await Promise.all([
         db.from("mindcast_live_sessions").select("*")
           .eq("week_number", week).eq("audience", audience).maybeSingle(),
         db.from("curriculum_weeks").select("*")
           .eq("week_number", week).maybeSingle(),
+        // Child Slide 2 is a recap of last week's theme — pull it for 5-11s.
+        audience === "Child" && week > 1
+          ? db.from("curriculum_weeks").select("weekly_theme").eq("week_number", week - 1).maybeSingle()
+          : Promise.resolve({ data: null }),
       ]);
-      setSession(buildSession(live, cur, week, audience));
+      setSession(buildSession(live, cur, week, audience, (prevCur as { weekly_theme?: string } | null)?.weekly_theme || ""));
       setRevealCount(1);
     })();
   }, [week, audience]);
@@ -328,7 +363,7 @@ const FacilitatorView = () => {
       link.href = u;
       document.head.appendChild(link);
     }
-  }, [session?.id, session?.ancient_wisdom_video_url, session?.todays_world_video_url, session?.video_local_url]);
+  }, [session, session?.id, session?.ancient_wisdom_video_url, session?.todays_world_video_url, session?.video_local_url]);
 
   // Load up to 20 moderator-approved reflections from last week for the
   // "Voices from Last Week" slide. Selected by the Sun 9am cron and stored
@@ -403,6 +438,9 @@ const FacilitatorView = () => {
   // Broadcast current prompt to audience
   useEffect(() => {
     if (!session) return;
+    // No member digital input in the children's room — there are no devices,
+    // so there is nothing to broadcast and no live state to mirror.
+    if (audience === "Child") return;
     const promptType =
       currentKind === "reflect" ? "journaling"
       : currentKind === "commitment" ? "intention"
@@ -453,7 +491,7 @@ const FacilitatorView = () => {
       }
     });
     return () => { supabase.removeChannel(ch); };
-  }, [slide, session, code, week, audience]);
+  }, [slide, session, code, week, audience, currentKind, user]);
 
   // Keyboard navigation
   const goNext = useCallback(() => {
@@ -600,6 +638,17 @@ const FacilitatorView = () => {
     toast({ title: "Metaphor approved" });
   };
 
+  // Colouring approval gate — an unreviewed AI image must not reach children.
+  // Generation lands 'unapproved'; approve before the page can display/print.
+  const handleApproveColoring = async () => {
+    const { error } = await db.from("mindcast_live_sessions")
+      .update({ coloring_approval: "approved" } as never)
+      .eq("week_number", week).eq("audience", "Child");
+    if (error) { toast({ title: "Could not approve", description: error.message, variant: "destructive" }); return; }
+    setSession((s) => s ? { ...s, coloring_approval: "approved" } : s);
+    toast({ title: "Colouring page approved", description: "It can now be displayed and printed." });
+  };
+
   // Gate E — closing the session invalidates the join code (members see
   // "session ended" the moment is_live flips false).
   const handleCloseSession = async () => {
@@ -614,7 +663,9 @@ const FacilitatorView = () => {
 
   const liveBoard = responses.filter(r => !r.hidden && r.moderation_status === "approved");
   const pendingQueue = responses.filter(r => !r.hidden && (r.moderation_status === "pending" || r.moderation_status === null));
-  const onReflection = currentKind === "reflect";
+  // No member digital input in the children's room, so there is no moderated
+  // response panel to show on the reflect slide either.
+  const onReflection = currentKind === "reflect" && audience !== "Child";
   const joinUrl = `${window.location.origin}/live/${code}`;
 
   return (
@@ -637,30 +688,36 @@ const FacilitatorView = () => {
             {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
           </button>
           <button onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><Download size={14} /></button>
-          {isFacilitator && (currentKind === "wisdom" || currentKind === "metaphor") && (() => {
-            const slideKey = currentKind === "wisdom" ? "ancient" : "todays_world";
-            const hasVideo = currentKind === "wisdom" ? session.ancient_wisdom_video_url : session.todays_world_video_url;
-            const approval = currentKind === "wisdom" ? session.ancient_wisdom_approval : session.todays_world_approval;
-            return (
-              <>
-                <button
-                  onClick={() => handleGenerateMetaphor(slideKey)}
-                  disabled={metaphorBusy}
-                  title="Generate 10s metaphor video (Gemini)"
-                  className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
-                >
-                  <Film size={12} />{metaphorBusy ? "Generating…" : "Generate metaphor"}
-                </button>
-                {hasVideo && approval === "unapproved" && (
+          {isFacilitator && (currentKind === "wisdom" || currentKind === "metaphor" || currentKind === "wisdomworld") && (() => {
+            // The merged slide carries BOTH columns, so offer controls for each.
+            const slideKeys: ("ancient" | "todays_world")[] =
+              currentKind === "wisdomworld"
+                ? ["ancient", "todays_world"]
+                : [currentKind === "wisdom" ? "ancient" : "todays_world"];
+            return slideKeys.map((slideKey) => {
+              const hasVideo = slideKey === "ancient" ? session.ancient_wisdom_video_url : session.todays_world_video_url;
+              const approval = slideKey === "ancient" ? session.ancient_wisdom_approval : session.todays_world_approval;
+              return (
+                <span key={slideKey} className="flex items-center gap-2">
                   <button
-                    onClick={() => handleApproveMetaphor(slideKey)}
-                    className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--blue))] text-white hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))]"
+                    onClick={() => handleGenerateMetaphor(slideKey)}
+                    disabled={metaphorBusy}
+                    title="Generate 10s metaphor video (Gemini)"
+                    className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
                   >
-                    <Check size={12} /> Approve
+                    <Film size={12} />{metaphorBusy ? "Generating…" : `Generate ${slideKey === "ancient" ? "wisdom" : "today"}`}
                   </button>
-                )}
-              </>
-            );
+                  {hasVideo && approval === "unapproved" && (
+                    <button
+                      onClick={() => handleApproveMetaphor(slideKey)}
+                      className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--blue))] text-white hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))]"
+                    >
+                      <Check size={12} /> Approve
+                    </button>
+                  )}
+                </span>
+              );
+            });
           })()}
           <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
           {isFacilitator && (
@@ -681,7 +738,7 @@ const FacilitatorView = () => {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
               className="absolute inset-0 flex items-center justify-center px-12 py-8">
-              <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} onSessionUpdate={setSession} />
+              <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} onSessionUpdate={setSession} isFacilitator={isFacilitator} onApproveColoring={handleApproveColoring} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -768,8 +825,13 @@ const FacilitatorView = () => {
               {showResponses ? <Eye size={12} /> : <EyeOff size={12} />}{showResponses ? "Showing" : "Hidden"}
             </button>
           )}
-          <span className="text-[hsl(var(--ivory))]/40 text-[10px] font-body tracking-widest uppercase">Code</span>
-          <span className="font-display text-[hsl(var(--bronze))] text-xl tracking-[0.3em]">{code}</span>
+          {/* No join code in the children's room — attendance is the roll call. */}
+          {audience !== "Child" && (
+            <>
+              <span className="text-[hsl(var(--ivory))]/40 text-[10px] font-body tracking-widest uppercase">Code</span>
+              <span className="font-display text-[hsl(var(--bronze))] text-xl tracking-[0.3em]">{code}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -783,11 +845,28 @@ const FacilitatorView = () => {
               <button onClick={() => setNotesOpen(false)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]"><X size={18} /></button>
             </div>
             <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
-            <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
-              <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest uppercase mb-2 font-body">Join QR</p>
-              <div className="bg-white p-3 rounded inline-block"><QRCode value={joinUrl} size={150} level="M" /></div>
-              <p className="text-[hsl(var(--ivory))]/60 text-xs mt-2 font-body">{joinUrl}</p>
-            </div>
+            {/* Child — the group game lives in the facilitator view only. The
+                children are moving, not reading; nothing about it is projected. */}
+            {audience === "Child" && (session.kids_game || session.kids_game_equipment || session.kids_game_under5) && (
+              <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
+                <p className="text-[hsl(var(--bronze))] text-[10px] tracking-widest uppercase mb-2 font-body">Group game — closing</p>
+                {session.kids_game && <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap mb-3">{session.kids_game}</p>}
+                {session.kids_game_equipment && (
+                  <p className="text-[hsl(var(--ivory))]/60 text-xs font-body mb-2"><span className="text-[hsl(var(--ivory))]/40 uppercase tracking-widest text-[10px]">Equipment · </span>{session.kids_game_equipment}</p>
+                )}
+                {session.kids_game_under5 && (
+                  <p className="text-[hsl(var(--ivory))]/60 text-xs font-body"><span className="text-[hsl(var(--ivory))]/40 uppercase tracking-widest text-[10px]">Under-5s · </span>{session.kids_game_under5}</p>
+                )}
+              </div>
+            )}
+            {/* No member devices in the children's room — no join QR. */}
+            {audience !== "Child" && (
+              <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
+                <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest uppercase mb-2 font-body">Join QR</p>
+                <div className="bg-white p-3 rounded inline-block"><QRCode value={joinUrl} size={150} level="M" /></div>
+                <p className="text-[hsl(var(--ivory))]/60 text-xs mt-2 font-body">{joinUrl}</p>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -824,19 +903,29 @@ const PrivateWriteGate = ({ prompt, children }: { prompt: string; children: Reac
   );
 };
 
-const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSessionUpdate }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; onSessionUpdate: (s: Session) => void }) => {
+const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSessionUpdate, isFacilitator, onApproveColoring }: { kind: SlideKind; session: Session; responses?: Response[]; joinUrl: string; code: string; onSessionUpdate: (s: Session) => void; isFacilitator: boolean; onApproveColoring: () => void | Promise<void> }) => {
+  const isChild = session.audience === "Child";
   switch (kind) {
-    case "title": return (
+    case "title": return isChild ? (
+      <RollCallSlide
+        weekNumber={session.week_number}
+        themeTitle={session.theme_title}
+        sessionTitle={session.session_title}
+        phaseName={session.phase_name}
+      />
+    ) : (
       <WelcomeWall
         weekNumber={session.week_number}
         themeTitle={session.theme_title}
         sessionTitle={session.session_title}
         phaseName={session.phase_name}
-        joinCode={code}
-        joinUrl={joinUrl}
+        joinCode={session.audience === "Adult" ? code : undefined}
+        joinUrl={session.audience === "Adult" ? joinUrl : undefined}
       />
     );
-    case "intention": return (
+    case "intention": return isChild ? (
+      <LastWeekWeLearntSlide weekNumber={session.week_number} lastWeekTheme={session.last_week_theme} />
+    ) : (
       <ReturnToIntentionSlide
         previousWeekCallback={session.previous_week_callback}
         weekNumber={session.week_number}
@@ -850,9 +939,9 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
     case "wisdomworld": return (
       <WisdomWorldSlide
         wisdom={session.ancient_wisdom_reframe}
-        world={session.signal_metaphor}
-        wisdomVideoUrl={session.ancient_wisdom_video_url}
-        worldVideoUrl={session.todays_world_video_url}
+        world={isChild && session.kids_signal_metaphor ? session.kids_signal_metaphor : session.signal_metaphor}
+        wisdomVideoUrl={session.ancient_wisdom_approval === "approved" ? session.ancient_wisdom_video_url : ""}
+        worldVideoUrl={session.todays_world_approval === "approved" ? session.todays_world_video_url : ""}
       />
     );
     // Slide 5 — Go Deeper AND the Together activity. The thought-provoking
@@ -875,7 +964,9 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
         />
       );
     }
-    case "reflect": return (
+    case "reflect": return isChild ? (
+      <TalkAboutPictureSlide />
+    ) : (
       <div className="text-center max-w-4xl">
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
         <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
@@ -928,6 +1019,36 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
       </div>
     );
     case "practice": {
+      // Child — one plain thing, no if-then (too abstract below about ten).
+      if (isChild) {
+        const childDays = [
+          { day: "Mon", text: session.weekly_practice_mon },
+          { day: "Wed", text: session.weekly_practice_wed },
+          { day: "Sun", text: session.weekly_practice_sun },
+        ].filter(d => (d.text || "").trim().length > 0);
+        return (
+          <div className="max-w-5xl w-full text-center">
+            <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">One Thing This Week</p>
+            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+              One thing I want to work on this week is…
+            </motion.p>
+            <p className="text-[hsl(var(--ivory))]/60 font-body text-lg mb-10">
+              Write it or draw it on your worksheet. You can say it out loud if you want to — you don't have to.
+            </p>
+            {childDays.length > 0 && (
+              <div className="grid md:grid-cols-3 gap-5 text-left">
+                {childDays.map(({ day, text }) => (
+                  <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
+                    <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
+                    <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
       // Only show days that actually have a practice — many weeks have none,
       // and three empty boxes read as a broken slide.
       const days = [
@@ -994,7 +1115,15 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
     // Video — supporting evidence / how-to / personal story (position flexes).
     // Presentation-only: URL / transcript / question generation live in the
     // lesson editor, never on the facilitation screen.
-    case "video": return (
+    case "video": return isChild ? (
+      <PictureBookSlide
+        book={session.kids_picture_book}
+        author={session.kids_picture_book_author}
+        question={session.kids_picture_book_question}
+        readAloudUrl={session.kids_source}
+        sourceCheck={session.kids_read_aloud_source_check}
+      />
+    ) : (
       <VideoSlide
         link={session.video_link}
         description={session.video_description}
@@ -1008,14 +1137,22 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
       <ColoringActivitySlide
         coloringPageUrl={session.coloring_page_url}
         coloringPdfUrl={session.coloring_pdf_url}
+        approval={session.coloring_approval}
+        canApprove={isFacilitator}
+        onApprove={onApproveColoring}
         weekNumber={session.week_number}
         themeTitle={session.theme_title}
         sessionTitle={session.session_title}
         onGenerated={async () => {
           const { data } = await db.from("mindcast_live_sessions")
-            .select("coloring_page_url, coloring_pdf_url")
+            .select("*")
             .eq("week_number", session.week_number).eq("audience", "Child").maybeSingle();
-          if (data) onSessionUpdate({ ...session, coloring_page_url: data.coloring_page_url, coloring_pdf_url: data.coloring_pdf_url });
+          if (data) onSessionUpdate({
+            ...session,
+            coloring_page_url: data.coloring_page_url,
+            coloring_pdf_url: data.coloring_pdf_url,
+            coloring_approval: (data as { coloring_approval?: string }).coloring_approval || "unapproved",
+          });
         }}
       />
     );
@@ -1025,13 +1162,18 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
 
 /**
  * Coloring Activity — shown only for Child audience.
- * Displays the coloring page image on screen + download button for the PDF.
+ * Approval gate: generation lands 'unapproved' and the page cannot be
+ * displayed or printed until a facilitator approves it, so an unreviewed AI
+ * image never reaches children in one tap. No REGENERATE on this screen.
  */
 const ColoringActivitySlide = ({
-  coloringPageUrl, coloringPdfUrl, weekNumber, themeTitle, sessionTitle, onGenerated,
+  coloringPageUrl, coloringPdfUrl, approval, canApprove, onApprove, weekNumber, themeTitle, sessionTitle, onGenerated,
 }: {
   coloringPageUrl: string | null;
   coloringPdfUrl: string | null;
+  approval: string;
+  canApprove: boolean;
+  onApprove: () => void | Promise<void>;
   weekNumber: number;
   themeTitle: string;
   sessionTitle: string;
@@ -1041,7 +1183,8 @@ const ColoringActivitySlide = ({
   const [generating, setGenerating] = useState(false);
 
   // On-demand generation — pulls the lesson fields server-side to build the
-  // image prompt, so it always reflects the current lesson content.
+  // image prompt, so it always reflects the current lesson content. The new
+  // page lands 'unapproved' and waits for a facilitator before it can show.
   const generate = async () => {
     setGenerating(true);
     try {
@@ -1057,7 +1200,7 @@ const ColoringActivitySlide = ({
         throw new Error(detail);
       }
       if (data?.error) throw new Error(data.error);
-      toast({ title: "Colouring page ready" });
+      toast({ title: "Colouring page ready", description: "Review it, then Approve to display and print." });
       await onGenerated?.();
     } catch (e: unknown) {
       toast({ title: "Colouring generation failed", description: e instanceof Error ? e.message : undefined, variant: "destructive" });
@@ -1086,11 +1229,43 @@ const ColoringActivitySlide = ({
           <p className="font-serif text-xl text-[hsl(var(--ivory))]/50 italic">
             Coloring page not yet generated for this session.
           </p>
-          <button onClick={generate} disabled={generating}
-            className="mt-2 flex items-center gap-2 px-4 py-2 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm disabled:opacity-50">
-            {generating ? "Generating…" : "Generate colouring page"}
-          </button>
+          {canApprove && (
+            <button onClick={generate} disabled={generating}
+              className="mt-2 flex items-center gap-2 px-4 py-2 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm disabled:opacity-50">
+              {generating ? "Generating…" : "Generate colouring page"}
+            </button>
+          )}
         </div>
+      </div>
+    );
+  }
+
+  // Awaiting approval — dimmed preview for the facilitator, never full-screen,
+  // and no PDF download until it is approved.
+  if (approval !== "approved") {
+    return (
+      <div className="flex flex-col items-center gap-6 max-w-4xl w-full">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">
+          Coloring Activity — Week {weekNumber}
+        </p>
+        <div className="relative w-full max-w-lg">
+          <img
+            src={signedSrc ?? undefined}
+            alt={`Colouring page awaiting approval for week ${weekNumber}`}
+            className="w-full rounded-sm shadow-lg opacity-40"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="bg-[hsl(var(--navy))]/85 border border-[hsl(var(--bronze))]/40 text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest uppercase px-4 py-2 rounded-sm">
+              Awaiting approval — not live yet
+            </p>
+          </div>
+        </div>
+        {canApprove && (
+          <button onClick={() => void onApprove()}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[hsl(var(--blue))] text-white text-xs font-body tracking-widest uppercase rounded-sm hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))]">
+            <Check size={14} /> Approve for the room
+          </button>
+        )}
       </div>
     );
   }
@@ -1138,10 +1313,206 @@ const ColoringActivitySlide = ({
             </svg>
             Download PDF
           </a>
-          <button onClick={generate} disabled={generating}
-            className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase border border-[hsl(var(--ivory))]/20 rounded-sm px-3 py-2 disabled:opacity-40">
-            {generating ? "Generating…" : "Regenerate"}
-          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * Roll Call — the child Slide 1. No join code, no bracelet tap, no devices.
+ * The facilitator reads names and marks each child present with one tap,
+ * writing to the same safeguarding roll (roll_events) as the dedicated roll
+ * screen, so the positive record of who is in the room is kept.
+ */
+const nzToday = () =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Auckland" }).format(new Date());
+
+type RollEntry = { profile_id: string; display_name: string; state: string };
+
+const RollCallSlide = ({ weekNumber, themeTitle, sessionTitle, phaseName }: {
+  weekNumber: number; themeTitle: string; sessionTitle: string; phaseName: string;
+}) => {
+  const [rows, setRows] = useState<RollEntry[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const sessionDate = nzToday();
+  const room: Room = "Child";
+
+  useEffect(() => {
+    let on = true;
+    (async () => {
+      const { data } = await supabase.rpc("room_roll", { p_date: sessionDate, p_room: room });
+      if (!on) return;
+      setRows(((data ?? []) as RollEntry[]).map(r => ({ ...r })));
+      setLoaded(true);
+    })();
+    return () => { on = false; };
+  }, [sessionDate, room]);
+
+  const markPresent = (child: RollEntry) => {
+    enqueue({
+      type: "present",
+      clientEventId: crypto.randomUUID(),
+      sessionDate,
+      room,
+      childProfileId: child.profile_id,
+      occurredAt: new Date().toISOString(),
+    });
+    setRows(prev => prev.map(r => r.profile_id === child.profile_id ? { ...r, state: "present" } : r));
+    void flush();
+  };
+
+  const present = rows.filter(r => r.state === "present" || r.state === "brief_absence");
+
+  return (
+    <div className="w-full max-w-5xl">
+      <div className="text-center mb-8">
+        <p className="text-[hsl(var(--bronze))]/70 text-[10px] tracking-[0.6em] font-body uppercase mb-3">
+          Week {weekNumber} · {phaseName}
+        </p>
+        <h1 className="font-display text-4xl md:text-6xl tracking-wide text-[hsl(var(--ivory))]/40 leading-none">
+          {(themeTitle || "").toUpperCase()}
+        </h1>
+        <p className="text-[hsl(var(--ivory))]/40 font-serif italic text-lg md:text-xl mt-3">{sessionTitle}</p>
+      </div>
+
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase">Roll Call</p>
+        <p className="text-[hsl(var(--bronze))] font-display text-xl tracking-wider">{present.length} in the room</p>
+      </div>
+
+      {!loaded ? (
+        <p className="text-[hsl(var(--ivory))]/40 font-body text-sm">Loading the roll…</p>
+      ) : rows.length === 0 ? (
+        <p className="text-[hsl(var(--ivory))]/50 font-body text-base border border-dashed border-[hsl(var(--ivory))]/20 rounded-sm p-8 text-center">
+          No children are rostered for today's session yet. Read names aloud and welcome each child as they arrive.
+        </p>
+      ) : (
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {rows.map(child => {
+            const here = child.state === "present" || child.state === "brief_absence";
+            const away = child.state === "signed_out";
+            const canMark = !here && !away;
+            return (
+              <button
+                key={child.profile_id}
+                onClick={() => { if (canMark) markPresent(child); }}
+                className={`text-left px-4 py-3 rounded-sm border transition-colors ${
+                  here
+                    ? "bg-[hsl(var(--blue))]/20 border-[hsl(var(--blue))] text-[hsl(var(--ivory))]"
+                    : away
+                    ? "bg-[hsl(var(--ivory))]/[0.02] border-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/30"
+                    : "bg-[hsl(var(--ivory))]/[0.03] border-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/[0.07]"
+                }`}
+              >
+                <span className="font-body text-lg leading-tight block">{child.display_name}</span>
+                <span className={`text-[10px] tracking-widest uppercase font-body ${here ? "text-[hsl(var(--blue-light))]" : "text-[hsl(var(--ivory))]/30"}`}>
+                  {here ? "Here" : away ? "Signed out" : "Tap when here"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * Last Week We Learnt — the child Slide 2. Recap only; no intention return.
+ * Week 1 says so in child language instead of the adult fallback.
+ */
+const LastWeekWeLearntSlide = ({ weekNumber, lastWeekTheme }: { weekNumber: number; lastWeekTheme: string }) => {
+  if (weekNumber === 1) {
+    return (
+      <div className="text-center max-w-3xl">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Welcome</p>
+        <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-8">
+          This is our very first week together!
+        </motion.p>
+        <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">
+          There's nothing to remember yet — today we start. Let's learn each other's names.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="text-center max-w-3xl">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Last Week We Learnt</p>
+      <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+        className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-8">
+        Last week we learnt about {lastWeekTheme ? <span className="text-[hsl(var(--bronze))]">{lastWeekTheme.toLowerCase()}</span> : "our last idea"}.
+      </motion.p>
+      <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">
+        Who remembers something from last week?
+      </p>
+    </div>
+  );
+};
+
+/**
+ * Talk About Your Picture — the child Slide 6. Spoken only: nothing recorded,
+ * nothing displayed beyond the invitation, nothing stored.
+ */
+const TalkAboutPictureSlide = () => (
+  <div className="text-center max-w-3xl">
+    <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Talk About Your Picture</p>
+    <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+      className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-8">
+      Who wants to tell us about their picture?
+    </motion.p>
+    <p className="text-[hsl(var(--ivory))]/50 font-body text-base">
+      Spoken only — nothing written down, nothing put on the screen.
+    </p>
+  </div>
+);
+
+/**
+ * Picture Book — the child Slide 4. Read live from a purchased copy by default.
+ * A read-aloud video is shown only when it is the SAME book and its source has
+ * been rights-checked; otherwise the facilitator reads aloud. The "Ask the
+ * children" prompts are spoken, not written.
+ */
+const PictureBookSlide = ({ book, author, question, readAloudUrl, sourceCheck }: {
+  book: string; author: string; question: string; readAloudUrl: string; sourceCheck: string;
+}) => {
+  const cleared = /approved|licensed|verified|rights/i.test(sourceCheck || "");
+  const ytMatch = cleared && readAloudUrl
+    ? readAloudUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/)
+    : null;
+  const ytId = ytMatch?.[1];
+
+  return (
+    <div className="max-w-5xl w-full">
+      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase text-center mb-6">This Week's Story</p>
+
+      <div className="text-center mb-8">
+        <p className="font-display text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-tight mb-3">
+          {book || "The picture book for this week"}
+        </p>
+        {author && <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">by {author}</p>}
+      </div>
+
+      {ytId ? (
+        <div className="aspect-video w-full max-w-3xl mx-auto rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
+          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+        </div>
+      ) : (
+        <div className="max-w-3xl mx-auto border border-[hsl(var(--ivory))]/15 rounded-sm p-10 text-center bg-[hsl(var(--ivory))]/[0.03]">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/90 italic leading-relaxed">
+            Read live from a purchased copy.
+          </p>
+          <p className="text-[hsl(var(--ivory))]/50 font-body text-sm mt-4">
+            No video is set — gather the children close and read the book aloud together.
+          </p>
+        </div>
+      )}
+
+      {question && (
+        <div className="max-w-3xl mx-auto mt-8 border-l-2 border-[hsl(var(--blue))] pl-6 py-2">
+          <p className="text-[hsl(var(--blue-light))] text-[10px] tracking-[0.4em] font-body uppercase mb-2">Ask the children</p>
+          <p className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 italic leading-relaxed">{question}</p>
         </div>
       )}
     </div>
