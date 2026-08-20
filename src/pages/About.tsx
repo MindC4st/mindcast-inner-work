@@ -8,12 +8,30 @@ import aboutTheRoom from "@/assets/about-the-room.jpg";
 
 
 const values = [
-  { title: "CONSENT BEFORE EVERYTHING", desc: "You decide what you share, what you explore, and how far you go. Always." },
-  { title: "EVIDENCE WHERE POSSIBLE, HONESTY ABOUT THE REST", desc: "We use what the research says. Where it's silent, we say so. No false certainty. No magic." },
-  { title: "INNER WORK IS FOR EVERYONE", desc: "Not just the wealthy. Not just the already-well. Not just those with time. This is for the rest of us." },
-  { title: "COMMUNITY OVER CONTENT", desc: "The most powerful thing we offer isn't a podcast or a framework. It's the room you walk into each week." },
-  { title: "SAFETY IS NON-NEGOTIABLE", desc: "Physically, emotionally, psychologically. We build spaces where people can be honest without being harmed." },
-  { title: "ONE STEP AT A TIME", desc: "We don't ask you to transform. We ask you to notice one thing, name one thing, change one thing. Then come back next week." },
+  {
+    title: "COMMUNITY OVER CONTENT",
+    desc: "You probably don't need more information. You need somewhere to practise what you already know.\n\nThe live room, the people in it and the practice of coming back each week matter more than another framework, podcast or piece of content. Everything we create exists to support the room — not replace it."
+  },
+  {
+    title: "DRAW OUT, DON'T PREACH",
+    desc: "We are not here to tell you what to think, what you should feel or who you are.\n\nFacilitators help you notice your own experience, ask better questions and make your own choices. We don't impose a belief system, interpret people's inner lives for them or reward one kind of answer over another. You can speak, write privately, listen or pass."
+  },
+  {
+    title: "EVERYONE CAN AFFORD TO BELONG",
+    desc: "A person's income shouldn't decide whether they get to be in the room.\n\nWe keep our access options clear and straightforward, including casual and concession pathways. Where cost is the thing standing between someone and participation, our concession model does not require them to prove hardship to a committee or pass a means test."
+  },
+  {
+    title: "SAFE BY DESIGN",
+    desc: "Safety isn't something we add after the programme is built. It shapes how the programme works.\n\nThat means clear boundaries, safeguarding, privacy, moderated interactions, appropriate adult and child participation, trained facilitators and the freedom to keep something private. Mindcast is a personal-development and community programme — not therapy or medical care — and our facilitators stay inside that boundary."
+  },
+  {
+    title: "HONEST ABOUT WHAT WE ARE",
+    desc: "We would rather say \"we don't know\" than make something sound more certain than it is.\n\nWe use research where it supports what we're teaching, distinguish evidence from metaphor or teaching tools, and are explicit about the limits of what Mindcast can claim. We have evidence behind individual parts of the curriculum; we do not pretend that proves a 52-week programme will transform everyone who completes it.\n\nNo magic. No guru. No promise that one exercise works for everyone."
+  },
+  {
+    title: "NO PRESSURE, EVER",
+    desc: "You don't owe Mindcast disclosure, loyalty, recruitment or a particular outcome.\n\nNo urgency. No scarcity. No guilt for missing a week or not completing an intention. No referral ladders. No dependence on a founder or facilitator. We want people to participate because the room is useful to them — not because we've made leaving, disagreeing or saying no feel uncomfortable."
+  },
 ];
 
 // The page body, exported so the homepage can embed it as an ivory band
@@ -143,11 +161,11 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
     <section className="section-cream py-24">
       <div className="container mx-auto px-6">
         <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR VALUES</h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {values.map((v, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-border p-6">
               <h3 className="font-display text-lg tracking-wider text-foreground leading-snug mb-3">{v.title}</h3>
-              <p className="text-muted-foreground text-sm font-body leading-relaxed">{v.desc}</p>
+              <p className="text-muted-foreground text-sm font-body leading-relaxed whitespace-pre-wrap">{v.desc}</p>
             </motion.div>
           ))}
         </div>
