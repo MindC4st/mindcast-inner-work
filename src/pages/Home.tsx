@@ -343,21 +343,33 @@ const TracksSection = () => {
   const [active, setActive] = useState(0);
   const [pinned, setPinned] = useState(false);
 
+  // Two effects, deliberately. `pinned` swaps the section from `py-28` to
+  // `h-screen`, and ScrollTrigger measures the element when it is created — so
+  // creating the pin in the same effect that sets the flag measured the OLD
+  // layout. The pin spacer was then sized from the wrong height, leaving a
+  // full viewport of blank white in the middle of the page at some window
+  // sizes (and not others, which is why it looked like a zoom bug).
   useEffect(() => {
-    if (prefersReduce()) { setPinned(false); return; }
-    setPinned(true);
+    setPinned(!prefersReduce());
+  }, []);
+
+  useEffect(() => {
+    if (!pinned || !wrapRef.current) return;
+    // Let the class change paint before measuring.
     const st = ScrollTrigger.create({
       trigger: wrapRef.current,
       start: "top top",
       end: "+=220%",
       pin: true,
       scrub: true,
+      invalidateOnRefresh: true,
       onUpdate: (self) => {
         setActive(Math.min(TRACKS.length - 1, Math.floor(self.progress * TRACKS.length)));
       },
     });
+    ScrollTrigger.refresh();
     return () => st.kill();
-  }, []);
+  }, [pinned]);
 
   const Panel = ({ t, i }: { t: (typeof TRACKS)[number]; i: number }) => (
     <div className={`grid md:grid-cols-2 gap-10 items-center ${pinned ? "absolute inset-0 transition-opacity duration-500" : "mb-20"}`}
@@ -465,13 +477,19 @@ const RhythmSection = () => {
           {/* The spine: draws itself as you move through the week. */}
           <div className="rhythm-spine absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[hsl(var(--primary))] via-[hsl(var(--blue))] to-transparent" aria-hidden />
           {RHYTHM_STEPS.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.05} className={`relative mb-20 md:w-[calc(50%-3rem)] pl-12 md:pl-0 ${i % 2 ? "md:ml-auto" : ""}`}>
+            <Reveal
+              key={s.title}
+              delay={i * 0.05}
+              className={`relative mb-12 md:mb-16 md:w-[calc(50%-3rem)] pl-12 md:pl-0 ${
+                i % 2 ? "md:ml-auto" : ""
+              } ${i > 0 ? "md:-mt-28" : ""}`}
+            >
               <span className="absolute -left-0.5 md:left-auto top-1 text-primary" style={i % 2 ? { left: "-4.05rem" } : { right: "-4.05rem" }} aria-hidden>
                 <Ripple size={30} />
               </span>
               <div className="bg-card border border-border p-7">
-                <div className="overflow-hidden aspect-[16/9] mb-5 -mx-7 -mt-7">
-                  <img src={s.image} alt="" className="w-full h-full object-cover object-top" loading="lazy" width={1200} height={675} />
+                <div className="overflow-hidden aspect-[4/3] mb-5 -mx-7 -mt-7">
+                  <img src={s.image} alt="" className="w-full h-full object-cover object-center" loading="lazy" width={1200} height={900} />
                 </div>
                 <h3 className="font-display text-foreground text-2xl tracking-wide mb-3">{s.title}</h3>
                 <p className="font-body text-muted-foreground text-sm leading-relaxed">{s.body}</p>
@@ -487,10 +505,10 @@ const RhythmSection = () => {
 /* ── VENUE ──────────────────────────────────────────────────────────────── */
 
 const VENUE_POINTS = [
-  { label: "THEATRE", desc: "120-seat auditorium with stage and LED wall" },
-  { label: "LIFE GROUP ROOMS", desc: "Glass-walled rooms for 15-person Life Groups" },
-  { label: "CAFE", desc: "Espresso, communal tables, pre-session gathering" },
-  { label: "PLAYGROUND", desc: "Soft-play and climbing — visible from the cafe" },
+  { label: "ADULTS", desc: "The main hall — seats 80, with the lake and Mount Tauhara through the windows" },
+  { label: "TEENS", desc: "Their own meeting room, phones in the lockers, no adults wandering through" },
+  { label: "CHILDREN", desc: "The foyer space, and Beasley Park across the road when the sun is out" },
+  { label: "KITCHEN", desc: "Tea, coffee and something to eat before and after" },
 ];
 
 const VenueSection = () => (
@@ -498,12 +516,20 @@ const VenueSection = () => (
     <div className="container mx-auto px-6">
       <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
         <div>
-          <SectionHeading label="Coming soon" title="A SPACE BUILT FOR FOLLOW-THROUGH" />
+          <SectionHeading label="Acacia Bay, Taupō" title="WHERE WE MEET" />
           <Reveal delay={0.1}>
-            <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-10">
-              Every detail designed so Sunday gatherings and midweek Life Groups have a permanent,
-              purpose-built home — theatre, breakout rooms, cafe, and a playground so parents can
-              stay present.
+            <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-6">
+              We gather at the Acacia Bay Community Centre, on Wakeman Road beside the tennis
+              courts at Beasley Park. It has been the neighbourhood's hall since 1993 — a lobby
+              you walk into, two function rooms, and a view out over the lake to Mount Tauhara.
+            </p>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <p className="font-body text-muted-foreground text-base leading-relaxed mb-10">
+              Three rooms run at once. Adults in the main hall, teens in their own room, children
+              in the foyer — and on a fine day the children's facilitators take the tag games
+              across to the park and the tennis courts. There is a kitchen, so there is always
+              a cup of tea.
             </p>
           </Reveal>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -520,7 +546,7 @@ const VenueSection = () => (
         <Reveal className="relative overflow-hidden aspect-[4/3] shadow-cinematic">
           <img
             src={mindcastBuilding}
-            alt="Mindcast venue — theatre, breakout rooms, cafe, playground"
+            alt="Members arriving at the Acacia Bay Community Centre"
             className="w-full h-full object-cover"
             loading="lazy"
             width={1400}
