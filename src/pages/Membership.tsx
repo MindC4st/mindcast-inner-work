@@ -133,49 +133,59 @@ const TierCard = ({ tier }: { tier: Tier }) => (
 
 const TIERS: Tier[] = [
   {
-    name: "ADULT",
-    price: formatWeekly(PRICING.adult.founding),
+    name: "ADULT MEMBERSHIP",
+    price: formatWeekly(PRICING.adult),
     per: "/week",
-    detail: PRICING.adult.foundingNote + ` Standard rate ${formatWeekly(PRICING.adult.standard)}/week.`,
-    body: "The full year: every Sunday session, your workbook and saved reflections, a midweek Life Group, and your wristband at the door.",
+    detail: "Founding rate. Standard rate $19/week after first 100 memberships.",
+    body: "The full year: every Sunday session, your workbook and saved reflections, a midweek Life Group, and your wristband at the door. App & journal access included.",
     action: { kind: "link", to: "/portal/billing", label: "START MEMBERSHIP" },
   },
   {
-    name: "TEEN",
-    price: formatWeekly(PRICING.teen),
+    name: "YOUNG PERSON PLACE",
+    price: formatWeekly(PRICING.youngPersonPlace),
     per: "/week",
-    body: "The teen room, same rhythm. A private journal no one else reads — not even parents — and their own pass for the door.",
-    action: { kind: "link", to: "/portal/billing", label: "START MEMBERSHIP" },
-  },
-  {
-    name: "KIDS ADD-ON",
-    price: formatWeekly(PRICING.kidsAddOn),
-    per: "/week",
-    detail: "Added to an adult or family membership.",
-    body: "The kids' room: a picture book, a game, colouring that goes home on the fridge. Children are signed in and out by you, every week.",
+    detail: "Add-on to an active adult membership.",
+    body: "The youth room, same rhythm. A private journal no one else reads — not even parents — and their own pass for the door. Printed workbook each week.",
     action: { kind: "link", to: "/portal/billing", label: "ADD TO MEMBERSHIP" },
   },
   {
-    name: "FAMILY BUNDLE",
-    price: formatWeekly(PRICING.familyBundle),
-    per: "/week",
-    detail: "Two adults plus up to three children or teens.",
-    body: "One payment, the whole household. Everyone walks in on the same Sunday and everyone has their own room to be in.",
-    action: { kind: "link", to: "/portal/billing", label: "START MEMBERSHIP" },
+    name: "VISITOR CARD — ADULT",
+    price: "$240",
+    per: "10 trips",
+    detail: "$24/session. One per person per phase.",
+    body: "Ten adult sessions. Worksheet included. No app or journal access.",
+    action: { kind: "link", to: "/portal/billing", label: "BUY VISITOR CARD" },
   },
   {
-    name: "CONCESSION",
-    price: formatWeekly(PRICING.concession),
-    per: "/week",
-    detail: "Same membership. Everything included.",
-    body: "If the standard rate is the thing standing between you and the room, this is the rate. One step to request. No means testing, no proof, no explanation — we don't ask, and nobody else can tell.",
-    action: { kind: "concession" },
+    name: "VISITOR CARD — UNDER-18",
+    price: "$120",
+    per: "10 trips",
+    detail: "$12/session. One per person per phase.",
+    body: "Ten under-18 sessions. Worksheet included. No app or journal access.",
+    action: { kind: "link", to: "/portal/billing", label: "BUY VISITOR CARD" },
   },
-];
+  {
+    name: "ONE-OFF SESSION — ADULT",
+    price: "$30",
+    per: "session",
+    detail: "Casual attendance. Worksheet included.",
+    body: "One adult session. Worksheet included. No app or journal access.",
+    action: { kind: "link", to: "/portal/billing", label: "BOOK SESSION" },
+  },
+  {
+    name: "ONE-OFF SESSION — UNDER-18",
+    price: "$15",
+    per: "session",
+    detail: "Casual attendance. Worksheet included.",
+    body: "One under-18 session. Worksheet included. No app or journal access.",
+    action: { kind: "link", to: "/portal/billing", label: "BOOK SESSION" },
+  },
+  ];
 
 const INCLUDED: { item: string; inTier: string }[] = [
   { item: "The Sunday session, every week of the year", inTier: "Included" },
   { item: "Your workbook — digital (adults) or printed (kids & teens), with your saved reflections (adults only)", inTier: "Included" },
+  { item: "Weekly worksheet included with every access type (membership, visitor card, one-off, trial); additional printed workbooks available for purchase", inTier: "Included" },
   { item: "A midweek Life Group", inTier: "Included" },
   { item: "Private digital journal — adults only (teens' journals are invisible to guardians; kids & teens receive printed worksheets each week)", inTier: "Included" },
   { item: "Teen portal access — revisit lessons, rewatch videos, see slide questions (answers not saved — privacy for under 18s)", inTier: "Included" },
@@ -293,7 +303,8 @@ export const MembershipContent = () => (
         </div>
         <motion.p {...fadeUp} className="text-center font-body text-sm text-muted-foreground mt-10 max-w-2xl mx-auto">
           Not ready for any of it? The day's worksheet is {formatWeekly(PRICING.worksheet)} at the
-          door or online, and you can follow the whole year that way. No account needed.
+          door or online (worksheets are included with every access type; additional printed
+          workbooks available for purchase), and you can follow the whole year that way. No account needed.
         </motion.p>
       </div>
     </section>
