@@ -112,6 +112,54 @@ async function refreshEntitlements(householdId: string | null, profileId: string
   if (error) throw new Error(`Entitlement refresh failed: ${error.message}`);
 }
 
+// New-membership admin notification: email memberships@mindcast.co.nz with the
+// member + teen NFC bracelet URLs so the team can write bracelets before the
+// first live session. Fire-and-forget (never throws the webhook).
+async function notifyMemberships(profileId: string | null, householdId: string | null) {
+  const to = Deno.env.get("MEMBERSHIPS_EMAIL") || "memberships@mindcast.co.nz";
+  const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
+  const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "Mindcast <hello@mindcast.co.nz>";
+  const braceletUrl = (id: string | null | undefined) => (id ? `https://www.mindcast.co.nz/b/${id}` : null);
+
+  const lines: string[] = [];
+  if (profileId) {
+    const { data: p } = await admin
+      .from("profiles").select("name, display_name, email, nfc_id")
+      .eq("id", profileId).maybeSingle();
+    if (p) {
+      lines.push(`<p style="margin:0 0 10px;"><strong>${p.display_name || p.name || "Member"}</strong> · ${p.email || "no email"}<br><span style="color:#555;">Bracelet: ${braceletUrl(p.nfc_id) || "not assigned yet"}</span></p>`);
+    }
+  }
+  if (householdId) {
+    const { data: teens } = await admin
+      .from("household_members")
+      .select("profile_id, profiles(name, display_name, email, nfc_id)")
+      .eq("household_id", householdId)
+      .eq("role_in_household", "teen");
+    for (const t of (teens ?? []) as Array<{ profiles: { name: string | null; display_name: string | null; email: string | null; nfc_id: string | null } | null }>) {
+      const tp = t.profiles;
+      lines.push(`<p style="margin:0 0 10px;"><strong>${tp?.display_name || tp?.name || "Teen"} (teen)</strong> · ${tp?.email || "no email"}<br><span style="color:#555;">Bracelet: ${braceletUrl(tp?.nfc_id) || "not assigned yet"}</span></p>`);
+    }
+  }
+  if (!lines.length) return;
+
+  const html = emailShell(
+    `<h1 style="font-size:22px;margin:8px 0 4px;">New member joined</h1>` +
+    `<p style="color:#555;margin:0 0 16px;">Write these bracelets and have them ready for collection at the first live session.</p>` +
+    lines.join(""),
+  );
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: FROM_EMAIL, to: [to], subject: "New Mindcast member — bracelets to write", html }),
+    });
+    if (!r.ok) console.error("memberships@ notify failed:", await r.text());
+  } catch (e) {
+    console.error("memberships@ notify error:", String(e));
+  }
+}
+
 async function syncSubscription(sub: Stripe.Subscription) {
   const meta = sub.metadata as Record<string, string>;
 
@@ -159,6 +207,11 @@ async function syncSubscription(sub: Stripe.Subscription) {
   if (upsertError) throw new Error(`Subscription upsert failed: ${upsertError.message}`);
 
   await refreshEntitlements(householdId, profileId);
+
+  // New membership → notify admin to write bracelets (member + teens).
+  if (!previous && (sub.status === "active" || sub.status === "trialing")) {
+    await notifyMemberships(profileId, householdId);
+  }
 
   const previousHousehold = previous?.household_id ?? null;
   const previousProfile = previous?.profile_id ?? null;

@@ -40,6 +40,7 @@ const PortalSettings = lazy(() => import("./pages/portal/PortalSettings"));
 const PortalProgress = lazy(() => import("./pages/portal/PortalProgress"));
 const PortalCheckIn = lazy(() => import("./pages/portal/PortalCheckIn"));
 const PortalKids = lazy(() => import("./pages/portal/PortalKids"));
+const PortalTeens = lazy(() => import("./pages/portal/PortalTeens"));
 const PortalFamily = lazy(() => import("./pages/portal/PortalFamily"));
 const PortalBilling = lazy(() => import("./pages/portal/PortalBilling"));
 const PortalOrders = lazy(() => import("./pages/portal/PortalOrders"));
@@ -164,6 +165,7 @@ const AppRoutes = () => (
       <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
       <Route path="/portal/checkin" element={<ProtectedRoute><PortalCheckIn /></ProtectedRoute>} />
       <Route path="/portal/kids" element={<ProtectedRoute><PortalKids /></ProtectedRoute>} />
+      <Route path="/portal/teens" element={<ProtectedRoute><PortalTeens /></ProtectedRoute>} />
       <Route path="/portal/family" element={<ProtectedRoute><PortalFamily /></ProtectedRoute>} />
       <Route path="/portal/pass" element={<ProtectedRoute><PortalPass /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
@@ -255,6 +257,7 @@ const TITLE_MAP: [string, string][] = [
   ["/portal/progress", "Progress · Mindcast Portal"],
   ["/portal/checkin", "Check-In · Mindcast Portal"],
   ["/portal/kids", "Kid Sessions · Mindcast Portal"],
+  ["/portal/teens", "Teen Sessions · Mindcast Portal"],
   ["/portal/orders", "My Orders · Mindcast Portal"],
   ["/portal/family", "Family & Safety · Mindcast Portal"],
   ["/portal/login", "Member Login · Mindcast"],

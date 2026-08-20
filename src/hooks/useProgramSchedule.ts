@@ -11,6 +11,7 @@ export type ProgramSchedule = {
   startDate: string | null;
   timezone: string;
   loading: boolean;
+  demoUnlockAll: boolean;
   isUnlocked: (week: number) => boolean;
   unlockDate: (week: number) => Date | null;
   currentWeek: number | null; // highest unlocked week (1..52), null if not started
@@ -19,6 +20,7 @@ export type ProgramSchedule = {
 export function useProgramSchedule(): ProgramSchedule {
   const [startDate, setStartDate] = useState<string | null>(null);
   const [timezone, setTimezone] = useState<string>(DEFAULT_TZ);
+  const [demoUnlockAll, setDemoUnlockAll] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,12 +28,13 @@ export function useProgramSchedule(): ProgramSchedule {
     (async () => {
       const { data } = await supabase
         .from("app_settings").select("key, value")
-        .in("key", ["program_start_date", "program_timezone"]);
+        .in("key", ["program_start_date", "program_timezone", "demo_unlock_all"]);
       if (!active) return;
       const map: Record<string, string | null> = {};
       (data || []).forEach((r) => { map[r.key] = r.value; });
       setStartDate(map.program_start_date || null);
       setTimezone(map.program_timezone || DEFAULT_TZ);
+      setDemoUnlockAll(map.demo_unlock_all === "true");
       setLoading(false);
     })();
     return () => { active = false; };
@@ -39,8 +42,9 @@ export function useProgramSchedule(): ProgramSchedule {
 
   const unlockDate = (week: number) =>
     startDate && week >= 1 ? unlockInstant(startDate, week, timezone) : null;
-  const isUnlocked = (week: number) => isWeekUnlocked(startDate, week, timezone, Date.now());
-  const currentWeek = currentUnlockedWeek(startDate, timezone, Date.now());
+  const isUnlocked = (week: number) =>
+    demoUnlockAll ? week >= 1 && week <= 52 : isWeekUnlocked(startDate, week, timezone, Date.now());
+  const currentWeek = demoUnlockAll ? 52 : currentUnlockedWeek(startDate, timezone, Date.now());
 
-  return { startDate, timezone, loading, isUnlocked, unlockDate, currentWeek };
+  return { startDate, timezone, loading, demoUnlockAll, isUnlocked, unlockDate, currentWeek };
 }
