@@ -47,7 +47,7 @@ const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const RefundPage = lazy(() => import("./pages/RefundPage"));
 const SafeguardingPage = lazy(() => import("./pages/SafeguardingPage"));
-const Marketing = lazy(() => import("./pages/Marketing"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
 const FacilitatorView = lazy(() => import("./pages/mindcast-live/FacilitatorView"));
 const LiveJoin = lazy(() => import("./pages/mindcast-live/LiveJoin"));
 const MindcastLibrary = lazy(() => import("./pages/mindcast-live/Library"));
@@ -192,13 +192,13 @@ const AppRoutes = () => (
       <Route path="/about" element={<About />} />
       <Route path="/membership" element={<Membership />} />
       <Route path="/pilot" element={<LegacyRedirect to="/membership" />} />
-      <Route path="/marketing" element={<AdminRoute><Marketing /></AdminRoute>} />
 
       {/* Legal */}
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/refund" element={<RefundPage />} />
       <Route path="/safeguarding" element={<SafeguardingPage />} />
+      <Route path="/contact" element={<ContactPage />} />
 
       {/* Retired routes → forwarded to the current equivalents (Phase 5).
           Files remain in the repo for one more sweep, then get removed. */}
@@ -277,6 +277,7 @@ const TITLE_MAP: [string, string][] = [
   ["/privacy", "Privacy Policy · Mindcast"],
   ["/refund", "Refund Policy · Mindcast"],
   ["/safeguarding", "Safeguarding · Mindcast"],
+  ["/contact", "Contact · Mindcast"],
 ];
 
 const RouteTitle = () => {
