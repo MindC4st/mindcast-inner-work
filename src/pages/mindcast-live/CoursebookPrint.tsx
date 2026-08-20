@@ -52,8 +52,7 @@ const CoursebookPrint = () => {
   );
 
   const title = (r: Row) =>
-    (track === "Teen" ? r.teen_video_title : track === "Child" ? r.kids_title : r.adult_video_title)
-    || r.weekly_theme || "Untitled";
+    (track === "Child" ? r.kids_title : r.weekly_theme) || "Untitled";
   const metaphor = (r: Row) =>
     track === "Teen" ? r.teen_signal_metaphor : track === "Child" ? r.kids_signal_metaphor : r.signal_metaphor;
 

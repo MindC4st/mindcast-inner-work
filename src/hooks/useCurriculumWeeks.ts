@@ -31,9 +31,8 @@ export const trackForAgeGroup = (age?: string | null): Track => {
 
 const resolve = (row: CurriculumPublicRow, track: Track): CurriculumWeek => {
   const title =
-    track === "teen" ? row.teen_video_title :
     track === "child" ? row.kids_title :
-    row.adult_video_title;
+    row.weekly_theme;
   return {
     id: String(row.week_number),
     week_number: row.week_number,

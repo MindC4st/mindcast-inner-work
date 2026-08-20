@@ -50,10 +50,7 @@ const PortalWeeks = () => {
       const rows = (data || []).map(r => ({
         week_number: r.week_number,
         block_theme: r.block_theme,
-        title:
-          track === "teen" ? r.teen_video_title :
-          track === "child" ? r.kids_title :
-          r.adult_video_title,
+        title: track === "child" ? r.kids_title : r.weekly_theme,
         source: r.core_learning || null,
       }));
       setWeeks(rows);

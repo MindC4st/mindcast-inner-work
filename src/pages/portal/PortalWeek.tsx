@@ -103,9 +103,8 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
     );
   }
 
-  const title = track === "Teen" ? pub?.teen_video_title
-    : track === "Child" ? pub?.kids_title : pub?.adult_video_title;
-  const heading = title || pub?.weekly_theme || "Session coming soon";
+  const title = track === "Child" ? pub?.kids_title : pub?.weekly_theme;
+  const heading = title || "Session coming soon";
   const blockTheme = pub?.block_theme as string | undefined;
   const coreLearning = pub?.core_learning as string | undefined;
   const unlocked = isAdmin || isUnlocked(weekNum);
