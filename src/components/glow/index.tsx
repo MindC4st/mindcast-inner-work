@@ -43,7 +43,7 @@ export const Reveal = ({
 export const SectionHeading = ({
   label,
   title,
-  dark = true,
+  dark = false,
   className = "",
 }: {
   label: string;
@@ -107,7 +107,7 @@ export const GlowButton = ({ to, href, children, variant = "solid", className = 
   const styles =
     variant === "solid"
       ? "bg-primary text-primary-foreground hover:bg-[hsl(var(--glow))] hover:text-surface-0"
-      : "border border-cream/30 text-cream hover:border-glow hover:text-glow";
+      : "border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground";
 
   const inner = (
     <span
@@ -163,11 +163,11 @@ export const StatCounter = ({
 
   return (
     <div className="text-center">
-      <span ref={ref} className="font-display text-6xl md:text-7xl text-cream leading-none">
+      <span ref={ref} className="font-display text-6xl md:text-7xl text-foreground leading-none">
         {reduce ? value : shown}
         <span className="text-glow">{suffix}</span>
       </span>
-      <p className="font-body text-xs tracking-[0.25em] uppercase text-cream/50 mt-2">{label}</p>
+      <p className="font-body text-xs tracking-[0.25em] uppercase text-foreground/60 mt-2">{label}</p>
     </div>
   );
 };
@@ -195,7 +195,7 @@ export const Marquee = ({ items, className = "" }: { items: string[]; className?
   const row = (key: string, hidden = false) => (
     <div key={key} aria-hidden={hidden} className="flex shrink-0 items-center">
       {items.map((it, i) => (
-        <span key={i} className="flex items-center font-display tracking-[0.3em] text-cream/25 text-xl px-8 whitespace-nowrap">
+        <span key={i} className="flex items-center font-display tracking-[0.3em] text-foreground/25 text-xl px-8 whitespace-nowrap">
           {it}
           <span className="ml-16 text-glow/40">●</span>
         </span>
