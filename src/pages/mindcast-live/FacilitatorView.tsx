@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense, type ReactNode } from "react";
+import { CanvasSurface, isCanvasSurface } from "@/components/session/activitySurfaces";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -1382,7 +1383,14 @@ const DeeperSlide = ({
       ) : null}
 
       <div className="border-t border-[hsl(var(--ivory))]/10 pt-8">
-        {activityType === "wordcloud" ? (
+        {isCanvasSurface(activityType) ? (
+          <>
+            {exercise ? (
+              <p className="font-body text-base text-[hsl(var(--ivory))]/70 mb-4 leading-relaxed">{exercise}</p>
+            ) : null}
+            <CanvasSurface activityType={activityType} week={week} audience={audience} />
+          </>
+        ) : activityType === "wordcloud" ? (
           <WordCloudSlide text={exercise} responses={responses} />
         ) : (activityType === "poll" || activityType === "choice") && options.length > 0 ? (
           <PollSlide text={exercise} options={options} responses={responses} />

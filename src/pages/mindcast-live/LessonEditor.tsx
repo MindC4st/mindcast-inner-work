@@ -395,6 +395,7 @@ const LessonEditor = () => {
                       <span className="block text-[11px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-1.5">Live activity type</span>
                       <select value={activityType} onChange={(e) => setActivityType(e.target.value)}
                         className="w-full max-w-xs rounded-lg border border-[hsl(var(--warm-border))] bg-white px-3.5 py-2.5 text-[15px] font-body text-[hsl(var(--navy))] outline-none transition-all duration-200 focus:border-[hsl(var(--blue))] focus:ring-2 focus:ring-[hsl(var(--blue))]/20">
+                        <option value="whiteboard">Whiteboard — facilitator draws live on a tablet</option>
                         <option value="wordcloud">Word cloud — one word each</option>
                         <option value="choice">Choice — pick an option, screen shows the tally</option>
                         <option value="scale">Scale — rate 1&ndash;10, screen shows the spread</option>
