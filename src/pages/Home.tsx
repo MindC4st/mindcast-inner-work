@@ -20,7 +20,6 @@ import trackTeen from "@/assets/track-teen.jpg";
 import trackKids from "@/assets/track-kids.jpg";
 import rhythmBeforeYouLeave from "@/assets/rhythm-before-you-leave.jpg";
 import howItWorksImage from "@/assets/home-adult-workbook.jpg";
-import { useAuth } from "@/contexts/AuthContext";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import Ripple from "@/components/brand/Ripple";
@@ -52,7 +51,6 @@ const prefersReduce = () =>
 const CinematicNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { session } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -62,10 +60,9 @@ const CinematicNav = () => {
   }, []);
 
   const links = [
-    { label: "HOW IT WORKS", href: "#gathering" },
-    { label: "THE RHYTHM", href: "#rhythm" },
-    { label: "ABOUT", href: "#about" },
-    { label: "MEMBERSHIP", href: "#membership" },
+    { label: "ABOUT", to: "/about" },
+    { label: "CURRICULUM", to: "/curriculum" },
+    { label: "MEMBERSHIP", to: "/membership" },
   ];
 
   return (
@@ -80,22 +77,22 @@ const CinematicNav = () => {
         </Link>
 
         <div className="hidden lg:flex items-center gap-10">
-          {links.map((l) =>
-            l.href.startsWith("#") ? (
-              <a key={l.label} href={l.href} className="text-foreground/60 hover:text-foreground text-xs font-body font-semibold tracking-[0.2em] transition-colors">
-                {l.label}
-              </a>
-            ) : (
-              <Link key={l.label} to={l.href} className="text-foreground/60 hover:text-foreground text-xs font-body font-semibold tracking-[0.2em] transition-colors">
-                {l.label}
-              </Link>
-            ),
-          )}
+          {links.map((l) => (
+            <Link key={l.label} to={l.to} className="text-foreground/60 hover:text-foreground text-xs font-body font-semibold tracking-[0.2em] transition-colors">
+              {l.label}
+            </Link>
+          ))}
           <Link
-            to={session ? "/portal/dashboard" : "/portal/login"}
+            to="/portal/login"
             className="border border-primary hover:bg-primary hover:text-primary-foreground text-primary text-xs font-body font-semibold tracking-[0.2em] px-6 py-2.5 transition-colors"
           >
-            PORTAL
+            MEMBER LOGIN
+          </Link>
+          <Link
+            to="/membership"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-body font-semibold tracking-[0.2em] px-6 py-2.5 transition-colors"
+          >
+            BECOME A MEMBER
           </Link>
         </div>
 
@@ -122,16 +119,15 @@ const CinematicNav = () => {
           <div className="flex flex-col items-center justify-center h-full gap-8 safe-area-bottom">
             {links.map((l, i) => (
               <motion.div key={l.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-                {l.href.startsWith("#") ? (
-                  <a href={l.href} onClick={() => setMobileOpen(false)} className="text-foreground text-2xl font-display tracking-widest">{l.label}</a>
-                ) : (
-                  <Link to={l.href} onClick={() => setMobileOpen(false)} className="text-foreground text-2xl font-display tracking-widest">{l.label}</Link>
-                )}
+                <Link to={l.to} onClick={() => setMobileOpen(false)} className="text-foreground text-2xl font-display tracking-widest">{l.label}</Link>
               </motion.div>
             ))}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-              <Link to={session ? "/portal/dashboard" : "/portal/login"} onClick={() => setMobileOpen(false)} className="mt-4 px-10 py-4 border border-primary text-primary text-sm tracking-widest font-body min-h-[56px] flex items-center">
-                PORTAL
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-col items-center gap-4">
+              <Link to="/portal/login" onClick={() => setMobileOpen(false)} className="mt-4 px-10 py-4 border border-primary text-primary text-sm tracking-widest font-body min-h-[56px] flex items-center">
+                MEMBER LOGIN
+              </Link>
+              <Link to="/membership" onClick={() => setMobileOpen(false)} className="px-10 py-4 bg-primary text-primary-foreground text-sm tracking-widest font-body min-h-[56px] flex items-center">
+                BECOME A MEMBER
               </Link>
             </motion.div>
           </div>
