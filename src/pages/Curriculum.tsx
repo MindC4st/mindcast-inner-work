@@ -20,6 +20,7 @@ import Ripple from "@/components/brand/Ripple";
 import { Reveal, SectionHeading, GlowButton, ScrollProgress } from "@/components/glow";
 import JourneyMap from "@/components/curriculum/JourneyMap";
 import WeekOnePreview from "@/components/curriculum/WeekOnePreview";
+import WorkbookPage, { INK, RULE, SIGNAL_DEEP, WritingLines } from "@/components/curriculum/WorkbookPage";
 import { useCurriculumWeeks } from "@/hooks/useCurriculumWeeks";
 import {
   BLOCKS,
@@ -157,18 +158,18 @@ const ThreeExperiences = () => {
           </Reveal>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+        {/* No cards. A plate, a rule, and the words underneath — the way a
+            book sets three figures across a spread. */}
+        <div className="grid md:grid-cols-3 gap-12 md:gap-10">
           {THREE.map((t, i) => (
             <Reveal key={t.label} delay={i * 0.08}>
-              <div className="bg-card border border-border h-full">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img src={t.image} alt="" className="w-full h-full object-cover object-center" loading="lazy" width={1200} height={900} />
-                </div>
-                <div className="p-7">
-                  <p className="font-display text-2xl tracking-[0.15em] text-foreground mb-3">{t.label}</p>
-                  <p className="font-body text-sm text-muted-foreground leading-relaxed">{t.body}</p>
-                </div>
+              <div className="aspect-[4/3] overflow-hidden mb-6">
+                <img src={t.image} alt="" className="w-full h-full object-cover object-center" loading="lazy" width={1200} height={900} />
               </div>
+              <p className="font-display text-[26px] tracking-[0.16em] text-foreground pb-4 mb-4 border-b border-border">
+                {t.label}
+              </p>
+              <p className="font-body text-[15px] text-muted-foreground leading-[1.75]">{t.body}</p>
             </Reveal>
           ))}
         </div>
@@ -285,9 +286,11 @@ const WeekRhythm = () => (
 
 /* ── 5 / 7 / 8 · WEEK 1 PREVIEW ───────────────────────────────────────────*/
 
+// Ivory band on purpose: the sheet inside is white, so it reads as paper
+// lying on the page rather than as a panel welded to the background.
 const WeekOneSection = ({ theme }: { theme: string }) => (
-  <section id="week-one" className="section-white py-28 md:py-36 scroll-mt-16">
-    <div className="container mx-auto px-6 max-w-5xl">
+  <section id="week-one" className="section-cream py-28 md:py-40 scroll-mt-16">
+    <div className="container mx-auto px-6 max-w-4xl">
       <WeekOnePreview weekOneTheme={theme} />
     </div>
   </section>
@@ -318,8 +321,11 @@ const JOURNAL_WEEKS = [
     friday: "Noticed it and named it, but didn't change anything on Thursday.",
   },
   {
+    // Blank on purpose. An unwritten week shows ruled lines waiting, not a
+    // placeholder character — a lone em-dash set in display type reads as a
+    // rendering fault rather than as an empty page.
     n: "02",
-    theme: "—",
+    theme: "",
     reflection: "",
     intention: "",
     midweek: "",
@@ -341,46 +347,69 @@ const AdultJournal = () => (
         </Reveal>
       </div>
 
+      {/* Set as a running line of type, not a row of bordered chips. */}
       <Reveal>
-        <ol className="flex flex-wrap justify-center gap-x-3 gap-y-3 mb-16">
+        <ol className="flex flex-wrap justify-center items-center gap-x-5 gap-y-3 mb-20 max-w-3xl mx-auto">
           {JOURNAL_FLOW.map((s, i) => (
-            <li key={s} className="flex items-center gap-3">
-              <span className="font-body text-[11px] font-bold tracking-[0.18em] uppercase border border-border bg-card text-foreground px-4 py-2.5">
-                {s}
-              </span>
-              {i < JOURNAL_FLOW.length - 1 && <span className="text-primary" aria-hidden>→</span>}
+            <li key={s} className="flex items-center gap-5">
+              <span className="font-display text-lg md:text-xl tracking-[0.14em] text-foreground/85">{s}</span>
+              {i < JOURNAL_FLOW.length - 1 && <span className="text-primary/70" aria-hidden>→</span>}
             </li>
           ))}
         </ol>
       </Reveal>
 
-      {/* The journal accumulating. Week 2 is deliberately blank — the product
-          claim is that it fills up over a year, not that it arrives full. */}
-      <div className="max-w-2xl mx-auto space-y-4">
+      {/* The journal accumulating — as pages, because that is what it is.
+          Week 2 is deliberately blank: the claim is that it fills up over a
+          year, not that it arrives full. The second sheet sits slightly
+          behind the first, the way the next page in a book does. */}
+      {/* `isolate` creates a stacking context so the sheets layer against each
+          other rather than against the section background — a negative
+          z-index here would drop the second page behind the ivory entirely. */}
+      <div className="max-w-2xl mx-auto isolate">
         {JOURNAL_WEEKS.map((w, i) => (
-          <Reveal key={w.n} delay={i * 0.1}>
-            <div className={`bg-card border p-7 ${i === 0 ? "border-border" : "border-dashed border-border"}`}>
-              <div className="flex items-baseline gap-4 mb-5 pb-5 border-b border-border">
-                <span className="font-display text-3xl text-foreground/25 leading-none">WEEK {w.n}</span>
-                <span className="font-body text-sm text-foreground">{w.theme}</span>
+          <div
+            key={w.n}
+            className={i > 0 ? "-mt-8 md:-mt-12 mx-4 md:mx-8 relative z-0" : "relative z-10"}
+          >
+            <WorkbookPage week={Number(w.n)} track="Adult" phase="My journal">
+              {w.theme && (
+                <p
+                  className="font-display text-[30px] md:text-4xl tracking-tight leading-none"
+                  style={{ color: INK }}
+                >
+                  {w.theme}
+                </p>
+              )}
+              <div className="mt-9">
+                {([
+                  ["My reflection", w.reflection],
+                  ["My intention", w.intention],
+                  ["Midweek", w.midweek],
+                  ["Friday check-in", w.friday],
+                ] as const).map(([label, value]) => (
+                  <div key={label} className="mb-7 last:mb-0">
+                    <p
+                      className="font-body text-[9px] font-bold tracking-[0.28em] uppercase mb-2"
+                      style={{ color: SIGNAL_DEEP }}
+                    >
+                      {label}
+                    </p>
+                    {value ? (
+                      <p
+                        className="text-[19px] md:text-[21px] italic leading-[1.6] pb-1.5 border-b"
+                        style={{ fontFamily: "var(--font-serif)", color: INK, borderColor: RULE }}
+                      >
+                        {value}
+                      </p>
+                    ) : (
+                      <WritingLines n={1} className="mt-0" />
+                    )}
+                  </div>
+                ))}
               </div>
-              {([
-                ["My reflection", w.reflection],
-                ["My intention", w.intention],
-                ["Midweek", w.midweek],
-                ["Friday check-in", w.friday],
-              ] as const).map(([label, value]) => (
-                <div key={label} className="mb-4 last:mb-0">
-                  <p className="font-body text-[10px] font-bold tracking-[0.25em] uppercase text-primary mb-1.5">
-                    {label}
-                  </p>
-                  <p className="font-body text-sm text-foreground leading-relaxed">
-                    {value || <span className="text-muted-foreground/40">…</span>}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
+            </WorkbookPage>
+          </div>
         ))}
       </div>
 
@@ -397,26 +426,27 @@ const AdultJournal = () => (
           block is the point: nothing written privately reaches a screen unless
           the member deliberately submits it and a moderator passes it. */}
       <Reveal delay={0.2}>
-        <div className="max-w-3xl mx-auto mt-20 border border-border bg-card p-8 md:p-10">
-          <p className="font-body text-[10px] font-bold tracking-[0.3em] uppercase text-primary mb-4">
+        <div className="max-w-3xl mx-auto mt-24 pt-14 border-t border-border">
+          <p className="font-body text-[10px] font-bold tracking-[0.3em] uppercase text-primary mb-5">
             Some exercises invite sharing
           </p>
-          <p className="font-body text-sm text-muted-foreground leading-relaxed mb-8">
+          <p className="font-body text-[15px] text-muted-foreground leading-[1.75] mb-10 max-w-[58ch]">
             A few activities offer the room a chance to hear from each other. That is always a
             separate, deliberate step — a member writes privately first, and chooses afterwards
             whether to submit anything at all.
           </p>
-          <ol className="flex flex-wrap gap-x-3 gap-y-3">
+          <ol className="flex flex-wrap items-center gap-x-5 gap-y-3">
             {SHARE_FLOW.map((s, i) => (
-              <li key={s} className="flex items-center gap-3">
-                <span className="font-body text-[11px] font-bold tracking-[0.18em] uppercase border border-primary/40 text-foreground px-4 py-2.5">
-                  {s}
-                </span>
-                {i < SHARE_FLOW.length - 1 && <span className="text-primary" aria-hidden>→</span>}
+              <li key={s} className="flex items-center gap-5">
+                <span className="font-display text-lg md:text-xl tracking-[0.14em] text-foreground/85">{s}</span>
+                {i < SHARE_FLOW.length - 1 && <span className="text-primary/70" aria-hidden>→</span>}
               </li>
             ))}
           </ol>
-          <p className="font-body text-sm text-foreground leading-relaxed mt-8 pt-6 border-t border-border">
+          <p
+            className="text-[21px] md:text-[25px] italic leading-[1.5] mt-12 max-w-[52ch]"
+            style={{ fontFamily: "var(--font-serif)", color: "hsl(var(--foreground))" }}
+          >
             Journal entries never appear on a screen on their own. Only something a member has
             deliberately submitted, and a moderator has reviewed, is ever shown to the room.
           </p>
@@ -531,14 +561,20 @@ const HowItBuilds = () => (
       {/* No score, no streak, no percentage. Three honest outcomes, given
           equal visual weight on purpose — a page that ranked them would
           undo the thing the ladder was built to fix. */}
-      <div className="grid md:grid-cols-3 gap-px bg-border border border-border">
+      <div className="grid md:grid-cols-3 gap-10 md:gap-12">
         {[
           "Sometimes progress is simply noticing something that previously happened automatically.",
           "Sometimes someone notices it and names it, and doesn't change anything at all.",
           "Sometimes they notice early enough to choose differently.",
         ].map((c) => (
-          <div key={c} className="bg-card p-7">
-            <p className="font-body text-sm text-foreground leading-relaxed">{c}</p>
+          <div key={c}>
+            <span className="block w-10 border-t-2 border-primary mb-6" aria-hidden />
+            <p
+              className="text-[20px] md:text-[22px] italic leading-[1.5] text-foreground"
+              style={{ fontFamily: "var(--font-serif)" }}
+            >
+              {c}
+            </p>
           </div>
         ))}
       </div>

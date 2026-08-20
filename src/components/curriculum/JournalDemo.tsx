@@ -21,6 +21,7 @@
 
 import { useState } from "react";
 import { WEEK1_ADULT } from "@/lib/curriculumPublic";
+import { INK, RULE, SIGNAL_DEEP } from "./WorkbookPage";
 
 const { intentionTemplate: T } = WEEK1_ADULT;
 
@@ -47,9 +48,13 @@ const Field = ({
     autoComplete="off"
     spellCheck={false}
     maxLength={120}
-    className="inline-block min-w-[9rem] max-w-full bg-transparent border-b border-primary/40 focus:border-primary
-               px-1 py-0.5 font-body text-foreground placeholder:text-muted-foreground/60
-               focus:outline-none focus:ring-0 transition-colors"
+    // Sits on the page's ruled line, in the page's own voice — a blank the
+    // reader fills in, not a form field dropped onto paper.
+    style={{ fontFamily: "var(--font-serif)", color: SIGNAL_DEEP, borderColor: RULE }}
+    className="inline-block min-w-[10rem] max-w-full bg-transparent border-b-2 italic
+               px-2 pb-1 text-[inherit] placeholder:not-italic placeholder:text-[0.62em]
+               placeholder:tracking-[0.18em] placeholder:uppercase placeholder:opacity-45
+               focus:outline-none focus:ring-0 focus:border-current transition-colors"
   />
 );
 
@@ -58,24 +63,28 @@ const JournalDemo = () => {
   const [action, setAction] = useState("");
 
   return (
-    <div className="bg-card border border-border p-7 md:p-9">
-      <div className="flex items-baseline justify-between gap-4 mb-6">
-        <p className="font-body text-[10px] font-bold tracking-[0.3em] uppercase text-primary">
-          My intention
-        </p>
-        <p className="font-body text-[10px] tracking-wide text-muted-foreground">Week 01</p>
-      </div>
-
-      <p className="font-serif text-xl md:text-2xl text-foreground leading-relaxed">
+    <div>
+      <p
+        className="text-[22px] md:text-[28px] leading-[2] italic"
+        style={{ fontFamily: "var(--font-serif)", color: INK }}
+      >
         {T.lead}{" "}
         <Field value={cue} onChange={setCue} placeholder={T.cuePlaceholder} label="The cue you will notice" />{" "}
         {T.middle}{" "}
         <Field value={action} onChange={setAction} placeholder={T.actionPlaceholder} label="The one small action you will take" />.
       </p>
 
-      <p className="font-body text-sm text-muted-foreground mt-6 leading-relaxed">{T.note}</p>
+      <p
+        className="font-body text-[15px] leading-[1.75] mt-8 max-w-[52ch]"
+        style={{ color: INK, opacity: 0.78 }}
+      >
+        {T.note}
+      </p>
 
-      <p className="font-body text-[11px] text-muted-foreground/80 mt-6 pt-5 border-t border-border">
+      <p
+        className="font-body text-[11px] tracking-[0.06em] mt-8 pt-4 border-t"
+        style={{ color: INK, opacity: 0.5, borderColor: RULE }}
+      >
         Try the journal — this demo isn't saved.
       </p>
     </div>

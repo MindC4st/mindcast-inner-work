@@ -15,20 +15,20 @@ import type { CurriculumWeek } from "@/hooks/useCurriculumWeeks";
 type View = "journey" | "week";
 
 const Toggle = ({ view, setView }: { view: View; setView: (v: View) => void }) => (
-  <div className="inline-flex border border-border bg-card" role="tablist" aria-label="How to explore the curriculum">
+  <div className="inline-flex items-center gap-7" role="tablist" aria-label="How to explore the curriculum">
     {([
-      ["journey", "EXPLORE BY JOURNEY"],
-      ["week", "EXPLORE BY WEEK"],
+      ["journey", "BY JOURNEY"],
+      ["week", "BY WEEK"],
     ] as const).map(([value, label]) => (
       <button
         key={value}
         role="tab"
         aria-selected={view === value}
         onClick={() => setView(value)}
-        className={`font-body text-[11px] font-bold tracking-[0.2em] px-5 py-3 transition-colors ${
+        className={`font-body text-[11px] font-bold tracking-[0.24em] pb-2 border-b-2 transition-colors ${
           view === value
-            ? "bg-primary text-primary-foreground"
-            : "text-muted-foreground hover:text-foreground"
+            ? "text-primary border-primary"
+            : "text-muted-foreground/60 border-transparent hover:text-foreground"
         }`}
       >
         {label}
@@ -55,56 +55,67 @@ const BlockCard = ({
 
   return (
     <Reveal delay={index * 0.06}>
+      {/* A chapter opening on a page, not a card: a rule above, the number set
+          large in the margin, and the detail folding out beneath. */}
       <button
         onClick={onToggle}
         aria-expanded={open}
-        className={`w-full text-left border p-7 md:p-9 transition-colors ${
-          open ? "border-primary bg-card" : "border-border bg-card hover:border-primary/40"
-        }`}
+        className="group w-full text-left border-t border-border pt-9 pb-10 transition-opacity"
       >
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <p className="font-body text-[10px] font-bold tracking-[0.3em] text-primary uppercase mb-3">
-              Block {block.number} · Weeks {from}–{to}
-            </p>
-            <h3 className="font-display text-4xl md:text-5xl tracking-tight text-foreground leading-none">
-              {block.name.toUpperCase()}
-            </h3>
-          </div>
+        <div className="flex items-start gap-6 md:gap-10">
           <span
             aria-hidden
-            className={`font-display text-5xl md:text-6xl leading-none transition-colors ${
-              open ? "text-primary" : "text-foreground/15"
+            className={`font-display text-5xl md:text-7xl leading-[0.8] shrink-0 w-[2.2ch] transition-colors ${
+              open ? "text-primary" : "text-foreground/15 group-hover:text-foreground/30"
             }`}
           >
             {String(block.number).padStart(2, "0")}
           </span>
-        </div>
 
-        <p className="font-serif text-lg md:text-xl text-foreground/90 leading-snug mt-5 max-w-2xl">
-          {block.premise}
-        </p>
-
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              initial={reduce ? false : { height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={reduce ? undefined : { height: 0, opacity: 0 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden"
+          <div className="flex-1 min-w-0">
+            <p className="font-body text-[10px] font-bold tracking-[0.3em] text-primary uppercase mb-3">
+              Weeks {from}–{to}
+            </p>
+            <h3 className="font-display text-[40px] sm:text-5xl md:text-6xl tracking-tight text-foreground leading-[0.92]">
+              {block.name.toUpperCase()}
+            </h3>
+            <p
+              className="text-xl md:text-2xl text-foreground/85 leading-[1.4] italic mt-5 max-w-[46ch]"
+              style={{ fontFamily: "var(--font-serif)" }}
             >
-              <p className="font-body text-sm text-muted-foreground leading-relaxed mt-5 max-w-2xl">
-                {block.detail}
-              </p>
-              {block.number === 1 && (
-                <p className="font-body text-[11px] tracking-[0.2em] text-primary uppercase mt-6">
-                  Week 1 starts here ↓
-                </p>
+              {block.premise}
+            </p>
+
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  initial={reduce ? false : { height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={reduce ? undefined : { height: 0, opacity: 0 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <p className="font-body text-[15px] text-muted-foreground leading-[1.8] mt-7 max-w-[62ch]">
+                    {block.detail}
+                  </p>
+                  {block.number === 1 && (
+                    <p className="font-body text-[11px] font-bold tracking-[0.22em] text-primary uppercase mt-7">
+                      Week 1 starts here ↓
+                    </p>
+                  )}
+                </motion.div>
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </AnimatePresence>
+          </div>
+
+          <span
+            className="font-body text-xl leading-none shrink-0 text-primary transition-transform duration-300 mt-2"
+            style={{ transform: open ? "rotate(45deg)" : "none" }}
+            aria-hidden
+          >
+            +
+          </span>
+        </div>
       </button>
     </Reveal>
   );
@@ -137,42 +148,42 @@ const WeekGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-border border border-border">
+    // A contents page: week number in the margin, the shared idea beside it,
+    // one hairline between entries. No grid of tiles.
+    <ol className="max-w-3xl mx-auto">
       {weeks.map((w) => {
         const block = BLOCKS.find((b) => b.number === w.block_number);
         const isOne = w.week_number === 1;
         return (
-          <div
+          <li
             key={w.week_number}
-            className={`bg-card p-5 min-h-[7.5rem] flex flex-col ${isOne ? "ring-1 ring-inset ring-primary" : ""}`}
+            className="flex items-baseline gap-5 md:gap-8 py-4 border-b border-border"
           >
-            <div className="flex items-baseline justify-between gap-2 mb-2">
-              <span className="font-display text-2xl text-foreground/30 leading-none">
-                {String(w.week_number).padStart(2, "0")}
-              </span>
-              {block && (
-                <span className="font-body text-[9px] font-bold tracking-[0.15em] uppercase text-primary/70">
-                  {block.name}
-                </span>
-              )}
-            </div>
+            <span className="font-display text-xl text-foreground/25 leading-none w-[2.2ch] shrink-0 tabular-nums">
+              {String(w.week_number).padStart(2, "0")}
+            </span>
             {/* weekly_theme is the shared idea across all three rooms; it is
                 what `curriculum_public` returns and what a visitor can see. */}
-            <p className="font-body text-xs text-foreground leading-snug">
-              {w.weekly_theme || <span className="text-muted-foreground/50">—</span>}
-            </p>
-            {isOne && (
-              <button
-                onClick={onPreviewWeekOne}
-                className="font-body text-[10px] font-bold tracking-[0.2em] text-primary uppercase mt-auto pt-3 text-left hover:underline"
-              >
-                Preview ↓
-              </button>
+            <span className="font-body text-[15px] text-foreground leading-snug flex-1 min-w-0">
+              {w.weekly_theme || <span className="text-muted-foreground/40">—</span>}
+              {isOne && (
+                <button
+                  onClick={onPreviewWeekOne}
+                  className="font-body text-[10px] font-bold tracking-[0.22em] text-primary uppercase ml-3 hover:underline align-middle"
+                >
+                  Preview ↓
+                </button>
+              )}
+            </span>
+            {block && (
+              <span className="font-body text-[9px] font-bold tracking-[0.18em] uppercase text-primary/60 shrink-0 hidden sm:block">
+                {block.name}
+              </span>
             )}
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 };
 
@@ -206,7 +217,9 @@ const JourneyMap = ({
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         >
           {view === "journey" ? (
-            <div className="space-y-4">
+            // Blocks run continuously down the page, divided by their own top
+            // rules — a chapter list, not a stack of cards.
+            <div className="max-w-3xl mx-auto border-b border-border">
               {BLOCKS.map((b, i) => (
                 <BlockCard
                   key={b.number}
