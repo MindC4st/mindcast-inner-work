@@ -471,7 +471,7 @@ const RhythmSection = () => {
               </span>
               <div className="bg-card border border-border p-7">
                 <div className="overflow-hidden aspect-[16/9] mb-5 -mx-7 -mt-7">
-                  <img src={s.image} alt="" className="w-full h-full object-cover" loading="lazy" width={1200} height={675} />
+                  <img src={s.image} alt="" className="w-full h-full object-cover object-top" loading="lazy" width={1200} height={675} />
                 </div>
                 <h3 className="font-display text-foreground text-2xl tracking-wide mb-3">{s.title}</h3>
                 <p className="font-body text-muted-foreground text-sm leading-relaxed">{s.body}</p>
