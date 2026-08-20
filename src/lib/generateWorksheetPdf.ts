@@ -19,6 +19,9 @@ export type WorksheetSession = {
   weekly_practice_mon?: string;
   weekly_practice_wed?: string;
   weekly_practice_sun?: string;
+  practice_sun_today?: string;
+  practice_midweek?: string;
+  practice_fri?: string;
   core_affirmation?: string;
 };
 
@@ -226,8 +229,14 @@ function computeLayout(doc: jsPDF, s: WorksheetSession): Layout {
   doc.setFont("Montserrat", "normal");
   doc.setFontSize(8.5);
   const colW = (CW - 24) / 3;
+  
+  // New cadence: SUN (today), MIDWEEK, FRI — with fallback to legacy columns
+  const sunToday = s.practice_sun_today ?? s.weekly_practice_sun;
+  const midweek = s.practice_midweek ?? s.weekly_practice_wed;
+  const fri = s.practice_fri ?? s.weekly_practice_mon;
+  
   const practiceCols = ([
-    ["MON", s.weekly_practice_mon], ["WED", s.weekly_practice_wed], ["SUN", s.weekly_practice_sun],
+    ["SUN", sunToday], ["MIDWEEK", midweek], ["FRI", fri],
   ] as [string, string | undefined][]).map(([day, t]) => ({
     day,
     lines: t ? (doc.splitTextToSize(t, colW - 14) as string[]) : [],

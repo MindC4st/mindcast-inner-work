@@ -40,6 +40,9 @@ type WorksheetRow = {
   weekly_practice_mon: string | null;
   weekly_practice_wed: string | null;
   weekly_practice_sun: string | null;
+  practice_sun_today: string | null;
+  practice_midweek: string | null;
+  practice_fri: string | null;
   core_affirmation: string | null;
   video_link: string | null;
   video_description: string | null;
@@ -80,7 +83,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         db.rpc("curriculum_public", { p_week: weekNum }),
         db.rpc("curriculum_for_track", { p_audience: track, p_week: weekNum }),
         db.from("mindcast_live_sessions").select(
-          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description, video_question_1, video_question_2"
+          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, practice_sun_today, practice_midweek, practice_fri, core_affirmation, video_link, video_description, video_question_1, video_question_2"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
@@ -309,9 +312,11 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   const activityLabel = wsRow?.experiential_exercise
     ? `ACTIVITY · ${wsRow.experiential_exercise}`
     : "FROM THE ACTIVITY";
-  const practiceMon = wsRow?.weekly_practice_mon;
-  const practiceWed = wsRow?.weekly_practice_wed;
-  const practiceSun = wsRow?.weekly_practice_sun;
+  
+  // New cadence columns with fallback to legacy
+  const practiceSunToday = wsRow?.practice_sun_today ?? wsRow?.weekly_practice_sun;
+  const practiceMidweek = wsRow?.practice_midweek ?? wsRow?.weekly_practice_wed;
+  const practiceFri = wsRow?.practice_fri ?? wsRow?.weekly_practice_mon;
   const affirmation = wsRow?.core_affirmation;
 
   return (
@@ -342,26 +347,26 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       </div>
 
       {/* Weekly practice prompts (from worksheet) */}
-      {(practiceMon || practiceWed || practiceSun) && (
+      {(practiceSunToday || practiceMidweek || practiceFri) && (
         <div className="mt-6 p-4 border border-primary/10 bg-primary/[0.03] rounded-sm">
           <p className="text-[10px] font-body tracking-[0.2em] uppercase text-primary mb-3">This Week's Practice</p>
           <div className="space-y-2">
-            {practiceMon && (
+            {practiceSunToday && (
               <div className="flex gap-2 text-xs font-body text-foreground/70">
-                <span className="text-primary font-bold shrink-0 w-8">Mon</span>
-                <span>{practiceMon}</span>
+                <span className="text-primary font-bold shrink-0 w-10">SUN</span>
+                <span>{practiceSunToday}</span>
               </div>
             )}
-            {practiceWed && (
+            {practiceMidweek && (
               <div className="flex gap-2 text-xs font-body text-foreground/70">
-                <span className="text-primary font-bold shrink-0 w-8">Wed</span>
-                <span>{practiceWed}</span>
+                <span className="text-primary font-bold shrink-0 w-10">MIDWEEK</span>
+                <span>{practiceMidweek}</span>
               </div>
             )}
-            {practiceSun && (
+            {practiceFri && (
               <div className="flex gap-2 text-xs font-body text-foreground/70">
-                <span className="text-primary font-bold shrink-0 w-8">Sun</span>
-                <span>{practiceSun}</span>
+                <span className="text-primary font-bold shrink-0 w-10">FRI</span>
+                <span>{practiceFri}</span>
               </div>
             )}
           </div>
