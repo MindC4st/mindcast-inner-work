@@ -66,19 +66,29 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="overflow-hidden rounded-sm aspect-[4/3]">
-            <img src={aboutTheRoom} alt="Ashleigh Carlson presenting in the seminar room" className="w-full h-full object-cover" loading="lazy" />
+            {/* TODO: swap to the architectural render when the file is added —
+                import theVisionRender from "@/assets/the-vision-render.jpg";
+                and change the src below. Alt text should describe the drawing. */}
+            <img src={aboutTheRoom} alt="The room Mindcast gathers in today" className="w-full h-full object-cover" loading="lazy" />
           </div>
           <div>
-            <h2 className="heading-display text-4xl text-primary mb-6">THE ROOM</h2>
+            <span className="portal-label text-muted-foreground/50 block mb-2">ONE DAY</span>
+            <h2 className="heading-display text-4xl text-primary mb-6">THE VISION</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              Mindcast is being designed as a permanent space — a building purpose-built
-              for weekly gatherings. A 120-seat theatre for Sunday sessions. Glass-walled
-              breakout rooms for Tuesday Life Groups. A cafe to linger in beforehand.
-              An indoor playground so parents can stay present while kids play within view.
+              We start at the Acacia Bay Community Centre, and it is a good place to
+              start — a hall the neighbourhood has gathered in since 1993, with the lake
+              through the windows and a park across the road.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              Every element — from the auditorium stage to the breakout room acoustics —
-              is designed to hold the rhythm: Reflect, Gather, Commit.
+              The drawing is where this goes if it works. A building of our own: a theatre
+              for Sunday sessions, breakout rooms for midweek Life Groups, a cafe to linger
+              in beforehand, and a playground where children can be seen from the table
+              their parents are sitting at.
+            </p>
+            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+              Every element drawn to hold the same rhythm the hall already holds:
+              reflect, gather, commit. It is not funded and it is not scheduled. It is
+              what we are building towards, one Sunday at a time.
             </p>
             <p className="text-muted-foreground/60 font-body text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-serif)" }}>
               "I didn't invent the wisdom. I just built the room."
