@@ -17,6 +17,8 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { renderEmail } from "../_shared/email/layout.ts";
+import { EVENT_MAP } from "../_shared/email/event-map.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,28 +43,6 @@ const nzTime = (iso: string) =>
     hour12: true,
   }).format(new Date(iso));
 
-// Shared brand layout. The ripple marker variant (●))) ) is used because email
-// clients cannot be trusted with SVG.
-const emailLayout = (title: string, bodyHtml: string) => `<!doctype html>
-<html><body style="margin:0;padding:0;background:#FFFAF5;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFAF5;padding:32px 16px;">
-<tr><td align="center">
-<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
-  <tr><td style="padding:0 8px 24px;">
-    <span style="font-family:Georgia,serif;color:#3585AF;font-size:18px;letter-spacing:2px;">&#9679;)))</span>
-    <span style="font-family:Arial,Helvetica,sans-serif;color:#102438;font-size:14px;font-weight:bold;letter-spacing:4px;text-transform:uppercase;">&nbsp;Mindcast</span>
-  </td></tr>
-  <tr><td style="background:#FFFFFF;border:1px solid #E1E7EF;padding:32px;">
-    <h1 style="margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:1.3;color:#102438;">${title}</h1>
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#102438;">${bodyHtml}</div>
-  </td></tr>
-  <tr><td style="padding:20px 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:3px;color:#307191;text-align:center;">
-    NOTICE IT, NAME IT, DO IT
-  </td></tr>
-</table>
-</td></tr></table>
-</body></html>`;
-
 type OutboxRow = {
   id: string;
   recipient_profile_id: string;
@@ -71,10 +51,27 @@ type OutboxRow = {
   occurred_at: string;
 };
 
-type Rendered = { subject: string; html: string } | null;
+type Rendered = { subject: string; html: string; text: string } | null;
 
 // deno-lint-ignore no-explicit-any
 async function render(row: OutboxRow, supa: any): Promise<Rendered> {
+  // 1. Template-based emails (the 13-event system)
+  const template = EVENT_MAP[row.event];
+  if (template) {
+    const payload = { ...row.payload };
+    // Inject unsubscribe_url for non-transactional emails
+    if (!template.transactional) {
+      payload.unsubscribe_url = `https://www.mindcast.co.nz/portal/settings`;
+    }
+    try {
+      return renderEmail(template, payload);
+    } catch (e) {
+      console.error(`renderEmail failed for ${row.event}:`, e instanceof Error ? e.message : String(e));
+      return null;
+    }
+  }
+
+  // 2. Child-departure safeguarding emails (keep existing logic)
   if (row.event === "child_departure") {
     const p = row.payload as {
       child_name?: string;
@@ -104,53 +101,49 @@ async function render(row: OutboxRow, supa: any): Promise<Rendered> {
       withWhom = data?.name || "an authorised collector";
     }
 
+    const guardianEmail = (subject: string, preview: string, bodyHtml: string): Rendered =>
+      renderEmail({
+        subject: () => subject,
+        previewText: () => preview,
+        transactional: true,
+        body: () => bodyHtml,
+      }, {});
+
+    const M = "'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+    const para = (s: string) => `<p style="margin:0 0 12px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">${s}</p>`;
+
     switch (p.reason) {
       case "collected":
-        return {
-          subject: `${name} was collected from Mindcast`,
-          html: emailLayout(
-            `${name} has been collected`,
-            `<p>${name} was collected from the ${p.room} room on ${when} by ${withWhom}.</p>
-             <p>Nothing to do — this is just the record of it. If anything about this looks wrong,
-             reply to this email or speak to the team on Sunday.</p>`,
-          ),
-        };
+        return guardianEmail(
+          `${name} was collected from Mindcast`,
+          `${name} has been collected`,
+          para(`${name} was collected from the ${p.room} room on ${when} by ${withWhom}.`) +
+          para(`Nothing to do — this is just the record of it. If anything about this looks wrong, reply to this email or speak to the team on Sunday.`),
+        );
       case "moved":
-        return {
-          subject: `${name} moved rooms at Mindcast`,
-          html: emailLayout(
-            `${name} moved to the ${p.destination} room`,
-            `<p>${name} left the ${p.room} room on ${when} and joined the ${p.destination} room —
-             usually this means sitting with family for the rest of the session.</p>
-             <p>Nothing to do; this is the record of it.</p>`,
-          ),
-        };
+        return guardianEmail(
+          `${name} moved rooms at Mindcast`,
+          `${name} moved to the ${p.destination} room`,
+          para(`${name} left the ${p.room} room on ${when} and joined the ${p.destination} room — usually this means sitting with family for the rest of the session.`) +
+          para(`Nothing to do; this is the record of it.`),
+        );
       case "self_signout":
-        return {
-          subject: `${name} signed out of Mindcast`,
-          html: emailLayout(
-            `${name} signed themselves out`,
-            `<p>${name} signed out of the ${p.room} room on ${when}, using the self-sign-out
-             permission you set up.</p>
-             <p>If you'd like to change that permission, you can do it any time in your portal settings.</p>`,
-          ),
-        };
+        return guardianEmail(
+          `${name} signed out of Mindcast`,
+          `${name} signed themselves out`,
+          para(`${name} signed out of the ${p.room} room on ${when}, using the self-sign-out permission you set up.`) +
+          para(`If you'd like to change that permission, you can do it any time in your portal settings.`),
+        );
       case "brief_absence":
-        // Routine — a toilet/water break is not a parental event. Skip email;
-        // the in-room timer escalates if it becomes one.
         return null;
       case "unaccompanied":
-        return {
-          subject: `Please read now — ${name} left the session room`,
-          html: emailLayout(
-            `${name} left the room unaccompanied`,
-            `<p>${name} left the ${p.room} room on ${when} without an adult and without being
-             signed out to anyone.</p>
-             <p><strong>The team in the building was alerted immediately and someone will phone you —
-             this email is the written record, not the response.</strong></p>
-             <p>If you are in the building, please come to the ${p.room} room now.</p>`,
-          ),
-        };
+        return guardianEmail(
+          `Please read now — ${name} left the session room`,
+          `${name} left the room unaccompanied`,
+          para(`${name} left the ${p.room} room on ${when} without an adult and without being signed out to anyone.`) +
+          `<p style="margin:0 0 12px;font-family:${M};font-size:15px;line-height:1.7;color:#102438;"><strong>The team in the building was alerted immediately and someone will phone you — this email is the written record, not the response.</strong></p>` +
+          para(`If you are in the building, please come to the ${p.room} room now.`),
+        );
       default:
         return null;
     }
@@ -212,7 +205,7 @@ serve(async (req) => {
       try {
         const { data: recipient } = await supa
           .from("profiles")
-          .select("email, notify_channel, display_name, first_name")
+          .select("email, notify_channel, display_name, first_name, marketing_opt_out")
           .eq("id", row.recipient_profile_id)
           .maybeSingle();
 
@@ -236,6 +229,13 @@ serve(async (req) => {
           skipped++;
           continue;
         }
+        // Suppress non-transactional emails for unsubscribed members
+        const tmpl = EVENT_MAP[row.event];
+        if (tmpl && !tmpl.transactional && recipient?.marketing_opt_out) {
+          await finish({ status: "skipped", channel, error: "marketing opt-out" });
+          skipped++;
+          continue;
+        }
         if (!recipient?.email || !RESEND_API_KEY) {
           await finish({ status: "failed", channel, error: !recipient?.email ? "no email on file" : "RESEND_API_KEY unset" });
           failed++;
@@ -250,6 +250,7 @@ serve(async (req) => {
             to: [recipient.email],
             subject: message.subject,
             html: message.html,
+            text: message.text,
           }),
         });
         if (!r.ok) {
