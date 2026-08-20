@@ -46,8 +46,8 @@ const DAY_COPY: Record<Day, { subject: (week: number) => string; intro: string }
   },
 };
 
-const fieldFor = (day: Day): "weekly_practice_mon" | "weekly_practice_wed" | "weekly_practice_sun" =>
-  day === "mon" ? "weekly_practice_mon" : day === "wed" ? "weekly_practice_wed" : "weekly_practice_sun";
+const fieldFor = (day: Day): "practice_sun_today" | "practice_midweek" | "practice_fri" =>
+  day === "mon" ? "practice_sun_today" : day === "wed" ? "practice_midweek" : "practice_fri";
 
 const nzDateString = (): string => {
   // YYYY-MM-DD in Pacific/Auckland — locale-independent.

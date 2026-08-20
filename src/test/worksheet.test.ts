@@ -98,9 +98,9 @@ describe("worksheet text layer (pdfjs extraction)", () => {
   it("extracts in reading order: letterhead → signal → reflection → writing → activity → practice → footer", async () => {
     const full: WorksheetSession = {
       ...sessions[0],
-      weekly_practice_mon: "Notice the hum once today.",
-      weekly_practice_wed: "Name one thing out loud.",
-      weekly_practice_sun: "Do one concrete step.",
+      practice_sun_today: "Notice the hum once today.",
+      practice_midweek: "Name one thing out loud.",
+      practice_fri: "Do one concrete step.",
     };
     const items = await extract(full);
     // charSpace tracking can fragment extraction; compare space-insensitively.

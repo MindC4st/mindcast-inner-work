@@ -37,9 +37,9 @@ type WorksheetRow = {
   ancient_wisdom_reframe: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
-  weekly_practice_mon: string | null;
-  weekly_practice_wed: string | null;
-  weekly_practice_sun: string | null;
+  practice_sun_today: string | null;
+  practice_midweek: string | null;
+  practice_fri: string | null;
   core_affirmation: string | null;
   video_link: string | null;
   video_description: string | null;
@@ -80,14 +80,14 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
         db.rpc("curriculum_public", { p_week: weekNum }),
         db.rpc("curriculum_for_track", { p_audience: track, p_week: weekNum }),
         db.from("mindcast_live_sessions").select(
-          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, video_link, video_description, video_question_1, video_question_2"
+          "signal_metaphor, ancient_wisdom_reframe, journaling_prompt, experiential_exercise, practice_sun_today, practice_midweek, practice_fri, core_affirmation, video_link, video_description, video_question_1, video_question_2"
         ).eq("week_number", weekNum).eq("audience", track).maybeSingle(),
       ]);
       if (!active) return;
       setPub(Array.isArray(pubRows) ? pubRows[0] ?? null : null);
       const content = Array.isArray(contentRows) ? contentRows[0] ?? null : null;
       setRow(content as CurriculumRow | null);
-      setWsRow(wsData as WorksheetRow | null);
+      setWsRow(wsData as unknown as WorksheetRow | null);
       setLoading(false);
     })();
     return () => { active = false; };
@@ -309,9 +309,9 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   const activityLabel = wsRow?.experiential_exercise
     ? `ACTIVITY · ${wsRow.experiential_exercise}`
     : "FROM THE ACTIVITY";
-  const practiceMon = wsRow?.weekly_practice_mon;
-  const practiceWed = wsRow?.weekly_practice_wed;
-  const practiceSun = wsRow?.weekly_practice_sun;
+  const practiceMon = wsRow?.practice_sun_today;
+  const practiceWed = wsRow?.practice_midweek;
+  const practiceSun = wsRow?.practice_fri;
   const affirmation = wsRow?.core_affirmation;
 
   return (

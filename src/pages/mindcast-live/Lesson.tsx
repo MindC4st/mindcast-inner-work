@@ -16,9 +16,9 @@ type Session = {
   signal_metaphor: string;
   journaling_prompt: string;
   experiential_exercise: string;
-  weekly_practice_mon: string;
-  weekly_practice_wed: string;
-  weekly_practice_sun: string;
+  practice_sun_today: string;
+  practice_midweek: string;
+  practice_fri: string;
   core_affirmation: string;
   video_link: string;
   video_description: string;
@@ -63,7 +63,9 @@ const Lesson = () => {
           .eq("audience_type", audience)
           .maybeSingle(),
       ]);
-      setSession(s.data);
+      // Cast: the generated types still carry the pre-rename practice columns
+      // until `supabase db push` and a types regen.
+      setSession(s.data as unknown as Session);
       // Staff: bypass unlock check, always unlocked
       if (isStaff) {
         setIsUnlocked(true);
@@ -185,9 +187,9 @@ const Lesson = () => {
 
         <Section title="Weekly Practice">
           {[
-            { d: "Monday", t: session.weekly_practice_mon, key: "practice_mon" },
-            { d: "Wednesday", t: session.weekly_practice_wed, key: "practice_wed" },
-            { d: "Sunday", t: session.weekly_practice_sun, key: "practice_sun" },
+            { d: "Monday", t: session.practice_sun_today, key: "practice_mon" },
+            { d: "Wednesday", t: session.practice_midweek, key: "practice_wed" },
+            { d: "Sunday", t: session.practice_fri, key: "practice_sun" },
           ].map(({ d, t, key }) => (
             <PracticeRow
               key={d}

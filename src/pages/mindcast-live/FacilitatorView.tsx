@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback, lazy, Suspense, type ReactNode } from "react";
 import { CanvasSurface, isCanvasSurface } from "@/components/session/activitySurfaces";
+import { practiceEntries } from "@/lib/practiceCadence";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import QRCode from "react-qr-code";
@@ -930,11 +931,9 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
     case "practice": {
       // Only show days that actually have a practice — many weeks have none,
       // and three empty boxes read as a broken slide.
-      const days = [
-        { day: "Mon", text: session.weekly_practice_mon },
-        { day: "Wed", text: session.weekly_practice_wed },
-        { day: "Sun", text: session.weekly_practice_sun },
-      ].filter(d => (d.text || "").trim().length > 0);
+      // One declaration of the cadence, in @/lib/practiceCadence — labels and
+      // columns drifting apart is what caused two ordering bugs already.
+      const days = practiceEntries(session).map(e => ({ day: e.label, text: e.text }));
       return (
         <div className="max-w-6xl w-full">
           <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>

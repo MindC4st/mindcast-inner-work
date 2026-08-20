@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { PRACTICE_SLOTS, practiceText } from "./practiceCadence";
 import {
   FONT_BEBAS_REGULAR, FONT_MONTSERRAT_REGULAR, FONT_MONTSERRAT_SEMIBOLD,
   FONT_MONTSERRAT_BOLD, FONT_CORMORANT_ITALIC,
@@ -16,9 +17,9 @@ export type WorksheetSession = {
   video_question_2?: string;
   journaling_prompt?: string;
   experiential_exercise?: string;
-  weekly_practice_mon?: string;
-  weekly_practice_wed?: string;
-  weekly_practice_sun?: string;
+  practice_sun_today?: string;
+  practice_midweek?: string;
+  practice_fri?: string;
   core_affirmation?: string;
 };
 
@@ -226,9 +227,9 @@ function computeLayout(doc: jsPDF, s: WorksheetSession): Layout {
   doc.setFont("Montserrat", "normal");
   doc.setFontSize(8.5);
   const colW = (CW - 24) / 3;
-  const practiceCols = ([
-    ["MON", s.weekly_practice_mon], ["WED", s.weekly_practice_wed], ["SUN", s.weekly_practice_sun],
-  ] as [string, string | undefined][]).map(([day, t]) => ({
+  const practiceCols = (PRACTICE_SLOTS.map(
+    (slot) => [slot.printLabel, practiceText(s, slot.key)] as [string, string | undefined],
+  )).map(([day, t]) => ({
     day,
     lines: t ? (doc.splitTextToSize(t, colW - 14) as string[]) : [],
   }));

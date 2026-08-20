@@ -30,9 +30,9 @@ type DownloadItem = {
   video_question_2: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
-  weekly_practice_mon: string | null;
-  weekly_practice_wed: string | null;
-  weekly_practice_sun: string | null;
+  practice_sun_today: string | null;
+  practice_midweek: string | null;
+  practice_fri: string | null;
   core_affirmation: string | null;
 };
 
@@ -69,12 +69,12 @@ const PortalDownloads = () => {
     (async () => {
       const { data } = await db
         .from("mindcast_live_sessions")
-        .select("week_number, audience, phase_name, theme_title, session_title, signal_metaphor, video_question_1, video_question_2, journaling_prompt, experiential_exercise, weekly_practice_mon, weekly_practice_wed, weekly_practice_sun, core_affirmation, coloring_page_url, coloring_pdf_url")
+        .select("week_number, audience, phase_name, theme_title, session_title, signal_metaphor, video_question_1, video_question_2, journaling_prompt, experiential_exercise, practice_sun_today, practice_midweek, practice_fri, core_affirmation, coloring_page_url, coloring_pdf_url")
         .eq("audience", audience)
         .order("week_number", { ascending: true });
 
       if (!active) return;
-      const rows: DownloadItem[] = (data || []).map(r => ({
+      const rows: DownloadItem[] = ((data || []) as unknown as DownloadItem[]).map(r => ({
         ...r,
         worksheet_url: null, // will be filled from worksheets table
       }));
@@ -96,9 +96,9 @@ const PortalDownloads = () => {
     video_question_2: item.video_question_2 || undefined,
     journaling_prompt: item.journaling_prompt || undefined,
     experiential_exercise: item.experiential_exercise || undefined,
-    weekly_practice_mon: item.weekly_practice_mon || undefined,
-    weekly_practice_wed: item.weekly_practice_wed || undefined,
-    weekly_practice_sun: item.weekly_practice_sun || undefined,
+    practice_sun_today: item.practice_sun_today || undefined,
+    practice_midweek: item.practice_midweek || undefined,
+    practice_fri: item.practice_fri || undefined,
     core_affirmation: item.core_affirmation || undefined,
   });
 
