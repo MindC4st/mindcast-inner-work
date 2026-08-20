@@ -175,9 +175,10 @@ const TIERS: Tier[] = [
 
 const INCLUDED: { item: string; inTier: string }[] = [
   { item: "The Sunday session, every week of the year", inTier: "Included" },
-  { item: "Your workbook — digital and printed, with your saved reflections", inTier: "Included" },
+  { item: "Your workbook — digital (adults) or printed (kids & teens), with your saved reflections (adults only)", inTier: "Included" },
   { item: "A midweek Life Group", inTier: "Included" },
-  { item: "Private journal (private means private — teens' journals are invisible to guardians)", inTier: "Included" },
+  { item: "Private digital journal — adults only (teens' journals are invisible to guardians; kids & teens receive printed worksheets each week)", inTier: "Included" },
+  { item: "Teen portal access — revisit lessons, rewatch videos, see slide questions (answers not saved — privacy for under 18s)", inTier: "Included" },
   { item: "NFC wristband entry, replacement bracelets at cost", inTier: "Included" },
   { item: "One-to-one therapy or counselling", inTier: "Not included — and we'll say so plainly: Mindcast is not a clinical service" },
   { item: "Locked-in commitment", inTier: "Not included — cancel any time, two clicks, no questions" },
