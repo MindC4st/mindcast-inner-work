@@ -19,6 +19,7 @@ import trackAdult from "@/assets/track-adult.jpg";
 import trackTeen from "@/assets/track-teen.jpg";
 import trackKids from "@/assets/track-kids.jpg";
 import rhythmBeforeYouLeave from "@/assets/rhythm-before-you-leave.jpg";
+import howItWorksImage from "@/assets/home-adult-workbook.jpg";
 import { useAuth } from "@/contexts/AuthContext";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
@@ -276,8 +277,8 @@ const GatheringSection = () => {
         <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
           <Reveal className="relative overflow-hidden aspect-[4/5] shadow-cinematic">
             <img
-              src={facilitatorRoom}
-              alt="A facilitator leading a warm gathering"
+              src={howItWorksImage}
+              alt="A woman sitting at a table working in her workbook"
               className="gathering-img w-full h-[112%] object-cover will-change-transform"
               loading="lazy"
               width={1200}
