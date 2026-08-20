@@ -31,10 +31,11 @@ const BraceletStudio = lazy(() => import("@/components/admin/console/BraceletStu
 const TrainingHome = lazy(() => import("@/components/staff-training/TrainingHome"));
 const MarketingTab = lazy(() => import("@/pages/Marketing"));
 const AdminOrdersTab = lazy(() => import("@/components/admin/console/AdminOrdersTab"));
+const CommerceSection = lazy(() => import("@/components/admin/commerce/CommerceSection"));
 
 type TabId =
   | "dashboard" | "sessions" | "progress" | "profile" | "insights"
-  | "membership" | "downloads" | "groups" | "facilitate" | "training" | "marketing" | "orders";
+  | "membership" | "downloads" | "groups" | "facilitate" | "training" | "marketing" | "orders" | "commerce";
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -44,7 +45,8 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: "training", label: "Training", icon: GraduationCap },
   { id: "insights", label: "Insights", icon: LineChart },
   { id: "membership", label: "Membership", icon: CreditCard },
-  { id: "orders", label: "Orders", icon: ShoppingBag },
+  { id: "commerce", label: "Commerce", icon: ShoppingBag },
+  { id: "orders", label: "Orders (legacy)", icon: ShoppingBag },
   { id: "groups", label: "Group View", icon: Users },
   { id: "downloads", label: "Downloads", icon: Download },
   { id: "marketing", label: "Marketing", icon: Megaphone },
@@ -120,6 +122,7 @@ const AdminConsole = () => {
       case "profile": return <AdminProfile />;
       case "downloads": return <AdminDownloadsTab />;
       case "orders": return <AdminOrdersTab />;
+      case "commerce": return <CommerceSection />;
       case "marketing": return <MarketingTab />;
       case "groups": return <AdminLifeGroups embedded />;
       case "sessions": return (

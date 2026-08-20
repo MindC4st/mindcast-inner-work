@@ -20,11 +20,12 @@ type Variant = {
   is_active: boolean;
 };
 
-type ProductFull = CartProduct & {
+type ProductFull = Omit<CartProduct, "variants"> & {
   tagline: string | null;
   description: string | null;
   long_description: string | null;
   gallery_urls: string[];
+  image_alt: string | null;
   weight_g: number | null;
   dimensions_mm: string | null;
   materials: string | null;
@@ -49,7 +50,7 @@ const ShopProduct = () => {
     let active = true;
     (async () => {
       const { data: pRows } = await db.from("shop_products")
-        .select("id, slug, name, tagline, description, long_description, image_url, gallery_urls, price_cents, currency, fulfilment, weight_g, dimensions_mm, materials, track_stock, allow_backorder")
+        .select("id, slug, name, tagline, description, long_description, image_url, image_alt, gallery_urls, price_cents, currency, fulfilment, weight_g, dimensions_mm, materials, track_stock, allow_backorder")
         .eq("slug", slug).eq("status", "active").maybeSingle();
       if (!active) return;
       if (!pRows) { setLoading(false); return; }

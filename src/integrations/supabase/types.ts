@@ -2813,39 +2813,498 @@ export type Database = {
           },
         ]
       }
+      shop_audit_log: {
+        Row: {
+          action: string
+          actor: string | null
+          actor_name: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          actor_name?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          actor_name?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_audit_log_actor_fkey"
+            columns: ["actor"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_customers: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          profile_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_customers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_discount_redemptions: {
+        Row: {
+          created_at: string
+          discount_id: string
+          id: string
+          order_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_id: string
+          id?: string
+          order_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_id?: string
+          id?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_discount_redemptions_discount_id_fkey"
+            columns: ["discount_id"]
+            isOneToOne: false
+            referencedRelation: "shop_discounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_discount_redemptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_discounts: {
+        Row: {
+          code: string
+          created_at: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          note: string | null
+          product_ids: string[]
+          scope: string
+          starts_at: string | null
+          times_used: number
+          updated_at: string
+          usage_limit: number | null
+          value_cents: number
+          value_percent: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind: string
+          note?: string | null
+          product_ids?: string[]
+          scope?: string
+          starts_at?: string | null
+          times_used?: number
+          updated_at?: string
+          usage_limit?: number | null
+          value_cents?: number
+          value_percent?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          note?: string | null
+          product_ids?: string[]
+          scope?: string
+          starts_at?: string | null
+          times_used?: number
+          updated_at?: string
+          usage_limit?: number | null
+          value_cents?: number
+          value_percent?: number | null
+        }
+        Relationships: []
+      }
+      shop_fulfillment_items: {
+        Row: {
+          fulfillment_id: string
+          id: string
+          order_item_id: string
+          quantity: number
+        }
+        Insert: {
+          fulfillment_id: string
+          id?: string
+          order_item_id: string
+          quantity: number
+        }
+        Update: {
+          fulfillment_id?: string
+          id?: string
+          order_item_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_fulfillment_items_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "shop_fulfillments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_fulfillment_items_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_order_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_fulfillments: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          created_by: string | null
+          delivered_at: string | null
+          id: string
+          order_id: string
+          shipped_at: string | null
+          status: string
+          tracking_number: string | null
+          tracking_url: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          id?: string
+          order_id: string
+          shipped_at?: string | null
+          status?: string
+          tracking_number?: string | null
+          tracking_url?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          id?: string
+          order_id?: string
+          shipped_at?: string | null
+          status?: string
+          tracking_number?: string | null
+          tracking_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_fulfillments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_fulfillments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_inventory_movements: {
+        Row: {
+          actor: string | null
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string | null
+          quantity_change: number
+          reason: string | null
+          type: string
+          variant_id: string
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          quantity_change: number
+          reason?: string | null
+          type: string
+          variant_id: string
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          quantity_change?: number
+          reason?: string | null
+          type?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_inventory_movements_actor_fkey"
+            columns: ["actor"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_inventory_movements_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_inventory_movements_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "shop_product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_inventory_reservations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          quantity: number
+          session_key: string
+          state: string
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          quantity: number
+          session_key: string
+          state?: string
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          quantity?: number
+          session_key?: string
+          state?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_inventory_reservations_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "shop_product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_notification_log: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          order_id: string | null
+          provider_message_id: string | null
+          recipient: string
+          status: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          order_id?: string | null
+          provider_message_id?: string | null
+          recipient: string
+          status: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          order_id?: string | null
+          provider_message_id?: string | null
+          recipient?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_notification_log_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_order_events: {
+        Row: {
+          actor: string | null
+          actor_name: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          note: string | null
+          order_id: string
+          type: string
+        }
+        Insert: {
+          actor?: string | null
+          actor_name?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          note?: string | null
+          order_id: string
+          type: string
+        }
+        Update: {
+          actor?: string | null
+          actor_name?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          note?: string | null
+          order_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_order_events_actor_fkey"
+            columns: ["actor"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_order_items: {
         Row: {
           created_at: string
+          gst_cents: number
           id: string
           line_total_cents: number
           order_id: string
           product_id: string | null
           product_name: string
           quantity: number
+          sku: string | null
           slug: string
           unit_price_cents: number
+          variant_id: string | null
         }
         Insert: {
           created_at?: string
+          gst_cents?: number
           id?: string
           line_total_cents: number
           order_id: string
           product_id?: string | null
           product_name: string
           quantity: number
+          sku?: string | null
           slug?: string
           unit_price_cents: number
+          variant_id?: string | null
         }
         Update: {
           created_at?: string
+          gst_cents?: number
           id?: string
           line_total_cents?: number
           order_id?: string
           product_id?: string | null
           product_name?: string
           quantity?: number
+          sku?: string | null
           slug?: string
           unit_price_cents?: number
+          variant_id?: string | null
         }
         Relationships: [
           {
@@ -2862,27 +3321,50 @@ export type Database = {
             referencedRelation: "shop_products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "shop_order_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "shop_product_variants"
+            referencedColumns: ["id"]
+          },
         ]
       }
       shop_orders: {
         Row: {
           amount_total_cents: number
+          bill_city: string | null
+          bill_country: string | null
+          bill_line1: string | null
+          bill_line2: string | null
+          bill_name: string | null
+          bill_postcode: string | null
           collected_at: string | null
           collected_by: string | null
           confirmation_email_sent_at: string | null
           created_at: string
           currency: string
           customer_email: string | null
+          customer_first_name: string | null
+          customer_id: string | null
+          customer_last_name: string | null
+          customer_phone: string | null
+          discount_cents: number
+          discount_code: string | null
           fulfilment: string
+          fulfilment_status: string
+          gst_cents: number
           id: string
           note: string | null
           order_number: string | null
           partner_name: string | null
+          payment_status: string
           pickup_code: string
           product_id: string | null
           product_name: string
           profile_id: string | null
           quantity: number
+          refunded_cents: number
           scheduled_session_id: string | null
           ship_city: string | null
           ship_country: string | null
@@ -2903,22 +3385,38 @@ export type Database = {
         }
         Insert: {
           amount_total_cents: number
+          bill_city?: string | null
+          bill_country?: string | null
+          bill_line1?: string | null
+          bill_line2?: string | null
+          bill_name?: string | null
+          bill_postcode?: string | null
           collected_at?: string | null
           collected_by?: string | null
           confirmation_email_sent_at?: string | null
           created_at?: string
           currency?: string
           customer_email?: string | null
+          customer_first_name?: string | null
+          customer_id?: string | null
+          customer_last_name?: string | null
+          customer_phone?: string | null
+          discount_cents?: number
+          discount_code?: string | null
           fulfilment?: string
+          fulfilment_status?: string
+          gst_cents?: number
           id?: string
           note?: string | null
           order_number?: string | null
           partner_name?: string | null
+          payment_status?: string
           pickup_code?: string
           product_id?: string | null
           product_name: string
           profile_id?: string | null
           quantity?: number
+          refunded_cents?: number
           scheduled_session_id?: string | null
           ship_city?: string | null
           ship_country?: string | null
@@ -2939,22 +3437,38 @@ export type Database = {
         }
         Update: {
           amount_total_cents?: number
+          bill_city?: string | null
+          bill_country?: string | null
+          bill_line1?: string | null
+          bill_line2?: string | null
+          bill_name?: string | null
+          bill_postcode?: string | null
           collected_at?: string | null
           collected_by?: string | null
           confirmation_email_sent_at?: string | null
           created_at?: string
           currency?: string
           customer_email?: string | null
+          customer_first_name?: string | null
+          customer_id?: string | null
+          customer_last_name?: string | null
+          customer_phone?: string | null
+          discount_cents?: number
+          discount_code?: string | null
           fulfilment?: string
+          fulfilment_status?: string
+          gst_cents?: number
           id?: string
           note?: string | null
           order_number?: string | null
           partner_name?: string | null
+          payment_status?: string
           pickup_code?: string
           product_id?: string | null
           product_name?: string
           profile_id?: string | null
           quantity?: number
+          refunded_cents?: number
           scheduled_session_id?: string | null
           ship_city?: string | null
           ship_country?: string | null
@@ -2982,6 +3496,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "shop_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "shop_customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "shop_orders_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -3004,69 +3525,292 @@ export type Database = {
           },
         ]
       }
-      shop_products: {
+      shop_payments: {
         Row: {
-          bundle_slugs: string[]
-          category: string | null
+          amount_cents: number
           created_at: string
           currency: string
-          description: string | null
-          fulfilment: string
-          gallery_urls: string[]
+          id: string
+          kind: string
+          order_id: string
+          status: string
+          stripe_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          kind: string
+          order_id: string
+          status?: string
+          stripe_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          kind?: string
+          order_id?: string
+          status?: string
+          stripe_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_product_variants: {
+        Row: {
+          allow_backorder: boolean
+          cost_price_cents: number | null
+          created_at: string
           id: string
           image_url: string | null
           is_active: boolean
+          name: string
+          option_values: string | null
+          price_override_cents: number | null
+          product_id: string
+          sku: string | null
+          sort_order: number
+          stock_available: number
+          updated_at: string
+          weight_g: number | null
+        }
+        Insert: {
+          allow_backorder?: boolean
+          cost_price_cents?: number | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          option_values?: string | null
+          price_override_cents?: number | null
+          product_id: string
+          sku?: string | null
+          sort_order?: number
+          stock_available?: number
+          updated_at?: string
+          weight_g?: number | null
+        }
+        Update: {
+          allow_backorder?: boolean
+          cost_price_cents?: number | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          option_values?: string | null
+          price_override_cents?: number | null
+          product_id?: string
+          sku?: string | null
+          sort_order?: number
+          stock_available?: number
+          updated_at?: string
+          weight_g?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          allow_backorder: boolean
+          barcode: string | null
+          bundle_slugs: string[]
+          category: string | null
+          compare_at_price_cents: number | null
+          cost_price_cents: number | null
+          created_at: string
+          currency: string
+          description: string | null
+          dimensions_mm: string | null
+          featured: boolean
+          fulfilment: string
+          gallery_urls: string[]
+          gst_treatment: string
+          id: string
+          image_alt: string | null
+          image_url: string | null
+          is_active: boolean
           long_description: string
+          low_stock_threshold: number
+          materials: string | null
           name: string
           partner_name: string | null
           price_cents: number
+          sku: string | null
           slug: string
           sort_order: number
+          status: string
           stripe_price_id: string | null
           tagline: string
+          tags: string[]
+          track_stock: boolean
           updated_at: string
+          weight_g: number | null
         }
         Insert: {
+          allow_backorder?: boolean
+          barcode?: string | null
           bundle_slugs?: string[]
           category?: string | null
+          compare_at_price_cents?: number | null
+          cost_price_cents?: number | null
           created_at?: string
           currency?: string
           description?: string | null
+          dimensions_mm?: string | null
+          featured?: boolean
           fulfilment?: string
           gallery_urls?: string[]
+          gst_treatment?: string
           id?: string
+          image_alt?: string | null
           image_url?: string | null
           is_active?: boolean
           long_description?: string
+          low_stock_threshold?: number
+          materials?: string | null
           name: string
           partner_name?: string | null
           price_cents: number
+          sku?: string | null
           slug: string
           sort_order?: number
+          status?: string
           stripe_price_id?: string | null
           tagline?: string
+          tags?: string[]
+          track_stock?: boolean
           updated_at?: string
+          weight_g?: number | null
         }
         Update: {
+          allow_backorder?: boolean
+          barcode?: string | null
           bundle_slugs?: string[]
           category?: string | null
+          compare_at_price_cents?: number | null
+          cost_price_cents?: number | null
           created_at?: string
           currency?: string
           description?: string | null
+          dimensions_mm?: string | null
+          featured?: boolean
           fulfilment?: string
           gallery_urls?: string[]
+          gst_treatment?: string
           id?: string
+          image_alt?: string | null
           image_url?: string | null
           is_active?: boolean
           long_description?: string
+          low_stock_threshold?: number
+          materials?: string | null
           name?: string
           partner_name?: string | null
           price_cents?: number
+          sku?: string | null
           slug?: string
           sort_order?: number
+          status?: string
           stripe_price_id?: string | null
           tagline?: string
+          tags?: string[]
+          track_stock?: boolean
           updated_at?: string
+          weight_g?: number | null
+        }
+        Relationships: []
+      }
+      shop_refunds: {
+        Row: {
+          actor: string | null
+          amount_cents: number
+          created_at: string
+          id: string
+          items: Json
+          order_id: string
+          reason: string | null
+          restock: boolean
+          shipping_cents: number
+          status: string
+          stripe_refund_id: string | null
+        }
+        Insert: {
+          actor?: string | null
+          amount_cents: number
+          created_at?: string
+          id?: string
+          items?: Json
+          order_id: string
+          reason?: string | null
+          restock?: boolean
+          shipping_cents?: number
+          status?: string
+          stripe_refund_id?: string | null
+        }
+        Update: {
+          actor?: string | null
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          items?: Json
+          order_id?: string
+          reason?: string | null
+          restock?: boolean
+          shipping_cents?: number
+          status?: string
+          stripe_refund_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_refunds_actor_fkey"
+            columns: ["actor"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
@@ -4306,6 +5050,9 @@ export type Database = {
           phone: string
         }[]
       }
+      has_any_commerce_role: { Args: { _user_id: string }; Returns: boolean }
+      has_commerce_admin: { Args: { _user_id: string }; Returns: boolean }
+      has_fulfilment_role: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4313,6 +5060,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_support_role: { Args: { _user_id: string }; Returns: boolean }
       household_children_for: {
         Args: never
         Returns: {
@@ -4432,10 +5180,49 @@ export type Database = {
         Args: { p_enabled: boolean; p_teen_profile: string }
         Returns: undefined
       }
+      shop_adjust_stock: {
+        Args: {
+          p_actor?: string
+          p_delta: number
+          p_note?: string
+          p_order_id?: string
+          p_reason?: string
+          p_type: string
+          p_variant_id: string
+        }
+        Returns: undefined
+      }
+      shop_convert_reservation: {
+        Args: { p_order_id: string; p_session_key: string }
+        Returns: undefined
+      }
+      shop_increment_discount: {
+        Args: { p_discount_id: string }
+        Returns: undefined
+      }
+      shop_release_reservation: {
+        Args: { p_session_key: string }
+        Returns: undefined
+      }
+      shop_reserve_stock: {
+        Args: {
+          p_minutes?: number
+          p_quantity: number
+          p_session_key: string
+          p_variant_id: string
+        }
+        Returns: undefined
+      }
       wall_display_allowed: { Args: { p_profile: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "member" | "facilitator" | "admin"
+      app_role:
+        | "member"
+        | "facilitator"
+        | "admin"
+        | "commerce_admin"
+        | "fulfilment"
+        | "support"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4566,7 +5353,14 @@ export const Constants = {
   },
   public: {
     Enums: {
-      app_role: ["member", "facilitator", "admin"],
+      app_role: [
+        "member",
+        "facilitator",
+        "admin",
+        "commerce_admin",
+        "fulfilment",
+        "support",
+      ],
     },
   },
 } as const
