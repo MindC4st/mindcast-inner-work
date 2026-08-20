@@ -37,8 +37,8 @@ export const SITE = {
   origin: "https://www.mindcast.co.nz",
   locale: "en_NZ",
   twitter: "@mindcastnz",
-  /** 1200×630 social card. See the TODO in index.html. */
-  image: "/pwa-icon-512.png",
+  /** 1200×630 social card. */
+  image: "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/ogimage.png",
 } as const;
 
 export interface PageSeo {
@@ -147,6 +147,15 @@ export const PUBLIC_PAGES: PageSeo[] = [
       "How cancellations and refunds work at Mindcast. Cancel any time; the terms are stated before you pay, not after.",
     changefreq: "yearly",
     priority: 0.2,
+  },
+  {
+    path: "/contact",
+    title: "Contact | Mindcast",
+    description:
+      "Get in touch with the Mindcast team in Taupō. General enquiries, membership questions, safeguarding concerns, privacy requests, and press.",
+    ogTitle: "Contact Mindcast — we're a small team in Taupō",
+    changefreq: "monthly",
+    priority: 0.5,
   },
 ];
 
