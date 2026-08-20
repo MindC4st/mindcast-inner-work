@@ -5,9 +5,9 @@ import { LADDER, ladderRung, ladderLabel } from "@/components/session/IntentionL
 
 const root = resolve(__dirname, "../..");
 const migration = readFileSync(
-  resolve(root, "supabase/migrations/20260820140000_intention_ladder_and_whiteboard.sql"), "utf8");
+  resolve(root, "supabase/migrations/20260820140001_intention_ladder_and_whiteboard.sql"), "utf8");
 const v4 = readFileSync(
-  resolve(root, "supabase/migrations/20260820120000_lesson_flow_v4_eight_slides.sql"), "utf8");
+  resolve(root, "supabase/migrations/20260820120001_lesson_flow_v4_eight_slides.sql"), "utf8");
 
 describe("Notice → Name → Do ladder", () => {
   it("has four cumulative rungs in order", () => {

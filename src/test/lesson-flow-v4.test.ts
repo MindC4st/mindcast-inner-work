@@ -12,7 +12,7 @@ import { resolve } from "node:path";
 
 const root = resolve(__dirname, "../..");
 const migration = readFileSync(
-  resolve(root, "supabase/migrations/20260820120000_lesson_flow_v4_eight_slides.sql"), "utf8");
+  resolve(root, "supabase/migrations/20260820120001_lesson_flow_v4_eight_slides.sql"), "utf8");
 const view = readFileSync(
   resolve(root, "src/pages/mindcast-live/FacilitatorView.tsx"), "utf8");
 
