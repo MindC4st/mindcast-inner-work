@@ -233,7 +233,7 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
       </section>
     )}
 
-    {profileId && track !== "Child" && (
+    {profileId && track !== "Child" && track !== "Teen" && (
       <JournalPanel weekNum={weekNum} track={track} profileId={profileId} wsRow={wsRow} />
     )}
   </>
