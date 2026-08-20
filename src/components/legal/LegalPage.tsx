@@ -29,16 +29,17 @@ export function LegalPage({ title, lastUpdated, children }: LegalPageProps) {
         </div>
 
         {/* Content */}
-        <div className="prose prose-sm max-w-none
+        <div className="prose prose-base max-w-none
           prose-headings:text-foreground prose-headings:font-display prose-headings:font-black
-          prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
-          prose-h3:text-base prose-h3:mt-6 prose-h3:mb-3
-          prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:font-body
-          prose-li:text-muted-foreground prose-li:font-body
+          prose-h2:text-xl prose-h2:mt-12 prose-h2:mb-6
+          prose-h3:text-lg prose-h3:mt-10 prose-h3:mb-4
+          prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:font-body prose-p:my-6
+          prose-li:text-muted-foreground prose-li:font-body prose-li:leading-[1.7] prose-li:my-3
           prose-a:text-primary prose-a:underline hover:prose-a:text-primary/70
           prose-strong:text-foreground
-          prose-hr:border-border
+          prose-hr:border-border prose-hr:my-8
           prose-ul:text-muted-foreground
+          prose-ol:text-muted-foreground
         ">
           {children}
         </div>
