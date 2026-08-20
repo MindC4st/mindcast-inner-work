@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, UserPlus, X, Monitor, DoorOpen } from "lucide-react";
+import { ShieldCheck, UserPlus, X, Monitor, DoorOpen, GraduationCap } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +38,9 @@ const PortalFamily = () => {
   const [ownWallOptOut, setOwnWallOptOut] = useState(false);
   const [loading, setLoading] = useState(true);
   const [newCollector, setNewCollector] = useState<Record<string, { name: string; phone: string }>>({});
+  const [teenEmail, setTeenEmail] = useState("");
+  const [teenName, setTeenName] = useState("");
+  const [inviting, setInviting] = useState(false);
 
   const myProfileId = (profile?.id as string | undefined) ?? null;
 
@@ -175,6 +178,23 @@ const PortalFamily = () => {
     if (!error) setOwnWallOptOut(next);
   };
 
+  const inviteTeen = async () => {
+    const email = teenEmail.trim();
+    if (!email || inviting) return;
+    setInviting(true);
+    const { error } = await supabase.functions.invoke("invite-teen", {
+      body: { email, first_name: teenName.trim() || null },
+    });
+    setInviting(false);
+    if (error) {
+      toast({ title: "Couldn't invite teen", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Invite sent", description: `${email} will get a magic link to set up their account.` });
+    setTeenEmail("");
+    setTeenName("");
+  };
+
   /* ── render ── */
 
   const Toggle = ({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) => (
@@ -217,6 +237,42 @@ const PortalFamily = () => {
               </div>
             </div>
             <Toggle on={!ownWallOptOut} onChange={() => void toggleOwnWall()} label="Show my name on the welcome wall" />
+          </motion.div>
+
+          {/* Add a teen by email — sends them a magic link to set up their account */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="portal-card p-6">
+            <div className="flex items-start gap-3 mb-4">
+              <GraduationCap size={18} className="text-primary mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-body font-semibold text-foreground">Add a teen (13–17)</p>
+                <p className="text-xs text-muted-foreground font-body mt-1">
+                  Enter their email and we'll send a magic link so they can set up their own account —
+                  a read-only dashboard with their weekly lessons.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                value={teenName}
+                onChange={(e) => setTeenName(e.target.value)}
+                placeholder="Their name"
+                className="sm:w-44 bg-transparent border border-border rounded-sm px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none"
+              />
+              <input
+                value={teenEmail}
+                onChange={(e) => setTeenEmail(e.target.value)}
+                type="email"
+                placeholder="Their email address"
+                className="flex-1 bg-transparent border border-border rounded-sm px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none"
+              />
+              <button
+                onClick={() => void inviteTeen()}
+                disabled={!teenEmail.trim() || inviting}
+                className="inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground px-4 py-2.5 text-[11px] tracking-widest uppercase font-body disabled:opacity-40"
+              >
+                <UserPlus size={13} /> {inviting ? "Sending…" : "Invite teen"}
+              </button>
+            </div>
           </motion.div>
 
           {children.length === 0 && (

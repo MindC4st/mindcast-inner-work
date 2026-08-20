@@ -92,14 +92,20 @@ const tiles = useMemo<Tile[]>(() => {
         { key: "group", title: "Group View", subtitle: "Life groups & households", icon: Users, to: "/admin?tab=groups" },
       ];
     }
-    const member: Tile[] = [
-      { key: "checkin", title: "Check-In", subtitle: "Mark your attendance · your name goes on the welcome wall", icon: UserCheck, to: "/portal/checkin", accent: true },
-      { key: "today", title: "Today's Session", subtitle: liveCode ? "Live now — join with one tap" : "Enter your join code to open the live session", icon: liveCode ? Radio : PlayCircle, onClick: openTodaysSession, accent: true, badge: liveCode ? "LIVE" : undefined },
-      { key: "history", title: "Session History", subtitle: "Revisit past lessons and your journal entries", icon: History, to: "/portal/weeks" },
-      { key: "group", title: "Life Group", subtitle: "Your midweek group space", icon: Users, to: "/portal/group" },
-      { key: "downloads", title: "Downloads", subtitle: hasKids ? "Worksheets & kids colouring pages" : "Worksheets & resources", icon: Download, to: "/portal/downloads" },
-      { key: "progress", title: "My Progress", subtitle: "Streaks, completed weeks & commitments", icon: TrendingUp, to: "/portal/progress" },
-    ];
+    // Teens get a read-only dashboard: read previous sessions, no submissions.
+    const member: Tile[] = isTeen
+      ? [
+          { key: "history", title: "My Sessions", subtitle: "Read this week's lesson — no submissions", icon: History, to: "/portal/weeks", accent: true },
+          { key: "downloads", title: "Downloads", subtitle: "Worksheets & resources", icon: Download, to: "/portal/downloads" },
+        ]
+      : [
+          { key: "checkin", title: "Check-In", subtitle: "Mark your attendance · your name goes on the welcome wall", icon: UserCheck, to: "/portal/checkin", accent: true },
+          { key: "today", title: "Today's Session", subtitle: liveCode ? "Live now — join with one tap" : "Enter your join code to open the live session", icon: liveCode ? Radio : PlayCircle, onClick: openTodaysSession, accent: true, badge: liveCode ? "LIVE" : undefined },
+          { key: "history", title: "Session History", subtitle: "Revisit past lessons and your journal entries", icon: History, to: "/portal/weeks" },
+          { key: "group", title: "Life Group", subtitle: "Your midweek group space", icon: Users, to: "/portal/group" },
+          { key: "downloads", title: "Downloads", subtitle: hasKids ? "Worksheets & kids colouring pages" : "Worksheets & resources", icon: Download, to: "/portal/downloads" },
+          { key: "progress", title: "My Progress", subtitle: "Streaks, completed weeks & commitments", icon: TrendingUp, to: "/portal/progress" },
+        ];
     if (!isTeen) {
       member.splice(3, 0, { key: "teens", title: "Teen Sessions", subtitle: "Your teen's weekly lessons", icon: GraduationCap, to: "/portal/teens", badge: "TEENS" });
     }
