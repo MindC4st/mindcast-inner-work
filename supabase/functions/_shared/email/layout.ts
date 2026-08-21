@@ -1,9 +1,7 @@
 // layout.ts — the email shell. renderEmail({ template, payload }) -> { subject, html, text }
 //
-// The shell (masthead, waveform, footer) lives once here. Templates export
-// subject, previewText, transactional, and body(payload). The waveform is
-// built from table cells — NOT an <img> — so it renders with images disabled
-// (the default in Outlook and a meaningful share of Gmail users).
+// The shell (masthead, footer) lives once here. Templates export
+// subject, previewText, transactional, and body(payload).
 //
 // Port the HTML as-is. These are table-based, inline-styled, color-scheme: light only.
 // Do NOT modernise into flexbox or divs — they break in Outlook.
@@ -57,21 +55,6 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-// ─── Waveform (signal bar) ────────────────────────────────────────────────
-// 18 table-cell segments with varying heights. Renders with images disabled.
-
-const WAVE_HEIGHTS = [22, 26, 30, 26, 22, 28, 24, 20, 26, 22, 18, 24, 28, 22, 30, 26, 20, 24];
-
-function waveform(): string {
-  const cells = WAVE_HEIGHTS.map(
-    (h) =>
-      `<td width="3" valign="middle" style="padding:0 2px;height:32px;">` +
-      `<div style="height:${h}px;background:${T.signalBlue};border-radius:2px;line-height:${h}px;font-size:1px;">&nbsp;</div>` +
-      `</td>`,
-  ).join("");
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="height:32px;"><tr>${cells}</tr></table>`;
-}
-
 // ─── Shell ────────────────────────────────────────────────────────────────
 
 function head(title: string): string {
@@ -99,16 +82,9 @@ function head(title: string): string {
 }
 
 function masthead(): string {
-  return `  <tr><td class="hd" style="padding:34px 44px 0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td align="left" valign="middle">
-        <img src="${T.wordmarkUrl}" width="150" alt="Mindcast"
-             style="display:block;width:150px;max-width:150px;height:auto;">
-      </td>
-      <td align="right" valign="middle" style="white-space:nowrap;">
-        <span style="display:inline-block;background:${T.navy};color:${T.cardBg};font-family:${T.display};font-size:12px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;margin-left:4px;">Member</span>
-      </td>
-    </tr></table>
+  return `  <tr><td style="background:${T.signalBlue};padding:26px 44px;">
+    <img src="${T.wordmarkUrl}" width="150" alt="Mindcast"
+         style="display:block;width:150px;max-width:150px;height:auto;">
   </td></tr>`;
 }
 
@@ -174,9 +150,7 @@ export function renderEmail(template: EmailTemplate, payload: Payload): Rendered
 
 ${masthead()}
 
-  <tr><td class="hd" style="padding:26px 44px 0;">${waveform()}</td></tr>
-
-  <tr><td class="pad" style="padding:4px 44px 34px;">
+  <tr><td class="pad" style="padding:30px 44px 34px;">
 ${bodyHtml}
   </td></tr>
 

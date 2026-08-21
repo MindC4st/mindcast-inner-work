@@ -1,16 +1,200 @@
-// seat-invite.ts — transactional. Merge: first_name, inviter_name
+// seat-invite.ts — transactional.
+// Merge fields: first_name, inviter_name
+
 import type { EmailTemplate } from "../layout.ts";
-const D = "'Bebas Neue','Haettenschweiler','Arial Narrow',Impact,sans-serif";
-const S = "'Cormorant Garamond',Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif";
-const M = "'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+
+interface P {
+  first_name: string;
+  inviter_name: string;
+}
+
+const M =
+  "Arial, Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
 export default {
-  subject: (p: { first_name: string; inviter_name: string }) => `${p.inviter_name} invited you to Mindcast`,
-  previewText: () => `Someone thinks you'd fit here.`,
+  subject: (p: P) => `${p.inviter_name} invited you to Mindcast`,
+  previewText: () => `Your first session is free.`,
+
   transactional: true,
-  body: (p: { first_name: string; inviter_name: string }) =>
-    `<div style="font-family:${D};font-size:38px;font-weight:400;letter-spacing:.03em;text-transform:uppercase;line-height:1.04;color:#102438;margin:16px 0 8px;">You're invited</div>
-<div style="font-family:${S};font-style:italic;font-size:16px;color:#2A4257;margin:0 0 4px;">Kia ora ${p.first_name}</div>
-<p style="margin:0 0 15px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">${p.inviter_name} thinks you'd fit at Mindcast. It's a weekly gathering — one hour, one idea, one thing to actually do.</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 6px;"><tr><td width="3" bgcolor="#3585AF" style="background:#3585AF;font-size:1px;line-height:1px;">&nbsp;</td><td bgcolor="#DEE9EC" style="background:#DEE9EC;padding:18px 22px;font-family:${S};font-style:italic;font-size:16px;line-height:1.6;color:#102438;">Your first session is free. No catch, no follow-up call, no sales anything.</td></tr></table>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 6px;"><tr><td bgcolor="#102438" style="background:#102438;"><a href="https://www.mindcast.co.nz/try" style="display:inline-block;padding:13px 28px;font-family:${D};font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#F8F4E8;text-decoration:none;">Book your free session</a></td></tr></table>`,
-} satisfies EmailTemplate;
+
+  body: (p: P) => `
+    <div
+      style="
+        font-family:${M};
+        color:#303947;
+      "
+    >
+
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        You've been invited to Mindcast
+      </h1>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Kia ora ${p.first_name},
+      </p>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        ${p.inviter_name} invited you to come along to Mindcast.
+      </p>
+
+      <p
+        style="
+          margin:0 0 28px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        It's a weekly in-person gathering built around one theme, some good questions and one small intention to take into the week.
+      </p>
+
+      <!-- First session -->
+      <table
+        role="presentation"
+        width="100%"
+        cellspacing="0"
+        cellpadding="0"
+        border="0"
+        style="
+          margin:0 0 28px;
+          background:#F8F5EF;
+          border-radius:14px;
+          overflow:hidden;
+        "
+      >
+        <tr>
+          <td
+            width="4"
+            style="
+              width:4px;
+              background:#3D8DB7;
+              font-size:1px;
+              line-height:1px;
+            "
+          >
+            &nbsp;
+          </td>
+
+          <td
+            style="
+              padding:22px 24px;
+              font-family:${M};
+              color:#303947;
+            "
+          >
+            <p
+              style="
+                margin:0 0 6px;
+                font-size:13px;
+                line-height:1.5;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:.06em;
+                color:#92979D;
+              "
+            >
+              Your first session
+            </p>
+
+            <p
+              style="
+                margin:0;
+                font-size:17px;
+                line-height:1.7;
+                color:#4D5560;
+              "
+            >
+              Your first session is free. Come along, see what the room is like and decide for yourself whether it's useful to you.
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0 0 28px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        There's no obligation to join afterwards and no need to prepare anything before you come.
+      </p>
+
+      <!-- CTA -->
+      <table
+        role="presentation"
+        cellspacing="0"
+        cellpadding="0"
+        border="0"
+        style="margin:0 0 30px;"
+      >
+        <tr>
+          <td
+            align="center"
+            style="
+              background:#3D8DB7;
+              border-radius:999px;
+            "
+          >
+            <a
+              href="https://www.mindcast.co.nz/try"
+              style="
+                display:inline-block;
+                padding:15px 30px;
+                font-family:${M};
+                font-size:16px;
+                line-height:1;
+                font-weight:600;
+                color:#FFFFFF;
+                text-decoration:none;
+              "
+            >
+              View your first session
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0;
+          font-family:${M};
+          font-size:14px;
+          line-height:1.65;
+          color:#747B84;
+        "
+      >
+        If you'd rather not come, there's nothing you need to do.
+      </p>
+
+    </div>
+  `,
+} satisfies EmailTemplate<P>;

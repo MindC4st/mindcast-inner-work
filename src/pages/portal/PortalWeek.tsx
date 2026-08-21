@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, Lightbulb, Shield } from "lucide-react";
+import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, Lightbulb, Shield, Users, Eye } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import type { Database } from "@/integrations/supabase/types";
+
+const WhiteboardViewer = lazy(() => import("@/components/whiteboard/WhiteboardViewer"));
 
 type CurriculumPublicRow = Database["public"]["Functions"]["curriculum_public"]["Returns"][number];
 
@@ -233,10 +235,81 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
       </section>
     )}
 
+    <SessionRecord weekNum={weekNum} track={track} />
+
     {profileId && track !== "Child" && track !== "Teen" && (
       <JournalPanel weekNum={weekNum} track={track} profileId={profileId} wsRow={wsRow} />
     )}
   </>
+  );
+};
+
+// Session record — the approved, on-screen shared reflections from the live
+// session, plus the facilitator's saved whiteboard. Read-only for everyone.
+const SessionRecord = ({ weekNum, track }: { weekNum: number; track: string }) => {
+  const [responses, setResponses] = useState<{ id: string; display_name: string; response_text: string }[]>([]);
+  const [whiteboard, setWhiteboard] = useState<unknown | null>(null);
+  const [boardOpen, setBoardOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const [{ data: resp }, { data: wb }] = await Promise.all([
+        db.from("session_responses")
+          .select("id, display_name, response_text")
+          .eq("week_number", weekNum)
+          .eq("audience_type", track)
+          .eq("is_public", true)
+          .eq("hidden", false)
+          .eq("moderation_status", "approved")
+          .order("created_at"),
+        db.from("whiteboard_snapshots")
+          .select("snapshot")
+          .eq("week_number", weekNum)
+          .eq("audience_type", track)
+          .maybeSingle(),
+      ]);
+      if (!active) return;
+      setResponses(resp ?? []);
+      setWhiteboard(wb?.snapshot ?? null);
+    })();
+    return () => { active = false; };
+  }, [weekNum, track]);
+
+  if (responses.length === 0 && !whiteboard) return null;
+
+  return (
+    <section className="mb-10 portal-card p-5 md:p-6">
+      <h2 className="portal-heading text-lg text-foreground mb-1 flex items-center gap-2"><Users size={16} /> Shared in the session</h2>
+      <p className="text-xs text-muted-foreground font-body mb-4">Reflections that were shown on the screen this week.</p>
+      {responses.length === 0 ? (
+        <p className="text-sm text-muted-foreground font-body font-light">No shared reflections were displayed this week.</p>
+      ) : (
+        <ul className="space-y-3 mb-5">
+          {responses.map((r) => (
+            <li key={r.id} className="border border-foreground/[0.06] rounded-sm px-4 py-3">
+              <p className="text-xs text-primary/70 font-body font-semibold mb-0.5">{r.display_name}</p>
+              <p className="text-sm text-foreground/80 font-body leading-relaxed">{r.response_text}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {whiteboard && (
+        <div>
+          {boardOpen ? (
+            <div className="relative aspect-[4/3] rounded-sm overflow-hidden border border-foreground/[0.08] mb-2">
+              <Suspense fallback={<div className="absolute inset-0 grid place-items-center"><Loader2 className="animate-spin text-muted-foreground" size={18} /></div>}>
+                <WhiteboardViewer snapshot={whiteboard} />
+              </Suspense>
+            </div>
+          ) : (
+            <button onClick={() => setBoardOpen(true)} className="inline-flex items-center gap-1.5 text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
+              <Eye size={12} /> View session whiteboard
+            </button>
+          )}
+        </div>
+      )}
+    </section>
   );
 };
 

@@ -165,7 +165,6 @@ async function createFulfilment(ctx: Ctx, body: any) {
     fulfilledQty.set(pi.order_item_id, (fulfilledQty.get(pi.order_item_id) ?? 0) + pi.quantity);
   }
 
-  // deno-lint-ignore no-explicit-any
   const requested: { order_item_id: string; quantity: number }[] = Array.isArray(body?.items) && body.items.length > 0
     ? body.items
     : orderItems
@@ -238,22 +237,156 @@ async function createFulfilment(ctx: Ctx, body: any) {
 
   // Shipping email (full or partial).
   if (isShipment && order.customer_email) {
-    const { data: itemRows } = await ctx.supa
-      .from("shop_order_items").select("product_name, quantity, line_total_cents").eq("order_id", order.id);
     const shippedNames = requested
       .map((r) => orderItems.find((it: { id: string }) => it.id === r.order_item_id))
       .filter(Boolean)
       // deno-lint-ignore no-explicit-any
       .map((it: any) => `${it.product_name}${r_qty(it, requested) > 1 ? ` ×${r_qty(it, requested)}` : ""}`);
     const html = emailShell(`
-      <h1 style="font-size:22px;margin:8px 0 4px;">${fullyFulfilled ? "Your order is on its way" : "Part of your order is on its way"}</h1>
-      <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-      ${!fullyFulfilled ? `<p style="font-size:15px;">Shipping now: ${shippedNames.join(", ")}. The rest follows separately.</p>` : ""}
-      ${trackingNumber ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f1ea;border-left:3px solid #8a6d3b;">
-        ${carrier ? `${carrier} · ` : ""}Tracking: <strong>${trackingNumber}</strong>
-        ${trackingUrl ? `<br/><a href="${trackingUrl}" style="color:#1a2332;">Track your delivery</a>` : ""}</p>` : ""}
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        ${fullyFulfilled ? "Your order is on its way" : "Part of your order is on its way"}
+      </h1>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:14px;
+          line-height:1.6;
+          color:#747B84;
+        "
+      >
+        Order <strong style="color:#303947;">#${order.order_number || ""}</strong>
+      </p>
+
+      ${!fullyFulfilled ? `
+        <table
+          role="presentation"
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          border="0"
+          style="
+            margin:0 0 24px;
+            background:#F8F5EF;
+            border-radius:14px;
+          "
+        >
+          <tr>
+            <td style="padding:20px 22px;">
+              <p
+                style="
+                  margin:0 0 6px;
+                  font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                  font-size:13px;
+                  line-height:1.5;
+                  font-weight:600;
+                  text-transform:uppercase;
+                  letter-spacing:.06em;
+                  color:#92979D;
+                "
+              >
+                Shipping now
+              </p>
+
+              <p
+                style="
+                  margin:0;
+                  font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                  font-size:16px;
+                  line-height:1.65;
+                  color:#4D5560;
+                "
+              >
+                ${shippedNames.join(", ")}. The rest of your order will follow separately.
+              </p>
+            </td>
+          </tr>
+        </table>
+      ` : ""}
+
+      ${trackingNumber ? `
+        <table
+          role="presentation"
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          border="0"
+          style="
+            margin:0 0 24px;
+            background:#F8F5EF;
+            border-radius:14px;
+            overflow:hidden;
+          "
+        >
+          <tr>
+            <td
+              width="4"
+              style="
+                width:4px;
+                background:#3D8DB7;
+                font-size:1px;
+                line-height:1px;
+              "
+            >
+              &nbsp;
+            </td>
+
+            <td style="padding:20px 22px;">
+              <p
+                style="
+                  margin:0 0 6px;
+                  font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                  font-size:13px;
+                  line-height:1.5;
+                  font-weight:600;
+                  text-transform:uppercase;
+                  letter-spacing:.06em;
+                  color:#92979D;
+                "
+              >
+                Tracking
+              </p>
+
+              <p
+                style="
+                  margin:0;
+                  font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                  font-size:16px;
+                  line-height:1.65;
+                  color:#4D5560;
+                "
+              >
+                ${carrier ? `${carrier} · ` : ""}<strong style="color:#303947;">${trackingNumber}</strong>
+                ${trackingUrl ? `<br><a href="${trackingUrl}" style="color:#3D8DB7;text-decoration:underline;">Track your delivery</a>` : ""}
+              </p>
+            </td>
+          </tr>
+        </table>
+      ` : ""}
+
       ${addressBlock(order)}
-      <p style="margin:20px 0 4px;color:#555;">Thank you for supporting Mindcast.</p>
+
+      <p
+        style="
+          margin:24px 0 0;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:15px;
+          line-height:1.65;
+          color:#747B84;
+        "
+      >
+        ${fullyFulfilled ? "We'll see you on the other side of the delivery." : "We'll email you again when the rest of your order is on the way."}
+      </p>
     `);
     const sent = await sendCommerceEmail(ctx.supa, {
       orderId: order.id,
@@ -352,10 +485,101 @@ async function cancelOrder(ctx: Ctx, body: any) {
 
   if (order.customer_email) {
     const html = emailShell(`
-      <h1 style="font-size:22px;margin:8px 0 4px;">Your order has been cancelled</h1>
-      <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-      <p style="font-size:15px;">${order.stripe_payment_intent ? "Any payment has been refunded — allow a few business days for it to appear." : "No payment was taken."}</p>
-      <p style="margin:20px 0 4px;color:#555;">If this is unexpected, reply to this email and we'll sort it.</p>
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Your order has been cancelled
+      </h1>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:14px;
+          line-height:1.6;
+          color:#747B84;
+        "
+      >
+        Order <strong style="color:#303947;">#${order.order_number || ""}</strong>
+      </p>
+
+      <table
+        role="presentation"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="
+          margin:0 0 26px;
+          background:#F8F5EF;
+          border-radius:14px;
+          overflow:hidden;
+        "
+      >
+        <tr>
+          <td
+            width="4"
+            style="
+              width:4px;
+              background:#3D8DB7;
+              font-size:1px;
+              line-height:1px;
+            "
+          >
+            &nbsp;
+          </td>
+
+          <td style="padding:20px 22px;">
+            <p
+              style="
+                margin:0 0 6px;
+                font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                font-size:13px;
+                line-height:1.5;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:.06em;
+                color:#92979D;
+              "
+            >
+              What happens next
+            </p>
+
+            <p
+              style="
+                margin:0;
+                font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                font-size:16px;
+                line-height:1.65;
+                color:#4D5560;
+              "
+            >
+              ${order.stripe_payment_intent
+                ? "Any payment has been refunded to the original payment method. Please allow a few business days for it to appear."
+                : "No payment was taken for this order."}
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:15px;
+          line-height:1.65;
+          color:#747B84;
+        "
+      >
+        If you weren't expecting this cancellation, reply to this email and we'll help.
+      </p>
     `);
     await sendCommerceEmail(ctx.supa, {
       orderId: order.id, type: "order_cancelled", to: order.customer_email,
@@ -379,7 +603,6 @@ async function refundOrder(ctx: Ctx, body: any) {
 
   // Amount: explicit, or summed from selected items/quantities.
   let amountCents = Number.isInteger(body?.amount_cents) ? Number(body.amount_cents) : 0;
-  // deno-lint-ignore no-explicit-any
   const itemSelections: { order_item_id: string; quantity: number }[] = Array.isArray(body?.items) ? body.items : [];
   const refundItems: { order_item_id: string; quantity: number; amount_cents: number; variant_id: string | null }[] = [];
   if (amountCents <= 0 && itemSelections.length > 0) {
@@ -478,11 +701,126 @@ async function refundOrder(ctx: Ctx, body: any) {
   // Refund email.
   if (order.customer_email) {
     const html = emailShell(`
-      <h1 style="font-size:22px;margin:8px 0 4px;">Your refund has been processed</h1>
-      <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-      <p style="font-size:15px;">${money(amountCents)} has been refunded to your original payment method. It can take a few business days to appear.</p>
-      ${isFull ? `<p style="font-size:15px;color:#555;">This order has been fully refunded.</p>` : ""}
-      <p style="margin:20px 0 4px;color:#555;">Questions about this refund? Reply to this email.</p>
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Your refund has been processed
+      </h1>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:14px;
+          line-height:1.6;
+          color:#747B84;
+        "
+      >
+        Order <strong style="color:#303947;">#${order.order_number || ""}</strong>
+      </p>
+
+      <table
+        role="presentation"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="
+          margin:0 0 26px;
+          background:#F8F5EF;
+          border-radius:14px;
+          overflow:hidden;
+        "
+      >
+        <tr>
+          <td
+            width="4"
+            style="
+              width:4px;
+              background:#3D8DB7;
+              font-size:1px;
+              line-height:1px;
+            "
+          >
+            &nbsp;
+          </td>
+
+          <td style="padding:22px 24px;">
+            <p
+              style="
+                margin:0 0 6px;
+                font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                font-size:13px;
+                line-height:1.5;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:.06em;
+                color:#92979D;
+              "
+            >
+              Refund amount
+            </p>
+
+            <p
+              style="
+                margin:0;
+                font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                font-size:24px;
+                line-height:1.3;
+                font-weight:600;
+                color:#303947;
+              "
+            >
+              ${money(amountCents)}
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        The refund has been sent back to your original payment method. Depending on your bank, it may take a few business days to appear.
+      </p>
+
+      ${isFull ? `
+        <p
+          style="
+            margin:0 0 18px;
+            font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+            font-size:15px;
+            line-height:1.65;
+            color:#747B84;
+          "
+        >
+          This order has now been fully refunded.
+        </p>
+      ` : ""}
+
+      <p
+        style="
+          margin:0;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:14px;
+          line-height:1.65;
+          color:#747B84;
+        "
+      >
+        If you have any questions about the refund, reply to this email and we'll help.
+      </p>
     `);
     await sendCommerceEmail(ctx.supa, {
       orderId: order.id, type: "refund_confirmation", to: order.customer_email,
@@ -522,22 +860,222 @@ async function resendEmail(ctx: Ctx, body: any) {
 
   const html = kind === "order_shipped"
     ? emailShell(`
-      <h1 style="font-size:22px;margin:8px 0 4px;">Your order is on its way</h1>
-      <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-      ${order.tracking_number ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f1ea;border-left:3px solid #8a6d3b;">Tracking: <strong>${order.tracking_number}</strong>${order.tracking_url ? `<br/><a href="${order.tracking_url}" style="color:#1a2332;">Track your delivery</a>` : ""}</p>` : ""}
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Your order is on its way
+      </h1>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:14px;
+          line-height:1.6;
+          color:#747B84;
+        "
+      >
+        Order <strong style="color:#303947;">#${order.order_number || ""}</strong>
+      </p>
+
+      ${order.tracking_number ? `
+        <table
+          role="presentation"
+          width="100%"
+          cellpadding="0"
+          cellspacing="0"
+          border="0"
+          style="
+            margin:0 0 24px;
+            background:#F8F5EF;
+            border-radius:14px;
+            overflow:hidden;
+          "
+        >
+          <tr>
+            <td
+              width="4"
+              style="
+                width:4px;
+                background:#3D8DB7;
+                font-size:1px;
+                line-height:1px;
+              "
+            >
+              &nbsp;
+            </td>
+
+            <td style="padding:20px 22px;">
+              <p
+                style="
+                  margin:0 0 6px;
+                  font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                  font-size:13px;
+                  line-height:1.5;
+                  font-weight:600;
+                  text-transform:uppercase;
+                  letter-spacing:.06em;
+                  color:#92979D;
+                "
+              >
+                Tracking
+              </p>
+
+              <p
+                style="
+                  margin:0;
+                  font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                  font-size:16px;
+                  line-height:1.65;
+                  color:#4D5560;
+                "
+              >
+                <strong style="color:#303947;">${order.tracking_number}</strong>
+                ${order.tracking_url ? `<br><a href="${order.tracking_url}" style="color:#3D8DB7;text-decoration:underline;">Track your delivery</a>` : ""}
+              </p>
+            </td>
+          </tr>
+        </table>
+      ` : ""}
+
       ${addressBlock(order)}
     `)
     : emailShell(`
-      <h1 style="font-size:22px;margin:8px 0 4px;">Thank you — we've received your order</h1>
-      <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-      <table style="width:100%;border-collapse:collapse;font-size:15px;">
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Your order is confirmed
+      </h1>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:14px;
+          line-height:1.6;
+          color:#747B84;
+        "
+      >
+        Order <strong style="color:#303947;">#${order.order_number || ""}</strong>
+      </p>
+
+      <table
+        role="presentation"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="
+          width:100%;
+          margin:0 0 24px;
+          font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          font-size:15px;
+        "
+      >
         ${itemsTable(rows)}
+
         <tr>
-          <td style="padding:10px 0;border-top:1px solid #ddd;"><strong>Total (incl. GST)</strong></td>
-          <td style="padding:10px 0;border-top:1px solid #ddd;text-align:right;"><strong>${money(order.amount_total_cents)}</strong></td>
+          <td
+            style="
+              padding:16px 0 0;
+              font-size:16px;
+              font-weight:600;
+              color:#303947;
+            "
+          >
+            Total
+            <span style="font-weight:400;color:#92979D;">(incl. GST)</span>
+          </td>
+
+          <td
+            align="right"
+            style="
+              padding:16px 0 0 20px;
+              font-size:17px;
+              font-weight:600;
+              color:#303947;
+            "
+          >
+            ${money(order.amount_total_cents)}
+          </td>
         </tr>
       </table>
-      ${order.fulfilment === "ship" ? addressBlock(order) : `<p style="margin:16px 0 4px;color:#555;">Collect at the Mindcast counter — pickup code <strong>${order.pickup_code}</strong>.</p>`}
+
+      ${order.fulfilment === "ship"
+        ? addressBlock(order)
+        : `
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              margin:24px 0 0;
+              background:#F8F5EF;
+              border-radius:14px;
+              overflow:hidden;
+            "
+          >
+            <tr>
+              <td
+                width="4"
+                style="
+                  width:4px;
+                  background:#3D8DB7;
+                  font-size:1px;
+                  line-height:1px;
+                "
+              >
+                &nbsp;
+              </td>
+
+              <td style="padding:20px 22px;">
+                <p
+                  style="
+                    margin:0 0 6px;
+                    font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                    font-size:13px;
+                    line-height:1.5;
+                    font-weight:600;
+                    text-transform:uppercase;
+                    letter-spacing:.06em;
+                    color:#92979D;
+                  "
+                >
+                  Local pickup
+                </p>
+
+                <p
+                  style="
+                    margin:0;
+                    font-family:Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+                    font-size:16px;
+                    line-height:1.65;
+                    color:#4D5560;
+                  "
+                >
+                  Show this pickup code when you collect your order:
+                  <strong style="color:#303947;">${order.pickup_code}</strong>
+                </p>
+              </td>
+            </tr>
+          </table>
+        `}
     `);
 
   const sent = await sendCommerceEmail(ctx.supa, {

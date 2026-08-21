@@ -109,8 +109,8 @@ async function render(row: OutboxRow, supa: any): Promise<Rendered> {
         body: () => bodyHtml,
       }, {});
 
-    const M = "'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
-    const para = (s: string) => `<p style="margin:0 0 12px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">${s}</p>`;
+    const M = "Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
+    const para = (s: string) => `<p style="margin:0 0 12px;font-family:${M};font-size:15px;line-height:1.7;color:#4D5560;">${s}</p>`;
 
     switch (p.reason) {
       case "collected":
@@ -141,7 +141,7 @@ async function render(row: OutboxRow, supa: any): Promise<Rendered> {
           `Please read now — ${name} left the session room`,
           `${name} left the room unaccompanied`,
           para(`${name} left the ${p.room} room on ${when} without an adult and without being signed out to anyone.`) +
-          `<p style="margin:0 0 12px;font-family:${M};font-size:15px;line-height:1.7;color:#102438;"><strong>The team in the building was alerted immediately and someone will phone you — this email is the written record, not the response.</strong></p>` +
+          `<p style="margin:0 0 12px;font-family:${M};font-size:15px;line-height:1.7;color:#303947;"><strong>The team in the building was alerted immediately and someone will phone you — this email is the written record, not the response.</strong></p>` +
           para(`If you are in the building, please come to the ${p.room} room now.`),
         );
       default:

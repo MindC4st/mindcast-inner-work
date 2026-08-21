@@ -25,6 +25,56 @@ const json = (body: unknown, status = 200) =>
 
 const money = (cents: number): string => `$${(cents / 100).toFixed(2)}`;
 
+const FONT = "Arial,Helvetica,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
+
+const WORDMARK_URL =
+  "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/Wordmark-White-Transparent.png";
+
+const escapeHtml = (s: string): string =>
+  s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+const shell = (inner: string) => `<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Mindcast</title>
+</head>
+<body style="margin:0;padding:0;background:#F8F5EF;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8F5EF;">
+<tr><td align="center" style="padding:34px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+       style="width:600px;max-width:600px;background:#FFFFFF;border-radius:14px;overflow:hidden;">
+  <tr><td style="background:#3D8DB7;padding:26px 44px;">
+    <img src="${WORDMARK_URL}" width="150" alt="Mindcast"
+         style="display:block;width:150px;max-width:150px;height:auto;">
+  </td></tr>
+  <tr><td style="padding:30px 44px 34px;">
+${inner}
+  </td></tr>
+  <tr><td style="padding:0 44px 34px;">
+    <div style="height:1px;background:#E9E5DE;line-height:1px;font-size:1px;">&nbsp;</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="margin-top:14px;"><tr>
+      <td align="left" style="font-family:${FONT};font-size:10px;color:#92979D;">mindcast.co.nz</td>
+      <td align="right" style="font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#303947;">Notice It. Name It. Do It.</td>
+    </tr></table>
+    <div style="font-family:${FONT};font-size:11px;line-height:1.7;color:#92979D;padding-top:16px;">
+      Mindcast Limited &nbsp;·&nbsp; Taup&#333;, Aotearoa New Zealand<br>
+      Reply to this email and a person will read it.
+    </div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body>
+</html>`;
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -125,49 +175,62 @@ async function sendOrderEmail(supa: any, orderId: string, kind: "confirmation" |
     .map(
       (it: { product_name: string; quantity: number; line_total_cents: number }) =>
         `<tr>
-          <td style="padding:6px 0;">${it.product_name}${it.quantity > 1 ? ` &times; ${it.quantity}` : ""}</td>
-          <td style="padding:6px 0;text-align:right;">${money(it.line_total_cents)}</td>
+          <td style="padding:8px 0;border-bottom:1px solid #E9E5DE;font-family:${FONT};font-size:15px;color:#4D5560;">${escapeHtml(String(it.product_name))}${it.quantity > 1 ? ` &times; ${it.quantity}` : ""}</td>
+          <td style="padding:8px 0;border-bottom:1px solid #E9E5DE;text-align:right;font-family:${FONT};font-size:15px;color:#303947;">${money(it.line_total_cents)}</td>
         </tr>`,
     )
     .join("");
 
   const trackingBlock = order.tracking_number
-    ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f1ea;border-left:3px solid #8a6d3b;">
-         Tracking number: <strong>${order.tracking_number}</strong>
-         ${order.tracking_url ? `<br/><a href="${order.tracking_url}" style="color:#1a2332;">Track your delivery</a>` : ""}
-       </p>`
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+            style="margin:24px 0 0;background:#F8F5EF;border-radius:14px;overflow:hidden;"><tr>
+        <td width="4" style="width:4px;background:#3D8DB7;font-size:1px;line-height:1px;">&nbsp;</td>
+        <td style="padding:20px 22px;">
+          <p style="margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:1.5;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#92979D;">Tracking</p>
+          <p style="margin:0;font-family:${FONT};font-size:16px;line-height:1.65;color:#4D5560;">
+            <strong style="color:#303947;">${escapeHtml(String(order.tracking_number))}</strong>
+            ${order.tracking_url ? `<br><a href="${escapeHtml(String(order.tracking_url))}" style="color:#3D8DB7;text-decoration:underline;">Track your delivery</a>` : ""}
+          </p>
+        </td>
+      </tr></table>`
     : "";
 
-  const html = kind === "shipped"
+  const addressPanel = order.ship_name
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+            style="margin:24px 0 0;background:#F8F5EF;border-radius:14px;overflow:hidden;"><tr>
+        <td width="4" style="width:4px;background:#3D8DB7;font-size:1px;line-height:1px;">&nbsp;</td>
+        <td style="padding:20px 22px;">
+          <p style="margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:1.5;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#92979D;">Delivering to</p>
+          <p style="margin:0;font-family:${FONT};font-size:16px;line-height:1.65;color:#4D5560;">
+            <strong style="color:#303947;">${escapeHtml(String(order.ship_name))}</strong><br>
+            ${order.ship_line1 ? escapeHtml(String(order.ship_line1)) : ""}${order.ship_line2 ? "<br>" + escapeHtml(String(order.ship_line2)) : ""}${order.ship_line1 || order.ship_line2 ? "<br>" : ""}
+            ${escapeHtml(`${order.ship_city || ""} ${order.ship_postcode || ""}`.trim())}
+          </p>
+        </td>
+      </tr></table>`
+    : "";
+
+  const html = shell(kind === "shipped"
     ? `
-  <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:24px;color:#1a2332;">
-    <p style="letter-spacing:0.3em;font-size:12px;color:#8a6d3b;">MINDCAST</p>
-    <h1 style="font-size:22px;margin:8px 0 4px;">Your order is on its way</h1>
-    <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-    <table style="width:100%;border-collapse:collapse;font-size:15px;">${rows}</table>
-    ${trackingBlock}
-    ${order.ship_name ? `<p style="margin:16px 0 4px;color:#555;"><strong>Delivering to</strong><br/>
-       ${order.ship_name}<br/>
-       ${order.ship_line1 || ""}${order.ship_line2 ? "<br/>" + order.ship_line2 : ""}<br/>
-       ${order.ship_city || ""} ${order.ship_postcode || ""}</p>` : ""}
-    <p style="margin:20px 0 4px;color:#555;">Thank you for supporting Mindcast.</p>
-    <p style="margin:24px 0 0;color:#999;font-size:13px;">Mindcast · mindcast.co.nz</p>
-  </div>`
+      <h1 style="margin:0 0 18px;font-family:${FONT};font-size:28px;line-height:1.25;font-weight:600;color:#303947;">Your order is on its way</h1>
+      <p style="margin:0 0 26px;font-family:${FONT};font-size:14px;line-height:1.6;color:#747B84;">Order <strong style="color:#303947;">${order.order_number || ""}</strong></p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 0 8px;font-family:${FONT};font-size:15px;">${rows}</table>
+      ${trackingBlock}
+      ${addressPanel}
+      <p style="margin:26px 0 0;font-family:${FONT};font-size:15px;line-height:1.65;color:#4D5560;">Thank you for supporting Mindcast.</p>
+    `
     : `
-  <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:24px;color:#1a2332;">
-    <p style="letter-spacing:0.3em;font-size:12px;color:#8a6d3b;">MINDCAST</p>
-    <h1 style="font-size:22px;margin:8px 0 4px;">Thank you — your order is confirmed</h1>
-    <p style="color:#555;margin:0 0 16px;">Order ${order.order_number || ""}</p>
-    <table style="width:100%;border-collapse:collapse;font-size:15px;">
-      ${rows}
-      <tr>
-        <td style="padding:10px 0;border-top:1px solid #ddd;"><strong>Total (incl. GST)</strong></td>
-        <td style="padding:10px 0;border-top:1px solid #ddd;text-align:right;"><strong>${money(order.amount_total_cents)}</strong></td>
-      </tr>
-    </table>
-    <p style="margin:20px 0 4px;color:#555;">We'll email you again when your order ships. Prices are in NZD and include GST.</p>
-    <p style="margin:24px 0 0;color:#999;font-size:13px;">Mindcast · mindcast.co.nz</p>
-  </div>`;
+      <h1 style="margin:0 0 18px;font-family:${FONT};font-size:28px;line-height:1.25;font-weight:600;color:#303947;">Thank you — your order is confirmed</h1>
+      <p style="margin:0 0 26px;font-family:${FONT};font-size:14px;line-height:1.6;color:#747B84;">Order <strong style="color:#303947;">${order.order_number || ""}</strong></p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 0 8px;font-family:${FONT};font-size:15px;">
+        ${rows}
+        <tr>
+          <td style="padding:16px 0 0;font-size:16px;font-weight:600;color:#303947;">Total <span style="font-weight:400;color:#92979D;">(incl. GST)</span></td>
+          <td align="right" style="padding:16px 0 0 20px;font-size:17px;font-weight:600;color:#303947;">${money(order.amount_total_cents)}</td>
+        </tr>
+      </table>
+      <p style="margin:26px 0 0;font-family:${FONT};font-size:15px;line-height:1.65;color:#4D5560;">We'll email you again when your order ships. Prices are in NZD and include GST.</p>
+    `);
 
   const subject = kind === "shipped"
     ? `MINDCAST order ${order.order_number || ""} — shipped`

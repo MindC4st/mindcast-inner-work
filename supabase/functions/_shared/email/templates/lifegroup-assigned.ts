@@ -1,16 +1,159 @@
-// lifegroup-assigned.ts — transactional. Merge: first_name, group_night, group_area, start_week
+// lifegroup-assigned.ts — transactional.
+// Merge fields: first_name, group_night, group_area, start_week
+
 import type { EmailTemplate } from "../layout.ts";
-const D = "'Bebas Neue','Haettenschweiler','Arial Narrow',Impact,sans-serif";
-const S = "'Cormorant Garamond',Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif";
-const M = "'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+
+interface P {
+  first_name: string;
+  group_night: string;
+  group_area: string;
+  start_week: string;
+}
+
+const M =
+  "Arial, Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
 export default {
-  subject: () => `Your life group`,
-  previewText: () => `You've been placed in a midweek group.`,
+  subject: () => `Your Mindcast life group`,
+  previewText: () => `Your midweek life group details.`,
+
   transactional: true,
-  body: (p: { first_name: string; group_night: string; group_area: string; start_week: string }) =>
-    `<div style="font-family:${D};font-size:38px;font-weight:400;letter-spacing:.03em;text-transform:uppercase;line-height:1.04;color:#102438;margin:16px 0 8px;">Your life group</div>
-<div style="font-family:${S};font-style:italic;font-size:16px;color:#2A4257;margin:0 0 4px;">Kia ora ${p.first_name}</div>
-<p style="margin:0 0 15px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">You've been placed in a midweek group. Here are the details:</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0;"><tr><td bgcolor="#DEE9EC" style="background:#DEE9EC;border:1px solid #C9D9DE;padding:18px 22px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">${p.group_night} evenings<br>${p.group_area}<br>Starting the week of ${p.start_week}</td></tr></table>
-<p style="margin:0;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">Life groups are where the Sunday conversation goes deeper — same people, same thread, every week.</p>`,
-} satisfies EmailTemplate;
+
+  body: (p: P) => `
+    <div
+      style="
+        font-family:${M};
+        color:#303947;
+      "
+    >
+
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Your life group
+      </h1>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Kia ora ${p.first_name},
+      </p>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        You've been placed in a midweek life group. Here are the details.
+      </p>
+
+      <!-- Group details -->
+      <table
+        role="presentation"
+        width="100%"
+        cellspacing="0"
+        cellpadding="0"
+        border="0"
+        style="
+          margin:0 0 28px;
+          background:#F8F5EF;
+          border-radius:14px;
+          overflow:hidden;
+        "
+      >
+        <tr>
+          <td
+            width="4"
+            style="
+              width:4px;
+              background:#3D8DB7;
+              font-size:1px;
+              line-height:1px;
+            "
+          >
+            &nbsp;
+          </td>
+
+          <td
+            style="
+              padding:22px 24px;
+              font-family:${M};
+              color:#303947;
+            "
+          >
+
+            <p
+              style="
+                margin:0 0 6px;
+                font-size:13px;
+                line-height:1.5;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:.06em;
+                color:#92979D;
+              "
+            >
+              Your group
+            </p>
+
+            <p
+              style="
+                margin:0;
+                font-size:17px;
+                line-height:1.8;
+                color:#4D5560;
+              "
+            >
+              <strong style="color:#303947;">${p.group_night} evenings</strong><br>
+              ${p.group_area}<br>
+              Starting the week of ${p.start_week}
+            </p>
+
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Life groups are the midweek part of the Mindcast rhythm — a smaller space to come back to what you noticed on Sunday, talk it through and keep practising during the week.
+      </p>
+
+      <p
+        style="
+          margin:0;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        There's nothing you need to prepare. Just come as you are.
+      </p>
+
+    </div>
+  `,
+} satisfies EmailTemplate<P>;

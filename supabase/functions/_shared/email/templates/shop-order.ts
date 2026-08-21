@@ -1,16 +1,202 @@
-// shop-order.ts — transactional. Merge: first_name, order_number, order_items, order_total
+// shop-order.ts — transactional.
+// Merge fields: first_name, order_number, order_items, order_total
+
 import type { EmailTemplate } from "../layout.ts";
-const D = "'Bebas Neue','Haettenschweiler','Arial Narrow',Impact,sans-serif";
-const S = "'Cormorant Garamond',Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif";
-const M = "'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+
+interface P {
+  first_name: string;
+  order_number: string;
+  order_items: string;
+  order_total: string;
+}
+
+const M =
+  "Arial, Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
 export default {
-  subject: (p: { first_name: string; order_number: string }) => `Order ${p.order_number} confirmed`,
-  previewText: () => `Your Mindcast order is confirmed.`,
+  subject: (p: P) => `Order ${p.order_number} confirmed`,
+  previewText: () => `We've received your Mindcast order.`,
+
   transactional: true,
-  body: (p: { first_name: string; order_number: string; order_items: string; order_total: string }) =>
-    `<div style="font-family:${D};font-size:38px;font-weight:400;letter-spacing:.03em;text-transform:uppercase;line-height:1.04;color:#102438;margin:16px 0 8px;">Order confirmed</div>
-<div style="font-family:${S};font-style:italic;font-size:16px;color:#2A4257;margin:0 0 4px;">Kia ora ${p.first_name}</div>
-<p style="margin:0 0 15px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">Thanks for your order. Here's what's coming:</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0;"><tr><td bgcolor="#DEE9EC" style="background:#DEE9EC;border:1px solid #C9D9DE;padding:18px 22px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">Order: ${p.order_number}<br>${p.order_items}<br><strong>Total: ${p.order_total}</strong></td></tr></table>
-<p style="margin:0;font-family:${M};font-size:13px;line-height:1.65;color:#8A8574;">We'll let you know when it ships. Pickup is at Acacia Bay Community Hall on Sundays.</p>`,
-} satisfies EmailTemplate;
+
+  body: (p: P) => `
+    <div
+      style="
+        font-family:${M};
+        color:#303947;
+      "
+    >
+
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Your order is confirmed
+      </h1>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Kia ora ${p.first_name},
+      </p>
+
+      <p
+        style="
+          margin:0 0 26px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Thanks for your order. We've received it and will let you know when it's ready to make its way to you.
+      </p>
+
+      <!-- Order details -->
+      <table
+        role="presentation"
+        width="100%"
+        cellspacing="0"
+        cellpadding="0"
+        border="0"
+        style="
+          margin:0 0 28px;
+          background:#F8F5EF;
+          border-radius:14px;
+          overflow:hidden;
+        "
+      >
+        <tr>
+          <td
+            width="4"
+            style="
+              width:4px;
+              background:#3D8DB7;
+              font-size:1px;
+              line-height:1px;
+            "
+          >
+            &nbsp;
+          </td>
+
+          <td
+            style="
+              padding:22px 24px;
+              font-family:${M};
+              color:#303947;
+            "
+          >
+
+            <p
+              style="
+                margin:0 0 6px;
+                font-size:13px;
+                line-height:1.5;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:.06em;
+                color:#92979D;
+              "
+            >
+              Order ${p.order_number}
+            </p>
+
+            <div
+              style="
+                margin:0 0 18px;
+                font-size:17px;
+                line-height:1.75;
+                color:#4D5560;
+              "
+            >
+              ${p.order_items}
+            </div>
+
+            <div
+              style="
+                height:1px;
+                background:#E9E5DE;
+                width:100%;
+                margin:0 0 16px;
+              "
+            ></div>
+
+            <table
+              role="presentation"
+              width="100%"
+              cellspacing="0"
+              cellpadding="0"
+              border="0"
+            >
+              <tr>
+                <td
+                  style="
+                    padding:0;
+                    font-family:${M};
+                    font-size:16px;
+                    line-height:1.5;
+                    color:#747B84;
+                  "
+                >
+                  Total
+                </td>
+
+                <td
+                  align="right"
+                  style="
+                    padding:0;
+                    font-family:${M};
+                    font-size:17px;
+                    line-height:1.5;
+                    font-weight:600;
+                    color:#303947;
+                  "
+                >
+                  ${p.order_total}
+                </td>
+              </tr>
+            </table>
+
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        If your order is being shipped, we'll send you another email as soon as it's on the way.
+      </p>
+
+      <p
+        style="
+          margin:0;
+          font-family:${M};
+          font-size:14px;
+          line-height:1.65;
+          color:#747B84;
+        "
+      >
+        If you've selected local pickup, we'll let you know when your order is ready. Sunday pickup is available at Acacia Bay Community Hall.
+      </p>
+
+    </div>
+  `,
+} satisfies EmailTemplate<P>;

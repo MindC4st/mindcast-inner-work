@@ -7,18 +7,207 @@ interface P {
   first_name: string;
 }
 
-const D = "'Bebas Neue','Haettenschweiler','Arial Narrow',Impact,sans-serif";
-const S = "'Cormorant Garamond',Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif";
-const M = "'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+const M =
+  "Arial, Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
 export default {
   subject: () => `Welcome to Mindcast`,
-  previewText: () => `What happens now, and what doesn't.`,
+  previewText: () => `Your Mindcast account is ready.`,
+
   transactional: true,
-  body: (p: P) => `<div style="font-family:${D};font-size:38px;font-weight:400;letter-spacing:.03em;text-transform:uppercase;line-height:1.04;color:#102438;margin:16px 0 8px;">You're set up</div>
-<div style="font-family:${S};font-style:italic;font-size:16px;color:#2A4257;margin:0 0 4px;">Kia ora ${p.first_name}</div>
-<p style="margin:0 0 15px;font-family:${M};font-size:15px;line-height:1.7;color:#2A4257;">That's your account sorted. You'll get one email a week — what's on this Sunday, the time and the address. Nothing else.</p>
-<div style="font-family:${D};font-size:13px;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:#102438;margin:30px 0 10px;">What Sundays look like</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 6px;"><tr><td width="3" bgcolor="#3585AF" style="background:#3585AF;font-size:1px;line-height:1px;">&nbsp;</td><td bgcolor="#DEE9EC" style="background:#DEE9EC;padding:18px 22px;font-family:${S};font-style:italic;font-size:16px;line-height:1.6;color:#102438;">You arrive, you sit down, you listen. Nobody makes you talk. You leave with one thing you've decided to do this week &mdash; and next Sunday somebody asks how it went.</td></tr></table>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0 6px;"><tr><td bgcolor="#102438" style="background:#102438;"><a href="https://www.mindcast.co.nz/portal" style="display:inline-block;padding:13px 28px;font-family:${D};font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#F8F4E8;text-decoration:none;">Open your portal</a></td></tr></table>`,
+
+  body: (p: P) => `
+    <div
+      style="
+        font-family:${M};
+        color:#303947;
+      "
+    >
+
+      <h1
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:28px;
+          line-height:1.25;
+          font-weight:600;
+          color:#303947;
+        "
+      >
+        Welcome to Mindcast
+      </h1>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Kia ora ${p.first_name},
+      </p>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Your Mindcast account is set up and ready to go.
+      </p>
+
+      <p
+        style="
+          margin:0 0 28px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        Your portal is where you'll find the parts of Mindcast that belong to you — including your weekly intentions, reflections and anything saved from your sessions.
+      </p>
+
+      <!-- What Sundays look like -->
+      <table
+        role="presentation"
+        width="100%"
+        cellspacing="0"
+        cellpadding="0"
+        border="0"
+        style="
+          margin:0 0 28px;
+          background:#F8F5EF;
+          border-radius:14px;
+          overflow:hidden;
+        "
+      >
+        <tr>
+          <td
+            width="4"
+            style="
+              width:4px;
+              background:#3D8DB7;
+              font-size:1px;
+              line-height:1px;
+            "
+          >
+            &nbsp;
+          </td>
+
+          <td
+            style="
+              padding:22px 24px;
+              font-family:${M};
+              color:#303947;
+            "
+          >
+
+            <p
+              style="
+                margin:0 0 8px;
+                font-size:13px;
+                line-height:1.5;
+                font-weight:600;
+                text-transform:uppercase;
+                letter-spacing:.06em;
+                color:#92979D;
+              "
+            >
+              What Sundays look like
+            </p>
+
+            <p
+              style="
+                margin:0;
+                font-size:17px;
+                line-height:1.7;
+                color:#4D5560;
+              "
+            >
+              Each Sunday we explore one theme, give you space to think about your own experience, and finish with one small intention to take into the week.
+            </p>
+
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0 0 18px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        You can share when you want to, write privately, listen, or pass. There's no right answer and nothing you need to perform for the room.
+      </p>
+
+      <p
+        style="
+          margin:0 0 28px;
+          font-family:${M};
+          font-size:17px;
+          line-height:1.65;
+          color:#4D5560;
+        "
+      >
+        During the week, we'll bring you back to the intention you chose so you can notice what actually happened — then we start again from there on Sunday.
+      </p>
+
+      <!-- CTA -->
+      <table
+        role="presentation"
+        cellspacing="0"
+        cellpadding="0"
+        border="0"
+        style="margin:0 0 30px;"
+      >
+        <tr>
+          <td
+            align="center"
+            style="
+              background:#3D8DB7;
+              border-radius:999px;
+            "
+          >
+            <a
+              href="https://www.mindcast.co.nz/portal"
+              style="
+                display:inline-block;
+                padding:15px 30px;
+                font-family:${M};
+                font-size:16px;
+                line-height:1;
+                font-weight:600;
+                color:#FFFFFF;
+                text-decoration:none;
+              "
+            >
+              Open your Mindcast portal
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <p
+        style="
+          margin:0;
+          font-family:${M};
+          font-size:14px;
+          line-height:1.65;
+          color:#747B84;
+        "
+      >
+        There's nothing you need to prepare before your first session. Just come as you are.
+      </p>
+
+    </div>
+  `,
 } satisfies EmailTemplate<P>;
