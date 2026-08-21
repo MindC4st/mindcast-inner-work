@@ -20,6 +20,16 @@ export type CurriculumWeek = {
   title: string | null; // resolved for the given track
   source: string | null; // resolved for the given track (adult/teen source or kids format)
   notes: string | null;
+  /**
+   * Per-track session titles, exactly as `curriculum_public` returns them.
+   * Optional so existing callers (and their test fixtures) keep working;
+   * the /curriculum Life Binder uses them for its ADULT/TEEN/CHILD toggle.
+   */
+  track_titles?: {
+    adult: string | null;
+    teen: string | null;
+    child: string | null;
+  };
 };
 
 export const trackForAgeGroup = (age?: string | null): Track => {
@@ -44,6 +54,11 @@ const resolve = (row: CurriculumPublicRow, track: Track): CurriculumWeek => {
     // per-week behind RLS on the week page.
     source: null,
     notes: row.core_learning ?? null,
+    track_titles: {
+      adult: row.adult_video_title ?? null,
+      teen: row.teen_video_title ?? null,
+      child: row.kids_title ?? null,
+    },
   };
 };
 

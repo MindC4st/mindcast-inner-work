@@ -317,6 +317,73 @@
     box-shadow: var(--ring-glow);
   }
 
+  /* ── Life Binder (the /curriculum explorer) ──────────────────────────────
+     Cream linen cover, a white paper page inside, and index tabs on the
+     right edge — the physical Mindcast binder, translated to the screen. */
+
+  .binder-canvas {
+    background-color: #faf8f5;
+    /* Fine crosshatch reads as linen at a glance, and disappears up close. */
+    background-image:
+      repeating-linear-gradient(0deg, hsl(35 25% 60% / 0.045) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, hsl(35 25% 60% / 0.035) 0 1px, transparent 1px 3px);
+    border: 1px solid #e8e2d5;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.08);
+  }
+
+  /* Debossed wordmark: type the colour of a shadow pressed into the cover,
+     lifted by a light edge below and a dark edge above. */
+  .binder-emboss {
+    color: hsl(35 18% 82%);
+    text-shadow:
+      0 1px 0 hsl(0 0% 100% / 0.9),
+      0 -1px 1px hsl(35 25% 55% / 0.4);
+    letter-spacing: 0.42em;
+  }
+
+  .paper-page {
+    background: #fff;
+    border: 1px solid #e8e2d5;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgb(10 17 32 / 0.04), 0 10px 30px -18px rgb(10 17 32 / 0.18);
+  }
+
+  /* An index tab. The left border is deliberately absent so the tab reads as
+     attached to the page block by its own spine. */
+  .binder-tab {
+    background: #f3efe7;
+    border: 1px solid #ddd6c8;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    color: hsl(var(--muted-foreground));
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .binder-tab:hover { background: #fff; color: hsl(var(--foreground)); }
+  .binder-tab[aria-selected="true"] {
+    background: #fff;
+    color: hsl(var(--foreground));
+    border-color: #d8d2c5;
+    box-shadow: 0 8px 18px -12px rgb(10 17 32 / 0.25);
+    /* The open divider pushes out of the block a little, the way a real
+       index tab sits proud of the page edge. */
+    transform: translateX(6px);
+  }
+
+  /* Mobile: the same tabs lie flat along the top as paper tabs. */
+  .binder-tab-top {
+    background: #f3efe7;
+    border: 1px solid #ddd6c8;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    color: hsl(var(--muted-foreground));
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .binder-tab-top[aria-selected="true"] {
+    background: #fff;
+    color: hsl(var(--foreground));
+  }
+
   @keyframes glow-pulse {
     0%, 100% { box-shadow: 0 0 0 0 hsl(var(--glow) / 0.35); }
     50% { box-shadow: 0 0 24px 4px hsl(var(--glow) / 0.2); }

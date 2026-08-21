@@ -18,20 +18,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Ripple from "@/components/brand/Ripple";
 import { Reveal, SectionHeading, GlowButton, ScrollProgress } from "@/components/glow";
-import JourneyMap from "@/components/curriculum/JourneyMap";
+import LifeBinder from "@/components/curriculum/LifeBinder";
 import WeekOnePreview from "@/components/curriculum/WeekOnePreview";
 import WorkbookPage, { INK, RULE, SIGNAL_DEEP, WritingLines } from "@/components/curriculum/WorkbookPage";
 import { useCurriculumWeeks } from "@/hooks/useCurriculumWeeks";
 import {
   BLOCKS,
+  CURRICULUM_OVERVIEW,
+  CURRICULUM_SUBHEADLINE,
   NOTICE_NAME_DO,
   RHYTHM,
+  SHARED_LANGUAGE_COPY,
+  SHARED_LANGUAGE_TAGLINE,
+  TRACK_MATRIX,
   WEEK1_THEME,
 } from "@/lib/curriculumPublic";
 import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
-import trackAdult from "@/assets/track-adult.jpg";
-import trackTeen from "@/assets/track-teen.jpg";
-import trackKids from "@/assets/track-kids.jpg";
 import flatlayRoadmap from "@/assets/flatlay-roadmap.jpg";
 
 const scrollTo = (id: string) => () => {
@@ -55,21 +57,25 @@ const BlockSpine = ({ className = "" }: { className?: string }) => (
 /* ── 1 · HERO ─────────────────────────────────────────────────────────────*/
 
 const Hero = () => (
-  <section className="section-white pt-32 pb-24 md:pt-40 md:pb-32">
+  <section className="section-white pt-32 pb-20 md:pt-40 md:pb-24">
     <div className="container mx-auto px-6 max-w-4xl text-center">
       <Reveal>
         <p className="font-body text-[11px] font-bold tracking-[0.4em] uppercase text-primary mb-6">
-          The Mindcast Curriculum
+          Interactive Curriculum Explorer
         </p>
-        <h1 className="font-display text-foreground leading-[0.92] tracking-tight text-6xl sm:text-7xl md:text-8xl mb-8">
-          LOOK INSIDE
+        <h1 className="font-display text-foreground leading-[0.92] tracking-tight text-6xl sm:text-7xl md:text-8xl mb-6">
+          THE MINDCAST
           <br />
-          MINDCAST.
+          CURRICULUM.
         </h1>
+        <p
+          className="text-2xl md:text-3xl italic text-foreground/85 leading-snug max-w-2xl mx-auto mb-8"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          {CURRICULUM_SUBHEADLINE}
+        </p>
         <p className="font-body text-muted-foreground text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-12">
-          52 weeks of learning to notice more clearly, question what no longer fits, rebuild
-          deliberately and put it into practice — with experiences created separately for adults,
-          teens and children.
+          {CURRICULUM_OVERVIEW}
         </p>
       </Reveal>
 
@@ -79,14 +85,14 @@ const Hero = () => (
 
       <Reveal delay={0.2}>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-          <GlowButton href="#week-one" onClick={scrollTo("week-one")}>
-            EXPLORE WEEK 1 ↓
+          <GlowButton href="#journey" onClick={scrollTo("journey")}>
+            OPEN THE LIFE BINDER ↓
           </GlowButton>
           <button
-            onClick={scrollTo("journey")}
+            onClick={scrollTo("week-one")}
             className="font-body text-xs font-bold tracking-[0.2em] uppercase text-primary hover:underline"
           >
-            See the 52-week journey
+            EXPLORE WEEK 1 ↓
           </button>
         </div>
       </Reveal>
@@ -94,7 +100,7 @@ const Hero = () => (
   </section>
 );
 
-/* ── 2 · THE 52-WEEK JOURNEY ──────────────────────────────────────────────*/
+/* ── 2 · THE LIFE BINDER ──────────────────────────────────────────────────*/
 
 const Journey = ({
   weeks,
@@ -103,39 +109,40 @@ const Journey = ({
   weeks: ReturnType<typeof useCurriculumWeeks>["weeks"];
   loading: boolean;
 }) => (
-  <section id="journey" className="section-cream py-28 md:py-36 scroll-mt-16">
-    <div className="container mx-auto px-6 max-w-5xl">
-      <div className="text-center mb-16">
-        <SectionHeading label="The shape of the year" title={<>ONE YEAR.<br />FOUR DELIBERATE BLOCKS.</>} />
+  <section id="journey" className="section-cream py-24 md:py-32 scroll-mt-16">
+    <div className="container mx-auto px-6 max-w-6xl">
+      <div className="text-center mb-14">
+        <SectionHeading label="Open the binder" title={<>ONE YEAR.<br />FOUR DELIBERATE BLOCKS.</>} />
         <Reveal delay={0.1}>
           <p className="font-body text-muted-foreground text-sm md:text-base leading-relaxed max-w-2xl mx-auto mt-6">
             Mindcast does not treat personal development as 52 unrelated topics. The year moves
-            through four connected blocks, and each one depends on the one before it.
+            through four connected blocks, and each one depends on the one before it. Use the tabs
+            to turn the pages — and the track toggle to read any week through the adult, teen or
+            child lens.
           </p>
         </Reveal>
       </div>
 
-      <JourneyMap weeks={weeks} loading={loading} onPreviewWeekOne={scrollTo("week-one")} />
+      <LifeBinder weeks={weeks} loading={loading} onPreviewWeekOne={scrollTo("week-one")} />
     </div>
   </section>
 );
 
 /* ── 3 · ONE IDEA, THREE EXPERIENCES ──────────────────────────────────────*/
 
+// The three tracks as type, not as venue photography — the differentiator is
+// the shared idea underneath, so the room photos are gone and the words stay.
 const THREE = [
   {
     label: "ADULT",
-    image: trackAdult,
     body: "Reflective, evidence-informed, and connected to real decisions, patterns and behaviour.",
   },
   {
     label: "TEEN",
-    image: trackTeen,
     body: "Relevant to teenage life — relationships, social influence, identity, school, online environments and growing independence.",
   },
   {
     label: "CHILD",
-    image: trackKids,
     body: "Movement, pictures, stories, games, simple language, and safe opportunities to notice and practise.",
   },
 ];
@@ -158,14 +165,10 @@ const ThreeExperiences = () => {
           </Reveal>
         </div>
 
-        {/* No cards. A plate, a rule, and the words underneath — the way a
-            book sets three figures across a spread. */}
+        {/* Three columns of type — the plate and the words, no room photos. */}
         <div className="grid md:grid-cols-3 gap-12 md:gap-10">
           {THREE.map((t, i) => (
             <Reveal key={t.label} delay={i * 0.08}>
-              <div className="aspect-[4/3] overflow-hidden mb-6">
-                <img src={t.image} alt="" className="w-full h-full object-cover object-center" loading="lazy" width={1200} height={900} />
-              </div>
               <p className="font-display text-[26px] tracking-[0.16em] text-foreground pb-4 mb-4 border-b border-border">
                 {t.label}
               </p>
@@ -176,7 +179,7 @@ const ThreeExperiences = () => {
 
         {/* The convergence. Three lines meeting is the whole differentiator,
             so it is drawn rather than described. */}
-        <div className="mt-4 flex justify-center" aria-hidden>
+        <div className="mt-10 flex justify-center" aria-hidden>
           <svg viewBox="0 0 600 90" className="w-full max-w-3xl h-[90px]" fill="none">
             {[100, 300, 500].map((x, i) => (
               <motion.path
@@ -202,10 +205,57 @@ const ThreeExperiences = () => {
                 SHARED LANGUAGE AT HOME
               </span>
             </span>
-            <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-xl mx-auto mt-8">
-              A nine-year-old and a forty-year-old leave the building with words for the same thing.
-              That is what makes the conversation in the car on the way home possible.
+            <p className="font-display text-2xl md:text-3xl tracking-[0.1em] text-foreground mt-10">
+              {SHARED_LANGUAGE_TAGLINE}
             </p>
+            <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-xl mx-auto mt-5">
+              {SHARED_LANGUAGE_COPY}
+            </p>
+          </div>
+        </Reveal>
+
+        {/* How one concept reads across the three tracks. */}
+        <Reveal delay={0.1}>
+          <div className="max-w-4xl mx-auto mt-16">
+            {/* Desktop: a table set like a contents page. */}
+            <div className="hidden md:block border border-border">
+              <div className="grid grid-cols-[140px_1fr_1fr_1fr] bg-card border-b border-border">
+                {["CONCEPT", "ADULT", "TEEN", "CHILD"].map((h) => (
+                  <p key={h} className="font-body text-[10px] font-bold tracking-[0.22em] text-primary px-5 py-4">
+                    {h}
+                  </p>
+                ))}
+              </div>
+              {TRACK_MATRIX.map((row) => (
+                <div key={row.concept} className="grid grid-cols-[140px_1fr_1fr_1fr] border-b border-border last:border-b-0">
+                  <p className="font-display text-lg tracking-[0.08em] text-foreground px-5 py-5">
+                    {row.concept.toUpperCase()}
+                  </p>
+                  {[row.adult, row.teen, row.child].map((cell, i) => (
+                    <p key={i} className="font-body text-[13px] text-muted-foreground leading-relaxed px-5 py-5">
+                      {cell}
+                    </p>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile: one card per concept. */}
+            <div className="md:hidden space-y-5">
+              {TRACK_MATRIX.map((row) => (
+                <div key={row.concept} className="bg-card border border-border p-6">
+                  <p className="font-display text-xl tracking-[0.08em] text-foreground mb-4">
+                    {row.concept.toUpperCase()}
+                  </p>
+                  {([["ADULT", row.adult], ["TEEN", row.teen], ["CHILD", row.child]] as const).map(([label, cell]) => (
+                    <div key={label} className="mb-3 last:mb-0">
+                      <p className="font-body text-[10px] font-bold tracking-[0.22em] text-primary mb-1">{label}</p>
+                      <p className="font-body text-[13px] text-muted-foreground leading-relaxed">{cell}</p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </Reveal>
       </div>

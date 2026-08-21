@@ -31,9 +31,9 @@ const read = (p: string) =>
 
 const page = read("src/pages/Curriculum.tsx");
 const preview = read("src/components/curriculum/WeekOnePreview.tsx");
-const journey = read("src/components/curriculum/JourneyMap.tsx");
+const binder = read("src/components/curriculum/LifeBinder.tsx");
 const demo = read("src/components/curriculum/JournalDemo.tsx");
-const publicSurface = page + preview + journey + demo;
+const publicSurface = page + preview + binder + demo;
 
 const week = (week_number: number, block_number: number): CurriculumWeek => ({
   id: String(week_number),

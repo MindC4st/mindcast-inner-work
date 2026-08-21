@@ -18,7 +18,9 @@
 -- Additive: same rows/logic as before plus one boolean so the kiosk knows
 -- whether a teen may sign themselves out (guardian-enabled in advance). The
 -- hard enforcement still lives in record_departure; this only drives the UI.
-CREATE OR REPLACE FUNCTION public.room_roll(p_date date, p_room text)
+-- Must DROP first because return type changes (added teen_self_signout).
+DROP FUNCTION IF EXISTS public.room_roll(date, text);
+CREATE FUNCTION public.room_roll(p_date date, p_room text)
 RETURNS TABLE (
   profile_id      uuid,
   display_name    text,

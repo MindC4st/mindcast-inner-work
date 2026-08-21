@@ -28,6 +28,8 @@ export interface CurriculumBlock {
   name: string;
   /** Fallback range, used only when the database has not loaded. */
   weeks: [number, number];
+  /** One line. The block's core focus, as a label. */
+  focus: string;
   /** One line. Shown on the block card. */
   premise: string;
   /** Two or three sentences. Shown when the block is opened. */
@@ -39,6 +41,7 @@ export const BLOCKS: CurriculumBlock[] = [
     number: 1,
     name: "See Clearly",
     weeks: [1, 13],
+    focus: "Cultivating self-awareness and distinguishing signal from noise.",
     premise: "Before changing something, learn to see what is actually happening.",
     detail:
       "This block builds awareness of attention, thought patterns, emotions, assumptions, habits and the signals shaping everyday behaviour. Nothing is being fixed yet. The work is learning to notice what was already going on.",
@@ -47,6 +50,7 @@ export const BLOCKS: CurriculumBlock[] = [
     number: 2,
     name: "Unlearn",
     weeks: [14, 26],
+    focus: "Dismantling inherited patterns, defensive reactions and outdated defaults.",
     premise:
       "Examine the rules, expectations and stories that no longer automatically deserve control.",
     // Deliberate wording. This block is the one most easily misread as
@@ -58,6 +62,7 @@ export const BLOCKS: CurriculumBlock[] = [
     number: 3,
     name: "Rebuild",
     weeks: [27, 39],
+    focus: "Designing intentional habits, clear boundaries and sustainable routines.",
     premise: "Turn awareness into deliberate architecture.",
     detail:
       "Values, behaviour, environment, recovery, relationships, self-talk and direction — the conditions that make intentional action easier to sustain, built on purpose rather than left to chance.",
@@ -66,11 +71,62 @@ export const BLOCKS: CurriculumBlock[] = [
     number: 4,
     name: "Live It",
     weeks: [40, 52],
+    focus: "Integrating lessons into daily relationships, home dynamics and community.",
     premise: "Take the tools out into real life.",
     detail:
       "Practise values, communication, generosity, relationships, goals and attention, and use the tools independently — without needing the programme to keep prompting you.",
   },
 ];
+
+/* ── The Life Binder's cover copy ─────────────────────────────────────────
+ * The public framing of the year as a whole — headline, subheadline and the
+ * overview paragraph that sit above the binder.
+ */
+
+export const CURRICULUM_SUBHEADLINE = "52 Weeks to Notice, Question, Rebuild, and Live.";
+
+export const CURRICULUM_OVERVIEW =
+  "A full-year framework designed to align individuals and households through age-tailored tracks, practical reflection prompts, and a shared vocabulary.";
+
+/* ── The track adaptation matrix ──────────────────────────────────────────
+ * How the same core concept is translated for each track. Public framing —
+ * nothing here comes from the session tables.
+ */
+
+export interface TrackMatrixRow {
+  concept: string;
+  adult: string;
+  teen: string;
+  child: string;
+}
+
+export const TRACK_MATRIX: TrackMatrixRow[] = [
+  {
+    concept: "Attention",
+    adult: "Auditing digital overload, work boundaries and mental chatter.",
+    teen: "Recognising social-media manipulation and peer comparison.",
+    child: "Learning the difference between loud distractions and the main task.",
+  },
+  {
+    concept: "Boundaries",
+    adult: "Establishing work/rest limits and emotional availability.",
+    teen: "Saying no to social pressure and protecting sleep schedules.",
+    child: "Learning personal space, body safety and fair-sharing limits.",
+  },
+  {
+    concept: "Reactivity",
+    adult: "Interrupting stress responses in career and family dynamics.",
+    teen: "Pausing during emotional spikes and online arguments.",
+    child: "Naming big feelings before a meltdown or a shutdown.",
+  },
+];
+
+/* ── Shared language at home ──────────────────────────────────────────────*/
+
+export const SHARED_LANGUAGE_TAGLINE = "ONE IDEA. THREE LENSES. ONE TABLE CONVERSATION.";
+
+export const SHARED_LANGUAGE_COPY =
+  "When adults, teens and children study the same weekly theme through age-tailored prompts, family communication transforms. You stop speaking past each other and start operating with a unified vocabulary.";
 
 export const blockByNumber = (n: number | null | undefined) =>
   BLOCKS.find((b) => b.number === n) ?? null;
