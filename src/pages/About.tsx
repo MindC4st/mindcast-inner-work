@@ -61,16 +61,19 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I loved podcasts the way some people love music. Driving was my favourite thing because it meant I could listen — really listen. But I could never retain what I was learning. The ideas would hit, stir something, then dissolve into the noise of the week.
+              I loved podcasts the way some people love music. But I could never retain what I was learning. The ideas would hit, stir something, and then dissolve into the noise of the week.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I tried the gym. I was only there out of necessity — external motivators chased, never truly wanted. I tried book clubs, but I only read non-fiction and I heard some people don't even read the book. Then I started a women in business group: we rotated roles, shared wins, and spoke our intentions aloud each week. Because we'd said them in front of each other, we actually followed through. The structure worked.
+              I tried book clubs, but half the room hadn't read the book. I tried the gym, but external motivators never lasted. Then I started a women in business group. We rotated roles, shared wins, and spoke our intentions aloud each week. Because we had said them in front of each other, we actually followed through. The structure worked.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              But I was told to relax. To loosen the format. And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability — and I thought, surely there must be others out there who feel the same way.
+              But I was told to relax. To loosen the format.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              That's where Mindcast began. Not a book club, not a lecture — a facilitated weekly gathering. A 52-week journey where adults, teens and children each work through the same theme in their own live session, reflect in their course book, and leave with one thing to implement before next week. During the week, Life Groups meet to revisit the Sunday session and go deeper. Not to be taught. Just to do the work, side by side.
+              And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability—and I thought, surely there must be others who feel the same way.
+            </p>
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
+              That's where Mindcast began. Not a book club, not a lecture—a facilitated weekly gathering. A 52-week journey where we work through the same theme, reflect in our workbooks, and leave with one thing to implement before next week. During the week, we meet to revisit the session and go deeper. Not to be taught. Just to do the work, side by side.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed">
               So I built the room.

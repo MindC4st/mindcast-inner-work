@@ -71,26 +71,26 @@ const CustomCursor = () => {
       <style>{`* { cursor: none !important; } @media (pointer: coarse) { * { cursor: auto !important; } }`}</style>
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference"
+        className="fixed top-0 left-0 z-[9999] pointer-events-none"
         style={{
           width: 8,
           height: 8,
           borderRadius: "50%",
-          backgroundColor: "#3585af",
+          backgroundColor: "#102438",
           opacity: hovering ? 0 : 1,
           transition: "opacity 0.2s",
         }}
       />
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 z-[9998] pointer-events-none mix-blend-difference"
+        className="fixed top-0 left-0 z-[9998] pointer-events-none"
         style={{
           width: 40,
           height: 40,
           borderRadius: "50%",
-          border: "1.5px solid #3585af",
+          border: "1.5px solid #102438",
           opacity: hovering ? 0.2 : 0.3,
-          backgroundColor: hovering ? "rgba(53,133,175,0.1)" : "transparent",
+          backgroundColor: hovering ? "rgba(16,36,56,0.1)" : "transparent",
           transition: "width 0.3s, height 0.3s, opacity 0.3s, background-color 0.3s",
         }}
       />

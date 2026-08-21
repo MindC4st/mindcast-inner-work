@@ -7,14 +7,12 @@ import { ChevronDown, Users, GraduationCap, Baby } from "lucide-react";
 import heroFamily from "@/assets/home-family-workbooks.jpg";
 import facilitatorRoom from "@/assets/home-facilitator-room.jpg";
 import adultWorkbook from "@/assets/home-adult-workbook.jpg";
-import teenWorkbook from "@/assets/home-teen-workbook.jpg";
 import childColouring from "@/assets/home-child-colouring.jpg";
 import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
 import lifeGroup from "@/assets/home-life-group.jpg";
 import founderPortrait from "@/assets/founder-portrait.jpg";
 import logoNavLight from "@/assets/logo-cream.png";
 import logoBlue from "@/assets/logo-blue-wordmark.png";
-import rhythmBeforeYouLeave from "@/assets/rhythm-before-you-leave.jpg";
 import howItWorksImage from "@/assets/home-adult-workbook.jpg";
 
 // Great Lake Centre photography (Supabase assets bucket).
@@ -22,7 +20,9 @@ const GLC_FRONT_ENTRANCE = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/
 const GLC_ADULTS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-adultsroom.png";
 const GLC_TEENS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-teensroom.png";
 const GLC_KIDS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-kidsroom.png";
-const GLC_PLAYGROUND = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-playground.png";
+// Rhythm section photography (Supabase assets bucket).
+const HOME_THE_GATHERING = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-thegathering.png";
+const HOME_IN_THE_ROOMS = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-intherooms.png";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import Ripple from "@/components/brand/Ripple";
@@ -300,14 +300,11 @@ const GatheringSection = () => {
               title={<>WE ALL KNOW WHAT TO DO.<br />WHY AREN'T WE DOING IT?</>}
             />
             <Reveal delay={0.15}>
-              <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-6">
-                We've listened to the podcast. Read the book. Saved the reel. Then Monday arrives
-                and nothing actually changes.
-              </p>
-              <p className="font-body text-muted-foreground text-base leading-relaxed mb-10">
-                Mindcast is a weekly live room built for the missing step — a community that helps
-                you bring the unconscious to the conscious, set one honest intention, and come
-                back the following week to be held to it.
+              <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-10">
+                We've listened to the podcast. Read the book. Saved the quote. Then Monday arrives,
+                and nothing actually changes. Mindcast is the missing step. We are a weekly live
+                room designed to bring the unconscious to the conscious, help you set one honest
+                intention, and ensure you come back next week to be held to it.
               </p>
               <GlowButton to="/about#the-story" variant="outline">READ THE STORY</GlowButton>
             </Reveal>
@@ -325,7 +322,7 @@ const TRACKS = [
     key: "adult",
     icon: Users,
     name: "ADULTS",
-    desc: "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you.",
+    desc: "A guided digital course book featuring live prompts, Q&A, and dedicated space to unpack what the weekly theme surfaces for you.",
     image: GLC_ADULTS_ROOM,
     alt: "The adults' room at the Great Lake Centre during a session",
   },
@@ -333,15 +330,15 @@ const TRACKS = [
     key: "teen",
     icon: GraduationCap,
     name: "TEENS",
-    desc: "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down.",
+    desc: "Relevant prompts and reflections in a private room. Real language, real questions, and absolutely no talking down. (Phones away).",
     image: GLC_TEENS_ROOM,
     alt: "The teens' room at the Great Lake Centre during a session",
   },
   {
     key: "kids",
     icon: Baby,
-    name: "KIDS",
-    desc: "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice.",
+    name: "CHILDREN",
+    desc: "Gentle activities, movement, and guided play built around the weekly theme, allowing younger minds to safely grow into the practice.",
     image: GLC_KIDS_ROOM,
     alt: "The kids' room at the Great Lake Centre during a session",
   },
@@ -398,11 +395,12 @@ const TracksSection = () => {
     <div ref={wrapRef} className="relative">
       <section className={`container mx-auto px-6 ${pinned ? "h-screen flex flex-col justify-center" : "py-28"}`}>
         <div className="text-center mb-10">
-          <SectionHeading label="Every age. The same work." title="ONE THEME, THREE ROOMS" />
+          <SectionHeading label="Every age. The same work." title="ONE THEME, THREE ROOMS." />
           <Reveal delay={0.1}>
             <p className="font-body text-muted-foreground text-sm max-w-xl mx-auto mt-5">
-              Whānau-wide behaviour change starts with a shared language. Adults, teens and kids
-              each have their own workbook — different depth, different words, same weekly theme.
+              Real behavioural change starts with a shared language at home. Adults, teens, and
+              children each have their own dedicated space, tailored workbook, and expert
+              facilitation—all exploring the exact same weekly theme.
             </p>
           </Reveal>
           {pinned && (
@@ -424,7 +422,7 @@ const TracksSection = () => {
 /* ── STATS — the shape of the practice ──────────────────────────────────── */
 
 const StatsBand = () => (
-  <section className="section-cream border-y border-border py-20 relative">
+  <section className="section-cream border-y border-border py-24 relative">
     <div className="container mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-14">
       <Reveal><StatCounter value={52} label="Weeks in the journey" /></Reveal>
       <Reveal delay={0.1}><StatCounter value={3} label="Rooms, one theme" /></Reveal>
@@ -438,18 +436,18 @@ const StatsBand = () => (
 const RHYTHM_STEPS = [
   {
     title: "SUNDAY · THE GATHERING",
-    body: "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data.",
-    image: GLC_PLAYGROUND,
+    body: "Every session begins the same way: we return to the intention you set seven days ago. Did you do it? What got in the way? No shame, just honest data.",
+    image: HOME_THE_GATHERING,
   },
   {
     title: "IN THE ROOMS",
-    body: "Adults, teens and kids move into their own rooms and work the same theme in parallel — live facilitation, workbook prompts, real conversation. The goal isn't more information. It's bringing the unconscious to the conscious.",
-    image: teenWorkbook,
+    body: "Adults, teens, and children move into their own dedicated spaces to work the same theme in parallel. Live facilitation, workbook prompts, and real conversation. The goal isn't more information—it's bringing the unconscious to the conscious.",
+    image: HOME_IN_THE_ROOMS,
   },
   {
     title: "BEFORE YOU LEAVE",
-    body: "You write down one specific thing you'll do this week. It goes in your workbook, and it comes back with you next Sunday. That's how a room turns into a life. That's how a community changes.",
-    image: rhythmBeforeYouLeave,
+    body: "You write down one specific thing you will do this week. It goes in your workbook, and it comes back with you next Sunday. That is how a session turns into a practice, and how a community actually changes.",
+    image: HOME_THE_GATHERING,
   },
 ];
 
@@ -473,11 +471,11 @@ const RhythmSection = () => {
     <section id="rhythm" ref={ref} className="section-white relative py-28 md:py-36">
       <div className="container mx-auto px-6 max-w-5xl">
         <div className="text-center mb-20">
-          <SectionHeading label="Reflect. Gather. Commit." title="THE RHYTHM" />
+          <SectionHeading label="Notice it. Name it. Do it." title="THE RHYTHM" />
           <Reveal delay={0.1}>
             <p className="font-body text-muted-foreground text-sm max-w-xl mx-auto mt-5">
-              A cadence built around the only thing that actually changes behaviour — coming back
-              next week and being asked whether you did it.
+              A structure built around the only thing that actually changes behaviour: coming back
+              next week and being asked if you did it.
             </p>
           </Reveal>
         </div>
