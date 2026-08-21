@@ -195,9 +195,9 @@ export const Marquee = ({ items, className = "" }: { items: string[]; className?
   const row = (key: string, hidden = false) => (
     <div key={key} aria-hidden={hidden} className="flex shrink-0 items-center">
       {items.map((it, i) => (
-        <span key={i} className="flex items-center font-display tracking-[0.3em] text-foreground/25 text-xl px-8 whitespace-nowrap">
+        <span key={i} className="flex items-center font-display tracking-[0.1em] text-foreground/25 text-xl px-8 whitespace-nowrap">
           {it}
-          <span className="ml-16 text-glow/40">●</span>
+          <span className="ml-16 text-glow/40">•</span>
         </span>
       ))}
     </div>

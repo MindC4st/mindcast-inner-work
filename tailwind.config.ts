@@ -106,7 +106,7 @@ export default {
         reveal: "reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
         "glow-pulse": "glow-pulse 3s ease-in-out infinite",
         shimmer: "shimmer 2.5s linear infinite",
-        marquee: "marquee-x 40s linear infinite",
+        marquee: "marquee-x 55s linear infinite",
       },
     },
   },

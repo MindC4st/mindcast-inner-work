@@ -258,8 +258,8 @@ const ManifestoSection = () => {
 /* ── CONNECTIVE RIBBON ──────────────────────────────────────────────────── */
 
 const Ribbon = () => (
-  <div className="section-cream border-y border-border py-7">
-    <Marquee items={["NOTICE IT, NAME IT, DO IT", "UNCONSCIOUS → CONSCIOUS → CHANGED", "A STRUCTURED WEEKLY PRACTICE", "EVERY AGE, THE SAME WORK"]} />
+  <div className="section-cream border-y border-border py-16 md:py-20">
+    <Marquee items={["A STRUCTURED WEEKLY PRACTICE", "EVERY AGE, THE SAME WORK", "NOTICE IT, NAME IT, DO IT", "UNCONSCIOUS → CONSCIOUS → CHANGED"]} />
   </div>
 );
 
