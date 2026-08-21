@@ -1,21 +1,20 @@
 // door-scan — the ticketing endpoint behind the QR scanner at the theatre door.
 //
 // Two actions:
-//   { action: "lookup",  token }              -> who is this, and are they in?
-//   { action: "admit",   token, profile_ids } -> write the check-ins
+//   { action: "lookup", token }        -> who is this, and are they in?
+//   { action: "admit", token, ticket_ids | profile_ids }
 //
-// Staff only. Unlike nfc-checkin (which is a public endpoint any bracelet can
-// hit), this one reads membership status and household composition for other
-// people, so it requires an authenticated facilitator or admin.
+// Staff only. Unlike nfc-checkin (a public endpoint any bracelet can hit), this
+// one reads membership status, household composition and trial families for
+// other people, so it requires an authenticated facilitator or admin.
 //
-// A scan resolves a HOUSEHOLD, not just a person — children do not carry
-// phones and teens are often dropped off. The scanner shows the roster and the
-// door staff admit whoever actually turned up. See the 20260818120000
-// migration for the reasoning.
+// A member scan resolves a HOUSEHOLD; a trial scan resolves a FAMILY — the
+// adult plus their linked children/teens. Under-18 trial check-in is enforced
+// server-side by redeem_trial_family: a minor is only admitted with (or after)
+// their linked adult in the SAME session.
 //
 // Check-ins are written to public.check_ins, which the Welcome Wall already
-// subscribes to over Realtime — so an admitted name appears on the wall with
-// no extra plumbing.
+// subscribes to over Realtime.
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
@@ -38,6 +37,10 @@ const extractToken = (raw: string): string => {
   const m = v.match(/\/b\/([A-Za-z0-9_-]+)/);
   return (m ? m[1] : v).trim();
 };
+
+/** Local door date as YYYY-MM-DD (the Sunday a trial is used on). */
+const todayNZ = (): string =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Auckland" }).format(new Date());
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -79,71 +82,109 @@ serve(async (req) => {
         });
       }
 
-      // Not a member pass — is it an unredeemed trial ticket? Peek without
-      // consuming it, so the door can see the name before admitting.
+      // Not a member pass — a trial ticket? Resolve the family without
+      // consuming anything, so the door can see who is on this booking.
       const { data: t } = await supa
         .from("trial_tickets")
-        .select("full_name, track, guests, redeemed_at, expires_at")
-        .eq("token", token).maybeSingle();
+        .select("id, token, full_name, track, age_group, linked_adult_id, guardian_consent_at, redeemed_at, expires_at, trial_used_session_date")
+        .eq("token", token)
+        .maybeSingle();
 
       if (!t) return json({ kind: "unknown" }, 404);
 
+      let familyRows = [t];
+      if (!t.linked_adult_id) {
+        const { data: minors } = await supa
+          .from("trial_tickets")
+          .select("id, full_name, track, age_group, redeemed_at, trial_used_session_date")
+          .eq("linked_adult_id", t.id)
+          .order("age_group")
+          .order("full_name");
+        familyRows = [t, ...(minors ?? [])];
+      }
+
+      const today = todayNZ();
       return json({
         kind: "trial",
         full_name: t.full_name,
-        track: t.track,
-        guests: t.guests ?? [],
         already_used: !!t.redeemed_at,
         expired: new Date(t.expires_at) <= new Date(),
+        guardian_consent: !!t.guardian_consent_at,
+        people: familyRows.map((r: Record<string, unknown>) => ({
+          ticket_id: r.id,
+          name: r.full_name,
+          track: r.track,
+          age_group: r.age_group ?? null,
+          is_adult: r.linked_adult_id == null,
+          already_used: !!r.redeemed_at,
+          checked_in_today: !!r.redeemed_at && r.trial_used_session_date === today,
+        })),
       });
     }
 
     // ── Admit ─────────────────────────────────────────────────────────────
-    const ids: string[] = Array.isArray(body.profile_ids) ? body.profile_ids : [];
+    const ticketIds: string[] = Array.isArray(body.ticket_ids) ? body.ticket_ids : [];
+    const profileIds: string[] = Array.isArray(body.profile_ids) ? body.profile_ids : [];
 
-    // Trial ticket: redeem atomically, then seat the guest. No profile exists
-    // for a trial guest, so the check-in is nameless at the DB level and only
-    // carries the display name for the wall.
-    if (ids.length === 0) {
+    // ── Trial family admit (under-18 enforced in the database) ────────────
+    if (ticketIds.length > 0) {
       const { data: red, error: redErr } = await supa
-        .rpc("redeem_trial_ticket", { p_token: token, p_staff: uid });
+        .rpc("redeem_trial_family", {
+          p_token: token,
+          p_ticket_ids: ticketIds,
+          p_session_date: todayNZ(),
+          p_staff: uid,
+        });
       if (redErr) throw redErr;
 
       const r = Array.isArray(red) ? red[0] : red;
       if (!r?.ok) {
-        return json({
-          ok: false,
-          reason: r?.reason ?? "unknown",
-          full_name: r?.full_name ?? null,
-        }, 409);
+        return json({ ok: false, reason: r?.reason ?? "unknown" }, 409);
       }
 
-      const guestCount = Array.isArray(r.guests) ? r.guests.length : 0;
-      // Trial attendees appear on the wall like anyone else (never marked as
-      // a trial) — but an under-18 trial guest without recorded guardian
-      // consent stays off the projected surface entirely.
-      const { data: ticketRow } = await supa
+      const admitted: { id: string; full_name: string; track: string; age_group: string | null; is_adult: boolean }[] =
+        Array.isArray(r.admitted) ? r.admitted : [];
+
+      if (admitted.length === 0) {
+        return json({ ok: true, kind: "trial", admitted: [], already_in: true });
+      }
+
+      // Wall consent: the adult's guardian_consent_at covers the linked minors.
+      const { data: anchor } = await supa
         .from("trial_tickets")
-        .select("guardian_consent_at")
+        .select("id, linked_adult_id, guardian_consent_at")
         .eq("token", token)
         .maybeSingle();
-      const minorNoConsent = r.track !== "Adult" && !ticketRow?.guardian_consent_at;
-      const { error: insErr } = await supa.from("check_ins").insert({
+      let adultConsented = false;
+      if (anchor) {
+        if (!anchor.linked_adult_id) {
+          adultConsented = Boolean(anchor.guardian_consent_at);
+        } else {
+          const { data: adultRow } = await supa
+            .from("trial_tickets")
+            .select("guardian_consent_at")
+            .eq("id", anchor.linked_adult_id)
+            .maybeSingle();
+          adultConsented = Boolean(adultRow?.guardian_consent_at);
+        }
+      }
+
+      const rows = admitted.map((p) => ({
         profile_id: null,
-        display_name: r.full_name,
+        display_name: p.full_name,
         is_anonymous: false,
-        track: r.track,
-        source: "trial",
-        wall_hidden: minorNoConsent,
-      });
+        track: p.track,
+        source: "trial" as const,
+        wall_hidden: p.track !== "Adult" && !adultConsented,
+      }));
+
+      const { error: insErr } = await supa.from("check_ins").insert(rows);
       if (insErr) throw insErr;
 
-      return json({ ok: true, admitted: [r.full_name], guests: guestCount, kind: "trial" });
+      return json({ ok: true, kind: "trial", admitted: admitted.map((p) => p.full_name) });
     }
 
-    // Member household: re-read the roster server-side rather than trusting the
-    // ids the tablet sent, so a tampered request cannot admit someone who is
-    // not on this pass or not entitled.
+    // ── Member household admit ────────────────────────────────────────────
     const { data: roster, error: rErr } = await supa
       .rpc("door_roster_for_token", { p_token: token });
     if (rErr) throw rErr;
@@ -154,16 +195,14 @@ serve(async (req) => {
         .map((p: Record<string, unknown>) => [String(p.profile_id), p]),
     );
 
-    const toAdmit = ids.filter((id) => allowed.has(id));
-    const refused = ids.filter((id) => !allowed.has(id));
+    const toAdmit = profileIds.filter((id) => allowed.has(id));
+    const refused = profileIds.filter((id) => !allowed.has(id));
     if (toAdmit.length === 0) {
       return json({ ok: false, reason: "not_entitled", refused }, 409);
     }
 
     const rows = await Promise.all(toAdmit.map(async (id) => {
       const p = allowed.get(id) as Record<string, unknown>;
-      // Consent resolved per person at write time: minors need a live
-      // wall_display consent; anyone may have opted out.
       let wallHidden = true;
       try {
         const { data: ok } = await supa.rpc("wall_display_allowed", { p_profile: id });
@@ -174,12 +213,11 @@ serve(async (req) => {
         display_name: String(p.display_name ?? "Member"),
         is_anonymous: false,
         track: String(p.track ?? "Adult"),
-        source: "qr",
+        source: "qr" as const,
         wall_hidden: wallHidden,
       };
     }));
 
-    // Skip anyone already seated today so a re-scan does not double the wall.
     const fresh = rows.filter((r) => {
       const p = allowed.get(r.profile_id) as Record<string, unknown>;
       return !p.checked_in_today;
@@ -189,10 +227,6 @@ serve(async (req) => {
       const { error: insErr } = await supa.from("check_ins").insert(fresh);
       if (insErr) throw insErr;
 
-      // Signing a teen/child in at the door creates an EXPECTED record on the
-      // room roll — not an attendance record. The facilitator's roll call
-      // turns expected into present, or surfaces the gap between the door and
-      // the room. Never block entry on a failure here: record and resolve.
       const expected = fresh
         .filter((r) => r.track === "Teen" || r.track === "Child")
         .map((r) => ({
@@ -215,7 +249,6 @@ serve(async (req) => {
       refused,
     });
   } catch (e) {
-    // Staff-facing but still authenticated-only; log detail, return a summary.
     console.error("door-scan failed:", e);
     return json({ error: "Scan failed. Try again or admit manually." }, 500);
   }
