@@ -326,20 +326,22 @@ export const MembershipContent = () => (
       </div>
     </section>
 
-    {/* 6 · Cancellation, stated before anyone pays. */}
+    {/* 6 · The product line — take the room home. */}
     <section className="section-white border-t border-border py-24">
       <div className="container mx-auto px-6 max-w-3xl text-center">
         <motion.div {...fadeUp}>
           <Ripple size={36} className="mx-auto mb-6 text-primary" />
           <h2 className="heading-display text-4xl md:text-6xl text-foreground mb-6">
-            LEAVING IS TWO CLICKS
+            TAKE MINDCAST HOME
           </h2>
           <p className="font-body text-base text-muted-foreground leading-relaxed max-w-xl mx-auto mb-4">
-            Cancel any time from your account. Two clicks, no phone call, no retention offer, no
-            "are you sure?" survey. Your journal and reflections stay yours to export.
+            The MINDCAST product line carries what happens in the room into ordinary life —
+            13-week phase planners, refillable life binders, companion journals, weekly practice
+            boards, family intention boards and prompt tiles. Premium, wipe-clean and built for
+            repeated use, so the tools keep working whether or not you're here this week.
           </p>
           <p className="font-serif italic text-lg text-muted-foreground max-w-xl mx-auto mb-10">
-            We would rather you left easily and remembered the room well.
+            Practical tools for the week — not merchandise.
           </p>
           <div className="relative overflow-hidden max-w-2xl mx-auto aspect-[5/2] mb-10">
             <img
@@ -350,10 +352,10 @@ export const MembershipContent = () => (
             />
           </div>
           <Link
-            to="/portal/billing"
+            to="/shop"
             className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors"
           >
-            BECOME A MEMBER
+            SHOP NOW
           </Link>
         </motion.div>
       </div>
