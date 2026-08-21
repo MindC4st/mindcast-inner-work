@@ -10,7 +10,7 @@ Label your uploads in Flow like this so prompts can point at them precisely:
 
 | Label | Content |
 |---|---|
-| A–D | Acacia Bay Community Hall — exterior / entrance |
+| A–D | Great Lake Centre — exterior / entrance |
 | E–H | Seminar room / meeting room / foyer interiors |
 | I–L | Tennis court |
 | M–R | MINDCAST product references (90 Day Planner, Life Binder, Reflection Journal, Folio, worksheets, pens, family tools) |
@@ -46,7 +46,7 @@ DO NOT CHANGE THE CAMERA INTO A DIFFERENT VIEW UNLESS EXPLICITLY INSTRUCTED.
 VENUE RULE:
 Treat the attached venue image(s) as a locked photographic plate.
 Preserve the actual venue identity.
-Keep the building or room immediately recognisable as Acacia Bay Community Hall.
+Keep the building or room immediately recognisable as Great Lake Centre.
 
 BRANDING RULE:
 Only the MINDCAST branding should use the MINDCAST palette: navy, blue, ivory, white.
@@ -110,7 +110,7 @@ CREATE A SINGLE POSTER IMAGE.
 SCENE TYPE: MINDCAST hero entrance poster.
 
 PRIMARY REFERENCE PRIORITY:
-1. Attached exterior / entrance photos of Acacia Bay Community Hall
+1. Attached exterior / entrance photos of Great Lake Centre
 2. Attached MINDCAST branding references
 3. Attached product references
 4. Attached fashion references
@@ -119,7 +119,7 @@ VERY IMPORTANT — COMPOSITION RULE:
 This must be ONE SINGLE CONTINUOUS PHOTOGRAPH.
 Do NOT create a split-screen, side-by-side collage, multiple panels, diptych,
 a cutaway building, or a second interior frame.
-The viewer must feel they are standing outside the REAL Acacia Bay Community Hall looking toward the real entrance.
+The viewer must feel they are standing outside the REAL Great Lake Centre looking toward the real entrance.
 
 VENUE PRESERVATION:
 Keep the exact building identity from the attached entrance photos — same roof shape,
@@ -157,7 +157,7 @@ Keep branding premium, clean and minimal.
 CREATE A SINGLE POSTER IMAGE FOR THE ADULTS TRACK.
 
 PRIMARY REFERENCE PRIORITY:
-1. Attached seminar room photos from Acacia Bay Community Hall
+1. Attached seminar room photos from Great Lake Centre
 2. Attached MINDCAST branding references
 3. Attached adult fashion references
 
@@ -196,7 +196,7 @@ One practical session each Sunday.
 52 weeks of tools for clearer thinking, stronger relationships and intentional living.
 YOUR FIRST SESSION IS FREE
 $19 / week membership · $20 casual · $150 / 10 sessions
-Acacia Bay Community Hall · Sundays · Taupō
+Great Lake Centre · Sundays · Taupō
 ```
 
 ### 3) Teens meeting-room poster
@@ -207,7 +207,7 @@ Acacia Bay Community Hall · Sundays · Taupō
 CREATE A SINGLE POSTER IMAGE FOR THE TEENS TRACK.
 
 PRIMARY REFERENCE PRIORITY:
-1. Attached smaller meeting-room photos from Acacia Bay Community Hall
+1. Attached smaller meeting-room photos from Great Lake Centre
 2. Attached teen fashion references
 3. Attached MINDCAST branding references
 
@@ -254,7 +254,7 @@ $9 / week membership · $10 casual · $50 / 10-session card
 CREATE A SINGLE POSTER IMAGE FOR THE CHILDREN TRACK.
 
 PRIMARY REFERENCE PRIORITY:
-1. Attached foyer / entrance interior photos from Acacia Bay Community Hall
+1. Attached foyer / entrance interior photos from Great Lake Centre
 2. Attached children fashion references
 3. Attached MINDCAST product / worksheet references
 4. Attached branding references
@@ -298,7 +298,7 @@ YOUR FIRST SESSION IS FREE
 CREATE A SINGLE POSTER IMAGE FOR A FAMILY / COMMUNITY-ENERGY MINDCAST POSTER.
 
 PRIMARY REFERENCE PRIORITY:
-1. Attached tennis-court photos at Acacia Bay Community Hall
+1. Attached tennis-court photos at Great Lake Centre
 2. Attached family fashion references
 3. Attached MINDCAST branding references
 
@@ -345,7 +345,7 @@ PRIMARY REFERENCE PRIORITY:
 4. Attached adult fashion references
 
 SCENE:
-The MINDCAST foyer / welcome environment at Acacia Bay Community Hall. Doors open or foyer visible.
+The MINDCAST foyer / welcome environment at Great Lake Centre. Doors open or foyer visible.
 A welcome table set up with MINDCAST products.
 
 VERY IMPORTANT:
@@ -358,7 +358,7 @@ Include 2–4 adults naturally browsing, greeting, or arriving. Natural fashion 
 TEXT (on a frosted-white translucent panel or band):
 MINDCAST — Tools for Intentional Living
 Practical weekly sessions. Thoughtful tools. Real community.
-Sundays at Acacia Bay Community Hall · mindcast.co.nz
+Sundays at Great Lake Centre · mindcast.co.nz
 ```
 
 ### 7) Shorter social — entrance arrival
@@ -368,7 +368,7 @@ Sundays at Acacia Bay Community Hall · mindcast.co.nz
 
 CREATE A SINGLE SOCIAL MEDIA IMAGE.
 
-Show a stylish, authentic Sunday arrival moment outside the REAL Acacia Bay Community Hall.
+Show a stylish, authentic Sunday arrival moment outside the REAL Great Lake Centre.
 Use the attached venue photos as the exact building reference. Do not redesign the venue.
 
 Adults, teens and children arrive naturally. MINDCAST feather flags outside. Doors open.
@@ -383,7 +383,7 @@ TEXT:
 MINDCAST
 Your first session is free
 Adults • Teens • Children
-Sundays at Acacia Bay Community Hall · mindcast.co.nz
+Sundays at Great Lake Centre · mindcast.co.nz
 ```
 
 ---

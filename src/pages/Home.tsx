@@ -12,14 +12,17 @@ import childColouring from "@/assets/home-child-colouring.jpg";
 import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
 import lifeGroup from "@/assets/home-life-group.jpg";
 import founderPortrait from "@/assets/founder-portrait.jpg";
-import mindcastBuilding from "@/assets/mindcast-building.png";
 import logoNavLight from "@/assets/logo-cream.png";
 import logoBlue from "@/assets/logo-blue-wordmark.png";
-import trackAdult from "@/assets/track-adult.jpg";
-import trackTeen from "@/assets/track-teen.jpg";
-import trackKids from "@/assets/track-kids.jpg";
 import rhythmBeforeYouLeave from "@/assets/rhythm-before-you-leave.jpg";
 import howItWorksImage from "@/assets/home-adult-workbook.jpg";
+
+// Great Lake Centre photography (Supabase assets bucket).
+const GLC_FRONT_ENTRANCE = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-frontentrance.png";
+const GLC_ADULTS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-adultsroom.png";
+const GLC_TEENS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-teensroom.png";
+const GLC_KIDS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-kidsroom.png";
+const GLC_PLAYGROUND = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-playground.png";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import Ripple from "@/components/brand/Ripple";
@@ -162,7 +165,7 @@ const HeroSection = () => {
     <section ref={ref} className="relative min-h-[100svh] bg-white flex items-center overflow-hidden">
       <div className="hero-media absolute inset-0 will-change-transform">
         <img
-          src={mindcastBuilding}
+          src={GLC_FRONT_ENTRANCE}
           alt="Mindcast venue front entrance"
           className="w-full h-full object-cover"
           width={1920}
@@ -313,24 +316,24 @@ const TRACKS = [
     icon: Users,
     name: "ADULTS",
     desc: "A guided digital course book with live prompts, Q&A, and space to write into what the theme surfaces for you.",
-    image: trackAdult,
-    alt: "Adults in a seminar room session",
+    image: GLC_ADULTS_ROOM,
+    alt: "The adults' room at the Great Lake Centre during a session",
   },
   {
     key: "teen",
     icon: GraduationCap,
     name: "TEENS",
     desc: "Age-appropriate prompts and reflections in their own room — real language, real questions, no talking down.",
-    image: trackTeen,
-    alt: "Teens working together in a community session",
+    image: GLC_TEENS_ROOM,
+    alt: "The teens' room at the Great Lake Centre during a session",
   },
   {
     key: "kids",
     icon: Baby,
     name: "KIDS",
     desc: "Gentle activities and colouring pages built around the same weekly theme, so the little ones grow into the practice.",
-    image: trackKids,
-    alt: "Kids coloring in the kids room",
+    image: GLC_KIDS_ROOM,
+    alt: "The kids' room at the Great Lake Centre during a session",
   },
 ];
 
@@ -426,7 +429,7 @@ const RHYTHM_STEPS = [
   {
     title: "SUNDAY · THE GATHERING",
     body: "Every session begins the same way — we return to the intention you set seven days ago. Did you do it? What got in the way? Where did the old pattern win? No shame, just honest data.",
-    image: mindcastBuilding,
+    image: GLC_PLAYGROUND,
   },
   {
     title: "IN THE ROOMS",
@@ -501,9 +504,9 @@ const RhythmSection = () => {
 /* ── VENUE ──────────────────────────────────────────────────────────────── */
 
 const VENUE_POINTS = [
-  { label: "ADULTS", desc: "The main hall — seats 80, with the lake and Mount Tauhara through the windows" },
-  { label: "TEENS", desc: "Their own meeting room, phones in the lockers, no adults wandering through" },
-  { label: "CHILDREN", desc: "The foyer space, and Beasley Park across the road when the sun is out" },
+  { label: "ADULTS", desc: "The main hall — room for the whole community in the heart of Taupō" },
+  { label: "TEENS", desc: "Their own meeting room, phones away, no adults wandering through" },
+  { label: "CHILDREN", desc: "A dedicated space of their own, with room to move" },
   { label: "KITCHEN", desc: "Tea, coffee and something to eat before and after" },
 ];
 
@@ -512,20 +515,17 @@ const VenueSection = () => (
     <div className="container mx-auto px-6">
       <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
         <div>
-          <SectionHeading label="Acacia Bay, Taupō" title="WHERE WE MEET" />
+          <SectionHeading label="Taupō" title="WHERE WE MEET" />
           <Reveal delay={0.1}>
             <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-6">
-              We gather at the Acacia Bay Community Centre, on Wakeman Road beside the tennis
-              courts at Beasley Park. It has been the neighbourhood's hall since 1993 — a lobby
-              you walk into, two function rooms, and a view out over the lake to Mount Tauhara.
+              We gather at the Great Lake Centre, 5 Story Place, Taupō — a 600-person
+              venue in the heart of town.
             </p>
           </Reveal>
           <Reveal delay={0.15}>
             <p className="font-body text-muted-foreground text-base leading-relaxed mb-10">
               Three rooms run at once. Adults in the main hall, teens in their own room, children
-              in the foyer — and on a fine day the children's facilitators take the tag games
-              across to the park and the tennis courts. There is a kitchen, so there is always
-              a cup of tea.
+              in a space of their own. There is a kitchen, so there is always a cup of tea.
             </p>
           </Reveal>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -541,8 +541,8 @@ const VenueSection = () => (
         </div>
         <Reveal className="relative overflow-hidden aspect-[4/3] shadow-cinematic">
           <img
-            src={mindcastBuilding}
-            alt="Members arriving at the Acacia Bay Community Centre"
+            src={GLC_FRONT_ENTRANCE}
+            alt="Members arriving at the Great Lake Centre"
             className="w-full h-full object-cover"
             loading="lazy"
             width={1400}

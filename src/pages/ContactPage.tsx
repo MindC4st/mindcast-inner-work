@@ -43,11 +43,10 @@ export default function ContactPage() {
 
       <h2>Where we gather</h2>
       <p>
-        Acacia Bay Community Centre<br />
-        Wakeman Road, Acacia Bay<br />
-        Taupō 3378<br />
+        Great Lake Centre<br />
+        5 Story Place, Taupō 3330<br />
         <br />
-        Beside the tennis courts at Beasley Park. Lake and Mount Tauhara views.
+        A 600-person venue in the heart of Taupō.
       </p>
 
       <h2>Response times</h2>

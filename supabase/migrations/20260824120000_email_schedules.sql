@@ -29,7 +29,7 @@ DECLARE
 BEGIN
   -- Find the next Sunday session
   SELECT s.id, s.session_date, s.week_number, cw.weekly_theme,
-         'Acacia Bay Community Hall' AS venue_name,
+         'Great Lake Centre' AS venue_name,
          'Taupō' AS venue_address
   INTO v_session
   FROM public.scheduled_sessions s

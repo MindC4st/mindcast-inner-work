@@ -194,7 +194,7 @@ export default {
           color:#747B84;
         "
       >
-        If you've selected local pickup, we'll let you know when your order is ready. Sunday pickup is available at Acacia Bay Community Hall.
+        If you've selected local pickup, we'll let you know when your order is ready. Sunday pickup is available at Great Lake Centre.
       </p>
 
     </div>

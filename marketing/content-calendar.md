@@ -1,7 +1,7 @@
 # MINDCAST — Social Media & Marketing Content Calendar
 
 A 52-week content system for adults, teens and children.
-Sundays · Acacia Bay Community Hall, Taupō · mindcast.co.nz
+Sundays · Great Lake Centre, Taupō · mindcast.co.nz
 
 ---
 
@@ -72,7 +72,7 @@ Each week: **hook** (feed post), **story/reel** idea, **email subject**.
 ### Block 1 — See Clearly (Weeks 1–13)
 
 **Week 1 · The Signal and the Noise**
-- Post: "Your phone has 47 tabs open. Your head's the same. This year we learn to close them and hear the quiet channel underneath. Sundays, Acacia Bay. First session free."
+- Post: "Your phone has 47 tabs open. Your head's the same. This year we learn to close them and hear the quiet channel underneath. Sundays, Taupō. First session free."
 - Story/Reel: "Signal vs noise" — 20s split of a busy phone vs one deep breath.
 - Email: "This Sunday: what are you actually receiving?"
 
@@ -342,10 +342,10 @@ Each week: **hook** (feed post), **story/reel** idea, **email subject**.
 ## 5. Reusable templates & hashtags
 
 **Weekly "this Sunday" template (email/Stories):**
-> This Sunday: [Theme]. One practical session. [Adults/Teens/Children/Family]. First session free. Acacia Bay Community Hall, Taupō. → mindcast.co.nz
+> This Sunday: [Theme]. One practical session. [Adults/Teens/Children/Family]. First session free. Great Lake Centre, Taupō. → mindcast.co.nz
 
 **Evergreen CTA block (for posters):**
-> Your first session is free. Adults · Teens · Children. Sundays at Acacia Bay Community Hall, Taupō. mindcast.co.nz
+> Your first session is free. Adults · Teens · Children. Sundays at Great Lake Centre, Taupō. mindcast.co.nz
 
 **Hashtags (mix 8–12 per post):**
 `#mindcast #taupo #newzealand #intentionalliving #toolsforintentionalliving #noticeitnameitdoit #community #wellbeing #mentalfitness #52weeks #sundaysession #acaciabay #growthmindset #selfawareness #familytime`

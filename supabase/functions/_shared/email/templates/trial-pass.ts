@@ -187,7 +187,7 @@ export default {
               "
             >
               <strong style="color:#303947;">10am</strong><br>
-              Acacia Bay Community Hall<br>
+              Great Lake Centre<br>
               Taupō
             </p>
           </td>

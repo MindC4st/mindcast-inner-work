@@ -150,7 +150,7 @@ CREATE POLICY "submissions_staff_insert" ON public.session_submissions
 
 -- ─────────────────────────────────────────────────────────────────────────
 -- D. Life Groups — extend existing tables; add night/track/area/second-adult
--- and midweek attendance. Acacia Bay Community Hall, Tues/Weds 6-7pm,
+-- and midweek attendance. Great Lake Centre, Tues/Weds 6-7pm,
 -- all groups simultaneous, split by area. Starts week 3 or 4.
 -- ─────────────────────────────────────────────────────────────────────────
 ALTER TABLE public.life_groups
@@ -426,7 +426,7 @@ precisely for idempotent replay.
 1. Teen deck: video stays at Slide 4 (per the track table) — confirm.
 2. Store the Slide 5 T-chart in the journal, or only the final line?
    (Privacy policy wording depends on it.)
-3. Under-18 Life Groups: venue-only at Acacia Bay with two vetted adults —
+3. Under-18 Life Groups: venue-only at the Great Lake Centre with two vetted adults —
    the migration enforces this; confirm no private-home groups at all.
 4. Life Group start week (3 or 4) — configuration, not schema.
 5. Notion query cap: sync script uses page-level fetches until the cap

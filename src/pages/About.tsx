@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
 import AmbientVideo from "@/components/AmbientVideo";
 import mindcastBuilding from "@/assets/mindcast-building.png";
-import aboutTheRoom from "@/assets/about-the-room.jpg";
+const aboutTheRoom = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-adultsroom.png";
 
 
 const values = [
@@ -85,20 +85,17 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="overflow-hidden rounded-sm aspect-[4/3]">
-            <img src={aboutTheRoom} alt="Ashleigh Carlson presenting in the seminar room" className="w-full h-full object-cover" loading="lazy" />
+            <img src={aboutTheRoom} alt="The adults' room at the Great Lake Centre, set up for a session" className="w-full h-full object-cover" loading="lazy" />
           </div>
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE ROOM</h2>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
-              We gather at the Acacia Bay Community Centre, on Wakeman Road beside the tennis
-              courts at Beasley Park. It has been the neighbourhood's hall since 1993 — a lobby
-              you walk into, two function rooms, and a view out over the lake to Mount Tauhara.
+              We gather at the Great Lake Centre, 5 Story Place, Taupō — a 600-person
+              venue in the heart of town.
             </p>
             <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
               Three rooms run at once. Adults in the main hall, teens in their own room, children
-              in the foyer — and on a fine day the children's facilitators take the tag games
-              across to the park and the tennis courts. There is a kitchen, so there is always
-              a cup of tea.
+              in a space of their own. There is a kitchen, so there is always a cup of tea.
             </p>
             <p className="text-muted-foreground/60 font-body text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-serif)" }}>
               "I didn't invent the wisdom. I just built the room."

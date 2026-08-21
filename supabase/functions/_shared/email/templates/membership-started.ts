@@ -147,7 +147,7 @@ export default {
           color:#4D5560;
         "
       >
-        See you Sunday at 10am, Acacia Bay Community Hall.
+        See you Sunday at 10am, Great Lake Centre.
       </p>
 
     </div>
