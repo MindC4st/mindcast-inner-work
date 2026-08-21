@@ -93,12 +93,10 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE ROOM</h2>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              We gather at the Great Lake Centre, 5 Story Place, Taupō — a 600-person
-              venue in the heart of town.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              Three rooms run at once. Adults in the main hall, teens in their own room, children
-              in a space of their own. There is a kitchen, so there is always a cup of tea.
+              We gather at the Great Lake Centre, 5 Story Place—a 600-person venue in the heart of
+              town. Three dedicated rooms run simultaneously, allowing your whole household to
+              attend. And because we are right in the CBD, the experience doesn't have to end when
+              the session does.
             </p>
             <p className="text-muted-foreground/60 font-body text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-serif)" }}>
               "I didn't invent the wisdom. I just built the room."

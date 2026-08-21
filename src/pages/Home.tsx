@@ -23,6 +23,7 @@ const GLC_KIDS_ROOM = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/objec
 // Rhythm section photography (Supabase assets bucket).
 const HOME_THE_GATHERING = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-thegathering.png";
 const HOME_IN_THE_ROOMS = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-intherooms.png";
+const HOME_BEFORE_YOU_LEAVE = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-beforeyouleave.png";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import Ripple from "@/components/brand/Ripple";
@@ -447,7 +448,7 @@ const RHYTHM_STEPS = [
   {
     title: "BEFORE YOU LEAVE",
     body: "You write down one specific thing you will do this week. It goes in your workbook, and it comes back with you next Sunday. That is how a session turns into a practice, and how a community actually changes.",
-    image: HOME_THE_GATHERING,
+    image: HOME_BEFORE_YOU_LEAVE,
   },
 ];
 
@@ -512,10 +513,10 @@ const RhythmSection = () => {
 /* ── VENUE ──────────────────────────────────────────────────────────────── */
 
 const VENUE_POINTS = [
-  { label: "ADULTS", desc: "The main hall — room for the whole community in the heart of Taupō" },
-  { label: "TEENS", desc: "Their own meeting room, phones away, no adults wandering through" },
-  { label: "CHILDREN", desc: "A dedicated space of their own, with room to move" },
-  { label: "KITCHEN", desc: "Tea, coffee and something to eat before and after" },
+  { label: "ADULTS", desc: "The main hall. An expansive, focused space for the adult community to gather, learn, and do the work." },
+  { label: "TEENS", desc: "Their own private meeting room. Phones away, real conversations, and no adults wandering through." },
+  { label: "CHILDREN", desc: "A dedicated, secure space of their own with plenty of room to move, play, and engage." },
+  { label: "THE CONNECTION", desc: "Steps away from the CBD. Grab a coffee beforehand, or arrange to meet up with other members afterward to keep the conversation going." },
 ];
 
 const VenueSection = () => (
@@ -525,15 +526,11 @@ const VenueSection = () => (
         <div>
           <SectionHeading label="Taupō" title="WHERE WE MEET" />
           <Reveal delay={0.1}>
-            <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-6">
-              We gather at the Great Lake Centre, 5 Story Place, Taupō — a 600-person
-              venue in the heart of town.
-            </p>
-          </Reveal>
-          <Reveal delay={0.15}>
-            <p className="font-body text-muted-foreground text-base leading-relaxed mb-10">
-              Three rooms run at once. Adults in the main hall, teens in their own room, children
-              in a space of their own. There is a kitchen, so there is always a cup of tea.
+            <p className="font-body text-muted-foreground text-base leading-relaxed mt-8 mb-10">
+              We gather at the Great Lake Centre, 5 Story Place—a 600-person venue in the heart of
+              town. Three dedicated rooms run simultaneously, allowing your whole household to
+              attend. And because we are right in the CBD, the experience doesn't have to end when
+              the session does.
             </p>
           </Reveal>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -569,7 +566,7 @@ const VisionQuote = () => (
     <div className="container mx-auto px-6 max-w-3xl text-center relative">
       <Reveal>
         <Ripple size={40} className="mx-auto mb-10 text-primary" animate />
-        <blockquote className="font-serif italic text-foreground text-2xl sm:text-3xl md:text-4xl leading-snug mb-10">
+        <blockquote className="font-body font-bold text-foreground text-2xl sm:text-3xl md:text-4xl leading-snug mb-10">
           "We don't have a knowledge problem. We have a follow-through problem. Mindcast is the
           room that finally closes that gap — together, every week."
         </blockquote>
