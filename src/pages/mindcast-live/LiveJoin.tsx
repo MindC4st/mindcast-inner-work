@@ -626,7 +626,8 @@ const LiveJoin = () => {
                     ))}
                   </div>
                   <p className="text-[hsl(var(--navy-mid))]/50 text-[10px] font-body mt-2 leading-snug">
-                    Change once — saved to your profile for future sessions.
+                    Submitting as <span className="font-medium text-[hsl(var(--navy-mid))]">{displayMode === "anonymous" ? "Anonymous" : displayName}</span>.{" "}
+                    <Link to="/portal/settings" className="underline hover:text-[hsl(var(--navy))]">Change in account settings</Link>.
                   </p>
                 </div>
               </div>
@@ -637,7 +638,10 @@ const LiveJoin = () => {
               </button>
 
               <p className="text-center text-[hsl(var(--navy-mid))]/50 text-[10px] mt-3 font-body">
-                Your reflection is saved to your member coursebook either way.
+                Your answer is saved to your coursebook and may appear in the session history for other members to read.
+              </p>
+              <p className="text-center text-[hsl(var(--navy-mid))]/40 text-[10px] mt-1 font-body">
+                By submitting, you agree to your answer being read by members at a later date.
               </p>
             </motion.div>
           )}
