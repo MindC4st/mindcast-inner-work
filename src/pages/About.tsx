@@ -261,6 +261,88 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
       </div>
     </section>
 
+    {/* Interactive curriculum book-preview CTA */}
+    <section className="py-20" style={{ background: "hsl(var(--cream, 0 0% 96%))" }}>
+      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-6 max-w-5xl">
+        {/* LEFT: Copy & CTA */}
+        <div className="space-y-6 order-2 lg:order-1">
+          <span className="text-xs uppercase tracking-widest text-primary font-bold font-body">Inside the Practice</span>
+          <h2 className="heading-display text-4xl md:text-5xl text-foreground leading-tight">OPEN THE FIRST PAGE.</h2>
+          <p className="text-lg text-muted-foreground font-body leading-relaxed">
+            Take a look inside the 52-week coursebook. See how quiet reflection translates into simple, weekly intentions across every stage of the journey.
+          </p>
+          <ul className="space-y-3 text-muted-foreground font-body font-medium">
+            <li className="flex items-center gap-3">
+              <span className="text-primary font-bold">✓</span> 52 Structured Weekly Themes
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="text-primary font-bold">✓</span> "Notice It. Name It. Do It." Reflection Prompts
+            </li>
+            <li className="flex items-center gap-3">
+              <span className="text-primary font-bold">✓</span> Interactive Midweek Action Trackers
+            </li>
+          </ul>
+          <div className="pt-4">
+            <Link
+              to="/curriculum"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-body font-semibold rounded-lg shadow-lg hover:opacity-90 transition-all"
+            >
+              EXPLORE THE FULL CURRICULUM →
+            </Link>
+          </div>
+        </div>
+
+        {/* RIGHT: 3D open-book mockup */}
+        <div
+          className="relative group cursor-pointer order-1 lg:order-2"
+          style={{ perspective: "1200px" }}
+        >
+          {/* Glow */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-muted-foreground/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500" />
+
+          {/* Book outer box with 3D tilt on hover */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative bg-white p-8 rounded-2xl border border-border shadow-2xl transition-transform duration-500 group-hover:-translate-y-2"
+            style={{
+              transformStyle: "preserve-3d",
+              boxShadow: "0 20px 40px -15px rgba(0,0,0,0.15)",
+            }}
+          >
+            {/* Book spread */}
+            <div className="aspect-[4/3] bg-amber-50/50 border border-amber-100/60 rounded-lg p-6 flex gap-6">
+              {/* Left page */}
+              <div className="w-1/2 border-r border-amber-200/50 pr-4 space-y-3">
+                <div className="h-3 bg-slate-300 rounded w-1/3" />
+                <div className="h-6 bg-slate-800 rounded w-3/4" />
+                <div className="space-y-2 pt-4">
+                  <div className="h-2 bg-slate-200 rounded w-full" />
+                  <div className="h-2 bg-slate-200 rounded w-5/6" />
+                  <div className="h-2 bg-slate-200 rounded w-4/6" />
+                </div>
+              </div>
+              {/* Right page */}
+              <div className="w-1/2 pl-4 space-y-3">
+                <div className="h-3 bg-primary/40 rounded w-1/4" />
+                <div className="h-20 bg-primary/5 border border-primary/10 rounded-lg p-3">
+                  <div className="h-2 bg-primary/40 rounded w-1/2 mb-2" />
+                  <div className="h-2 bg-primary/20 rounded w-full" />
+                </div>
+                <div className="h-2 bg-slate-200 rounded w-full" />
+              </div>
+            </div>
+
+            {/* Badge */}
+            <div className="absolute bottom-4 right-4 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-full font-medium shadow-md">
+              Click to Flip Through
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+
     {/* High-intent CTA — the join lives here, at the end of the story. */}
     <section className="section-white py-24">
       <div className="container mx-auto px-6 text-center max-w-3xl">
