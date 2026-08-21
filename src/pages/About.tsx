@@ -42,7 +42,7 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
   <>
     <section className="section-cream min-h-[60vh] flex items-center pt-16">
       <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
-        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95]">
+        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] text-primary mb-6">
           WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION
         </motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-muted-foreground font-body text-base max-w-xl mx-auto leading-relaxed">
@@ -52,7 +52,7 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
     </section>
 
     {/* The Story */}
-    <section className="section-white py-24">
+    <section id="the-story" className="section-white py-24">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           <div className="w-full h-[32rem] overflow-hidden rounded-sm">
@@ -60,19 +60,19 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           </div>
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               I loved podcasts the way some people love music. Driving was my favourite thing because it meant I could listen — really listen. But I could never retain what I was learning. The ideas would hit, stir something, then dissolve into the noise of the week.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               I tried the gym. I was only there out of necessity — external motivators chased, never truly wanted. I tried book clubs, but I only read non-fiction and I heard some people don't even read the book. Then I started a women in business group: we rotated roles, shared wins, and spoke our intentions aloud each week. Because we'd said them in front of each other, we actually followed through. The structure worked.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               But I was told to relax. To loosen the format. And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability — and I thought, surely there must be others out there who feel the same way.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               That's where Mindcast began. Not a book club, not a lecture — a facilitated weekly gathering. A 52-week journey where adults, teens and children each work through the same theme in their own live session, reflect in their course book, and leave with one thing to implement before next week. During the week, Life Groups meet to revisit the Sunday session and go deeper. Not to be taught. Just to do the work, side by side.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed">
+            <p className="text-muted-foreground font-body text-base leading-relaxed">
               So I built the room.
             </p>
           </div>
@@ -89,11 +89,11 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           </div>
           <div>
             <h2 className="heading-display text-4xl text-primary mb-6">THE ROOM</h2>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               We gather at the Great Lake Centre, 5 Story Place, Taupō — a 600-person
               venue in the heart of town.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               Three rooms run at once. Adults in the main hall, teens in their own room, children
               in a space of their own. There is a kitchen, so there is always a cup of tea.
             </p>
@@ -137,16 +137,16 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
             <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH CARLSON</h3>
             <p className="text-xs tracking-[0.3em] text-primary/40 mb-6">FOUNDER & FACILITATOR</p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               I'm not a teacher (anymore). I'm not a guru. I'm not a prophet, and I'm certainly not the source of whatever wisdom surfaces in a Mindcast session.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               Everything we draw from — the ideas, the thinkers, the frameworks — already exists in the world. I didn't invent the wisdom. I just built the room. I created the shape of the evening. I wrote the questions. I set the table. What happens at that table belongs to everyone who sits at it.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
               I built Mindcast because I needed it myself. I needed a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone. I was looking to find my people: those who get stimulated intellectually, who want to understand themselves better, who are tired of surfaces and small talk and pretending they're fine.
             </p>
-            <p className="text-muted-foreground font-body text-sm leading-relaxed">
+            <p className="text-muted-foreground font-body text-base leading-relaxed">
               So if you need a label, here's the truest one: I'm the first participant. The one who needed this badly enough to build it — and then left the door open for whoever else might need it too.
             </p>
             <p className="text-xs tracking-[0.2em] text-primary/40 mt-6">BASED IN TAUPŌ, NEW ZEALAND</p>
@@ -185,7 +185,7 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           A note on how Mindcast was built — and what we believe about the tools we use.
         </motion.p>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-5 text-foreground/80 font-body text-sm leading-relaxed">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-5 text-foreground/80 font-body text-base leading-relaxed">
           <p>
             The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone.
           </p>

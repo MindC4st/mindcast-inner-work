@@ -309,7 +309,7 @@ const GatheringSection = () => {
                 you bring the unconscious to the conscious, set one honest intention, and come
                 back the following week to be held to it.
               </p>
-              <GlowButton to="/about" variant="outline">READ THE STORY</GlowButton>
+              <GlowButton to="/about#the-story" variant="outline">READ THE STORY</GlowButton>
             </Reveal>
           </div>
         </div>
