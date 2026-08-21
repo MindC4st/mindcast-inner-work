@@ -159,7 +159,10 @@ const HeroSection = () => {
     return () => ctx.revert();
   }, []);
 
-  const words = ["TUNE", "INTO", "YOUR", "INNER", "SELF."];
+  const heroLines = [
+    ["STOP", "CONSUMING."],
+    ["START", "DOING."],
+  ];
 
   return (
     <section ref={ref} className="relative min-h-[100svh] bg-white flex items-center overflow-hidden">
@@ -176,21 +179,28 @@ const HeroSection = () => {
 
       <div className="hero-copy container mx-auto px-6 relative z-10 pt-24 pb-16 text-center">
         <p className="font-body text-[11px] font-bold tracking-[0.5em] text-primary uppercase mb-8">
-          Coming soon · Taupō, Aotearoa New Zealand
+          COMING SOON · TAUPŌ, AOTEAROA NEW ZEALAND
         </p>
-        <h1 className="font-display leading-[0.88] tracking-tight text-foreground text-[17vw] sm:text-[13vw] lg:text-[10rem]">
-          {words.map((w) => (
-            <span key={w} className="hero-word inline-block mr-[0.2em]">{w}</span>
+        <h1 className="font-display leading-[0.9] tracking-tight text-foreground text-[clamp(2.25rem,8vw,9rem)] [text-shadow:0_2px_24px_rgba(255,255,255,0.9)]">
+          {heroLines.map((line) => (
+            <span key={line.join("")} className="block">
+              {line.map((w) => (
+                <span key={w} className="hero-word inline-block mr-[0.2em]">{w}</span>
+              ))}
+            </span>
           ))}
         </h1>
-        <p className="font-body text-muted-foreground text-base md:text-lg max-w-2xl mx-auto mt-8 leading-relaxed">
-          We consume more self-development than any generation before us — and apply almost none
-          of it. Mindcast is a weekly live gathering built for follow-through: a room that holds
+        <p className="font-body text-muted-foreground text-base md:text-lg max-w-2xl mx-auto mt-8 leading-relaxed [text-shadow:0_1px_12px_rgba(255,255,255,0.85)]">
+          We consume more self-development than any generation before us—and apply almost none of it.
+          Mindcast is a weekly live gathering built for follow-through. We are the room that holds
           you accountable to the things you already know.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
-          <GlowButton href="#membership">SEE MEMBERSHIP</GlowButton>
-          <GlowButton to="/try" variant="outline">GET A FREE SESSION PASS</GlowButton>
+        <div className="flex flex-col items-center justify-center mt-10">
+          <GlowButton href="#membership">JOIN THE FOUNDING WAITLIST</GlowButton>
+          <p className="font-body font-light italic text-[0.85rem] text-muted-foreground/80 max-w-md mt-4 leading-relaxed [text-shadow:0_1px_10px_rgba(255,255,255,0.8)]">
+            The first 100 to register receive a complimentary NFC smart-bracelet—your physical key
+            for tap-and-go room entry and instant session access.
+          </p>
         </div>
       </div>
 
@@ -204,9 +214,9 @@ const HeroSection = () => {
 /* ── MANIFESTO — words surface as you scroll ────────────────────────────── */
 
 const MANIFESTO = [
-  "You are unaware, and you don't change.",
-  "You are aware, and you still don't change.",
-  "You are aware, you act, and you come back next week.",
+  "You are unaware, so you don't change.",
+  "You are aware, but you still don't change.",
+  "You are aware, you take action, and you come back next week.",
 ];
 
 const ManifestoSection = () => {
@@ -216,7 +226,7 @@ const ManifestoSection = () => {
     if (prefersReduce()) return;
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLSpanElement>(".manifesto-line").forEach((line) => {
-        gsap.fromTo(line, { opacity: 0.14 }, {
+        gsap.fromTo(line, { opacity: 0.3 }, {
           opacity: 1,
           ease: "none",
           scrollTrigger: { trigger: line, start: "top 78%", end: "top 45%", scrub: true },
@@ -229,15 +239,15 @@ const ManifestoSection = () => {
   return (
     <section id="manifesto" ref={ref} className="section-cream relative py-32 md:py-44">
       <div className="container mx-auto px-6 max-w-4xl">
-        <p className="font-body text-[11px] font-bold tracking-[0.35em] text-primary uppercase mb-12">Three kinds of people</p>
+        <p className="font-body text-[11px] font-bold tracking-[0.35em] text-primary uppercase mb-12">THREE KINDS OF PEOPLE</p>
         {MANIFESTO.map((line, i) => (
           <p key={i} className="manifesto-line font-display text-foreground text-4xl sm:text-5xl md:text-6xl leading-[1.05] mb-8">
             {line}
           </p>
         ))}
         <Reveal delay={0.1}>
-          <p className="font-serif italic text-primary text-2xl md:text-3xl mt-14">
-            Mindcast is the room built for that third one.
+          <p className="font-body text-muted-foreground text-lg md:text-xl mt-14">
+            Mindcast is the room built for the third.
           </p>
         </Reveal>
       </div>
