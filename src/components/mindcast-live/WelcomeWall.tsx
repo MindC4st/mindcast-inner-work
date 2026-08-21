@@ -19,6 +19,7 @@ import type { CSSProperties } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/lib/db";
+import Ripple from "@/components/brand/Ripple";
 import {
   assignSlots, buildSlots, fontScaleForName, formatWallName, pickTier,
 } from "@/lib/welcomeWall";
@@ -176,9 +177,20 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
             {sessionTitle}
           </p>
         </motion.div>
-        <p className="text-[hsl(var(--ivory))]/45 text-[10px] tracking-[0.5em] font-body uppercase mt-10">
+
+        {/* Signal — the room breathing. More visible while empty, quieter once
+            names arrive, but never louder than the people on the wall. */}
+        <div className="mt-8" aria-hidden="true">
+          <Ripple
+            size={people.length === 0 ? 84 : 56}
+            animate
+            className={people.length === 0 ? "text-[hsl(var(--ivory))]/40" : "text-[hsl(var(--ivory))]/15"}
+          />
+        </div>
+
+        <p className="text-[hsl(var(--ivory))]/45 text-[10px] tracking-[0.5em] font-body uppercase mt-8">
           {people.length === 0
-            ? "Tap your bracelet to join the room"
+            ? "The room is ready."
             : `${people.length} in the room`}
         </p>
       </div>

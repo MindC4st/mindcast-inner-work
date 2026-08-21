@@ -742,6 +742,14 @@ const FacilitatorView = () => {
               <SlideRenderer kind={currentKind} session={session} responses={responses} joinUrl={joinUrl} code={code} onSessionUpdate={setSession} isFacilitator={isFacilitator} onApproveColoring={handleApproveColoring} />
             </motion.div>
           </AnimatePresence>
+
+          {/* Brand footer — projected once at the deck level, so it stays on
+              every slide (and future slide kinds) without per-slide markup. */}
+          <div className="absolute bottom-5 inset-x-0 z-20 pointer-events-none flex justify-center">
+            <p className="font-body text-[10px] tracking-[0.5em] text-[hsl(var(--ivory))]/25 uppercase">
+              NOTICE IT. NAME IT. DO IT.
+            </p>
+          </div>
         </div>
 
         {/* Live response panel on reflection slides */}
