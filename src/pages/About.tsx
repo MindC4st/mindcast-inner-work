@@ -2,36 +2,45 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ImagePlaceholder, { ImagePlaceholderDark } from "@/components/ImagePlaceholder";
 import AmbientVideo from "@/components/AmbientVideo";
-import mindcastBuilding from "@/assets/mindcast-building.png";
-const aboutTheRoom = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-adultsroom.png";
 
 
-const values = [
+const foundations = [
   {
-    title: "COMMUNITY OVER CONTENT",
-    desc: "You probably don't need more information. You need somewhere to practise what you already know.\n\nThe live room, the people in it and the practice of coming back each week matter more than another framework, podcast or piece of content. Everything we create exists to support the room — not replace it."
+    title: "Space Over Information",
+    subhead: "Why We Exist",
+    subheadText: "Most people don't need more information—they need space to slow down, notice what is actually shaping them, and practise making intentional choices.",
+    standard: "Life is noisy, fast, and full of competing demands. Mindcast creates a regular place to come back to yourself, reflect without pressure, and take one practical thing into the week that genuinely helps.",
   },
   {
-    title: "DRAW OUT, DON'T PREACH",
-    desc: "We are not here to tell you what to think, what you should feel or who you are.\n\nFacilitators help you notice your own experience, ask better questions and make your own choices. We don't impose a belief system, interpret people's inner lives for them or reward one kind of answer over another. You can speak, write privately, listen or pass."
+    title: "The Practice of Showing Up",
+    subhead: "What We Do",
+    subheadText: "We explore one theme each week, ask better questions, and turn reflection into action. The content matters, but the real product is the habit of coming back each week and doing it alongside other people.",
+    standard: "Every session follows a simple, repeatable rhythm: Notice It. Name It. Do It.",
   },
   {
-    title: "EVERYONE CAN AFFORD TO BELONG",
-    desc: "A person's income shouldn't decide whether they get to be in the room.\n\nWe keep our access options clear and straightforward, including casual and concession pathways. Where cost is the thing standing between someone and participation, our concession model does not require them to prove hardship to a committee or pass a means test."
+    title: "Real People, No Preaching",
+    subhead: "Who We Do It For",
+    subheadText: "Built for ordinary people trying to live well in a noisy world—parents, teenagers, young people, and busy adults.",
+    standard: "You will not be preached at, diagnosed, fixed, or told who you should become. Mindcast is a place to think, connect, and practise becoming more yourself, together.",
   },
   {
-    title: "SAFE BY DESIGN",
-    desc: "Safety isn't something we add after the programme is built. It shapes how the programme works.\n\nThat means clear boundaries, safeguarding, privacy, moderated interactions, appropriate adult and child participation, trained facilitators and the freedom to keep something private. Mindcast is a personal-development and community programme — not therapy or medical care — and our facilitators stay inside that boundary."
+    title: "Shared Language at Home",
+    subhead: "Generational Impact",
+    subheadText: "Real behavioural change starts with a shared language at home.",
+    standard: "Designed for multi-generational participation, Mindcast equips parents, teens, and young people with a unified framework for reflection, making growth a collective household practice rather than an isolated effort.",
   },
   {
-    title: "HONEST ABOUT WHAT WE ARE",
-    desc: "We would rather say \"we don't know\" than make something sound more certain than it is.\n\nWe use research where it supports what we're teaching, distinguish evidence from metaphor or teaching tools, and are explicit about the limits of what Mindcast can claim. We have evidence behind individual parts of the curriculum; we do not pretend that proves a 52-week programme will transform everyone who completes it.\n\nNo magic. No guru. No promise that one exercise works for everyone."
+    title: "Safe by Design",
+    subhead: "Psychological Safety",
+    subheadText: "Safety isn't added after the program is built; it shapes how every session runs.",
+    standard: "Clear boundaries, privacy, moderated interactions, and trained facilitators safeguard the room. Mindcast is a personal development space—not therapy or medical care—and our facilitators operate strictly within that scope.",
   },
   {
-    title: "NO PRESSURE, EVER",
-    desc: "You don't owe Mindcast disclosure, loyalty, recruitment or a particular outcome.\n\nNo urgency. No scarcity. No guilt for missing a week or not completing an intention. No referral ladders. No dependence on a founder or facilitator. We want people to participate because the room is useful to them — not because we've made leaving, disagreeing or saying no feel uncomfortable."
+    title: "Honest & Unpressured",
+    subhead: "Intellectual Integrity",
+    subheadText: "No magic, no gurus, and no promise that one exercise works for everyone.",
+    standard: "We ground our curriculum in practical frameworks, stay transparent about our limits, and maintain clear membership pathways—with zero artificial urgency, guilt, or forced disclosure.",
   },
 ];
 
@@ -42,6 +51,9 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
   <>
     <section className="section-cream min-h-[60vh] flex items-center pt-16">
       <div className="container mx-auto px-6 text-center py-28 md:py-36 max-w-4xl">
+        <p className="font-body text-[11px] font-bold tracking-[0.5em] text-primary uppercase mb-8">
+          About Mindcast
+        </p>
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] text-foreground mb-8">
           WE WANT TO RECREATE WHAT CHURCH DID WELL—WITHOUT THE RELIGION.
         </motion.h1>
@@ -86,29 +98,6 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
       </div>
     </section>
 
-    {/* The Room */}
-    <section className="section-cream py-24">
-      <div className="container mx-auto px-6 max-w-4xl">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="overflow-hidden rounded-sm aspect-[4/3]">
-            <img src={aboutTheRoom} alt="The adults' room at the Great Lake Centre, set up for a session" className="w-full h-full object-cover" loading="lazy" />
-          </div>
-          <div>
-            <h2 className="heading-display text-4xl text-primary mb-6">THE ROOM</h2>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              We gather at the Great Lake Centre, 5 Story Place—a 600-person venue in the heart of
-              town. Three dedicated rooms run simultaneously, allowing your whole household to
-              attend. And because we are right in the CBD, the experience doesn't have to end when
-              the session does.
-            </p>
-            <p className="text-muted-foreground/60 font-body text-sm italic leading-relaxed" style={{ fontFamily: "var(--font-serif)" }}>
-              "I didn't invent the wisdom. I just built the room."
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     {/* The Mission */}
     <section className="section-cream py-24">
       <div className="container mx-auto px-6">
@@ -140,34 +129,38 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
             <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH CARLSON</h3>
-            <p className="text-xs tracking-[0.3em] text-primary/40 mb-6">FOUNDER & FACILITATOR</p>
+            <p className="text-xs tracking-[0.2em] text-primary/60 mb-6">Founder &amp; Facilitator &nbsp;|&nbsp; Taupō, New Zealand</p>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I'm not a teacher (anymore). I'm not a guru. I'm not a prophet, and I'm certainly not the source of whatever wisdom surfaces in a Mindcast session.
+              I am not a teacher, a guru, or a prophet. I didn't invent the wisdom, the ideas, or the frameworks we draw from—those already exist in the world.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              Everything we draw from — the ideas, the thinkers, the frameworks — already exists in the world. I didn't invent the wisdom. I just built the room. I created the shape of the evening. I wrote the questions. I set the table. What happens at that table belongs to everyone who sits at it.
+              My job is simple: I built the room. I created the shape of the evening. I wrote the questions and set the table. What happens at that table belongs entirely to everyone who sits at it.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I built Mindcast because I needed it myself. I needed a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone. I was looking to find my people: those who get stimulated intellectually, who want to understand themselves better, who are tired of surfaces and small talk and pretending they're fine.
+              I built Mindcast because I needed it myself—a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone; I was looking for my people: those tired of surfaces and small talk, ready to understand themselves better.
             </p>
             <p className="text-muted-foreground font-body text-base leading-relaxed">
-              So if you need a label, here's the truest one: I'm the first participant. The one who needed this badly enough to build it — and then left the door open for whoever else might need it too.
+              If you need a label, I am the first participant: the one who needed this room badly enough to build it, and then left the door open for whoever else might need it too.
             </p>
-            <p className="text-xs tracking-[0.2em] text-primary/40 mt-6">BASED IN TAUPŌ, NEW ZEALAND</p>
           </motion.div>
         </div>
       </div>
     </section>
 
-    {/* Values */}
+    {/* Our Core Foundations */}
     <section className="section-cream py-24">
       <div className="container mx-auto px-6">
-        <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR VALUES</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {values.map((v, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-border p-6">
-              <h3 className="font-display text-lg tracking-wider text-foreground leading-snug mb-3">{v.title}</h3>
-              <p className="text-muted-foreground text-sm font-body leading-relaxed whitespace-pre-wrap">{v.desc}</p>
+        <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR CORE FOUNDATIONS</h2>
+        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          {foundations.map((f, i) => (
+            <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-border p-7">
+              <h3 className="font-display text-2xl tracking-wider text-foreground leading-snug mb-4">{f.title}</h3>
+              <p className="text-muted-foreground text-sm font-body leading-relaxed mb-3">
+                <em className="text-foreground font-medium">{f.subhead}:</em> {f.subheadText}
+              </p>
+              <p className="text-muted-foreground/80 text-sm font-body leading-relaxed">
+                <em className="text-foreground font-medium">The Standard:</em> {f.standard}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -268,21 +261,18 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
       </div>
     </section>
 
-    {/* Closing CTA — an EXPLORATION cta, not a conversion one.
-        Someone who has just read the founder's story is ready to look inside
-        the curriculum, not to be sold a membership. The join CTA lives at the
-        bottom of /curriculum, after they have actually seen the year. */}
+    {/* High-intent CTA — the join lives here, at the end of the story. */}
     <section className="section-white py-24">
       <div className="container mx-auto px-6 text-center max-w-3xl">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-4xl md:text-6xl text-primary mb-6">
-          CURIOUS WHAT MINDCAST LOOKS LIKE?
+          READY TO JOIN THE ROOM?
         </motion.h2>
         <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
-          Explore inside the MINDCAST curriculum and see how the 52-week journey helps adults, teens and children build greater awareness, intention and follow-through — one week at a time.
+          One room, the same people, every week. Become a member and do the work alongside others who are done just consuming.
         </motion.p>
         <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
-          <Link to="/curriculum" className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
-            LOOK INSIDE OUR CURRICULUM &rarr;
+          <Link to={membershipHref} className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
+            JOIN THE ROOM &rarr;
           </Link>
         </motion.div>
       </div>
