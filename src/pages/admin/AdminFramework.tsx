@@ -1,25 +1,24 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/lib/db";
-import type { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, GripVertical, Trash2, Plus, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Pencil } from "lucide-react";
+import {
+  beatLabel, formatSlideDuration, slidesForTrack, totalDurationMinutes,
+  type LessonSlide, type TrackName,
+} from "@/lib/lessonSlides";
 
-// Session Framework — the v2.0 session shape (FRAMEWORK.md §VII) plus the
-// 52-week journey arc. The run sheet prints from the CURRENT curriculum
-// (scheduled_sessions → curriculum_weeks), not the retired sessions table.
+// Session Framework — the live deck structure, read dynamically from
+// lesson_slides (the same table Facilitate Live renders from). Titles, order,
+// beats, durations and track applicability all come from the database: change
+// a slide title there and this page updates on next load — no code change.
+//
+// The old six-step framework_steps editor is retired: Facilitate Live ignores
+// it, so editing it here would be false configuration. Structure edits belong
+// in the lesson editor / DB, and this page links there.
 
-const DEFAULT_FRAMEWORK = [
-  { name: "The Landing", duration: 10, description: "Arrival. Bracelets tap at the door, names land on the welcome wall. No formal start — this is time to come out of the day and into the room." },
-  { name: "Looking Back — the hook", duration: 5, description: "Return to last week's intention. Did it happen? What got in the way? A few honest words — no commentary, no praise, no redirection. Let them land." },
-  { name: "The Source", duration: 10, description: "The video plays. Workbooks open, no interruptions. The facilitator watches with the group. (Hook + video ≈ 15 minutes together.)" },
-  { name: "The Dig — reflective questions", duration: 25, description: "Two questions, on screen, one at a time. Quiet writing first, then conversation. Silence gets sixty seconds before anyone rescues it." },
-  { name: "The Activity", duration: 15, description: "The week's exercise or discussion, as written. If the room is deep in real talk, the activity is optional — follow the room." },
-  { name: "The Edge — weekly practice", duration: 10, description: "One specific thing to do this week, written in the workbook. The week's affirmation lands it. Then the close: a leaving word, one brief thought — and in the kids' and teens' rooms, every child signed in is signed out to a named person before the door opens." },
-];
-
-type FrameworkStep = Pick<Tables<"framework_steps">, "id" | "step_order" | "name" | "duration" | "description">;
+const TRACKS: TrackName[] = ["Adult", "Teen", "Child"];
 
 type WeekRow = {
   week_number: number;
@@ -34,20 +33,26 @@ const nzToday = () =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Auckland" }).format(new Date());
 
 const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
-  const [steps, setSteps] = useState<FrameworkStep[]>([]);
-  const [saving, setSaving] = useState(false);
+  const [slides, setSlides] = useState<LessonSlide[]>([]);
+  const [track, setTrack] = useState<TrackName>("Adult");
   const [week, setWeek] = useState<WeekRow | null>(null);
   const [sessionDate, setSessionDate] = useState<string | null>(null);
   const [arc, setArc] = useState<{ block: string; weeks: WeekRow[] }[]>([]);
   const [arcOpen, setArcOpen] = useState(false);
   const { toast } = useToast();
-  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase.from("framework_steps").select("*").order("step_order").then(({ data }) => {
-      if (data && data.length > 0) setSteps(data);
-      else setSteps(DEFAULT_FRAMEWORK.map((s, i) => ({ ...s, step_order: i + 1, id: `new-${i}` })));
-    });
+    // The authoritative deck metadata.
+    supabase
+      .from("lesson_slides" as never)
+      .select("id, slide_key, position, beat, title, component_key, is_active, default_duration_seconds, applies_to_tracks")
+      .then(({ data, error }) => {
+        if (error) {
+          toast({ title: "Couldn't load session structure", description: error.message, variant: "destructive" });
+          return;
+        }
+        setSlides(((data ?? []) as unknown as LessonSlide[]));
+      });
 
     // Today's session → its week in the curriculum.
     (async () => {
@@ -81,46 +86,18 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
       });
       setArc(blocks);
     });
-  }, []);
+  }, [toast]);
 
-  const updateStep = (idx: number, field: string, value: string | number) => {
-    setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [field]: value } : s)));
-  };
-  const removeStep = (idx: number) => {
-    setSteps((prev) => prev.filter((_, i) => i !== idx).map((s, i) => ({ ...s, step_order: i + 1 })));
-  };
-  const addStep = () => {
-    setSteps((prev) => [...prev, { id: `new-${Date.now()}`, step_order: prev.length + 1, name: "", duration: 5, description: "" }]);
-  };
-  const moveStep = (from: number, to: number) => {
-    if (to < 0 || to >= steps.length) return;
-    const arr = [...steps];
-    const [item] = arr.splice(from, 1);
-    arr.splice(to, 0, item);
-    setSteps(arr.map((s, i) => ({ ...s, step_order: i + 1 })));
-  };
-
-  const save = async () => {
-    setSaving(true);
-    await supabase.from("framework_steps").delete().gte("step_order", 0);
-    const { error } = await supabase.from("framework_steps").insert(
-      steps.map((s, i) => ({ step_order: i + 1, name: s.name, duration: s.duration, description: s.description }))
-    );
-    setSaving(false);
-    if (error) toast({ title: "Error saving", description: error.message, variant: "destructive" });
-    else toast({ title: "Framework saved" });
-  };
+  const deck = slidesForTrack(slides, track);
+  const totalMinutes = totalDurationMinutes(deck);
 
   const printRunSheet = () => { window.print(); };
 
-  const totalMinutes = steps.reduce((sum, s) => sum + (s.duration || 0), 0);
-  const inputClass = "bg-transparent border-b border-border text-foreground font-body text-sm py-2 px-1 focus:outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/40";
-
   return (
     <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
-      {/* Print-only run sheet */}
-      <div className="hidden print:block print:bg-white print:text-black p-8" ref={printRef}>
-        <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET</h1>
+      {/* Print-only run sheet — the CURRENT deck for the selected track */}
+      <div className="hidden print:block print:bg-white print:text-black p-8">
+        <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET — {track.toUpperCase()}</h1>
         {week ? (
           <p className="text-sm text-gray-600 mb-6">
             Week {week.week_number} · {sessionDate} · {week.block_theme} — {week.weekly_theme}
@@ -129,24 +106,26 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
           <p className="text-sm text-gray-600 mb-6">No session scheduled for today yet.</p>
         )}
         <div className="border-t-2 border-black pt-4 space-y-4">
-          {steps.map((s, i) => (
-            <div key={i} className="flex gap-4">
+          {deck.map((s, i) => (
+            <div key={s.id} className="flex gap-4">
               <span className="font-bold w-6 text-right">{i + 1}.</span>
               <div className="flex-1">
                 <div className="flex justify-between">
-                  <span className="font-bold uppercase">{s.name}</span>
-                  <span className="text-gray-500">{s.duration} min</span>
+                  <span className="font-bold uppercase">{s.title}</span>
+                  <span className="text-gray-500">{formatSlideDuration(s.default_duration_seconds)}</span>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{s.description}</p>
+                <p className="text-sm text-gray-600 mt-1">{beatLabel(s.beat)}</p>
               </div>
             </div>
           ))}
         </div>
         <div className="border-t-2 border-black mt-6 pt-4">
-          <p className="font-bold">Total runtime: {totalMinutes} minutes</p>
-          {week?.adult_video_title && <p className="text-sm mt-2">Adults: {week.adult_video_title}</p>}
-          {week?.teen_video_title && <p className="text-sm mt-1">Teens: {week.teen_video_title}</p>}
-          {week?.kids_title && <p className="text-sm mt-1">Kids: {week.kids_title}</p>}
+          <p className="font-bold">
+            Total runtime: {totalMinutes} minutes · {deck.length} projected slides
+          </p>
+          {week?.adult_video_title && track === "Adult" && <p className="text-sm mt-2">Video: {week.adult_video_title}</p>}
+          {week?.teen_video_title && track === "Teen" && <p className="text-sm mt-2">Video: {week.teen_video_title}</p>}
+          {week?.kids_title && track === "Child" && <p className="text-sm mt-2">Kids: {week.kids_title}</p>}
           <p className="text-xs text-gray-500 mt-4">
             Close the room properly: every child signed in is signed out to a named person before the door opens.
           </p>
@@ -168,8 +147,9 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
 
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
           <h1 className="font-display text-2xl font-bold text-foreground mb-1">Session Framework</h1>
-          <p className="text-xs text-muted-foreground font-body mb-8">
-            The v2.0 session shape — FRAMEWORK.md §VII. Edit freely; the print run sheet follows.
+          <p className="text-xs text-muted-foreground font-body mb-6">
+            The live deck structure, read from lesson_slides — the same source Facilitate Live uses.
+            Titles, order and durations update automatically when the database changes.
           </p>
 
           {week && (
@@ -178,47 +158,59 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
                 Today · Week {week.week_number} · {week.block_theme}
               </p>
               <p className="font-display text-lg tracking-wide text-foreground">{(week.weekly_theme ?? "").toUpperCase()}</p>
+              {week.week_number && (
+                <Link
+                  to={`/mindcast-live/edit/${week.week_number}`}
+                  className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-body tracking-widest uppercase text-primary hover:text-primary/70 transition-colors"
+                >
+                  <Pencil size={11} /> Edit session structure
+                </Link>
+              )}
             </div>
           )}
 
-          <div className="space-y-3">
-            {steps.map((step, idx) => (
-              <div key={step.id} className="border border-border bg-card rounded-sm p-4 group hover:border-primary/30 transition-colors">
-                <div className="flex items-start gap-3">
-                  <div className="flex flex-col gap-1 pt-2">
-                    <button onClick={() => moveStep(idx, idx - 1)} className="text-muted-foreground/40 hover:text-foreground text-xs" aria-label="Move step up">▲</button>
-                    <GripVertical size={14} className="text-muted-foreground/40" />
-                    <button onClick={() => moveStep(idx, idx + 1)} className="text-muted-foreground/40 hover:text-foreground text-xs" aria-label="Move step down">▼</button>
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-muted-foreground/60 text-xs font-body w-6">{idx + 1}.</span>
-                      <input value={step.name} onChange={(e) => updateStep(idx, "name", e.target.value)} placeholder="Step name" className={`flex-1 ${inputClass}`} />
-                      <input type="number" min={0} value={step.duration} onChange={(e) => updateStep(idx, "duration", +e.target.value)} className={`w-16 text-center ${inputClass}`} aria-label="Duration in minutes" />
-                      <span className="text-muted-foreground/60 text-[9px] font-body">min</span>
-                    </div>
-                    <textarea value={step.description} onChange={(e) => updateStep(idx, "description", e.target.value)} placeholder="Description..." className={`w-full min-h-[40px] resize-none ${inputClass} ml-9`} />
-                  </div>
-                  <button onClick={() => removeStep(idx)} className="text-muted-foreground/40 hover:text-destructive transition-colors pt-2" aria-label="Remove step">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
+          {/* Track selector */}
+          <div className="flex gap-1 rounded-md border border-border bg-card p-1 w-fit mb-6 max-w-full overflow-x-auto">
+            {TRACKS.map((t) => (
+              <button
+                key={t}
+                onClick={() => setTrack(t)}
+                className={`px-4 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${
+                  track === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t}
+              </button>
             ))}
           </div>
 
-          <button onClick={addStep} className="mt-4 flex items-center gap-2 text-muted-foreground text-xs font-body hover:text-foreground transition-colors">
-            <Plus size={14} /> Add step
-          </button>
+          <p className="text-xs text-muted-foreground font-body mb-4">
+            {track} · <span className="text-foreground">{deck.length} projected slides</span> · about {totalMinutes} minutes
+          </p>
 
-          <div className="mt-8 flex items-center justify-between">
-            <p className="text-muted-foreground text-xs font-body">Total runtime: <span className="text-foreground">{totalMinutes} minutes</span></p>
-            <button onClick={save} disabled={saving} className="px-6 py-3 bg-primary text-primary-foreground text-xs tracking-[0.15em] font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-30">
-              {saving ? "..." : "SAVE FRAMEWORK"}
-            </button>
+          <div className="space-y-3">
+            {deck.map((s, i) => (
+              <div key={s.id} className="border border-border bg-card rounded-sm p-4 hover:border-primary/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <span className="font-display text-primary text-lg w-8 shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-base tracking-wide text-foreground break-words">{s.title.toUpperCase()}</p>
+                    <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mt-0.5">
+                      {beatLabel(s.beat) || "—"} · {s.slide_key}
+                    </p>
+                  </div>
+                  <span className="text-muted-foreground text-xs font-body shrink-0">{formatSlideDuration(s.default_duration_seconds)}</span>
+                </div>
+              </div>
+            ))}
+            {deck.length === 0 && (
+              <p className="text-sm text-muted-foreground font-body border border-border bg-card rounded-sm p-6 text-center">
+                No active slides found for {track}. Check lesson_slides.
+              </p>
+            )}
           </div>
 
-          {/* The journey arc — v2.0, read from the live curriculum */}
+          {/* The journey arc — read from the live curriculum */}
           {arc.length > 0 && (
             <div className="mt-12 border-t border-border pt-8">
               <button
