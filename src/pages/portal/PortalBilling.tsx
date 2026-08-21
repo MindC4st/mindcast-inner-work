@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { Loader2, Check } from "lucide-react";
+import { track } from "@/lib/observability";
+import { normalizeEmail, isValidEmail, FOUNDING_CAP } from "@/lib/foundingBracelets";
 
 // Authenticated membership management. Logged-in members build a household
-// bundle (adults / teens / children), pick a billing cadence, and are sent to
-// Stripe Checkout (mode: subscription); existing members manage/cancel via the
-// Stripe billing portal. Status mirrors profile.membership_status, which the
-// stripe-webhook keeps in sync.
+// bundle (adults / teens / children), name the additional adults and teens in
+// their household, pick a billing cadence, and are sent to Stripe Checkout
+// (mode: subscription); existing members manage/cancel via the Stripe billing
+// portal. Status mirrors profile.membership_status, which the stripe-webhook
+// keeps in sync.
 //
 // Contract with create-subscription-checkout (Jul 2026 family-bundle model):
-//   body = { plan: "monthly" | "annual", adults, teens, children }
+//   body = { plan, adults, teens, children,
+//            members: [{ tier: "adult"|"teen", first_name, email }],
+//            bracelets: [email, ...] }
 // FAMILY15 discount is applied server-side when 2+ adults and ≥1 teen/child.
 //
-// Brand-aligned to `/` and `/demo`: ivory background, Bebas plan names,
-// Montserrat body, single primary CTA per card.
+// NFC bracelet add-on (Founding 100): each NAMED individual (payer + extra
+// adults + teens with logins) is eligible for one free bracelet while the
+// first-100 cap holds. Children don't have logins and never count. Display
+// eligibility comes from founding-bracelet-status; the authoritative
+// reservation happens server-side at checkout start.
 
 type Plan = "monthly" | "annual";
 
@@ -26,6 +34,14 @@ const PLANS: { id: Plan; name: string; blurb: string; note: string }[] = [
 ];
 
 const ACTIVE = new Set(["active", "trialing"]);
+
+type MemberDraft = { first_name: string; email: string };
+type EligibilityState = "free" | "reserved" | "allocated" | "claimed" | "exhausted" | "invalid" | "unknown";
+
+const resize = (rows: MemberDraft[], n: number): MemberDraft[] =>
+  n <= rows.length
+    ? rows.slice(0, n)
+    : [...rows, ...Array.from({ length: n - rows.length }, () => ({ first_name: "", email: "" }))];
 
 const PortalBilling = () => {
   const { user, profile, membershipStatus, loading: authLoading } = useAuth();
@@ -44,13 +60,103 @@ const PortalBilling = () => {
   const totalSeats = adults + teens + children;
   const familyDiscount = adults >= 2 && (teens >= 1 || children >= 1);
 
+  // Named members beyond the payer. The payer occupies one adult seat (unless
+  // the payer is a teen). Children are never named — no login, no email.
+  const extraAdultCount = Math.max(0, adults - (isTeen ? 0 : 1));
+  const [extraAdults, setExtraAdults] = useState<MemberDraft[]>([]);
+  const [teenDetails, setTeenDetails] = useState<MemberDraft[]>([]);
+  useEffect(() => { setExtraAdults((rows) => resize(rows, extraAdultCount)); }, [extraAdultCount]);
+  useEffect(() => { setTeenDetails((rows) => resize(rows, teens)); }, [teens]);
+
+  // Founding-100 eligibility per email (display only — the server re-checks).
+  const payerEmail = normalizeEmail(profile?.email || user?.email || "");
+  const [eligibility, setEligibility] = useState<Record<string, { state: EligibilityState; seat_number: number | null }>>({});
+  const [selectedBracelets, setSelectedBracelets] = useState<Set<string>>(new Set());
+  const offerTracked = useRef(false);
+
+  const namedMembers = useMemo(() => [
+    ...extraAdults.map((m, i) => ({ key: `adult-${i}`, tier: "adult" as const, ...m })),
+    ...teenDetails.map((m, i) => ({ key: `teen-${i}`, tier: "teen" as const, ...m })),
+  ], [extraAdults, teenDetails]);
+
+  const checkEmails = useMemo(() => {
+    const valid = namedMembers
+      .map((m) => normalizeEmail(m.email))
+      .filter((e) => isValidEmail(e));
+    return [...new Set(payerEmail && isValidEmail(payerEmail) ? [payerEmail, ...valid] : valid)];
+  }, [namedMembers, payerEmail]);
+
+  useEffect(() => {
+    if (isMember || checkEmails.length === 0) return;
+    const t = setTimeout(async () => {
+      try {
+        const { data } = await supabase.functions.invoke("founding-bracelet-status", {
+          body: { emails: checkEmails },
+        });
+        const results = (data?.results ?? []) as { email: string; state: EligibilityState; seat_number: number | null }[];
+        setEligibility((prev) => {
+          const next = { ...prev };
+          for (const r of results) next[r.email] = { state: r.state, seat_number: r.seat_number };
+          return next;
+        });
+      } catch {
+        /* eligibility display is best-effort; server re-validates at checkout */
+      }
+    }, 500);
+    return () => clearTimeout(t);
+    // checkEmails is memoised on the member drafts + payer email, so this
+    // effect re-runs only when the actual email list changes (debounced above).
+  }, [checkEmails, isMember]);
+
+  useEffect(() => {
+    if (!isMember && !authLoading && !offerTracked.current) {
+      offerTracked.current = true;
+      track("nfc_bracelet_offer_viewed", { surface: "membership_checkout" });
+    }
+  }, [isMember, authLoading]);
+
+  const peopleForBracelets = useMemo(() => [
+    ...(payerEmail ? [{ key: "payer", name: profile?.first_name || profile?.name || "You", email: payerEmail, isPayer: true }] : []),
+    ...namedMembers.map((m) => ({ key: m.key, name: m.first_name || (m.tier === "teen" ? "Teen" : "Adult"), email: normalizeEmail(m.email), isPayer: false })),
+  ], [payerEmail, namedMembers, profile]);
+
+  const stateFor = (email: string): EligibilityState =>
+    eligibility[email]?.state ?? "unknown";
+
+  const isFreeState = (s: EligibilityState) => s === "free" || s === "allocated" || s === "reserved";
+
+  const toggleBracelet = (email: string) => {
+    setSelectedBracelets((prev) => {
+      const next = new Set(prev);
+      if (next.has(email)) {
+        next.delete(email);
+        track("nfc_bracelet_removed", { surface: "membership_checkout" });
+      } else {
+        next.add(email);
+        track("nfc_bracelet_selected", { surface: "membership_checkout" });
+      }
+      return next;
+    });
+  };
+
   const startCheckout = async (plan: Plan) => {
     if (!user) { navigate("/portal/login"); return; }
     if (totalSeats < 1) { setError("Select at least one membership."); return; }
+    // Named members need valid emails — they are each person's founding identity.
+    for (const m of namedMembers) {
+      if (!isValidEmail(m.email)) {
+        setError("Every additional adult and teen needs their own valid email.");
+        return;
+      }
+    }
     setBusy(plan); setError(null);
     try {
       const { data, error } = await supabase.functions.invoke("create-subscription-checkout", {
-        body: { plan, adults, teens, children },
+        body: {
+          plan, adults, teens, children,
+          members: namedMembers.map((m) => ({ tier: m.tier, first_name: m.first_name, email: normalizeEmail(m.email) })),
+          bracelets: [...selectedBracelets],
+        },
       });
       if (error) throw error;
       if (data?.url) { window.location.href = data.url; return; }
@@ -161,6 +267,116 @@ const PortalBilling = () => {
                 Family discount applies — it will show automatically at checkout.
               </p>
             )}
+
+            {namedMembers.length > 0 && (
+              <div className="mt-5 border-t border-foreground/10 pt-4">
+                <p className="text-[10px] font-body font-semibold tracking-widest text-foreground/60 mb-1">WHO'S JOINING YOU?</p>
+                <p className="text-xs text-foreground/50 font-body mb-3">
+                  Each additional adult and teen gets their own login — add their name and email so we can set them up after checkout.
+                </p>
+                <div className="grid gap-3">
+                  {namedMembers.map((m, i) => (
+                    <div key={m.key} className="grid gap-2 sm:grid-cols-[1fr_1.4fr]">
+                      <input
+                        type="text"
+                        value={m.first_name}
+                        placeholder={m.tier === "teen" ? `Teen ${i + 1} — first name` : `Adult ${i + 1} — first name`}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (m.tier === "teen") {
+                            setTeenDetails((rows) => rows.map((r, ri) => ri === i ? { ...r, first_name: v } : r));
+                          } else {
+                            setExtraAdults((rows) => rows.map((r, ri) => ri === i ? { ...r, first_name: v } : r));
+                          }
+                        }}
+                        className="border border-foreground/15 rounded-sm px-3 py-2 text-sm font-body bg-background focus:outline-none focus:border-primary/60"
+                      />
+                      <input
+                        type="email"
+                        value={m.email}
+                        placeholder="their@email.com"
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (m.tier === "teen") {
+                            setTeenDetails((rows) => rows.map((r, ri) => ri === i ? { ...r, email: v } : r));
+                          } else {
+                            setExtraAdults((rows) => rows.map((r, ri) => ri === i ? { ...r, email: v } : r));
+                          }
+                        }}
+                        className="border border-foreground/15 rounded-sm px-3 py-2 text-sm font-body bg-background focus:outline-none focus:border-primary/60"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isMember && peopleForBracelets.length > 0 && (
+          <div className="border border-foreground/10 rounded-sm p-5 mb-6 bg-foreground/[0.02]">
+            <p className="font-display text-base tracking-wider text-foreground mb-1">TAKE MINDCAST WITH YOU</p>
+            <p className="text-xs text-foreground/50 font-body mb-4">
+              Add an NFC bracelet for quick access to your MINDCAST experience. Bracelets belong to individual members — choose who gets one.
+            </p>
+            <div className="grid gap-2">
+              {peopleForBracelets.map((p) => {
+                const email = normalizeEmail(p.email);
+                if (!isValidEmail(email)) {
+                  return (
+                    <div key={p.key} className="border border-foreground/10 rounded-sm px-4 py-3 flex items-center justify-between gap-3 opacity-60">
+                      <span className="text-sm font-body text-foreground/70 truncate">{p.name}</span>
+                      <span className="text-[10px] font-body font-semibold tracking-widest uppercase text-foreground/40">Not required</span>
+                    </div>
+                  );
+                }
+                const state = stateFor(email);
+                const free = isFreeState(state);
+                const claimed = state === "claimed";
+                const selected = selectedBracelets.has(email);
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    disabled={!free}
+                    onClick={() => toggleBracelet(email)}
+                    className={`border rounded-sm px-4 py-3 flex items-center justify-between gap-3 text-left transition-colors ${
+                      selected
+                        ? "border-primary/60 bg-primary/5"
+                        : free
+                          ? "border-foreground/10 hover:border-primary/40"
+                          : "border-foreground/10 opacity-80"
+                    }`}
+                  >
+                    <span className="flex items-center gap-3 min-w-0">
+                      <span className={`w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 ${selected ? "bg-primary border-primary" : "border-foreground/25"}`}>
+                        {selected && <Check className="h-3 w-3 text-primary-foreground" strokeWidth={2.5} />}
+                      </span>
+                      <span className="text-sm font-body text-foreground truncate">{p.name}</span>
+                    </span>
+                    {free ? (
+                      <span className="text-[10px] font-body font-semibold tracking-widest uppercase text-primary shrink-0">
+                        {selected ? "Free — added" : `Free — first ${FOUNDING_CAP} members`}
+                      </span>
+                    ) : claimed ? (
+                      <span className="text-[10px] font-body font-semibold tracking-widest uppercase text-foreground/40 shrink-0">Bracelet arranged</span>
+                    ) : (
+                      <span className="text-[10px] font-body font-semibold tracking-widest uppercase text-foreground/50 shrink-0">
+                        $5.00 — add after activation
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {peopleForBracelets.some((p) => isFreeState(stateFor(normalizeEmail(p.email)))) && (
+              <p className="text-[11px] font-body text-primary mt-3">
+                You're among our first {FOUNDING_CAP} members — your bracelet is on us.
+              </p>
+            )}
+            <p className="text-[11px] text-foreground/40 font-body mt-3">
+              Free founding bracelets are confirmed when your membership payment completes. Children without logins don't need one.
+            </p>
           </div>
         )}
 

@@ -3,8 +3,8 @@
 // same browser keeps the same cart either way.
 import { useCallback, useEffect, useState } from "react";
 import {
-  addToCart as addLine, cartCount, readCart, setCartQuantity,
-  type CartLine,
+  addToCart as addLine, cartCount, readCart, recipientKey, setCartQuantity,
+  type CartLine, type CartRecipient,
 } from "@/lib/shop";
 
 export const useCart = () => {
@@ -19,27 +19,37 @@ export const useCart = () => {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const add = useCallback((slug: string, quantity: number, variantId?: string) => {
+  const matches = (l: CartLine, slug: string, variantId?: string, recipient?: CartRecipient) =>
+    l.slug === slug &&
+    (l as CartLine & { variant_id?: string }).variant_id === variantId &&
+    recipientKey(l.recipient) === recipientKey(recipient);
+
+  const add = useCallback((slug: string, quantity: number, variantId?: string, recipient?: CartRecipient) => {
     setLines((prev) => {
-      const existing = prev.find((l) => l.slug === slug && (l as CartLine & { variant_id?: string }).variant_id === variantId);
+      const existing = prev.find((l) => matches(l, slug, variantId, recipient));
+      const rKey = recipientKey(recipient);
       let next: CartLine[];
       if (existing) {
-        next = prev.map((l) => l === existing
+        next = prev.map((l) => matches(l, slug, variantId, recipient)
           ? { ...l, quantity: Math.min(20, l.quantity + quantity) }
           : l);
       } else {
-        next = [...prev, { slug, quantity, ...(variantId ? { variant_id: variantId } : {}) } as CartLine];
+        next = [...prev, {
+          slug, quantity,
+          ...(variantId ? { variant_id: variantId } : {}),
+          ...(rKey ? { recipient } : {}),
+        } as CartLine];
       }
       try { localStorage.setItem("mindcast.shop.cart.v1", JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
   }, []);
 
-  const setQuantity = useCallback((slug: string, quantity: number, variantId?: string) => {
+  const setQuantity = useCallback((slug: string, quantity: number, variantId?: string, recipient?: CartRecipient) => {
     setLines((prev) => {
       const next = quantity <= 0
-        ? prev.filter((l) => !(l.slug === slug && (l as CartLine & { variant_id?: string }).variant_id === variantId))
-        : prev.map((l) => (l.slug === slug && (l as CartLine & { variant_id?: string }).variant_id === variantId)
+        ? prev.filter((l) => !matches(l, slug, variantId, recipient))
+        : prev.map((l) => matches(l, slug, variantId, recipient)
           ? { ...l, quantity: Math.min(20, quantity) }
           : l);
       try { localStorage.setItem("mindcast.shop.cart.v1", JSON.stringify(next)); } catch { /* ignore */ }

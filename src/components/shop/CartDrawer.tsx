@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, Minus, Plus, ShoppingBag, Tag, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { describeShipping, formatMoney, shippingForSubtotal } from "@/lib/shop";
+import { track } from "@/lib/observability";
 import type { CartLine } from "@/hooks/useCart";
 
 export type CartProduct = {
@@ -31,7 +32,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
   open: boolean;
   onClose: () => void;
   entries: CartEntry[];
-  setQuantity: (slug: string, quantity: number, variantId?: string) => void;
+  setQuantity: (slug: string, quantity: number, variantId?: string, recipient?: CartLine["recipient"]) => void;
   onCheckout: (discountCode: string) => Promise<void>;
 }) => {
   const [discountCode, setDiscountCode] = useState("");
@@ -86,7 +87,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
               ) : (
                 <div className="space-y-4">
                   {entries.map((e) => {
-                    const key = `${e.line.slug}|${e.line.variant_id ?? ""}`;
+                    const key = `${e.line.slug}|${e.line.variant_id ?? ""}|${e.line.recipient?.email ?? e.line.recipient?.profile_id ?? ""}`;
                     return (
                       <div key={key} className="flex gap-4 border border-[hsl(var(--navy))]/10 bg-white rounded-sm p-3">
                         {e.product.image_url && (
@@ -99,13 +100,18 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                           {e.variantName && e.variantName !== "Default" && (
                             <p className="text-[11px] font-body text-[hsl(var(--navy-mid))] mb-1">{e.variantName}</p>
                           )}
+                          {e.line.recipient && (e.line.recipient.first_name || e.line.recipient.email) && (
+                            <p className="text-[11px] font-body text-[hsl(var(--navy-mid))] mb-1">
+                              For {e.line.recipient.first_name || e.line.recipient.email}
+                            </p>
+                          )}
                           <p className="text-xs font-body text-[hsl(var(--navy-mid))] mb-2">
                             {formatMoney(e.unitPrice, e.product.currency)}
                           </p>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center border border-[hsl(var(--navy))]/15 rounded-sm">
                               <button
-                                onClick={() => setQuantity(e.line.slug, e.line.quantity - 1, e.line.variant_id)}
+                                onClick={() => setQuantity(e.line.slug, e.line.quantity - 1, e.line.variant_id, e.line.recipient)}
                                 className="p-1.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]"
                                 aria-label="Decrease quantity"
                               >
@@ -113,7 +119,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                               </button>
                               <span className="w-7 text-center text-xs font-body text-[hsl(var(--navy))]">{e.line.quantity}</span>
                               <button
-                                onClick={() => setQuantity(e.line.slug, e.line.quantity + 1, e.line.variant_id)}
+                                onClick={() => setQuantity(e.line.slug, e.line.quantity + 1, e.line.variant_id, e.line.recipient)}
                                 className="p-1.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]"
                                 aria-label="Increase quantity"
                               >
@@ -121,7 +127,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                               </button>
                             </div>
                             <button
-                              onClick={() => setQuantity(e.line.slug, 0, e.line.variant_id)}
+                              onClick={() => setQuantity(e.line.slug, 0, e.line.variant_id, e.line.recipient)}
                               className="text-[10px] font-body uppercase tracking-widest text-[hsl(var(--navy-mid))]/70 hover:text-red-700"
                             >
                               Remove
@@ -224,6 +230,7 @@ export const startCheckout = async (
     slug: e.line.slug,
     quantity: e.line.quantity,
     ...(e.line.variant_id ? { variant_id: e.line.variant_id } : {}),
+    ...(e.line.recipient ? { recipient: e.line.recipient } : {}),
   }));
   const { data, error } = await supabase.functions.invoke("create-shop-checkout", {
     body: { items, ...(discountCode ? { discount_code: discountCode } : {}) },
@@ -235,10 +242,21 @@ export const startCheckout = async (
       if (ctx?.body) {
         const text = typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body as ReadableStream).text();
         const parsed = JSON.parse(text);
-        if (parsed?.error) detail = parsed.error;
+        if (parsed?.error === "membership_required") {
+          detail = parsed.message || "An active MINDCAST membership is required for this product";
+        } else if (parsed?.error === "use_free_claim") {
+          detail = "This bracelet is free — claim it from the bracelet page instead";
+        } else if (parsed?.error) {
+          detail = parsed.error;
+        }
       }
     } catch { /* keep generic */ }
     throw new Error(detail);
+  }
+  if (items.some((i) => i.slug === "nfc-bracelet")) {
+    track("nfc_bracelet_purchased", {
+      bracelets: items.filter((i) => i.slug === "nfc-bracelet").reduce((n, i) => n + i.quantity, 0),
+    });
   }
   if (data?.url) {
     window.location.href = data.url;

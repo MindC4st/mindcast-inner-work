@@ -1,5 +1,11 @@
 // /shop/:slug — product page. Gallery, variant selector, stock status,
 // quantity, full description, practical details, shipping note.
+//
+// Members-only products (the NFC bracelet): the page gate mirrors the
+// server-side gate in create-shop-checkout — signed out → sign in first;
+// signed in without an active membership → membership CTA; active member →
+// choose who the bracelet is for. A member holding an unclaimed founding
+// entitlement claims free (no Stripe); everyone else pays $5.
 
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -8,6 +14,10 @@ import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/shop";
 import { stockLabel } from "@/lib/commerce";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/observability";
+import { normalizeEmail, isValidEmail, braceletPurchaseGate, BRACELET_SLUG, type EntitlementState } from "@/lib/foundingBracelets";
 import CartDrawer, { resolveEntries, startCheckout, type CartProduct } from "@/components/shop/CartDrawer";
 
 type Variant = {
@@ -18,6 +28,7 @@ type Variant = {
   price_override_cents: number | null;
   stock_available: number;
   is_active: boolean;
+  image_url: string | null;
 };
 
 type ProductFull = Omit<CartProduct, "variants"> & {
@@ -31,12 +42,14 @@ type ProductFull = Omit<CartProduct, "variants"> & {
   materials: string | null;
   track_stock: boolean;
   allow_backorder: boolean;
+  tags: string[];
   variants: Variant[];
 };
 
 const ShopProduct = () => {
   const { slug } = useParams<{ slug: string }>();
   const cart = useCart();
+  const { user, profile, membershipStatus } = useAuth();
 
   const [product, setProduct] = useState<ProductFull | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,36 +58,125 @@ const ShopProduct = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [added, setAdded] = useState(false);
 
+  // Bracelet recipient flow (members-only products).
+  const [recipientMode, setRecipientMode] = useState<"self" | "member">("self");
+  const [memberName, setMemberName] = useState("");
+  const [memberEmail, setMemberEmail] = useState("");
+  const [eligibility, setEligibility] = useState<Record<string, EntitlementState>>({});
+  const [claimBusy, setClaimBusy] = useState(false);
+  const [claimResult, setClaimResult] = useState<{ order_number: string; pickup_code: string } | null>(null);
+  const [gateError, setGateError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!slug) return;
     let active = true;
     (async () => {
       const { data: pRows } = await db.from("shop_products")
-        .select("id, slug, name, tagline, description, long_description, image_url, image_alt, gallery_urls, price_cents, currency, fulfilment, weight_g, dimensions_mm, materials, track_stock, allow_backorder")
+        .select("id, slug, name, tagline, description, long_description, image_url, image_alt, gallery_urls, price_cents, currency, fulfilment, weight_g, dimensions_mm, materials, track_stock, allow_backorder, tags")
         .eq("slug", slug).eq("status", "active").maybeSingle();
       if (!active) return;
       if (!pRows) { setLoading(false); return; }
       const { data: scoped } = await db.from("shop_product_variants")
-        .select("id, name, sku, option_values, price_override_cents, stock_available, is_active")
+        .select("id, name, sku, option_values, price_override_cents, stock_available, is_active, image_url")
         .eq("product_id", (pRows as { id: string }).id)
         .eq("is_active", true).order("sort_order");
       if (!active) return;
       const vs = (scoped ?? []) as Variant[];
-      setProduct({ ...(pRows as unknown as ProductFull), gallery_urls: ((pRows as unknown as { gallery_urls: string[] | null }).gallery_urls ?? []), variants: vs });
+      setProduct({
+        ...(pRows as unknown as ProductFull),
+        gallery_urls: ((pRows as unknown as { gallery_urls: string[] | null }).gallery_urls ?? []),
+        tags: ((pRows as unknown as { tags: string[] | null }).tags ?? []),
+        variants: vs,
+      });
       if (vs.length === 1) setVariantId(vs[0].id);
       setLoading(false);
     })();
     return () => { active = false; };
   }, [slug]);
 
-  const gallery = useMemo(
-    () => product ? [product.image_url, ...product.gallery_urls].filter((u): u is string => Boolean(u)) : [],
-    [product],
-  );
-  const [activeImg, setActiveImg] = useState(0);
-  useEffect(() => { setActiveImg(0); }, [slug]);
+  const membersOnly = (product?.tags ?? []).includes("members-only");
+  const isBracelet = product?.slug === BRACELET_SLUG;
+  const gate = braceletPurchaseGate({ signedIn: Boolean(user), membershipStatus });
+  const gateReason = gate.allowed ? null : gate.reason;
+
+  // Membership gate analytics — once per view.
+  useEffect(() => {
+    if (membersOnly && !loading && gateReason) {
+      track("nfc_bracelet_membership_gate_shown", { reason: gateReason });
+    }
+  }, [membersOnly, loading, gateReason]);
+
+  const payerEmail = normalizeEmail(profile?.email || user?.email || "");
+  const recipientEmail = recipientMode === "self"
+    ? payerEmail
+    : normalizeEmail(memberEmail);
+
+  // Eligibility for whoever the bracelet is currently for.
+  useEffect(() => {
+    if (!membersOnly || !gate.allowed || !isValidEmail(recipientEmail)) return;
+    const t = setTimeout(async () => {
+      try {
+        const { data } = await supabase.functions.invoke("founding-bracelet-status", {
+          body: { emails: [recipientEmail] },
+        });
+        const r = (data?.results ?? [])[0] as { email: string; state: EntitlementState } | undefined;
+        if (r) setEligibility((prev) => ({ ...prev, [r.email]: r.state }));
+      } catch { /* best-effort display; server re-validates */ }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [recipientEmail, membersOnly, gate.allowed]);
+
+  const recipientState: EntitlementState | "unknown" = eligibility[recipientEmail] ?? "unknown";
+  const canClaimFree = recipientState === "allocated";
+
+  const claimFree = async () => {
+    if (!isValidEmail(recipientEmail)) { setGateError("Enter the member's email."); return; }
+    setClaimBusy(true); setGateError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("claim-founding-bracelet", {
+        body: recipientMode === "self" ? {} : { recipient_email: recipientEmail },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setClaimResult({ order_number: data.order_number, pickup_code: data.pickup_code });
+      setEligibility((prev) => ({ ...prev, [recipientEmail]: "claimed" }));
+      track("nfc_bracelet_free_claimed", { for: recipientMode });
+    } catch (e) {
+      setGateError(e?.message ?? "Could not claim the bracelet");
+    } finally {
+      setClaimBusy(false);
+    }
+  };
+
+  const addBraceletToCart = () => {
+    if (!product) return;
+    if (recipientMode === "member" && !isValidEmail(memberEmail)) {
+      setGateError("Enter the member's email so we know who the bracelet is for.");
+      return;
+    }
+    setGateError(null);
+    cart.add(product.slug, qty, hasOptions ? variantId ?? undefined : undefined, {
+      email: recipientEmail || undefined,
+      profile_id: recipientMode === "self" ? profile?.id : undefined,
+      first_name: recipientMode === "self" ? (profile?.first_name || profile?.name || "Me") : memberName || undefined,
+    });
+    track("nfc_bracelet_selected", { for: recipientMode, price_cents: unitPrice });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1600);
+    setCartOpen(true);
+  };
 
   const selectedVariant = product?.variants.find((v) => v.id === variantId) ?? null;
+  // Selected colour drives the main image; the "-2" lifestyle photo(s) in
+  // gallery_urls are the secondary view.
+  const mainImage = selectedVariant?.image_url || product?.image_url || null;
+  const gallery = useMemo(
+    () => product ? [mainImage, ...product.gallery_urls].filter((u): u is string => Boolean(u)) : [],
+    [product, mainImage],
+  );
+  const [activeImg, setActiveImg] = useState(0);
+  useEffect(() => { setActiveImg(0); }, [slug, variantId]);
+
   const unitPrice = selectedVariant?.price_override_cents ?? product?.price_cents ?? 0;
   const hasOptions = (product?.variants.length ?? 0) > 1;
 
@@ -196,18 +298,23 @@ const ShopProduct = () => {
             {/* Variant selector */}
             {hasOptions && (
               <div className="mb-5">
-                <p className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-2">Option</p>
+                <p className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-2">Colour</p>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v) => (
                     <button
                       key={v.id}
                       onClick={() => setVariantId(v.id)}
-                      className={`px-4 py-2 text-xs font-body rounded-sm border transition-colors ${
+                      className={`flex items-center gap-2 px-2 py-1.5 text-xs font-body rounded-sm border transition-colors ${
                         variantId === v.id
                           ? "bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] border-[hsl(var(--navy))]"
                           : "bg-white text-[hsl(var(--navy))] border-[hsl(var(--navy))]/20 hover:border-[hsl(var(--navy))]/50"
                       }`}
                     >
+                      {v.image_url && (
+                        <span className="w-6 h-6 rounded-sm overflow-hidden border border-white/40 bg-[hsl(var(--ivory))]">
+                          <img src={v.image_url} alt={v.name} className="w-full h-full object-cover" />
+                        </span>
+                      )}
                       {v.name}
                     </button>
                   ))}
@@ -215,26 +322,164 @@ const ShopProduct = () => {
               </div>
             )}
 
-            {/* Quantity + add */}
-            <div className="flex items-center gap-3 mb-5">
-              <div className="flex items-center border border-[hsl(var(--navy))]/15 rounded-sm bg-white">
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Decrease quantity">
-                  <Minus size={13} />
-                </button>
-                <span className="w-8 text-center text-sm font-body text-[hsl(var(--navy))]">{qty}</span>
-                <button onClick={() => setQty((q) => Math.min(20, q + 1))} className="p-2.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Increase quantity">
-                  <Plus size={13} />
+            {/* Membership gate (members-only products) */}
+            {membersOnly && gateReason && (
+              <div className="border border-[hsl(var(--navy))]/15 bg-white rounded-sm p-5 mb-5">
+                {gateReason === "signed_out" ? (
+                  <>
+                    <p className="font-display text-base tracking-wider text-[hsl(var(--navy))] mb-1">MEMBERS ONLY</p>
+                    <p className="text-sm font-body text-[hsl(var(--navy-mid))] leading-relaxed mb-4">
+                      Bracelets belong to MINDCAST members. Sign in to buy yours.
+                    </p>
+                    <Link
+                      to="/portal/login"
+                      className="inline-flex items-center justify-center bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] px-6 py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90"
+                    >
+                      Sign in
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-display text-base tracking-wider text-[hsl(var(--navy))] mb-1">ACTIVE MEMBERSHIP REQUIRED</p>
+                    <p className="text-sm font-body text-[hsl(var(--navy-mid))] leading-relaxed mb-4">
+                      Bracelets are for members with an active MINDCAST membership. Start or reactivate yours, then come back.
+                    </p>
+                    <Link
+                      to="/portal/billing"
+                      className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90"
+                    >
+                      Manage membership
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Bracelet recipient flow (active members) */}
+            {membersOnly && gate.allowed && isBracelet && (
+              <div className="border border-[hsl(var(--navy))]/15 bg-white rounded-sm p-5 mb-5">
+                <p className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-3">Who is this bracelet for?</p>
+                <div className="grid gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => { setRecipientMode("self"); setGateError(null); }}
+                    className={`border rounded-sm px-4 py-2.5 text-left text-sm font-body transition-colors ${
+                      recipientMode === "self" ? "border-primary bg-primary/5 text-[hsl(var(--navy))]" : "border-[hsl(var(--navy))]/15 text-[hsl(var(--navy-mid))] hover:border-[hsl(var(--navy))]/40"
+                    }`}
+                  >
+                    Me {profile?.first_name || profile?.name ? `— ${profile.first_name || profile.name}` : ""}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setRecipientMode("member"); setGateError(null); }}
+                    className={`border rounded-sm px-4 py-2.5 text-left text-sm font-body transition-colors ${
+                      recipientMode === "member" ? "border-primary bg-primary/5 text-[hsl(var(--navy))]" : "border-[hsl(var(--navy))]/15 text-[hsl(var(--navy-mid))] hover:border-[hsl(var(--navy))]/40"
+                    }`}
+                  >
+                    A member of my household
+                  </button>
+                </div>
+
+                {recipientMode === "member" && (
+                  <div className="grid gap-2 mb-4">
+                    <input
+                      type="text"
+                      value={memberName}
+                      onChange={(e) => setMemberName(e.target.value)}
+                      placeholder="Their first name"
+                      className="border border-[hsl(var(--navy))]/15 rounded-sm px-3 py-2 text-sm font-body bg-[hsl(var(--ivory))] focus:outline-none focus:border-primary"
+                    />
+                    <input
+                      type="email"
+                      value={memberEmail}
+                      onChange={(e) => setMemberEmail(e.target.value)}
+                      placeholder="Their MINDCAST account email"
+                      className="border border-[hsl(var(--navy))]/15 rounded-sm px-3 py-2 text-sm font-body bg-[hsl(var(--ivory))] focus:outline-none focus:border-primary"
+                    />
+                    <p className="text-[11px] font-body text-[hsl(var(--navy-mid))]/70">
+                      They need their own MINDCAST login. Children without logins can't receive bracelets yet.
+                    </p>
+                  </div>
+                )}
+
+                {isValidEmail(recipientEmail) && (
+                  canClaimFree ? (
+                    <p className="text-[11px] font-body text-primary mb-3">
+                      Founding member — this bracelet is free. One per person, ever.
+                    </p>
+                  ) : recipientState === "claimed" ? (
+                    <p className="text-[11px] font-body text-[hsl(var(--navy-mid))] mb-3">
+                      This member's free founding bracelet has already been claimed — replacements are $5.00.
+                    </p>
+                  ) : recipientState === "exhausted" ? (
+                    <p className="text-[11px] font-body text-[hsl(var(--navy-mid))] mb-3">
+                      The first 100 founding bracelets are gone — this one is $5.00.
+                    </p>
+                  ) : null
+                )}
+
+                {claimResult ? (
+                  <div className="border border-primary/30 bg-primary/5 rounded-sm p-4">
+                    <p className="font-display text-base tracking-wider text-[hsl(var(--navy))] mb-1">CLAIMED — IT'S YOURS</p>
+                    <p className="text-sm font-body text-[hsl(var(--navy-mid))] leading-relaxed">
+                      Order {claimResult.order_number}. Show pickup code <strong className="text-[hsl(var(--navy))]">{claimResult.pickup_code}</strong> at the counter.
+                    </p>
+                  </div>
+                ) : canClaimFree ? (
+                  <button
+                    onClick={claimFree}
+                    disabled={claimBusy}
+                    className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 disabled:opacity-50"
+                  >
+                    {claimBusy ? "Claiming…" : "Claim free bracelet — $0.00"}
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center border border-[hsl(var(--navy))]/15 rounded-sm bg-[hsl(var(--ivory))]">
+                      <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Decrease quantity">
+                        <Minus size={13} />
+                      </button>
+                      <span className="w-8 text-center text-sm font-body text-[hsl(var(--navy))]">{qty}</span>
+                      <button onClick={() => setQty((q) => Math.min(20, q + 1))} className="p-2.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Increase quantity">
+                        <Plus size={13} />
+                      </button>
+                    </div>
+                    <button
+                      onClick={addBraceletToCart}
+                      className="flex-1 flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity"
+                    >
+                      {added ? <Check size={13} /> : <ShoppingBag size={13} />}
+                      {added ? "Added" : `Add to cart — ${formatMoney(unitPrice, product?.currency)}`}
+                    </button>
+                  </div>
+                )}
+
+                {gateError && <p className="text-sm text-red-700 font-body mt-3">{gateError}</p>}
+              </div>
+            )}
+
+            {/* Quantity + add (regular products) */}
+            {!(membersOnly) && (
+              <div className="flex items-center gap-3 mb-5">
+                <div className="flex items-center border border-[hsl(var(--navy))]/15 rounded-sm bg-white">
+                  <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Decrease quantity">
+                    <Minus size={13} />
+                  </button>
+                  <span className="w-8 text-center text-sm font-body text-[hsl(var(--navy))]">{qty}</span>
+                  <button onClick={() => setQty((q) => Math.min(20, q + 1))} className="p-2.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Increase quantity">
+                    <Plus size={13} />
+                  </button>
+                </div>
+                <button
+                  onClick={addToCart}
+                  disabled={blocked || (hasOptions && !variantId)}
+                  className="flex-1 flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40"
+                >
+                  {added ? <Check size={13} /> : <ShoppingBag size={13} />}
+                  {blocked ? "Out of stock" : added ? "Added" : hasOptions && !variantId ? "Choose an option" : "Add to cart"}
                 </button>
               </div>
-              <button
-                onClick={addToCart}
-                disabled={blocked || (hasOptions && !variantId)}
-                className="flex-1 flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40"
-              >
-                {added ? <Check size={13} /> : <ShoppingBag size={13} />}
-                {blocked ? "Out of stock" : added ? "Added" : hasOptions && !variantId ? "Choose an option" : "Add to cart"}
-              </button>
-            </div>
+            )}
 
             <p className="text-[10px] font-body text-[hsl(var(--navy-mid))]/70 flex items-center gap-1.5 mb-6">
               <Truck size={12} strokeWidth={1.6} /> Ships New Zealand-wide · $8 flat, free over $120 · or collect at the counter

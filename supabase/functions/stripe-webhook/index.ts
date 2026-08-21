@@ -12,12 +12,12 @@
 // Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
 //      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, FROM_EMAIL
 
+// deno-lint-ignore-file no-explicit-any
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import {
   addressBlock,
-  audit,
   emailShell,
   itemsTable,
   money,
@@ -623,14 +623,20 @@ async function syncSubscription(
 // ---------------------------------------------------------------------------
 
 type ShopItem = {
-  productId: string | null;
-  variantId: string | null;
-  slug: string;
-  sku: string;
-  name: string;
-  unitPriceCents: number;
-  quantity: number;
-};
+    productId: string | null;
+    variantId: string | null;
+    slug: string;
+    sku: string;
+    name: string;
+    unitPriceCents: number;
+    quantity: number;
+    recipient: {
+      email?: string;
+      profile_id?: string;
+      first_name?: string;
+      founding_free?: boolean;
+    } | null;
+  };
 
 /** Expand the session's line items and map them back to our catalogue. */
 async function shopLineItems(
@@ -694,6 +700,15 @@ async function shopLineItems(
 
       quantity:
         li.quantity ?? 1,
+
+      recipient: (meta.recipient_email || meta.recipient_profile_id)
+        ? {
+          email: meta.recipient_email || undefined,
+          profile_id: meta.recipient_profile_id || undefined,
+          first_name: meta.recipient_name || undefined,
+          founding_free: meta.founding_free === "true",
+        }
+        : null,
     });
   }
 
@@ -1131,6 +1146,9 @@ async function recordShopOrder(
                     15 /
                     115,
                 ),
+
+              recipient:
+                it.recipient ?? null,
             }),
           ),
         );
@@ -1139,6 +1157,24 @@ async function recordShopOrder(
         throw new Error(
           `Order items insert failed: ${itemsError.message}`,
         );
+      }
+
+      // Founding-100: free bracelet lines claim their entitlement against this
+      // order. The claim RPC row-locks the entitlement — a double claim is
+      // impossible even if Stripe redelivers the event.
+      for (const it of items) {
+        if (
+          it.slug === "nfc-bracelet" &&
+          it.recipient?.email &&
+          it.recipient.founding_free
+        ) {
+          await admin
+            .rpc("founding_bracelet_claim", {
+              p_email: it.recipient.email,
+              p_order_id: orderId,
+            })
+            .catch(() => {});
+        }
       }
     }
 
@@ -1995,10 +2031,158 @@ async function recordShopOrder(
 }
 
 /** Checkout expired or async payment failed — release the stock hold. */
+/**
+ * Founding-100 finalisation — runs when a membership checkout completes.
+ * 1. Reservations made at checkout start become ALLOCATED (payment confirmed).
+ * 2. Named additional adults/teens become pending household invitations
+ *    (the existing invite flow links them; no competing account system).
+ * 3. Members selected for an immediate free bracelet get a $0 counter order
+ *    and their entitlement is CLAIMED against it.
+ * Never throws — membership sync must not fail because of the promotion.
+ */
+async function finalizeFoundingBracelets(
+  s: Stripe.Checkout.Session,
+) {
+  try {
+    const meta = (s.metadata ?? {}) as Record<string, string>;
+    const reserved = (meta.founding_reserved || "")
+      .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+    if (reserved.length === 0) return;
+
+    await admin
+      .rpc("founding_bracelet_finalize", { p_session_key: s.id })
+      .catch(() => {});
+
+    let householdId = meta.household_id || "";
+    const payerProfileId = meta.profile_id || "";
+    let members: { tier?: string; first_name?: string; email?: string }[] = [];
+    try {
+      const parsed = JSON.parse(meta.member_list || "[]");
+      if (Array.isArray(parsed)) members = parsed;
+    } catch {
+      members = [];
+    }
+
+    // First family bundle: create the household so invitations have a home.
+    if (!householdId && payerProfileId && members.length > 0) {
+      const { data: hh, error: hhErr } = await admin
+        .from("households")
+        .insert({ name: "Family household", payer_profile_id: payerProfileId })
+        .select("id")
+        .single();
+      if (!hhErr && hh) {
+        householdId = hh.id;
+        await admin
+          .from("household_members")
+          .upsert(
+            { household_id: householdId, profile_id: payerProfileId, role_in_household: "adult" },
+            { onConflict: "household_id,profile_id" },
+          )
+          .catch(() => {});
+      }
+    }
+
+    if (householdId && members.length > 0) {
+      const { data: subRow } = await admin
+        .from("subscriptions")
+        .select("id")
+        .eq("stripe_subscription_id", String(s.subscription ?? ""))
+        .maybeSingle();
+      for (const m of members) {
+        const emailNorm = String(m.email ?? "").trim().toLowerCase();
+        if (!emailNorm) continue;
+        await admin
+          .from("household_invitations")
+          .upsert(
+            {
+              household_id: householdId,
+              email_norm: emailNorm,
+              first_name: String(m.first_name ?? "").slice(0, 80),
+              tier: m.tier === "teen" ? "teen" : "adult",
+              invited_by: payerProfileId || null,
+              subscription_id: subRow?.id ?? null,
+              status: "pending",
+            },
+            { onConflict: "household_id,email_norm" },
+          )
+          .catch(() => {});
+      }
+    }
+
+    const selected = (meta.founding_selected || "")
+      .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+    if (selected.length === 0) return;
+
+    const { data: product } = await admin
+      .from("shop_products")
+      .select("*")
+      .eq("slug", "nfc-bracelet")
+      .maybeSingle();
+    if (!product) return;
+
+    for (const email of selected) {
+      const { data: order } = await admin
+        .from("shop_orders")
+        .insert({
+          profile_id: payerProfileId || null,
+          product_id: product.id,
+          product_name: `${product.name} — Founding Member (free)`,
+          unit_price_cents: 0,
+          quantity: 1,
+          amount_total_cents: 0,
+          currency: "nzd",
+          fulfilment: "counter",
+          status: "paid",
+          payment_status: "paid",
+          fulfilment_status: "unfulfilled",
+          customer_email: email,
+          note: "Free founding bracelet — membership activation",
+        })
+        .select("*")
+        .single();
+      if (!order) continue;
+
+      await admin
+        .from("shop_order_items")
+        .insert({
+          order_id: order.id,
+          product_id: product.id,
+          slug: product.slug,
+          sku: product.sku ?? null,
+          product_name: product.name,
+          unit_price_cents: 0,
+          quantity: 1,
+          line_total_cents: 0,
+          gst_cents: 0,
+          recipient: { email, founding_free: true },
+        })
+        .catch(() => {});
+
+      await admin
+        .rpc("founding_bracelet_claim", {
+          p_email: email,
+          p_order_id: order.id,
+        })
+        .catch(() => {});
+    }
+  } catch (e) {
+    console.error("finalizeFoundingBracelets:", e);
+  }
+}
+
 async function releaseShopReservation(
   s: Stripe.Checkout.Session,
   kind: string,
 ) {
+  // Founding-100 reservations made during a membership checkout are released
+  // here too — an expired or failed payment must never consume a founding
+  // seat. No-op for sessions that reserved nothing.
+  await admin
+    .rpc("founding_bracelet_release", {
+      p_session_key: s.id,
+    })
+    .catch(() => {});
+
   if (
     (
       s.metadata as Record<
@@ -2515,6 +2699,10 @@ serve(async (req) => {
 
           await syncSubscription(
             sub,
+          );
+
+          await finalizeFoundingBracelets(
+            s,
           );
         } else if (
           s.mode === "payment" &&

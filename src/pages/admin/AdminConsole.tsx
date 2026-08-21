@@ -32,6 +32,7 @@ const TrainingHome = lazy(() => import("@/components/staff-training/TrainingHome
 const MarketingTab = lazy(() => import("@/pages/Marketing"));
 const AdminOrdersTab = lazy(() => import("@/components/admin/console/AdminOrdersTab"));
 const CommerceSection = lazy(() => import("@/components/admin/commerce/CommerceSection"));
+const AdminFoundingBracelets = lazy(() => import("@/components/admin/console/AdminFoundingBracelets"));
 
 type TabId =
   | "dashboard" | "sessions" | "progress" | "profile" | "insights"
@@ -70,6 +71,7 @@ const MEMBERSHIP_SUBTABS = [
   { id: "concessions", label: "Concessions" },
   { id: "households", label: "Households" },
   { id: "bracelets", label: "Bracelets" },
+  { id: "founding", label: "Founding 100" },
 ] as const;
 
 const Fallback = () => (
@@ -146,6 +148,7 @@ const AdminConsole = () => {
           {membershipSub === "concessions" && <AdminConcessions embedded />}
           {membershipSub === "households" && <AdminHouseholds embedded />}
           {membershipSub === "bracelets" && <BraceletStudio />}
+          {membershipSub === "founding" && <AdminFoundingBracelets embedded />}
         </div>
       );
       default: return null;

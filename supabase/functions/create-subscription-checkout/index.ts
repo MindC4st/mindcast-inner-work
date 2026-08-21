@@ -15,6 +15,7 @@
 //   STRIPE_SECRET_KEY
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
 
+// deno-lint-ignore-file no-explicit-any
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
@@ -88,6 +89,21 @@ serve(async (req) => {
       return json({ error: "Must select at least one membership" }, 400);
     }
 
+    // Named household members beyond the payer (additional adults + teens).
+    // Each email is that person's founding identity for the NFC bracelet
+    // promotion — children have no emails and are never counted.
+    const membersRaw = Array.isArray(body.members) ? body.members : [];
+    const members: { tier: "adult" | "teen"; first_name: string; email: string }[] = [];
+    for (const m of membersRaw.slice(0, 20)) {
+      const tier = m?.tier === "teen" ? "teen" : "adult";
+      const first_name = String(m?.first_name ?? "").trim().slice(0, 80);
+      const memail = String(m?.email ?? "").trim().toLowerCase();
+      if (!memail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(memail)) {
+        return json({ error: "Every additional adult and teen needs a valid email" }, 400);
+      }
+      members.push({ tier, first_name, email: memail });
+    }
+
     // Build line items — only include tiers that have qty > 0
     const tiers: { tier: string; qty: number }[] = [];
     if (adults > 0) tiers.push({ tier: "adult", qty: adults });
@@ -115,7 +131,7 @@ serve(async (req) => {
 
     const { data: profile } = await admin
       .from("profiles")
-      .select("id, email, stripe_customer_id")
+      .select("id, email, stripe_customer_id, age_group")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -132,6 +148,27 @@ serve(async (req) => {
 
     let customerId = profile?.stripe_customer_id || undefined;
     const email = (profile?.email || user.email || "").toLowerCase();
+
+    // Member entries must fit the purchased seats. The payer occupies one
+    // adult seat (unless the payer is a teen buying a teen bundle).
+    const payerIsTeen = (profile?.age_group || "").toLowerCase() === "teen";
+    const maxExtraAdults = Math.max(0, adults - (payerIsTeen ? 0 : 1));
+    const adultMembers = members.filter((m) => m.tier === "adult");
+    const teenMembers = members.filter((m) => m.tier === "teen");
+    if (adultMembers.length > maxExtraAdults) {
+      return json({ error: "Too many additional adults for the seats selected" }, 400);
+    }
+    if (teenMembers.length > teens) {
+      return json({ error: "Too many teens for the seats selected" }, 400);
+    }
+    const memberEmails = members.map((m) => m.email);
+    if (new Set(memberEmails).size !== memberEmails.length) {
+      return json({ error: "Each member needs a unique email" }, 400);
+    }
+    if (email && memberEmails.includes(email)) {
+      return json({ error: "Additional members can't reuse the account holder's email" }, 400);
+    }
+
     if (!customerId) {
       const existing = email ? await stripe.customers.list({ email, limit: 1 }) : { data: [] as any[] };
       customerId = existing.data.length > 0
@@ -172,9 +209,49 @@ serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
+    // Founding-100: reserve one seat per individual email (payer + named
+    // members) against this checkout session. The webhook finalises the
+    // reservations on payment and releases them if the checkout expires or
+    // fails. A promotion error must never block the membership purchase.
+    const reserveEmails = [...new Set([email, ...memberEmails].filter(Boolean))];
+    const reserved: string[] = [];
+    const unavailable: string[] = [];
+    for (const re of reserveEmails) {
+      try {
+        const { data } = await admin.rpc("founding_bracelet_reserve", {
+          p_email: re,
+          p_profile_id: re === email ? (profile?.id ?? null) : null,
+          p_household_id: household?.household_id ?? null,
+          p_session_key: session.id,
+        });
+        if (data) reserved.push(re);
+        else unavailable.push(re);
+      } catch {
+        unavailable.push(re);
+      }
+    }
+
+    // Which reserved members the purchaser selected for an immediate free
+    // bracelet at activation (subset of reserved; enforced here).
+    const selectedRaw = Array.isArray(body.bracelets) ? body.bracelets : [];
+    const selected = [...new Set(
+      selectedRaw.map((x: unknown) => String(x ?? "").trim().toLowerCase()),
+    )].filter((x: string) => reserved.includes(x));
+
+    if (reserved.length > 0 || members.length > 0) {
+      await stripe.checkout.sessions.update(session.id, {
+        metadata: {
+          founding_reserved: reserved.join(","),
+          founding_selected: selected.join(","),
+          member_list: JSON.stringify(members),
+        },
+      }).catch(() => {});
+    }
+
     return json({
       url: session.url,
       family_discount_applied: familyDiscount,
+      founding: { reserved, unavailable, selected },
     });
   } catch (e: any) {
     return json({ error: e?.message ?? String(e) }, 500);

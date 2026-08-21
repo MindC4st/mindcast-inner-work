@@ -31,6 +31,14 @@ verify_jwt = true
 [functions.create-billing-portal]
 verify_jwt = true
 
+# Founding-100 NFC bracelet eligibility probe (signed-in members).
+[functions.founding-bracelet-status]
+verify_jwt = true
+
+# Free founding bracelet claim (active members only, enforced in-function).
+[functions.claim-founding-bracelet]
+verify_jwt = true
+
 # Stripe calls this with its own signature, not a Supabase JWT.
 [functions.stripe-webhook]
 verify_jwt = false

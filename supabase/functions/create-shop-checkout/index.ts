@@ -37,6 +37,7 @@ const json = (body: unknown, status = 200) =>
 
 const MAX_QUANTITY_PER_ITEM = 20;
 const MAX_CART_LINES = 12;
+const BRACELET_SLUG = "nfc-bracelet";
 const GST_RATE = 0.15;
 const gstComponent = (cents: number) => Math.round(cents * GST_RATE / (1 + GST_RATE));
 
@@ -58,7 +59,8 @@ const safeOrigin = (raw: string | null): string => {
   }
 };
 
-type CartLine = { slug: string; quantity: number; variantId?: string };
+type Recipient = { email?: string; profile_id?: string; first_name?: string };
+type CartLine = { slug: string; quantity: number; variantId?: string; recipient?: Recipient };
 type Variant = {
   id: string;
   product_id: string;
@@ -81,6 +83,7 @@ type Product = {
   status: string;
   track_stock: boolean;
   allow_backorder: boolean;
+  tags: string[];
   variants: Variant[];
 };
 type Discount = {
@@ -109,11 +112,22 @@ serve(async (req) => {
     if (Array.isArray(body?.items)) {
       cart = body.items
         .filter((l: unknown): l is Record<string, unknown> => Boolean(l) && typeof l === "object")
-        .map((l) => ({
-          slug: typeof l.slug === "string" ? l.slug.trim() : "",
-          quantity: Number.isInteger(l.quantity) ? Number(l.quantity) : 1,
-          variantId: typeof l.variant_id === "string" ? l.variant_id : undefined,
-        }))
+        .map((l) => {
+          const rawRecipient = (l.recipient ?? undefined) as Record<string, unknown> | undefined;
+          const recipient: Recipient | undefined = rawRecipient
+            ? {
+              email: typeof rawRecipient.email === "string" ? rawRecipient.email.trim().toLowerCase() : undefined,
+              profile_id: typeof rawRecipient.profile_id === "string" ? rawRecipient.profile_id : undefined,
+              first_name: typeof rawRecipient.first_name === "string" ? rawRecipient.first_name.trim().slice(0, 80) : undefined,
+            }
+            : undefined;
+          return {
+            slug: typeof l.slug === "string" ? l.slug.trim() : "",
+            quantity: Number.isInteger(l.quantity) ? Number(l.quantity) : 1,
+            variantId: typeof l.variant_id === "string" ? l.variant_id : undefined,
+            recipient: recipient?.email || recipient?.profile_id ? recipient : undefined,
+          };
+        })
         .filter((l: CartLine) => l.slug.length > 0);
     } else if (typeof body?.slug === "string" && body.slug.trim()) {
       cart = [{ slug: body.slug.trim(), quantity: Number.isInteger(body?.quantity) ? Number(body.quantity) : 1 }];
@@ -125,10 +139,11 @@ serve(async (req) => {
         return json({ error: "Quantity must be between 1 and 20" }, 400);
       }
     }
-    // Merge duplicate lines (same slug + variant).
+    // Merge duplicate lines (same slug + variant + recipient). Bracelets for
+    // different household members stay separate lines.
     const merged = new Map<string, CartLine>();
     for (const line of cart) {
-      const key = `${line.slug}|${line.variantId ?? ""}`;
+      const key = `${line.slug}|${line.variantId ?? ""}|${line.recipient?.email ?? line.recipient?.profile_id ?? ""}`;
       const existing = merged.get(key);
       merged.set(key, existing
         ? { ...existing, quantity: Math.min(MAX_QUANTITY_PER_ITEM, existing.quantity + line.quantity) }
@@ -147,6 +162,7 @@ serve(async (req) => {
     let profileId: string | null = null;
     let profileEmail: string | null = null;
     let stripeCustomerId: string | null = null;
+    let membershipStatus: string | null = null;
     const authHeader = req.headers.get("Authorization") || "";
     const jwt = authHeader.replace(/^Bearer\s+/i, "");
     if (jwt && jwt !== "null") {
@@ -154,13 +170,14 @@ serve(async (req) => {
       if (userRes?.user) {
         const { data: profile } = await supa
           .from("profiles")
-          .select("id, email, stripe_customer_id")
+          .select("id, email, stripe_customer_id, membership_status")
           .eq("user_id", userRes.user.id)
           .maybeSingle();
         if (profile) {
           profileId = profile.id;
           profileEmail = profile.email;
           stripeCustomerId = profile.stripe_customer_id;
+          membershipStatus = profile.membership_status;
         }
       }
     }
@@ -169,15 +186,29 @@ serve(async (req) => {
     const slugs = [...new Set(cart.map((l) => l.slug))];
     const { data: productRows, error: pErr } = await supa
       .from("shop_products")
-      .select("id, slug, name, description, price_cents, currency, stripe_price_id, fulfilment, partner_name, status, track_stock, allow_backorder")
+      .select("id, slug, name, description, price_cents, currency, stripe_price_id, fulfilment, partner_name, status, track_stock, allow_backorder, tags")
       .in("slug", slugs);
     if (pErr) throw pErr;
     const products = new Map<string, Product>();
     for (const p of (productRows ?? []) as Omit<Product, "variants">[]) {
-      products.set(p.slug, { ...p, variants: [] });
+      products.set(p.slug, { ...p, tags: Array.isArray(p.tags) ? p.tags : [], variants: [] });
     }
     for (const line of cart) {
       if (!products.has(line.slug)) return json({ error: `That product isn't available` }, 404);
+    }
+
+    // Members-only products (the NFC bracelet): server-side gate. No guest,
+    // concession-card or casual-visitor checkout can buy them — the caller
+    // must be signed in with an active or trialing membership.
+    const membersOnly = [...products.values()].filter((p) => p.tags.includes("members-only"));
+    if (membersOnly.length > 0) {
+      if (!profileId) {
+        return json({ error: "membership_required", message: "Sign in to buy this product" }, 403);
+      }
+      const ms = (membershipStatus || "none").toLowerCase();
+      if (ms !== "active" && ms !== "trialing") {
+        return json({ error: "membership_required", message: "An active MINDCAST membership is required for this product" }, 403);
+      }
     }
     // Load active variants for the products in the cart.
     const { data: variantRows, error: vErr } = await supa
@@ -193,7 +224,7 @@ serve(async (req) => {
     }
 
     // Resolve each cart line to a concrete variant.
-    type ResolvedLine = { line: CartLine; product: Product; variant: Variant; unitPrice: number };
+    type ResolvedLine = { line: CartLine; product: Product; variant: Variant; unitPrice: number; foundingFree: boolean };
     const resolved: ResolvedLine[] = [];
     for (const line of cart) {
       const product = products.get(line.slug)!;
@@ -209,8 +240,19 @@ serve(async (req) => {
       } else {
         return json({ error: `Choose an option for ${product.name}` }, 400);
       }
-      const unitPrice = variant.price_override_cents ?? product.price_cents;
-      resolved.push({ line, product, variant, unitPrice });
+      let unitPrice = variant.price_override_cents ?? product.price_cents;
+      // Founding-100: a bracelet for a member holding an ALLOCATED, unclaimed
+      // entitlement is $0. Reserved (someone else's in-flight checkout),
+      // claimed, or post-cap all pay the normal $5.
+      let foundingFree = false;
+      if (product.slug === BRACELET_SLUG && line.recipient?.email) {
+        const { data: lookup } = await supa.rpc("founding_bracelet_lookup", { p_email: line.recipient.email });
+        if ((lookup as { state?: string } | null)?.state === "allocated") {
+          unitPrice = 0;
+          foundingFree = true;
+        }
+      }
+      resolved.push({ line, product, variant, unitPrice, foundingFree });
     }
 
     // One fulfilment world per order.
@@ -218,6 +260,40 @@ serve(async (req) => {
     const isShipped = fulfilments.has("ship");
     if (isShipped && fulfilments.size > 1) {
       return json({ error: "Shipped products and counter pickups can't be bought in the same order" }, 400);
+    }
+
+    // Free founding bracelets are only for the buyer or someone in the buyer's
+    // household — paying $0 for a stranger's entitlement is not a thing.
+    const freeBraceletLines = resolved.filter((r) => r.foundingFree);
+    if (freeBraceletLines.length > 0) {
+      const allowed = new Set<string>();
+      if (profileEmail) allowed.add(profileEmail.trim().toLowerCase());
+      if (profileId) {
+        const { data: hm } = await supa
+          .from("household_members").select("household_id")
+          .eq("profile_id", profileId).limit(1).maybeSingle();
+        if (hm?.household_id) {
+          const { data: memberRows } = await supa
+            .from("household_members").select("profile_id")
+            .eq("household_id", hm.household_id);
+          const memberIds = (memberRows ?? []).map((m) => m.profile_id).filter(Boolean);
+          if (memberIds.length > 0) {
+            const { data: memberProfiles } = await supa
+              .from("profiles").select("email")
+              .in("id", memberIds);
+            for (const mp of memberProfiles ?? []) {
+              const e = String(mp.email ?? "").trim().toLowerCase();
+              if (e) allowed.add(e);
+            }
+          }
+        }
+      }
+      for (const r of freeBraceletLines) {
+        const re = String(r.line.recipient?.email ?? "").trim().toLowerCase();
+        if (!re || !allowed.has(re)) {
+          return json({ error: "That member isn't part of your household" }, 403);
+        }
+      }
     }
 
     // ── settings ───────────────────────────────────────────────────────────
@@ -260,6 +336,12 @@ serve(async (req) => {
     );
     const shippingCents = isShipped ? (freeShipping ? 0 : shippingFlat) : 0;
 
+    // A cart that prices to zero is a free founding bracelet claim — that goes
+    // through claim-founding-bracelet (no Stripe session), never checkout.
+    if (afterDiscount + shippingCents <= 0) {
+      return json({ error: "use_free_claim", message: "Use the free founding bracelet claim" }, 400);
+    }
+
     // ── Stripe session ─────────────────────────────────────────────────────
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -283,6 +365,10 @@ serve(async (req) => {
             slug: r.product.slug,
             variant_id: r.variant.id,
             sku: r.variant.sku || "",
+            ...(r.line.recipient?.email ? { recipient_email: r.line.recipient.email } : {}),
+            ...(r.line.recipient?.profile_id ? { recipient_profile_id: r.line.recipient.profile_id } : {}),
+            ...(r.line.recipient?.first_name ? { recipient_name: r.line.recipient.first_name } : {}),
+            ...(r.foundingFree ? { founding_free: "true" } : {}),
           },
         },
       },

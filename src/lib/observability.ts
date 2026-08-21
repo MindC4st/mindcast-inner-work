@@ -104,3 +104,24 @@ export async function initObservability() {
     }
   }
 }
+
+/**
+ * Named product event. Safe no-op when PostHog is not configured. Properties
+ * pass through the same scrubber as autocaptured events (emails redacted).
+ * Event names follow the existing snake_case convention, e.g.
+ * track("nfc_bracelet_selected", { position: 2 }).
+ */
+export function track(event: string, props: Record<string, unknown> = {}): void {
+  try {
+    const ph = (window as unknown as { posthog?: { capture?: (e: string, p: Record<string, unknown>) => void } }).posthog;
+    if (ph?.capture) {
+      const scrubbed: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(props)) {
+        scrubbed[k] = typeof v === "string" ? scrub(v) : v;
+      }
+      ph.capture(event, scrubbed);
+    }
+  } catch {
+    /* analytics must never break the product */
+  }
+}

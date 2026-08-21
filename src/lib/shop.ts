@@ -26,10 +26,16 @@ export const describeShipping = (subtotalCents: number): string => {
 };
 
 // ── Cart ────────────────────────────────────────────────────────────────────
-export type CartLine = { slug: string; quantity: number };
+// A line may carry a recipient (the household member a bracelet belongs to).
+// Lines are keyed by slug + recipient so bracelets for different members stay
+// separate; a line without a recipient behaves exactly as before.
+export type CartRecipient = { email?: string; profile_id?: string; first_name?: string };
+export type CartLine = { slug: string; quantity: number; variant_id?: string; recipient?: CartRecipient };
 
 const CART_KEY = "mindcast.shop.cart.v1";
 export const MAX_QUANTITY_PER_ITEM = 20;
+
+export const recipientKey = (r?: CartRecipient): string => r?.email || r?.profile_id || "";
 
 export const readCart = (): CartLine[] => {
   try {
@@ -39,7 +45,16 @@ export const readCart = (): CartLine[] => {
     if (!Array.isArray(parsed)) return [];
     return parsed
       .filter((l): l is CartLine => Boolean(l) && typeof l.slug === "string" && Number.isInteger(l.quantity))
-      .filter((l) => l.slug.length > 0 && l.quantity > 0 && l.quantity <= MAX_QUANTITY_PER_ITEM);
+      .filter((l) => l.slug.length > 0 && l.quantity > 0 && l.quantity <= MAX_QUANTITY_PER_ITEM)
+      .map((l) => {
+        const rawLine = l as CartLine & { variant_id?: string };
+        return {
+          slug: l.slug,
+          quantity: l.quantity,
+          ...(rawLine.variant_id ? { variant_id: rawLine.variant_id } : {}),
+          ...(l.recipient && recipientKey(l.recipient) ? { recipient: l.recipient } : {}),
+        } as CartLine;
+      });
   } catch {
     return [];
   }
@@ -51,21 +66,24 @@ export const writeCart = (lines: CartLine[]): void => {
   } catch { /* private mode — cart lives for this render only */ }
 };
 
-export const addToCart = (lines: CartLine[], slug: string, quantity: number): CartLine[] => {
-  const existing = lines.find((l) => l.slug === slug);
+export const addToCart = (lines: CartLine[], slug: string, quantity: number, recipient?: CartRecipient): CartLine[] => {
+  const key = recipientKey(recipient);
+  const existing = lines.find((l) => l.slug === slug && recipientKey(l.recipient) === key);
   const next = existing
-    ? lines.map((l) => l.slug === slug
+    ? lines.map((l) => l.slug === slug && recipientKey(l.recipient) === key
       ? { ...l, quantity: Math.min(MAX_QUANTITY_PER_ITEM, l.quantity + quantity) }
       : l)
-    : [...lines, { slug, quantity: Math.min(MAX_QUANTITY_PER_ITEM, quantity) }];
+    : [...lines, { slug, quantity: Math.min(MAX_QUANTITY_PER_ITEM, quantity), ...(key ? { recipient } : {}) }];
   writeCart(next);
   return next;
 };
 
-export const setCartQuantity = (lines: CartLine[], slug: string, quantity: number): CartLine[] => {
+export const setCartQuantity = (lines: CartLine[], slug: string, quantity: number, recipient?: CartRecipient): CartLine[] => {
+  const key = recipientKey(recipient);
+  const matches = (l: CartLine) => l.slug === slug && recipientKey(l.recipient) === key;
   const next = quantity <= 0
-    ? lines.filter((l) => l.slug !== slug)
-    : lines.map((l) => l.slug === slug ? { ...l, quantity: Math.min(MAX_QUANTITY_PER_ITEM, quantity) } : l);
+    ? lines.filter((l) => !matches(l))
+    : lines.map((l) => matches(l) ? { ...l, quantity: Math.min(MAX_QUANTITY_PER_ITEM, quantity) } : l);
   writeCart(next);
   return next;
 };
