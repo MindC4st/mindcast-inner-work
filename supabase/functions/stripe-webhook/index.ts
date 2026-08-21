@@ -2042,12 +2042,12 @@ async function recordShopOrder(
  */
 async function finalizeFoundingBracelets(
   s: Stripe.Checkout.Session,
-) {
+): Promise<string | null> {
   try {
     const meta = (s.metadata ?? {}) as Record<string, string>;
     const reserved = (meta.founding_reserved || "")
       .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-    if (reserved.length === 0) return;
+    if (reserved.length === 0) return null;
 
     await admin
       .rpc("founding_bracelet_finalize", { p_session_key: s.id })
@@ -2111,15 +2111,21 @@ async function finalizeFoundingBracelets(
 
     const selected = (meta.founding_selected || "")
       .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-    if (selected.length === 0) return;
+    if (selected.length === 0) return null;
 
     const { data: product } = await admin
       .from("shop_products")
       .select("*")
       .eq("slug", "nfc-bracelet")
       .maybeSingle();
-    if (!product) return;
+    if (!product) return null;
 
+    const nameOf = (mail: string): string => {
+      const m = members.find((x) => String(x.email ?? "").trim().toLowerCase() === mail);
+      return String(m?.first_name ?? "").trim();
+    };
+
+    let firstOrderId: string | null = null;
     for (const email of selected) {
       const { data: order } = await admin
         .from("shop_orders")
@@ -2141,6 +2147,7 @@ async function finalizeFoundingBracelets(
         .select("*")
         .single();
       if (!order) continue;
+      if (!firstOrderId) firstOrderId = order.id;
 
       await admin
         .from("shop_order_items")
@@ -2154,7 +2161,7 @@ async function finalizeFoundingBracelets(
           quantity: 1,
           line_total_cents: 0,
           gst_cents: 0,
-          recipient: { email, founding_free: true },
+          recipient: { email, first_name: nameOf(email) || undefined, founding_free: true },
         })
         .catch(() => {});
 
@@ -2165,8 +2172,264 @@ async function finalizeFoundingBracelets(
         })
         .catch(() => {});
     }
+    return firstOrderId;
   } catch (e) {
     console.error("finalizeFoundingBracelets:", e);
+    return null;
+  }
+}
+
+/**
+ * Household onboarding after a successful membership payment.
+ *   * additional adults / teens: invite their auth identity (or link an
+ *     existing account — never duplicate), set age_group, join the household
+ *   * children: profile + household record with their name — NO auth account,
+ *     NO email, NO login. The name feeds door check-in, room roll and the
+ *     Welcome Wall (subject to the existing wall-consent rules).
+ * Idempotent for webhook redelivery: adults/teens dedupe by email, children
+ * by (household, first name, age_group).
+ * Never throws — membership sync must not fail because of onboarding.
+ */
+async function processHouseholdOnboarding(
+  s: Stripe.Checkout.Session,
+) {
+  try {
+    const meta = (s.metadata ?? {}) as Record<string, string>;
+    const payerProfileId = meta.profile_id || "";
+    if (!payerProfileId) return;
+
+    let members: { tier?: string; first_name?: string; email?: string }[] = [];
+    try {
+      const parsed = JSON.parse(meta.member_list || "[]");
+      if (Array.isArray(parsed)) members = parsed;
+    } catch {
+      members = [];
+    }
+    if (members.length === 0) return;
+
+    // Ensure the household exists and the payer is in it.
+    let householdId = meta.household_id || "";
+    if (!householdId) {
+      const { data: hh, error: hhErr } = await admin
+        .from("households")
+        .insert({ name: "Family household", payer_profile_id: payerProfileId })
+        .select("id")
+        .single();
+      if (hhErr || !hh) {
+        console.error("processHouseholdOnboarding: household create failed:", hhErr?.message);
+        return;
+      }
+      householdId = hh.id;
+    }
+    await admin
+      .from("household_members")
+      .upsert(
+        { household_id: householdId, profile_id: payerProfileId, role_in_household: "adult" },
+        { onConflict: "household_id,profile_id" },
+      )
+      .catch(() => {});
+
+    // Existing household roster — used to dedupe children on redelivery.
+    const { data: existingMembers } = await admin
+      .from("household_members")
+      .select("profiles(id, first_name, age_group)")
+      .eq("household_id", householdId);
+
+    for (const m of members) {
+      const firstName = String(m.first_name ?? "").trim().slice(0, 80);
+      if (!firstName) continue;
+
+      if (m.tier === "child") {
+        const dup = (existingMembers ?? []).find((row: any) =>
+          row.profiles?.age_group === "child" &&
+          String(row.profiles?.first_name ?? "").trim().toLowerCase() === firstName.toLowerCase());
+        if (dup) continue;
+
+        // Child profile: no user_id, no email — name only. nfc_id is issued
+        // so the child can hold a door pass/bracelet identity later.
+        const nfcId = Array.from(crypto.getRandomValues(new Uint8Array(8)))
+          .map((b) => b.toString(16).padStart(2, "0")).join("");
+        const { data: childProfile, error: childErr } = await admin
+          .from("profiles")
+          .insert({
+            user_id: null,
+            name: firstName,
+            first_name: firstName,
+            display_name: firstName,
+            age_group: "child",
+            nfc_id: nfcId,
+          })
+          .select("id")
+          .single();
+        if (childErr || !childProfile) {
+          console.error("processHouseholdOnboarding: child profile failed:", childErr?.message);
+          continue;
+        }
+        await admin
+          .from("household_members")
+          .upsert(
+            { household_id: householdId, profile_id: childProfile.id, role_in_household: "child" },
+            { onConflict: "household_id,profile_id" },
+          )
+          .catch(() => {});
+        continue;
+      }
+
+      // Adult / teen — they get their own login.
+      const emailNorm = String(m.email ?? "").trim().toLowerCase();
+      if (!emailNorm) continue;
+      const ageGroup = m.tier === "teen" ? "teen" : "adult";
+
+      let userId: string | null = null;
+      try {
+        const found = await admin.auth.admin.listUsers({
+          page: 1, perPage: 1, filter: `email=eq:${emailNorm}`,
+        });
+        userId = found.users?.[0]?.id ?? null;
+      } catch {
+        userId = null;
+      }
+      if (!userId) {
+        try {
+          const invited = await admin.auth.admin.inviteUserByEmail(emailNorm, {
+            data: { first_name: firstName, age_group: ageGroup },
+            redirectTo: "https://www.mindcast.co.nz/portal/set-password",
+          });
+          userId = invited.user?.id ?? null;
+        } catch (inviteErr) {
+          // The household_invitations row (created alongside) stays pending —
+          // the payer can re-invite from Family & Safety.
+          console.error(`processHouseholdOnboarding: invite failed for ${emailNorm}:`, inviteErr);
+          continue;
+        }
+      }
+      if (!userId) continue;
+
+      const { data: memberProfile, error: profErr } = await admin
+        .from("profiles")
+        .upsert(
+          { user_id: userId, first_name: firstName, age_group: ageGroup },
+          { onConflict: "user_id" },
+        )
+        .select("id")
+        .single();
+      if (profErr || !memberProfile) {
+        console.error("processHouseholdOnboarding: profile upsert failed:", profErr?.message);
+        continue;
+      }
+      await admin
+        .from("household_members")
+        .upsert(
+          { household_id: householdId, profile_id: memberProfile.id, role_in_household: ageGroup },
+          { onConflict: "household_id,profile_id" },
+        )
+        .catch(() => {});
+
+      // The checkout-captured invitation is now fulfilled.
+      await admin
+        .from("household_invitations")
+        .update({ status: "accepted", accepted_at: new Date().toISOString() })
+        .eq("household_id", householdId)
+        .eq("email_norm", emailNorm)
+        .eq("status", "pending")
+        .catch(() => {});
+    }
+  } catch (e) {
+    console.error("processHouseholdOnboarding:", e);
+  }
+}
+
+/**
+ * Paid bracelet add-ons on a membership checkout: create the commerce order
+ * (one line item per recipient) and convert the session's bracelet stock
+ * reservation (free + paid) into sales. Never throws.
+ */
+async function processBraceletOrders(
+  s: Stripe.Checkout.Session,
+  firstFreeOrderId: string | null,
+) {
+  try {
+    const meta = (s.metadata ?? {}) as Record<string, string>;
+    const braceletQty = parseInt(meta.bracelet_qty || "0", 10) || 0;
+    const paidEmails = (meta.paid_bracelets || "")
+      .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+
+    let paidOrderId: string | null = null;
+    if (paidEmails.length > 0) {
+      const payerProfileId = meta.profile_id || "";
+      const { data: product } = await admin
+        .from("shop_products").select("*").eq("slug", "nfc-bracelet").maybeSingle();
+      if (product) {
+        let members: { tier?: string; first_name?: string; email?: string }[] = [];
+        try {
+          const parsed = JSON.parse(meta.member_list || "[]");
+          if (Array.isArray(parsed)) members = parsed;
+        } catch { members = []; }
+
+        const { data: payerProfile } = payerProfileId
+          ? await admin.from("profiles").select("email").eq("id", payerProfileId).maybeSingle()
+          : { data: null };
+
+        const unit = 1500;
+        const { data: order } = await admin
+          .from("shop_orders")
+          .insert({
+            profile_id: payerProfileId || null,
+            product_id: product.id,
+            product_name: `${product.name} — membership checkout`,
+            unit_price_cents: unit,
+            quantity: paidEmails.length,
+            amount_total_cents: unit * paidEmails.length,
+            currency: "nzd",
+            fulfilment: "counter",
+            status: "paid",
+            payment_status: "paid",
+            fulfilment_status: "unfulfilled",
+            stripe_session_id: s.id,
+            customer_email: payerProfile?.email ?? null,
+            note: "Paid bracelet add-ons — membership checkout (one-time)",
+          })
+          .select("*")
+          .single();
+
+        if (order) {
+          paidOrderId = order.id;
+          for (const pe of paidEmails) {
+            const named = members.find((x) => String(x.email ?? "").trim().toLowerCase() === pe);
+            await admin
+              .from("shop_order_items")
+              .insert({
+                order_id: order.id,
+                product_id: product.id,
+                slug: product.slug,
+                sku: product.sku ?? null,
+                product_name: product.name,
+                unit_price_cents: unit,
+                quantity: 1,
+                line_total_cents: unit,
+                gst_cents: Math.round(unit * 15 / 115),
+                recipient: { email: pe, first_name: String(named?.first_name ?? "").trim() || undefined },
+              })
+              .catch(() => {});
+          }
+          await orderEvent(admin, {
+            orderId: order.id,
+            type: "payment_confirmed",
+            note: "Paid bracelet add-ons — membership checkout",
+          });
+        }
+      }
+    }
+
+    // Convert the bracelet stock reservation (free + paid) for this session.
+    const convOrderId = paidOrderId ?? firstFreeOrderId;
+    if (braceletQty > 0 && convOrderId) {
+      await admin
+        .rpc("shop_convert_reservation", { p_session_key: s.id, p_order_id: convOrderId })
+        .catch((e: unknown) => console.error("processBraceletOrders: stock conversion failed:", e));
+    }
+  } catch (e) {
+    console.error("processBraceletOrders:", e);
   }
 }
 
@@ -2183,6 +2446,18 @@ async function releaseShopReservation(
     })
     .catch(() => {});
 
+  // Bracelet stock reservations (membership checkout add-ons) are released
+  // for ANY session kind — a no-op when nothing was reserved.
+  await admin
+    .rpc(
+      "shop_release_reservation",
+      {
+        p_session_key:
+          s.id,
+      },
+    )
+    .catch(() => {});
+
   if (
     (
       s.metadata as Record<
@@ -2193,16 +2468,6 @@ async function releaseShopReservation(
   ) {
     return;
   }
-
-  await admin
-    .rpc(
-      "shop_release_reservation",
-      {
-        p_session_key:
-          s.id,
-      },
-    )
-    .catch(() => {});
 
   const { data: order } =
     await admin
@@ -2701,8 +2966,17 @@ serve(async (req) => {
             sub,
           );
 
-          await finalizeFoundingBracelets(
+          await processHouseholdOnboarding(
             s,
+          );
+
+          const firstFreeOrderId = await finalizeFoundingBracelets(
+            s,
+          );
+
+          await processBraceletOrders(
+            s,
+            firstFreeOrderId,
           );
         } else if (
           s.mode === "payment" &&
