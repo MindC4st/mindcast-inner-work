@@ -10,7 +10,7 @@ import adultWorkbook from "@/assets/home-adult-workbook.jpg";
 import childColouring from "@/assets/home-child-colouring.jpg";
 import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
 import lifeGroup from "@/assets/home-life-group.jpg";
-import founderPortrait from "@/assets/founder-portrait.jpg";
+const founderPortrait = "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/founder-portrait.jpg";
 import logoNavLight from "@/assets/logo-cream.png";
 import logoBlue from "@/assets/logo-blue-wordmark.png";
 import howItWorksImage from "@/assets/home-adult-workbook.jpg";
