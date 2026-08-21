@@ -5111,6 +5111,15 @@ export type Database = {
           name: string
         }[]
       }
+      confirm_room_presence: {
+        Args: { p_nfc_token: string; p_room: string; p_date?: string }
+        Returns: {
+          outcome: string
+          subject_profile_id: string
+          display_name: string
+          expected_room: string
+        }[]
+      }
       current_profile_id: { Args: never; Returns: string }
       curriculum_for_track: {
         Args: { p_audience: string; p_week?: number }
@@ -5275,6 +5284,7 @@ export type Database = {
           occurred_at: string
           profile_id: string
           state: string
+          teen_self_signout: boolean
         }[]
       }
       room_roll_latest_events: {
