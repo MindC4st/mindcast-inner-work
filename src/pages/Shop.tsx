@@ -14,6 +14,8 @@ import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/shop";
 import { useCart } from "@/hooks/useCart";
 import CartDrawer, { resolveEntries, startCheckout, type CartProduct } from "@/components/shop/CartDrawer";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const Shop = () => {
   const navigate = useNavigate();
@@ -71,15 +73,18 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-[hsl(var(--navy))]/[0.08]">
-        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-[hsl(var(--navy))]">MINDCAST</Link>
-        <div className="flex items-center gap-5">
-          <Link to="/orders/lookup" className="text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-            Find an order
-          </Link>
-          <Link to="/portal/orders" className="text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-            My orders
-          </Link>
+      <Navbar />
+
+      <div className="max-w-5xl mx-auto px-6 pt-24 pb-24">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-5">
+            <Link to="/orders/lookup" className="text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
+              Find an order
+            </Link>
+            <Link to="/portal/orders" className="text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
+              My orders
+            </Link>
+          </div>
           <button
             onClick={() => setCartOpen(true)}
             className="relative flex items-center gap-2 text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy))] hover:opacity-70"
@@ -94,9 +99,7 @@ const Shop = () => {
             )}
           </button>
         </div>
-      </nav>
 
-      <div className="max-w-5xl mx-auto px-6 pt-12 pb-24">
         <p className="text-[10px] font-body tracking-[0.35em] uppercase text-primary mb-2">Shop</p>
         <h1 className="font-display text-4xl md:text-5xl tracking-wider text-[hsl(var(--navy))] mb-3">THE PHYSICAL RANGE</h1>
         <p className="text-[hsl(var(--navy-mid))] text-sm font-body leading-relaxed mb-2 max-w-lg">
@@ -172,6 +175,8 @@ const Shop = () => {
         setQuantity={cart.setQuantity}
         onCheckout={onCheckout}
       />
+
+      <Footer />
     </div>
   );
 };

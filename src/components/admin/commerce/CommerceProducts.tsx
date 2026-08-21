@@ -18,6 +18,7 @@ type Variant = {
   price_override_cents: number | null;
   stock_available: number;
   is_active: boolean;
+  image_url: string | null;
 };
 
 type Product = {
@@ -292,10 +293,11 @@ const VariantManager = ({ productId, call, onSaved }: {
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   const load = useCallback(async () => {
     const { data } = await db.from("shop_product_variants")
-      .select("id, name, sku, option_values, price_override_cents, stock_available, is_active")
+      .select("id, name, sku, option_values, price_override_cents, stock_available, is_active, image_url")
       .eq("product_id", productId).order("sort_order");
     setVariants((data ?? []) as Variant[]);
   }, [productId]);
@@ -310,9 +312,10 @@ const VariantManager = ({ productId, call, onSaved }: {
         sku: sku.trim() || null,
         option_values: name.trim(),
         price_override_cents: price ? Math.round(parseFloat(price) * 100) : null,
+        image_url: imageUrl.trim() || null,
       });
       toast.success("Variant added");
-      setName(""); setSku(""); setPrice("");
+      setName(""); setSku(""); setPrice(""); setImageUrl("");
       await load();
       await onSaved();
     } catch (e) {
@@ -324,8 +327,9 @@ const VariantManager = ({ productId, call, onSaved }: {
     <div className="border border-border rounded-sm p-4 space-y-2">
       <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">Variants</p>
       {variants.map((v) => (
-        <div key={v.id} className="flex justify-between text-sm">
-          <span>{v.name}{v.sku ? <span className="text-muted-foreground text-xs"> · {v.sku}</span> : ""}</span>
+        <div key={v.id} className="flex items-center gap-2 text-sm">
+          {v.image_url && <img src={v.image_url} alt="" className="w-6 h-6 object-cover rounded-sm border border-border" />}
+          <span className="flex-1">{v.name}{v.sku ? <span className="text-muted-foreground text-xs"> · {v.sku}</span> : ""}</span>
           <span className="text-muted-foreground">stock {v.stock_available}{v.price_override_cents != null ? ` · ${formatMoney(v.price_override_cents)}` : ""}</span>
         </div>
       ))}
@@ -334,6 +338,7 @@ const VariantManager = ({ productId, call, onSaved }: {
         <input className={inputCls} placeholder="SKU" value={sku} onChange={(e) => setSku(e.target.value)} />
         <input className={inputCls} placeholder="Price $" value={price} onChange={(e) => setPrice(e.target.value)} />
       </div>
+      <input className={inputCls} placeholder="Colour image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
       <button onClick={addVariant} className="px-3 py-1.5 text-[11px] font-body tracking-widest uppercase border border-border rounded-sm text-foreground">
         Add variant
       </button>

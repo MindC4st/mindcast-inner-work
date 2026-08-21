@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/observability";
 import { normalizeEmail, isValidEmail, braceletPurchaseGate, BRACELET_SLUG, type EntitlementState } from "@/lib/foundingBracelets";
 import CartDrawer, { resolveEntries, startCheckout, type CartProduct } from "@/components/shop/CartDrawer";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 type Variant = {
   id: string;
@@ -222,9 +224,10 @@ const ShopProduct = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-[hsl(var(--navy))]/[0.08]">
-        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-[hsl(var(--navy))]">MINDCAST</Link>
-        <div className="flex items-center gap-5">
+      <Navbar />
+
+      <div className="max-w-5xl mx-auto px-6 pt-24 pb-24">
+        <div className="flex items-center justify-between mb-8">
           <Link to="/shop" className="flex items-center gap-2 text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
             <ArrowLeft size={12} /> Shop
           </Link>
@@ -242,9 +245,7 @@ const ShopProduct = () => {
             )}
           </button>
         </div>
-      </nav>
 
-      <div className="max-w-5xl mx-auto px-6 pt-10 pb-24">
         <div className="grid md:grid-cols-2 gap-10">
           {/* Gallery */}
           <div>
@@ -535,6 +536,8 @@ const ShopProduct = () => {
           await startCheckout(resolveEntries(cart.lines as never, full), code);
         }}
       />
+
+      <Footer />
     </div>
   );
 };
