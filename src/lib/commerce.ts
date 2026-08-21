@@ -1,6 +1,10 @@
 // Commerce client helpers — pure functions, unit-testable.
 // Money is integer cents; prices are NZD GST-inclusive.
 
+// TEMP — products aren't manufactured yet. Pause purchasing; browse only.
+// Flip to false when stock is ready to ship.
+export const SHOP_COMING_SOON = true;
+
 export const GST_RATE = 0.15;
 
 /** GST component of a GST-inclusive amount: 115 contains 15 of GST. */

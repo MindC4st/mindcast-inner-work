@@ -12,7 +12,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Minus, Plus, ShoppingBag, Truck } from "lucide-react";
 import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/shop";
-import { stockLabel } from "@/lib/commerce";
+import { stockLabel, SHOP_COMING_SOON } from "@/lib/commerce";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -419,7 +419,9 @@ const ShopProduct = () => {
                   ) : null
                 )}
 
-                {claimResult ? (
+                {SHOP_COMING_SOON ? (
+                  <p className="text-sm font-body text-[hsl(var(--navy-mid))]">Bracelets are coming soon — check back shortly to claim yours.</p>
+                ) : claimResult ? (
                   <div className="border border-primary/30 bg-primary/5 rounded-sm p-4">
                     <p className="font-display text-base tracking-wider text-[hsl(var(--navy))] mb-1">CLAIMED — IT'S YOURS</p>
                     <p className="text-sm font-body text-[hsl(var(--navy-mid))] leading-relaxed">
@@ -473,11 +475,11 @@ const ShopProduct = () => {
                 </div>
                 <button
                   onClick={addToCart}
-                  disabled={blocked || (hasOptions && !variantId)}
+                  disabled={SHOP_COMING_SOON || blocked || (hasOptions && !variantId)}
                   className="flex-1 flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40"
                 >
                   {added ? <Check size={13} /> : <ShoppingBag size={13} />}
-                  {blocked ? "Out of stock" : added ? "Added" : hasOptions && !variantId ? "Choose an option" : "Add to cart"}
+                  {SHOP_COMING_SOON ? "Coming soon" : blocked ? "Out of stock" : added ? "Added" : hasOptions && !variantId ? "Choose an option" : "Add to cart"}
                 </button>
               </div>
             )}

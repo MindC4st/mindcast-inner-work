@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
 import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/shop";
+import { SHOP_COMING_SOON } from "@/lib/commerce";
 import { useCart } from "@/hooks/useCart";
 import CartDrawer, { resolveEntries, startCheckout, type CartProduct } from "@/components/shop/CartDrawer";
 import Navbar from "@/components/Navbar";
@@ -111,6 +112,15 @@ const Shop = () => {
           <Truck size={13} strokeWidth={1.6} />
           Prices in NZD, GST included · $8 shipping nationwide, free on orders over $120
         </p>
+
+        {SHOP_COMING_SOON && (
+          <div className="border border-primary/30 bg-primary/5 rounded-sm p-4 mb-8">
+            <p className="text-sm font-body text-[hsl(var(--navy))] leading-relaxed">
+              <span className="font-display tracking-widest text-primary mr-2">COMING SOON</span>
+              You can browse the range now — ordering opens shortly.
+            </p>
+          </div>
+        )}
 
         {cancelled && (
           <div className="border border-[hsl(var(--navy))]/15 bg-white rounded-sm p-4 mb-8">
