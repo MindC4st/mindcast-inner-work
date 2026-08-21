@@ -41,12 +41,15 @@ const values = [
 export const AboutContent = ({ membershipHref = "/membership" }: { membershipHref?: string }) => (
   <>
     <section className="section-cream min-h-[60vh] flex items-center pt-16">
-      <div className="container mx-auto px-6 text-center py-24 max-w-4xl">
-        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] text-primary mb-6">
-          WE WANT TO RECREATE WHAT CHURCH DID WELL — WITHOUT THE RELIGION
+      <div className="container mx-auto px-6 text-center py-28 md:py-36 max-w-4xl">
+        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] text-foreground mb-8">
+          WE WANT TO RECREATE WHAT CHURCH DID WELL—WITHOUT THE RELIGION.
         </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-muted-foreground font-body text-base max-w-xl mx-auto leading-relaxed">
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-body text-foreground font-medium text-xl max-w-3xl mx-auto leading-relaxed mb-6">
           A place to show up every week. A community that holds you accountable. Frameworks for the hard stuff. Tools you carry into real life.
+        </motion.p>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="font-body text-muted-foreground text-base max-w-3xl mx-auto leading-relaxed">
+          We are often asked why a community like this requires a paid membership. The truth is, no institution is free—churches run on tithes; we run on transparency. Mindcast is a private organisation, funded by its members to ensure the room remains premium, sustainable, and entirely independent. And as this community grows, so does our capacity to redistribute a percentage of that success directly back into the local causes our members care about.
         </motion.p>
       </div>
     </section>
