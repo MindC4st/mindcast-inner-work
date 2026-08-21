@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/db";
 
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
+import { useHouseholdFlags } from "@/hooks/useHouseholdFlags";
 
 // Member portal home — an adaptive tile launcher that changes by role:
 //   member      → their weekly journey (check-in, session, journal, progress)
@@ -35,7 +36,7 @@ const PortalDashboard = () => {
   const navigate = useNavigate();
   const track = trackForAgeGroup(profile?.age_group);
   const isTeen = track === "Teen";
-  const hasKids = !!profile?.kids_addon;
+  const { hasKids, hasTeens } = useHouseholdFlags();
   const firstName = (profile?.name || "").split(" ")[0] || "there";
   const view: "admin" | "facilitator" | "member" = isAdmin ? "admin" : isStaff ? "facilitator" : "member";
 
@@ -106,14 +107,14 @@ const tiles = useMemo<Tile[]>(() => {
           { key: "downloads", title: "Downloads", subtitle: hasKids ? "Worksheets & kids colouring pages" : "Worksheets & resources", icon: Download, to: "/portal/downloads" },
           { key: "progress", title: "My Progress", subtitle: "Streaks, completed weeks & commitments", icon: TrendingUp, to: "/portal/progress" },
         ];
-    if (!isTeen) {
+    if (!isTeen && hasTeens) {
       member.splice(3, 0, { key: "teens", title: "Teen Sessions", subtitle: "Your teen's weekly lessons", icon: GraduationCap, to: "/portal/teens", badge: "TEENS" });
     }
     if (!isTeen && hasKids) {
       member.splice(4, 0, { key: "kids", title: "Kid Sessions", subtitle: "Kids lessons & colouring pages", icon: Baby, to: "/portal/kids", badge: "KIDS" });
     }
     return member;
-  }, [view, liveCode, hasKids, isTeen, weekNo, openTodaysSession]);
+  }, [view, liveCode, hasKids, hasTeens, isTeen, weekNo, openTodaysSession]);
 
   const roleLabel = view === "admin" ? "Admin" : view === "facilitator" ? "Facilitator" : isTeen ? "Teen member" : hasKids ? "Family membership" : "Member";
 
