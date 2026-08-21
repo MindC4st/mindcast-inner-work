@@ -5,18 +5,11 @@ import { Camera, Check, X, Loader2, ScanLine, UserCheck, AlertCircle } from "luc
 
 // Door scanner — the ticketing surface at the theatre entrance.
 //
-// Sessions are members-only, so everyone is scanned on the way in. A scan
-// resolves a HOUSEHOLD, not just a person: kids don't carry phones and teens
-// are often dropped off, so one scan of a parent's pass brings up the whole
-// family and the door staff tick who actually came. A teen arriving alone
-// scans their own pass and never depends on a parent being there.
-//
-// Admitted people are written to check_ins, which the Welcome Wall already
-// watches over Realtime — names appear on the wall as they come through.
-//
-// Scanning uses the platform BarcodeDetector (Chrome on Android, same devices
-// that run the NFC reader). Anywhere it's missing, the code can be typed in —
-// a door must never be blocked by a browser capability.
+// Sessions are members-only, so everyone is scanned on the way in. A member
+// scan resolves a HOUSEHOLD; a trial scan resolves a FAMILY (the adult plus
+// their linked children/teens). Under-18 trial check-in is enforced server-side:
+// a child or teen can only be admitted with (or after) their adult in the same
+// session.
 
 type Person = {
   profile_id: string;
@@ -29,9 +22,19 @@ type Person = {
   is_scanned_person: boolean;
 };
 
+type TrialPerson = {
+  ticket_id: string;
+  name: string;
+  track: string;
+  age_group: string | null;
+  is_adult: boolean;
+  already_used: boolean;
+  checked_in_today: boolean;
+};
+
 type Lookup =
   | { kind: "member"; people: Person[] }
-  | { kind: "trial"; full_name: string; track: string; guests: { name: string; track: string }[]; already_used: boolean; expired: boolean }
+  | { kind: "trial"; full_name: string; already_used: boolean; expired: boolean; guardian_consent: boolean; people: TrialPerson[] }
   | { kind: "unknown" };
 
 const hasDetector = () => typeof (window as unknown as { BarcodeDetector?: unknown }).BarcodeDetector !== "undefined";
@@ -72,9 +75,11 @@ const DoorScanner = () => {
       const res = data as Lookup;
       setLookup(res);
       if (res.kind === "member") {
-        // Pre-tick everyone entitled and not already seated — the common case
-        // is "the whole family came", so make that one tap.
         setPicked(new Set(res.people.filter((p) => p.entitled && !p.checked_in_today).map((p) => p.profile_id)));
+      } else if (res.kind === "trial") {
+        // Pre-tick the whole family who can still be admitted — the common case
+        // is "the whole family came", so make that one tap.
+        setPicked(new Set(res.people.filter((p) => !p.already_used && !p.checked_in_today).map((p) => p.ticket_id)));
       }
     } catch (e) {
       const f = await describeFunctionError(e, {
@@ -130,18 +135,16 @@ const DoorScanner = () => {
   const admit = async () => {
     setBusy(true); setError(null);
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke("door-scan", {
-        body: {
-          action: "admit",
-          token,
-          profile_ids: lookup?.kind === "member" ? [...picked] : [],
-        },
-      });
+      const body = lookup?.kind === "trial"
+        ? { action: "admit", token, ticket_ids: [...picked] }
+        : { action: "admit", token, profile_ids: [...picked] };
+      const { data, error: fnErr } = await supabase.functions.invoke("door-scan", { body });
       if (fnErr) throw fnErr;
-      const r = data as { ok?: boolean; admitted?: string[]; reason?: string };
+      const r = data as { ok?: boolean; admitted?: string[]; already_in?: boolean; reason?: string };
       if (!r?.ok) {
         setError(
-          r?.reason === "already_used" ? "That free-session ticket has already been used."
+          r?.reason === "parent_required" ? "PARENT / GUARDIAN REQUIRED — the accompanying adult needs to check in before this pass can be activated."
+          : r?.reason === "already_used" ? "That free-session ticket has already been used."
           : r?.reason === "expired" ? "That ticket has expired."
           : r?.reason === "not_entitled" ? "No active membership on this pass."
           : "Could not admit. Try again.",
@@ -149,6 +152,7 @@ const DoorScanner = () => {
         return;
       }
       setAdmitted(r.admitted ?? []);
+      if (r.already_in && (r.admitted ?? []).length === 0) setAdmitted([]);
       setLookup(null);
     } catch (e) {
       const f = await describeFunctionError(e, {
@@ -195,7 +199,6 @@ const DoorScanner = () => {
           </button>
         )}
 
-        {/* A door can never be blocked by a camera or a browser feature. */}
         <form onSubmit={(e) => { e.preventDefault(); handleToken(manual); }} className="mt-4 flex gap-2">
           <input value={manual} onChange={(e) => setManual(e.target.value)}
             placeholder="Or type the code"
@@ -259,24 +262,51 @@ const DoorScanner = () => {
           </div>
         )}
 
-        {/* Free-session ticket. */}
+        {/* Free trial — the adult plus their linked children/teens. */}
         {lookup?.kind === "trial" && (
           <div className="mt-6 rounded-md border border-white/15 px-4 py-4">
-            <p className="text-[10px] font-body tracking-[0.25em] uppercase text-[#8E9299] mb-1">Free session ticket</p>
+            <p className="text-[10px] font-body tracking-[0.25em] uppercase text-[#8E9299] mb-1">Free trial</p>
             <p className="font-display text-2xl tracking-wider mb-1">{lookup.full_name.toUpperCase()}</p>
-            <p className="text-sm font-body text-[#8E9299]">
-              {lookup.track}
-              {lookup.guests.length > 0 && ` · with ${lookup.guests.map((g) => `${g.name} (${g.track})`).join(", ")}`}
-            </p>
+
             {lookup.already_used ? (
-              <p className="mt-3 text-sm font-body text-red-300">Already used — this ticket is valid once only.</p>
+              <p className="mt-3 text-sm font-body text-red-300">Already used — this trial is valid once only.</p>
             ) : lookup.expired ? (
               <p className="mt-3 text-sm font-body text-red-300">Expired.</p>
             ) : (
-              <button onClick={admit} disabled={busy}
-                className="mt-4 w-full bg-[#3585AF] text-white py-4 rounded-md text-xs font-body font-semibold tracking-widest uppercase min-h-[56px] disabled:opacity-40">
-                Admit and use ticket
-              </button>
+              <>
+                {lookup.people.length > 1 && (
+                  <p className="text-sm font-body text-[#8E9299] mt-1">Coming with {lookup.full_name.split(" ")[0]}:</p>
+                )}
+                <div className="mt-3 space-y-2">
+                  {lookup.people.map((p) => {
+                    const on = picked.has(p.ticket_id);
+                    const blocked = p.already_used;
+                    return (
+                      <button key={p.ticket_id} onClick={() => !blocked && toggle(p.ticket_id)} disabled={blocked}
+                        className={`w-full flex items-center gap-3 rounded-md border px-4 py-3 text-left transition-colors ${
+                          blocked ? "border-white/10 bg-white/[0.02] opacity-50"
+                          : on ? "border-[#3585AF] bg-[#3585AF]/15"
+                          : "border-white/15 hover:border-white/30"
+                        }`}>
+                        <span className={`w-5 h-5 rounded-sm grid place-items-center shrink-0 ${on ? "bg-[#3585AF]" : "border border-white/25"}`}>
+                          {on && <Check size={13} />}
+                          {blocked && <X size={13} className="text-red-300" />}
+                        </span>
+                        <span className="flex-1">
+                          <span className="block font-body text-sm">{p.name}</span>
+                          <span className="block text-[11px] text-[#8E9299] font-body">
+                            {p.track} room{p.is_adult ? " · adult" : ""}{p.checked_in_today ? " · already in" : ""}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button onClick={admit} disabled={busy || picked.size === 0}
+                  className="mt-4 w-full bg-[#3585AF] text-white py-4 rounded-md text-xs font-body font-semibold tracking-widest uppercase min-h-[56px] disabled:opacity-40">
+                  {lookup.people.length > 1 ? `Check in family (${picked.size})` : "Check in and use trial"}
+                </button>
+              </>
             )}
           </div>
         )}

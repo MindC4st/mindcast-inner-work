@@ -76,6 +76,7 @@ serve(async (req) => {
       .from("trial_tickets")
       .update({ follow_up_sent_at: new Date().toISOString() })
       .not("redeemed_at", "is", null)
+      .not("email", "is", null)
       .lt("redeemed_at", new Date(Date.now() - 18 * 3600 * 1000).toISOString())
       .gt("redeemed_at", new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString())
       .is("follow_up_sent_at", null)

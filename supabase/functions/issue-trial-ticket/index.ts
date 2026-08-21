@@ -1,18 +1,26 @@
 // issue-trial-ticket — public endpoint behind /try.
 //
-// Sessions are members-only. This is the one door in: a prospective member
-// registers their details once and gets a ticket for ONE session. There is no
-// standing free tier, so the ticket is single use and the enforcement lives in
-// the database (see redeem_trial_ticket in the 20260818120000 migration), not
-// in this function and not in the UI.
+// The public free trial is ADULT-LED. An adult registers for one free session
+// and may bring their own children/teens to that SAME session. Under-18s never
+// register or attend independently — each minor becomes an individual
+// trial_tickets row linked to the adult (linked_adult_id), and check-in enforces
+// that a minor is only admitted with (or after) their adult in the same session.
+//
+// EMAIL IS THE PASS. This function creates (or reuses) the tickets, sends the
+// pass(es) by email, and NEVER returns a token/QR to the browser — the inbox is
+// the proof the email address is real. A failed send keeps the unredeemed
+// tickets so the same email can retry delivery of the SAME pass.
 //
 // Public (verify_jwt = false) because the whole point is that the person does
-// not have an account yet.
+// not have an account yet. One-free-trial-per-person is enforced in the
+// database (partial unique index + atomic redemption).
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import QRCode from "npm:qrcode@1.5.4";
 import { ipAllowed, clientIp } from "../_shared/ip-rate-limit.ts";
+import { renderEmail } from "../_shared/email/layout.ts";
+import trialPass from "../_shared/email/templates/trial-pass.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,89 +32,74 @@ const json = (body: unknown, status = 200) =>
     status,
   });
 
-const TRACKS = ["Adult", "Teen", "Child"];
+const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Mindcast <hello@mindcast.co.nz>";
 
+/** Unambiguous alphabet: no O/0, I/1. These get read aloud at a door. */
 const token = () => {
-  // Unambiguous alphabet: no O/0, I/1. These get read aloud at a door.
   const A = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   const b = new Uint32Array(12);
   crypto.getRandomValues(b);
   return Array.from(b, (n) => A[n % A.length]).join("");
 };
 
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Mindcast <hello@mindcast.co.nz>";
+const normalizeEmail = (raw: string): string => String(raw ?? "").trim().toLowerCase();
+const isValidEmail = (raw: string): boolean => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalizeEmail(raw));
 
-// Shared brand layout (marker variant of the ripple — ●))) — because email
-// clients cannot be trusted with SVG). Same template as notify-outbox.
-const emailLayout = (title: string, bodyHtml: string) => `<!doctype html>
-<html><body style="margin:0;padding:0;background:#FFFAF5;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFAF5;padding:32px 16px;">
-<tr><td align="center">
-<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
-  <tr><td style="padding:0 8px 24px;">
-    <span style="font-family:Georgia,serif;color:#3585AF;font-size:18px;letter-spacing:2px;">&#9679;)))</span>
-    <span style="font-family:Arial,Helvetica,sans-serif;color:#102438;font-size:14px;font-weight:bold;letter-spacing:4px;text-transform:uppercase;">&nbsp;Mindcast</span>
-  </td></tr>
-  <tr><td style="background:#FFFFFF;border:1px solid #E1E7EF;padding:32px;">
-    <h1 style="margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:1.3;color:#102438;">${title}</h1>
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#102438;">${bodyHtml}</div>
-  </td></tr>
-  <tr><td style="padding:20px 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:3px;color:#307191;text-align:center;">
-    NOTICE IT, NAME IT, DO IT
-  </td></tr>
-</table>
-</td></tr></table>
-</body></html>`;
+/** "ABCDEFGHJKMQ" -> "ABCD EFGH JKMQ" for the readable fallback code. */
+const spacedToken = (t: string): string => t.replace(/(.{4})/g, "$1 ").trim();
 
-const nzDay = (iso: string) =>
-  new Intl.DateTimeFormat("en-NZ", {
-    timeZone: "Pacific/Auckland",
-    weekday: "long", day: "numeric", month: "long",
-  }).format(new Date(iso));
+/**
+ * Child vs Teen from the existing Mindcast age-group rule: the Sunday rooms are
+ * Little Ones (4–11) and Teens (12+). Boundary = 12th birthday.
+ */
+function ageGroupForDob(dob: string): "child" | "teen" {
+  const d = new Date(`${dob}T00:00:00Z`);
+  const now = new Date();
+  let age = now.getUTCFullYear() - d.getUTCFullYear();
+  const m = now.getUTCMonth() - d.getUTCMonth();
+  if (m < 0 || (m === 0 && now.getUTCDate() < d.getUTCDate())) age--;
+  return age >= 12 ? "teen" : "child";
+}
 
-/** Deliver the pass by email: QR attachment + plain-text code fallback.
- *  Best-effort — the on-screen pass always works, so an email failure must
- *  never block the ticket itself. */
-async function sendTicketEmail(opts: {
+interface MinorInput {
+  first_name: string;
+  last_name: string;
+  dob: string;
+  email: string | null;
+  age_group: "child" | "teen";
+}
+
+/** Deliver one pass by email (QR attachment + readable code fallback). */
+async function deliverPass(opts: {
   token: string;
-  full_name: string;
+  first_name: string;
   email: string;
-  intended_date: string | null;
   siteOrigin: string;
-}) {
+  track: "Adult" | "Teen";
+  linked_adult_name?: string | null;
+}): Promise<boolean> {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
   if (!RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY unset — trial pass email skipped");
-    return;
+    console.error("RESEND_API_KEY unset — trial pass email cannot be sent");
+    return false;
   }
   try {
     const passUrl = `${opts.siteOrigin}/b/${opts.token}`;
     const png = await QRCode.toDataURL(passUrl, {
       width: 640, margin: 1,
-      color: { dark: "#102438", light: "#FFFAF5" },
+      color: { dark: "#303947", light: "#FFFFFF" },
     });
     const b64 = png.replace(/^data:image\/png;base64,/, "");
-    const when = opts.intended_date
-      ? nzDay(`${opts.intended_date}T12:00:00+12:00`)
-      : "any Sunday";
 
-    const html = emailLayout(
-      "Your Mindcast session pass",
-      `<p>Hi ${opts.full_name.split(" ")[0]},</p>
-       <p>Your free session pass is ready. It's good for <strong>one session</strong> —
-       show the attached code at the door on ${when}.</p>
-       <p style="text-align:center;margin:24px 0;">
-         <img src="cid:mindcast-pass" alt="Your session pass QR code" width="240" style="width:240px;height:240px;" />
-       </p>
-       <p>If the code won't scan, just read this out at the door:</p>
-       <p style="text-align:center;font-size:20px;letter-spacing:4px;font-weight:bold;color:#102438;">${opts.token}</p>
-       <p>Arrive a little early so we can welcome you properly. No card, no obligation —
-       and if it isn't for you, that's a fine answer.</p>
-       <p style="color:#5F7683;font-size:13px;margin-top:24px;">
-         One pass per person, single use. If you'd rather not hear from us about this,
-         <a href="${Deno.env.get("SUPABASE_URL")}/functions/v1/trial-unsubscribe?token=${opts.token}" style="color:#307191;">unsubscribe here</a>.
-       </p>`,
-    );
+    const { subject, html } = renderEmail(trialPass, {
+      first_name: opts.first_name,
+      pass_code: spacedToken(opts.token),
+      pass_url: passUrl,
+      qr_cid: "mindcast-pass",
+      track: opts.track,
+      requires_accompanying_adult: opts.track === "Teen",
+      linked_adult_name: opts.linked_adult_name ?? null,
+    });
 
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -114,14 +107,19 @@ async function sendTicketEmail(opts: {
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: [opts.email],
-        subject: "Your Mindcast session pass",
+        subject,
         html,
         attachments: [{ filename: "mindcast-pass.png", content: b64, cid: "mindcast-pass" }],
       }),
     });
-    if (!r.ok) console.error("Trial pass email failed:", r.status, await r.text());
+    if (!r.ok) {
+      console.error("Trial pass email failed:", r.status, await r.text());
+      return false;
+    }
+    return true;
   } catch (e) {
     console.error("Trial pass email error:", e);
+    return false;
   }
 }
 
@@ -129,8 +127,6 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
-  // Issuance flood guard: one ticket per email is the hard rule (below); this
-  // soft per-IP ceiling stops the form itself being hammered.
   if (!ipAllowed(clientIp(req), 5, 3600_000)) {
     return json({ error: "Too many requests from this connection — please try again later." }, 429);
   }
@@ -138,8 +134,7 @@ serve(async (req) => {
   try {
     const body = await req.json();
 
-    // Where the pass link points. Allowlisted origins only; never attacker-
-    // controlled redirects.
+    // Allowlisted pass-link origin only; never attacker-controlled redirects.
     const siteOrigin = (() => {
       const fallback = "https://www.mindcast.co.nz";
       try {
@@ -155,35 +150,62 @@ serve(async (req) => {
         return fallback;
       }
     })();
-    const full_name = String(body.full_name ?? "").trim().slice(0, 120);
-    const email = String(body.email ?? "").trim().toLowerCase().slice(0, 200);
+
+    // ── Adult ──────────────────────────────────────────────────────────────
+    const first_name = String(body.first_name ?? "").trim().slice(0, 80);
+    const last_name = String(body.last_name ?? "").trim().slice(0, 80);
+    const email = normalizeEmail(String(body.email ?? "")).slice(0, 200);
     const phone = String(body.phone ?? "").trim().slice(0, 40) || null;
-    const track = TRACKS.includes(body.track) ? body.track : "Adult";
-    const intended_date = typeof body.intended_date === "string" ? body.intended_date : null;
+    const full_name = [first_name, last_name].filter(Boolean).join(" ") || "Guest";
 
-    // Children coming along: names and ages only, so the door knows how many
-    // seats and which rooms. No profiles are created for someone who may never
-    // return, and nothing here is a login.
-    const guests = Array.isArray(body.guests)
-      ? body.guests.slice(0, 6).map((g: Record<string, unknown>) => ({
-          name: String(g?.name ?? "").trim().slice(0, 80),
-          track: TRACKS.includes(String(g?.track)) ? String(g?.track) : "Child",
-        })).filter((g: { name: string }) => g.name)
-      : [];
-
-    if (!full_name || !email.includes("@")) {
-      return json({ error: "Please give us a name and a valid email." }, 400);
+    if (!first_name || !last_name || !isValidEmail(email)) {
+      return json({
+        ok: false,
+        reason: "invalid_details",
+        message: "Please give us your first name, last name and a valid email.",
+      }, 400);
     }
 
-    // Under-18 attendance requires recorded guardian consent — same
-    // safeguarding gate as membership. The ticket carries the record; the
-    // door refuses to project an unconsented minor's name on any wall.
-    const minorsAttending = track !== "Adult" || guests.length > 0;
-    const guardian_name = String(body.guardian_name ?? "").trim().slice(0, 120) || null;
-    const guardianConsents = body.guardian_consent === true;
-    if (minorsAttending && (!guardian_name || !guardianConsents)) {
+    // ── Minors ─────────────────────────────────────────────────────────────
+    const minors: MinorInput[] = (Array.isArray(body.minors) ? body.minors : [])
+      .slice(0, 6)
+      .map((m: Record<string, unknown>) => {
+        const fn = String(m?.first_name ?? "").trim().slice(0, 80);
+        const ln = String(m?.last_name ?? "").trim().slice(0, 80);
+        const dob = String(m?.dob ?? "").trim();
+        const rawEmail = typeof m?.email === "string" ? normalizeEmail(m.email) : "";
+        const age_group = /^\d{4}-\d{2}-\d{2}$/.test(dob) && !Number.isNaN(Date.parse(dob))
+          ? ageGroupForDob(dob)
+          : null;
+        return {
+          first_name: fn,
+          last_name: ln,
+          dob: dob || null,
+          email: rawEmail || null,
+          age_group: age_group as "child" | "teen",
+        };
+      })
+      .filter((m: MinorInput & { dob: string | null }) => m.first_name && m.dob);
+
+    for (const m of minors) {
+      if (!m.age_group) {
+        return json({ ok: false, reason: "invalid_minor", message: "Each child or teen needs a valid date of birth." }, 400);
+      }
+      if (m.age_group === "teen" && (!m.email || !isValidEmail(m.email))) {
+        return json({
+          ok: false,
+          reason: "teen_email_required",
+          message: "Teens need their own email address so their trial pass can be sent to them.",
+        }, 400);
+      }
+    }
+
+    const guardian_consent = body.guardian_consent === true;
+    if (minors.length > 0 && !guardian_consent) {
       return json({
-        error: "A parent or guardian's name and consent are needed for anyone under 18.",
+        ok: false,
+        reason: "consent_required",
+        message: "Parent or guardian consent is required before a child or teen can attend.",
       }, 400);
     }
 
@@ -191,48 +213,184 @@ serve(async (req) => {
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supa = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    // One free session per person. If they already hold an unredeemed ticket,
-    // hand back the same one rather than minting a second — otherwise "single
-    // use" is trivially defeated by filling the form twice.
-    const { data: existing } = await supa
+    // ── One free trial per person ──────────────────────────────────────────
+    // A pass is only "used" once successfully checked in (redeemed_at set).
+    // Generating a pass never blocks anyone; a used pass does.
+    const adultExisting = await supa
       .from("trial_tickets")
-      .select("token, redeemed_at, expires_at")
+      .select("id, token, redeemed_at, expires_at")
       .eq("email", email)
+      .is("linked_adult_id", null)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (existing) {
-      if (!existing.redeemed_at && new Date(existing.expires_at) > new Date()) {
-        // Re-deliver the same pass by email as well, so a lost inbox isn't a
-        // dead end. Same single ticket — never a second mint.
-        void sendTicketEmail({
-          token: existing.token, full_name, email, intended_date, siteOrigin,
-        });
-        return json({ ok: true, token: existing.token, reissued: true });
+    let adultTicketId: string;
+    let adultToken: string;
+
+    if (adultExisting?.data) {
+      const e = adultExisting.data;
+      if (e.redeemed_at) {
+        return json({
+          ok: false,
+          reason: "already_used",
+          message: "You've already used your free session. Join as a member to come back.",
+        }, 409);
       }
-      // Already used their free session. Say so plainly; do not silently mint
-      // another, and do not pretend it worked.
-      return json({
-        ok: false,
-        reason: "already_used",
-        message: "You've already used your free session. Join as a member to come back.",
-      }, 409);
+      if (new Date(e.expires_at) > new Date()) {
+        // Reuse the same unredeemed pass (lost inbox / failed send retry).
+        adultTicketId = e.id;
+        adultToken = e.token;
+      } else {
+        adultTicketId = "";
+        adultToken = "";
+      }
+    } else {
+      adultTicketId = "";
+      adultToken = "";
     }
 
-    const t = token();
-    const { error } = await supa.from("trial_tickets").insert({
-      token: t, full_name, email, phone, track, guests, intended_date,
-      guardian_name: minorsAttending ? guardian_name : null,
-      guardian_consent_at: minorsAttending ? new Date().toISOString() : null,
+    // Reject any teen whose email already used their free trial.
+    for (const m of minors) {
+      if (m.age_group !== "teen" || !m.email) continue;
+      const { data: used } = await supa
+        .from("trial_tickets")
+        .select("id")
+        .eq("email", m.email)
+        .not("redeemed_at", "is", null)
+        .limit(1)
+        .maybeSingle();
+      if (used) {
+        return json({
+          ok: false,
+          reason: "already_used",
+          message: "Someone in this booking has already used their free Mindcast trial.",
+        }, 409);
+      }
+    }
+
+    // ── Create / reuse tickets ─────────────────────────────────────────────
+    if (!adultTicketId) {
+      adultToken = token();
+      const { data: created, error: insErr } = await supa
+        .from("trial_tickets")
+        .insert({
+          token: adultToken,
+          full_name,
+          email,
+          phone,
+          track: "Adult",
+          guardian_name: minors.length > 0 ? full_name : null,
+          guardian_consent_at: minors.length > 0 ? new Date().toISOString() : null,
+        })
+        .select("id")
+        .single();
+      if (insErr || !created) throw insErr ?? new Error("Could not create adult ticket");
+      adultTicketId = created.id;
+    }
+
+    // Minors: one row each, linked to the adult.
+    const teenRecipients: { first_name: string; email: string; token: string }[] = [];
+    for (const m of minors) {
+      if (m.age_group === "teen" && m.email) {
+        const { data: teenExisting } = await supa
+          .from("trial_tickets")
+          .select("id, token, redeemed_at")
+          .eq("email", m.email)
+          .eq("track", "Teen")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (teenExisting?.data && !teenExisting.data.redeemed_at) {
+          // Reuse the teen's own unredeemed pass, re-linked to this adult.
+          await supa
+            .from("trial_tickets")
+            .update({ linked_adult_id: adultTicketId })
+            .eq("id", teenExisting.data.id);
+          teenRecipients.push({
+            first_name: m.first_name,
+            email: m.email,
+            token: teenExisting.data.token,
+          });
+          continue;
+        }
+        const t = token();
+        await supa.from("trial_tickets").insert({
+          token: t,
+          full_name: [m.first_name, m.last_name].filter(Boolean).join(" "),
+          email: m.email,
+          track: "Teen",
+          age_group: "teen",
+          dob: m.dob,
+          linked_adult_id: adultTicketId,
+        });
+        teenRecipients.push({ first_name: m.first_name, email: m.email, token: t });
+      } else {
+        // Child: no email/token of their own — carried on the adult's family scan.
+        // Idempotent on retry by (adult, name, age_group).
+        const childName = [m.first_name, m.last_name].filter(Boolean).join(" ");
+        const { data: childExisting } = await supa
+          .from("trial_tickets")
+          .select("id")
+          .eq("linked_adult_id", adultTicketId)
+          .eq("full_name", childName)
+          .eq("age_group", "child")
+          .limit(1)
+          .maybeSingle();
+        if (childExisting?.data) continue;
+        const t = token();
+        await supa.from("trial_tickets").insert({
+          token: t,
+          full_name: childName,
+          email: null,
+          track: "Child",
+          age_group: "child",
+          dob: m.dob,
+          linked_adult_id: adultTicketId,
+        });
+      }
+    }
+
+    // ── Deliver passes by email (awaited, never fire-and-forget) ───────────
+    const failures: string[] = [];
+    const adultOk = await deliverPass({
+      token: adultToken,
+      first_name,
+      email,
+      siteOrigin,
+      track: "Adult",
     });
-    if (error) throw error;
+    if (!adultOk) failures.push(email);
 
-    void sendTicketEmail({ token: t, full_name, email, intended_date, siteOrigin });
+    for (const t of teenRecipients) {
+      const ok = await deliverPass({
+        token: t.token,
+        first_name: t.first_name,
+        email: t.email,
+        siteOrigin,
+        track: "Teen",
+        linked_adult_name: first_name,
+      });
+      if (!ok) failures.push(t.email);
+    }
 
-    return json({ ok: true, token: t });
+    if (failures.length > 0) {
+      // Keep the unredeemed tickets so the same emails can retry delivery.
+      return json({
+        ok: false,
+        reason: "email_delivery_failed",
+        message: "We couldn't send your pass. Check your email address and try again.",
+      }, 502);
+    }
+
+    return json({ ok: true, emailed: true });
   } catch (e) {
     console.error("issue-trial-ticket failed:", e);
-    return json({ error: "Could not create your ticket. Please try again." }, 500);
+    return json({
+      ok: false,
+      reason: "server_error",
+      message: "Could not create your ticket. Please try again.",
+    }, 500);
   }
 });
