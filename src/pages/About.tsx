@@ -175,46 +175,96 @@ export const AboutContent = ({ membershipHref = "/membership" }: { membershipHre
     </section>
 
     {/* Our Relationship With AI */}
-    <section className="section-cream py-24 relative overflow-hidden">
+    <section className="relative overflow-hidden min-h-screen py-16 md:py-24">
+      {/* Background video — visible as ambient warmth */}
       <AmbientVideo
         src="/videos/hero-loop.mp4"
-        className="absolute inset-0 w-full h-full object-cover opacity-15"
+        className="absolute inset-0 w-full h-full object-cover opacity-50 md:opacity-60"
       />
-      <div className="absolute inset-0 bg-[hsl(var(--primary))]/85" />
-      <div className="container mx-auto px-6 relative z-10 max-w-3xl">
-        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-3xl sm:text-4xl md:text-5xl text-center mb-4 leading-[1.1]">
-          WE USE AI. HERE'S WHY WE'RE PROUD OF THAT.
-        </motion.h2>
-        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-center text-muted-foreground font-body text-sm tracking-wide mb-12">
-          A note on how Mindcast was built — and what we believe about the tools we use.
-        </motion.p>
+      {/* Dark warm tint overlay (25-30%) with subtle vignette */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "rgba(15, 23, 42, 0.35)" }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, transparent 40%, rgba(15, 23, 42, 0.45) 100%)",
+        }}
+      />
 
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="space-y-5 text-foreground/80 font-body text-base leading-relaxed">
-          <p>
-            The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone.
-          </p>
-          <p>
-            We believe AI should make us more human, not less. It should free up the hours we waste on things that don't require a human touch — so we can spend more time in rooms with real people, having conversations that actually matter.
-          </p>
-          <p>
-            Mindcast exists because of AI. Not in spite of it.
-          </p>
-          <p>
-            Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or ample free time. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely.
-          </p>
-          <p>
-            Our resources are evidence-based because AI lets us stand on the shoulders of the researchers, scientists, and authors who have spent decades studying human behaviour, healing, and connection. We don't make things up. We find the best thinking that exists, translate it into something you can actually use, and bring it into the room with us every week.
-          </p>
-          <p>
-            That's the version of AI we're interested in: the one that makes human experience richer, more accessible, and more honest.
-          </p>
-        </motion.div>
+      <div className="container mx-auto px-6 relative z-10 max-w-6xl">
+        <div className="grid md:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-start">
+          {/* LEFT COLUMN: Sticky heading & quote callout */}
+          <div className="md:sticky md:top-24 md:self-start space-y-6 pb-8 md:pb-0">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="heading-display text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1]"
+            >
+              WE USE AI. HERE'S WHY WE'RE PROUD OF THAT.
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
+              className="text-white/60 font-body text-sm tracking-wide"
+            >
+              A note on how Mindcast was built — and what we believe about the tools we use.
+            </motion.p>
 
-        <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-16 text-center">
-          <p className="font-display text-2xl sm:text-3xl md:text-4xl tracking-wider text-foreground leading-snug">
-            "AI didn't replace the human work. It made the human work possible."
-          </p>
-        </motion.blockquote>
+            {/* Hero quote callout — desktop sticky, mobile closing badge */}
+            <motion.blockquote
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="border-l-2 border-white/30 pl-5 py-3 mt-6 md:mt-10"
+            >
+              <p className="font-display text-xl sm:text-2xl md:text-3xl tracking-wider text-white leading-snug">
+                "AI didn't replace the human work. It made the human work possible."
+              </p>
+            </motion.blockquote>
+          </div>
+
+          {/* RIGHT COLUMN: Frosted glass body text container */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="space-y-5 p-6 sm:p-8 lg:p-10"
+            style={{
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              background: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              borderRadius: "16px",
+            }}
+          >
+            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
+              The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone.
+            </p>
+            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
+              We believe AI should make us more human, not less. It should free up the hours we waste on things that don't require a human touch — so we can spend more time in rooms with real people, having conversations that actually matter.
+            </p>
+            <p className="font-body text-base leading-relaxed font-semibold text-[#F8FAFC]">
+              Mindcast exists because of AI. Not in spite of it.
+            </p>
+            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
+              Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or ample free time. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely.
+            </p>
+            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
+              Our resources are evidence-based because AI lets us stand on the shoulders of the researchers, scientists, and authors who have spent decades studying human behaviour, healing, and connection. We don't make things up. We find the best thinking that exists, translate it into something you can actually use, and bring it into the room with us every week.
+            </p>
+            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
+              That's the version of AI we're interested in: the one that makes human experience richer, more accessible, and more honest.
+            </p>
+          </motion.div>
+        </div>
       </div>
     </section>
 

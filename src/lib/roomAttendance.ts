@@ -83,7 +83,7 @@ export function unresolvedCount(rows: KioskRollRow[]): number {
 }
 
 /** A teen may sign themselves out only if the guardian enabled it in advance. */
-export function canSelfSignOut(row: KioskRollRow): boolean {
+export function canSelfSignOut(row: Pick<KioskRollRow, "teen_self_signout">): boolean {
   return row.teen_self_signout === true;
 }
 

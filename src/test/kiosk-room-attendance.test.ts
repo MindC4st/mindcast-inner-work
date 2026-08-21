@@ -135,9 +135,9 @@ describe("roll grouping", () => {
   });
 
   it("15+16. teen self signout gate", () => {
-    expect(canSelfSignOut({ profile_id: "t", display_name: "Leo", teen_self_signout: false })).toBe(false);
-    expect(canSelfSignOut({ profile_id: "t", display_name: "Leo", teen_self_signout: true })).toBe(true);
-    expect(canSelfSignOut({ profile_id: "t", display_name: "Leo" })).toBe(false);
+    expect(canSelfSignOut({ teen_self_signout: false })).toBe(false);
+    expect(canSelfSignOut({ teen_self_signout: true })).toBe(true);
+    expect(canSelfSignOut({})).toBe(false);
   });
 
   it("17+18. close room: unresolved blocks, all-accounted succeeds", () => {
