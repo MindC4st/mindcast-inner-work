@@ -5,6 +5,7 @@ import logoBlue from "@/assets/logo-blue-wordmark.png";
 import {
   LayoutDashboard, Clapperboard, CalendarDays, TrendingUp, CreditCard,
   Users, Download, LineChart, UserCircle, Layers, GraduationCap, Megaphone, ShoppingBag,
+  FileText,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -24,6 +25,7 @@ const AdminRoster = lazy(() => import("./AdminRoster"));
 const AdminConcessions = lazy(() => import("./AdminConcessions"));
 const AdminProgress = lazy(() => import("@/components/admin/console/AdminProgress"));
 const AdminInsights = lazy(() => import("@/components/admin/console/AdminInsights"));
+const AdminInvestorReports = lazy(() => import("./AdminInvestorReports"));
 const AdminProfile = lazy(() => import("@/components/admin/console/AdminProfile"));
 const AdminDownloadsTab = lazy(() => import("@/components/admin/console/AdminDownloadsTab"));
 const FacilitateTab = lazy(() => import("@/components/admin/console/FacilitateTab"));
@@ -35,7 +37,7 @@ const CommerceSection = lazy(() => import("@/components/admin/commerce/CommerceS
 const AdminFoundingBracelets = lazy(() => import("@/components/admin/console/AdminFoundingBracelets"));
 
 type TabId =
-  | "dashboard" | "sessions" | "progress" | "profile" | "insights"
+  | "dashboard" | "sessions" | "progress" | "profile" | "insights" | "investors"
   | "membership" | "downloads" | "groups" | "facilitate" | "training" | "marketing" | "orders" | "commerce";
 
 const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
@@ -45,6 +47,7 @@ const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
   { id: "progress", label: "Progress", icon: TrendingUp },
   { id: "training", label: "Training", icon: GraduationCap },
   { id: "insights", label: "Insights", icon: LineChart },
+  { id: "investors", label: "Investor Updates", icon: FileText },
   { id: "membership", label: "Membership", icon: CreditCard },
   { id: "commerce", label: "Commerce", icon: ShoppingBag },
   { id: "orders", label: "Orders (legacy)", icon: ShoppingBag },
@@ -101,7 +104,7 @@ const AdminConsole = () => {
   const tabParam = search.get("tab") as TabId | null;
   const subParam = search.get("sub");
   const [tab, setTab] = useState<TabId>(
-    tabParam && TABS.some((t) => t.id === tabParam) && (!["membership", "insights"].includes(tabParam) || isAdmin)
+    tabParam && TABS.some((t) => t.id === tabParam) && (!["membership", "insights", "investors"].includes(tabParam) || isAdmin)
       ? tabParam
       : "dashboard",
   );
@@ -114,7 +117,7 @@ const AdminConsole = () => {
 
   useEffect(() => {
     const nextTab = search.get("tab") as TabId | null;
-    if (nextTab && TABS.some((item) => item.id === nextTab) && (!["membership", "insights"].includes(nextTab) || isAdmin)) {
+    if (nextTab && TABS.some((item) => item.id === nextTab) && (!["membership", "insights", "investors"].includes(nextTab) || isAdmin)) {
       setTab(nextTab);
     }
     const nextSub = search.get("sub");
@@ -139,7 +142,7 @@ const AdminConsole = () => {
     setSearch(next);
   };
 
-  const visibleTabs = TABS.filter((t) => !["membership", "insights"].includes(t.id) || isAdmin);
+  const visibleTabs = TABS.filter((t) => !["membership", "insights", "investors"].includes(t.id) || isAdmin);
 
   const renderTab = () => {
     switch (tab) {
@@ -148,6 +151,7 @@ const AdminConsole = () => {
       case "progress": return <AdminProgress />;
       case "training": return <TrainingHome embedded />;
       case "insights": return isAdmin ? <AdminInsights /> : null;
+      case "investors": return isAdmin ? <AdminInvestorReports /> : null;
       case "profile": return <AdminProfile />;
       case "downloads": return <AdminDownloadsTab />;
       case "orders": return <AdminOrdersTab />;

@@ -92,3 +92,8 @@ verify_jwt = true
 # gated by CRON_SECRET / service-role bearer inside the function.
 [functions.roll-absence-sweep]
 verify_jwt = false
+
+# Investor report test delivery. JWT is verified at the gateway and the
+# function separately confirms the caller holds the Admin role.
+[functions.send-investor-report-test]
+verify_jwt = true

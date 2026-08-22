@@ -173,7 +173,7 @@ const HeroSection = () => {
             variants={heroRise}
             className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
-            <CtaButton to="/membership">JOIN THE FOUNDING WAITLIST</CtaButton>
+            <CtaButton to="/waitlist">JOIN THE FOUNDING WAITLIST</CtaButton>
             <CtaButton to="/curriculum" variant="outline">
               SEE THE CURRICULUM
             </CtaButton>
@@ -831,7 +831,7 @@ const FinalCTA = () => (
         </p>
 
         <div className="mt-10 flex justify-center">
-          <CtaButton to="/membership">JOIN THE FOUNDING WAITLIST</CtaButton>
+          <CtaButton to="/waitlist">JOIN THE FOUNDING WAITLIST</CtaButton>
         </div>
       </Reveal>
     </div>

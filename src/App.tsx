@@ -26,6 +26,7 @@ const StaffTrainingTeamMember = lazy(() => import("@/components/staff-training/T
 const WelcomeWall = lazy(() => import("./pages/display/WelcomeWall"));
 const About = lazy(() => import("./pages/About"));
 const Membership = lazy(() => import("./pages/Membership"));
+const Waitlist = lazy(() => import("./pages/Waitlist"));
 const Curriculum = lazy(() => import("./pages/Curriculum"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -154,6 +155,7 @@ const AppRoutes = () => (
       <Route path="/admin/emails" element={<Navigate to="/admin?tab=sessions&sub=emails" replace />} />
       <Route path="/admin/program" element={<AdminOnlyRoute><Navigate to="/admin?tab=sessions&sub=program" replace /></AdminOnlyRoute>} />
       <Route path="/admin/membership" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership" replace /></AdminOnlyRoute>} />
+      <Route path="/admin/investor-reports" element={<AdminOnlyRoute><Navigate to="/admin?tab=investors" replace /></AdminOnlyRoute>} />
       <Route path="/admin/applications" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=applications" replace /></AdminOnlyRoute>} />
       <Route path="/admin/members" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=members" replace /></AdminOnlyRoute>} />
       <Route path="/admin/households" element={<AdminOnlyRoute><Navigate to="/admin?tab=membership&sub=households" replace /></AdminOnlyRoute>} />
@@ -220,6 +222,7 @@ const AppRoutes = () => (
       <Route path="/about" element={<About />} />
       <Route path="/curriculum" element={<Curriculum />} />
       <Route path="/membership" element={<Membership />} />
+      <Route path="/waitlist" element={<Waitlist />} />
       <Route path="/apply" element={<Apply />} />
       <Route path="/pilot" element={<LegacyRedirect to="/membership" />} />
 
@@ -304,6 +307,7 @@ const TITLE_MAP: [string, string][] = [
   ["/join", "Join a Session · Mindcast"],
   ["/live", "Live Session · Mindcast"],
   ["/membership", "Membership · Mindcast"],
+  ["/waitlist", "Join the Waitlist · Mindcast"],
   ["/about", "About · Mindcast"],
   ["/curriculum", "Curriculum · Mindcast"],
   ["/auth", "Member Login · Mindcast"],
