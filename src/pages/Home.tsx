@@ -1,18 +1,18 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import {
-  ArrowRight,
-  Baby,
+  motion,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import {
   BookOpenText,
-  CalendarDays,
-  Check,
-  GraduationCap,
   Home as HomeIcon,
   Info,
   LogIn,
   ShoppingBag,
-  Users,
 } from "lucide-react";
 
 import logoBlue from "@/assets/logo-blue-wordmark.png";
@@ -20,6 +20,8 @@ import Footer from "@/components/Footer";
 import Ripple from "@/components/brand/Ripple";
 import { GlowButton, Reveal } from "@/components/glow";
 
+const HOME_HOW_IT_WORKS =
+  "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/home-howitworks.jpg";
 const GLC_FRONT_ENTRANCE =
   "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/glc-frontentrance.png";
 const GLC_ADULTS_ROOM =
@@ -289,6 +291,107 @@ const HeroSection = () => {
   );
 };
 
+const MANIFESTO_LINES = [
+  "You are unaware, so you don't change.",
+  "You are aware, but you still don't change.",
+  "You are aware, you take action, and you come back next week.",
+];
+
+/** One manifesto line: massive display type, scrubbed from low opacity to
+ *  full as it reaches reading position — the scroll sets the reading pace,
+ *  highlighting one line at a time. */
+const ManifestoLine = ({ children }: { children: string }) => {
+  const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLParagraphElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 85%", "start 45%"],
+  });
+  const opacity = useTransform(scrollYProgress, [0, 1], [0.2, 1]);
+
+  return (
+    <motion.p
+      ref={ref}
+      style={reduceMotion ? undefined : { opacity }}
+      className="mb-10 font-display text-4xl leading-[1.05] tracking-[-0.01em] text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
+    >
+      {children}
+    </motion.p>
+  );
+};
+
+const ManifestoSection = () => (
+  <section className="section-cream border-y border-border py-28 sm:py-36 md:py-44">
+    <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
+      <p className="mb-14 font-body text-[11px] font-bold uppercase tracking-[0.35em] text-primary">
+        THREE KINDS OF PEOPLE
+      </p>
+
+      {MANIFESTO_LINES.map((line) => (
+        <ManifestoLine key={line}>{line}</ManifestoLine>
+      ))}
+
+      <Reveal delay={0.1}>
+        <p className="mt-16 font-serif text-2xl italic leading-snug text-primary md:text-3xl">
+          Mindcast is the room built for the third.
+        </p>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ── How It Works — 50/50 split: image left, vertically centered copy right ── */
+
+const HowItWorksSection = () => (
+  <section className="bg-white">
+    <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-20 sm:px-6 sm:py-24 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-28">
+      <Reveal>
+        <div className="overflow-hidden rounded-2xl border border-border">
+          <img
+            src={HOME_HOW_IT_WORKS}
+            alt="A woman sitting with the open Mindcast binder"
+            className="aspect-[4/3] h-full w-full object-cover object-center"
+            width={1400}
+            height={1050}
+            loading="lazy"
+          />
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.1}>
+        <div className="max-w-xl">
+          <SectionIntro
+            eyebrow="How it works"
+            title={
+              <>
+                WE ALL KNOW WHAT TO DO.
+                <br />
+                WHY AREN&apos;T WE DOING IT?
+              </>
+            }
+          />
+
+          <p className="mt-6 font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+            We&apos;ve listened to the podcast. Read the book. Saved the quote.
+            Then Monday arrives, and nothing actually changes. Mindcast is the
+            missing step. We are a weekly live room designed to bring the
+            unconscious to the conscious, help you set one honest intention, and
+            ensure you come back next week to be held to it.
+          </p>
+
+          <div className="mt-8">
+            <GlowButton to="/about" variant="outline">
+              READ THE STORY
+            </GlowButton>
+          </div>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ── The Practice — methodology cards, directly below How It Works ───────── */
+
 const PRACTICE_STEPS = [
   {
     number: "01",
@@ -308,11 +411,11 @@ const PRACTICE_STEPS = [
 ];
 
 const PracticeSection = () => (
-  <section className="section-cream border-y border-border py-20 sm:py-24 lg:py-32">
+  <section className="bg-white pb-20 pt-8 sm:pb-24 sm:pt-10 lg:pb-32 lg:pt-14">
     <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
       <Reveal>
         <SectionIntro
-          eyebrow="The MINDCAST practice"
+          eyebrow="The Mindcast practice"
           title={
             <>
               THE GAP ISN&apos;T KNOWLEDGE.
@@ -330,7 +433,7 @@ const PracticeSection = () => (
         />
       </Reveal>
 
-      <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-3">
+      <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-3">
         {PRACTICE_STEPS.map((step, index) => (
           <Reveal key={step.number} delay={index * 0.08}>
             <article className="h-full bg-white p-6 sm:p-8 lg:p-9">
@@ -361,304 +464,411 @@ const PracticeSection = () => (
   </section>
 );
 
-const WEEKLY_RHYTHM = [
+const RHYTHM_STEPS = [
   {
-    day: "SUN · TODAY",
+    day: "SUNDAY",
     title: "THE GATHERING",
     body: "Return to last week, explore one new theme, and leave with a small if-then intention that can survive a real week.",
     image: HOME_THE_GATHERING,
-    alt: "MINDCAST members gathering on Sunday",
+    alt: "MINDCAST members gathering in the foyer on Sunday",
   },
   {
     day: "MIDWEEK",
     title: "LIFE GROUPS",
     body: "Pause with other members. Notice what is happening, name it honestly, and decide what your next small action is.",
     image: HOME_IN_THE_ROOMS,
-    alt: "A MINDCAST Life Group reflecting together",
+    alt: "Teens sitting in a circle at a MINDCAST Life Group",
   },
   {
-    day: "FRI",
+    day: "FRIDAY",
     title: "THE CHECK-IN",
-    body: "Capture what happened while it is still fresh. Your reflection is saved, ready to meet you when Sunday comes around again.",
+    body: "Capture what happened while it is still fresh. Your reflection is saved, ready to meet you when Sunday comes around.",
     image: HOME_BEFORE_YOU_LEAVE,
-    alt: "A MINDCAST member writing a weekly reflection",
+    alt: "A woman writing her weekly reflection in the auditorium",
   },
 ];
 
-const RhythmSection = () => (
+/** Circular node on the tracking line — fills as its step scrolls into view. */
+const RhythmNode = () => {
+  const reduceMotion = useReducedMotion();
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute left-4 top-1 z-10 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full border-2 border-primary/30 bg-white md:left-1/2 md:top-1/2 md:-translate-y-1/2"
+    >
+      <motion.span
+        initial={reduceMotion ? { scale: 1 } : { scale: 0 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true, margin: "-15% 0px" }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="h-3.5 w-3.5 rounded-full bg-primary"
+      />
+    </span>
+  );
+};
+
+const RhythmSection = () => {
+  const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // The central line draws itself as the visitor moves through the week.
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 70%", "end 55%"],
+  });
+  const spineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="bg-white py-24 sm:py-28 lg:py-36"
+    >
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-20 max-w-3xl text-center lg:mb-28">
+          <p className="font-body text-[11px] font-bold uppercase tracking-[0.34em] text-primary">
+            NOTICE IT. NAME IT. DO IT.
+          </p>
+
+          <h2 className="mt-4 font-display text-[clamp(3rem,8vw,6rem)] leading-[0.9] tracking-tight text-primary">
+            THE RHYTHM
+          </h2>
+
+          <p className="mx-auto mt-6 max-w-2xl font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+            A structure built around the only thing that actually changes
+            behaviour: coming back next week and being asked if you did it.
+          </p>
+        </div>
+
+        <div className="relative">
+          {/* Central tracking line — left rail on mobile, centred on desktop. */}
+          <motion.div
+            aria-hidden="true"
+            className="absolute bottom-0 left-4 top-0 w-0.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-primary/60 via-primary/35 to-primary/10 md:left-1/2"
+            style={reduceMotion ? undefined : { scaleY: spineScale }}
+          />
+
+          {RHYTHM_STEPS.map((step, index) => {
+            const imageLeft = index % 2 === 0;
+
+            return (
+              <div
+                key={step.title}
+                className="relative pb-20 last:pb-0 lg:pb-28"
+              >
+                <RhythmNode />
+
+                <div className="grid items-center gap-8 pl-12 md:grid-cols-2 md:gap-x-24 md:pl-0">
+                  <Reveal className={imageLeft ? "" : "md:order-2"}>
+                    <div className="overflow-hidden rounded-2xl border border-border shadow-[0_12px_35px_rgba(16,36,56,0.07)]">
+                      <img
+                        src={step.image}
+                        alt={step.alt}
+                        className="aspect-[4/3] w-full object-cover object-center"
+                        width={1200}
+                        height={900}
+                        loading="lazy"
+                      />
+                    </div>
+                  </Reveal>
+
+                  <div className={imageLeft ? "" : "md:order-1"}>
+                    <p className="font-body text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+                      Step 0{index + 1} · {step.day}
+                    </p>
+
+                    <h3 className="mt-3 font-display text-4xl leading-none tracking-wide text-primary sm:text-5xl">
+                      {step.title}
+                    </h3>
+
+                    <p className="mt-5 max-w-md font-body text-base leading-7 text-muted-foreground">
+                      {step.body}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const TRACK_SLIDES = [
+  {
+    title: "ADULTS",
+    body: "A guided digital course book featuring live prompts, Q&A, and dedicated space to unpack what the weekly theme surfaces for you.",
+    image: GLC_ADULTS_ROOM,
+    alt: "Adults in the main MINDCAST room",
+  },
+  {
+    title: "TEENS",
+    body: "Relevant prompts and reflections in a private room. Real language, real questions, and absolutely no talking down. (Phones away).",
+    image: GLC_TEENS_ROOM,
+    alt: "Teenagers in their MINDCAST room",
+  },
+  {
+    title: "CHILDREN",
+    body: "Gentle activities, movement, and guided play built around the weekly theme, allowing younger minds to safely grow into the practice.",
+    image: GLC_KIDS_ROOM,
+    alt: "Children taking part in a MINDCAST activity",
+  },
+];
+
+/** One room: large image left, text box right. */
+const TrackSlide = ({
+  slide,
+  index,
+}: {
+  slide: (typeof TRACK_SLIDES)[number];
+  index: number;
+}) => (
+  <div className="flex w-full shrink-0 items-center px-5 sm:px-8 lg:px-16">
+    <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-2 lg:gap-16">
+      <div className="overflow-hidden rounded-2xl border border-border shadow-[0_18px_55px_rgba(16,36,56,0.12)]">
+        <img
+          src={slide.image}
+          alt={slide.alt}
+          className="aspect-[4/3] h-full w-full object-cover object-center"
+          width={1400}
+          height={1050}
+          loading="lazy"
+        />
+      </div>
+
+      <div className="rounded-2xl border border-border bg-white p-7 sm:p-9">
+        <p className="font-body text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+          Room 0{index + 1} of 03
+        </p>
+
+        <h3 className="mt-3 font-display text-5xl tracking-wide text-primary sm:text-6xl">
+          {slide.title}
+        </h3>
+
+        <p className="mt-5 font-body text-base leading-7 text-muted-foreground">
+          {slide.body}
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
+/** Sticky-scroll slider: the section pins while the rooms slide across. */
+const TracksSection = () => {
+  const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [active, setActive] = useState(0);
+
+  const { scrollYProgress } = useScroll({ target: sectionRef });
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-66.6667%"]);
+
+  // Track which room is in view so the dashes follow the scroll.
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    setActive(Math.min(TRACK_SLIDES.length - 1, Math.floor(value * TRACK_SLIDES.length)));
+  });
+
+  const header = (
+    <div className="mx-auto max-w-3xl text-center">
+      <SectionIntro
+        eyebrow="Every age. The same work."
+        title="ONE THEME. THREE ROOMS."
+        body={
+          <p className="max-w-2xl mx-auto">
+            Real behavioural change starts with a shared language at home.
+            Adults, teens, and children each have their own dedicated space,
+            tailored workbook, and expert facilitation—all exploring the exact
+            same weekly theme.
+          </p>
+        }
+        align="center"
+      />
+
+      <div
+        className="mt-8 flex items-center justify-center gap-3"
+        aria-hidden="true"
+      >
+        {TRACK_SLIDES.map((slide, index) => (
+          <span
+            key={slide.title}
+            className={`h-1 rounded-full transition-all duration-300 ${
+              active === index
+                ? "w-10 bg-primary"
+                : "w-4 bg-primary/20"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
+  // Reduced motion: no pinning or sliding — the rooms simply stack.
+  if (reduceMotion) {
+    return (
+      <section className="section-cream border-y border-border py-20 sm:py-24 lg:py-32">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+          {header}
+
+          <div className="mt-14 space-y-14">
+            {TRACK_SLIDES.map((slide, index) => (
+              <TrackSlide key={slide.title} slide={slide} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      ref={sectionRef}
+      className="section-cream relative h-[300vh] border-y border-border"
+    >
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden py-10">
+        {header}
+
+        <motion.div
+          className="mt-12 flex h-[52vh] w-[300%] min-h-[380px]"
+          style={{ x }}
+        >
+          {TRACK_SLIDES.map((slide, index) => (
+            <TrackSlide key={slide.title} slide={slide} index={index} />
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const VENUE_POINTS = [
+  {
+    label: "ADULTS",
+    desc: "The main hall. An expansive, focused space for the adult community to gather, learn, and do the work.",
+  },
+  {
+    label: "TEENS",
+    desc: "Their own private meeting room. Phones away, real conversations, and no adults wandering through.",
+  },
+  {
+    label: "CHILDREN",
+    desc: "A dedicated, secure space of their own with plenty of room to move, play, and engage.",
+  },
+  {
+    label: "THE CONNECTION",
+    desc: "Steps away from the CBD. Grab a coffee beforehand, or arrange to meet up with other members afterward to keep the conversation going.",
+  },
+];
+
+const VenueSection = () => (
   <section className="bg-white py-20 sm:py-24 lg:py-32">
-    <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-      <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+      {/* Left: intro + the 2x2 room grid. */}
+      <div>
         <Reveal>
           <SectionIntro
-            eyebrow="How it works"
-            title="A RHYTHM BUILT FOR REAL LIFE."
+            eyebrow="Taupō"
+            title="WHERE WE MEET"
             body={
-              <p className="max-w-2xl">
-                The live Sunday session matters—but the practice is designed to
-                travel with you through the rest of the week.
+              <p>
+                We gather at the Great Lake Centre, 5 Story Place—a
+                600-person venue in the heart of town. Three dedicated rooms
+                run simultaneously, allowing your whole household to attend.
+                And because we are right in the CBD, the experience doesn&apos;t
+                have to end when the session does.
               </p>
             }
           />
         </Reveal>
 
-        <Reveal delay={0.1}>
-          <Link
-            to="/curriculum"
-            className="inline-flex min-h-12 items-center gap-2 font-body text-xs font-bold tracking-[0.14em] text-primary underline decoration-primary/25 underline-offset-8 transition-colors hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
-          >
-            EXPLORE HOW IT WORKS
-            <ArrowRight size={17} aria-hidden="true" />
-          </Link>
-        </Reveal>
-      </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          {VENUE_POINTS.map((point, index) => (
+            <Reveal key={point.label} delay={0.05 * index}>
+              <div className="h-full rounded-xl border border-border bg-card p-5 sm:p-6">
+                <p className="font-display text-2xl tracking-wide text-primary">
+                  {point.label}
+                </p>
 
-      <div className="-mx-5 mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
-        {WEEKLY_RHYTHM.map((step, index) => (
-          <Reveal
-            key={step.day}
-            delay={index * 0.08}
-            className="w-[84vw] max-w-sm shrink-0 snap-center sm:w-[58vw] lg:w-auto lg:max-w-none"
-          >
-            <article className="group h-full overflow-hidden rounded-2xl border border-border bg-card shadow-[0_12px_35px_rgba(16,36,56,0.07)]">
-              <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                <img
-                  src={step.image}
-                  alt={step.alt}
-                  className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
-                  width={1200}
-                  height={900}
-                  loading="lazy"
-                />
-
-                <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-2 font-body text-[10px] font-bold tracking-[0.18em] text-primary shadow-sm backdrop-blur">
-                  {step.day}
-                </span>
-              </div>
-
-              <div className="p-6 sm:p-7">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <h3 className="font-display text-3xl tracking-wide text-primary sm:text-4xl">
-                    {step.title}
-                  </h3>
-
-                  <span className="font-display text-3xl text-primary/20">
-                    0{index + 1}
-                  </span>
-                </div>
-
-                <p className="font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                  {step.body}
+                <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">
+                  {point.desc}
                 </p>
               </div>
-            </article>
-          </Reveal>
-        ))}
-      </div>
-    </div>
-  </section>
-);
-
-const TRACKS = [
-  {
-    name: "ADULTS",
-    href: "/curriculum#adult",
-    icon: Users,
-    image: GLC_ADULTS_ROOM,
-    alt: "Adults in the main MINDCAST room",
-    body: "Live facilitation, private reflection, honest conversation, and one practical intention for the week.",
-  },
-  {
-    name: "TEENS",
-    href: "/curriculum#teen",
-    icon: GraduationCap,
-    image: GLC_TEENS_ROOM,
-    alt: "Teenagers in their MINDCAST room",
-    body: "The same weekly theme in relevant language, with their own room, worksheet, and privacy-respecting reflection.",
-  },
-  {
-    name: "CHILDREN",
-    href: "/curriculum#child",
-    icon: Baby,
-    image: GLC_KIDS_ROOM,
-    alt: "Children taking part in a MINDCAST activity",
-    body: "Age-appropriate stories, movement, colouring, and play that help younger minds practise the same shared language.",
-  },
-];
-
-const TracksSection = () => (
-  <section className="section-cream border-y border-border py-20 sm:py-24 lg:py-32">
-    <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-      <Reveal>
-        <SectionIntro
-          eyebrow="Every age. The same work."
-          title="ONE THEME. THREE ROOMS."
-          body={
-            <p className="max-w-2xl">
-              Adults, teens, and children explore the same idea in spaces
-              designed for them—so the conversation can continue naturally at
-              home.
-            </p>
-          }
-          align="center"
-        />
-      </Reveal>
-
-      <div className="mt-12 grid gap-5 lg:grid-cols-3">
-        {TRACKS.map((track, index) => {
-          const Icon = track.icon;
-
-          return (
-            <Reveal key={track.name} delay={index * 0.08}>
-              <Link
-                to={track.href}
-                aria-label={`Explore the ${track.name.toLowerCase()} curriculum`}
-                className="group block h-full overflow-hidden rounded-2xl border border-border bg-white shadow-[0_12px_35px_rgba(16,36,56,0.06)] transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_45px_rgba(16,36,56,0.1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
-              >
-                <div className="aspect-[16/11] overflow-hidden bg-muted">
-                  <img
-                    src={track.image}
-                    alt={track.alt}
-                    className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
-                    width={1400}
-                    height={1050}
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className="p-6 sm:p-7">
-                  <div className="flex items-center justify-between gap-4">
-                    <Icon
-                      className="text-primary"
-                      size={28}
-                      strokeWidth={1.8}
-                      aria-hidden="true"
-                    />
-
-                    <ArrowRight
-                      className="text-primary transition-transform duration-200 group-hover:translate-x-1"
-                      size={20}
-                      aria-hidden="true"
-                    />
-                  </div>
-
-                  <h3 className="mt-8 font-display text-4xl tracking-wide text-primary sm:text-5xl">
-                    {track.name}
-                  </h3>
-
-                  <p className="mt-4 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                    {track.body}
-                  </p>
-                </div>
-              </Link>
             </Reveal>
-          );
-        })}
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
 
-const VenueSection = () => (
-  <section className="bg-white py-20 sm:py-24 lg:py-32">
-    <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8">
-      <Reveal className="relative overflow-hidden rounded-2xl bg-muted shadow-[0_18px_55px_rgba(16,36,56,0.12)]">
-        <img
-          src={GLC_FRONT_ENTRANCE}
-          alt="The entrance to the Great Lake Centre in Taupō"
-          className="aspect-[4/3] h-full w-full object-cover"
-          width={1600}
-          height={1200}
-          loading="lazy"
-        />
-
-        <div className="absolute bottom-4 left-4 rounded-full border border-white/25 bg-[#102438]/80 px-4 py-2 font-body text-[10px] font-bold tracking-[0.18em] text-white backdrop-blur-md sm:bottom-5 sm:left-5">
-          5 STORY PLACE · TAUPŌ
+      {/* Right: the venue. */}
+      <Reveal delay={0.1}>
+        <div className="overflow-hidden rounded-2xl shadow-[0_18px_55px_rgba(16,36,56,0.12)]">
+          <img
+            src={GLC_FRONT_ENTRANCE}
+            alt="The entrance to the Great Lake Centre in Taupō"
+            className="aspect-[4/3] h-full w-full object-cover object-center"
+            width={1600}
+            height={1200}
+            loading="lazy"
+          />
         </div>
       </Reveal>
+    </div>
+  </section>
+);
 
-      <Reveal delay={0.1}>
-        <SectionIntro
-          eyebrow="A real room, not another feed"
-          title="WHERE WE MEET."
-          body={
-            <>
-              <p>
-                MINDCAST gathers at the Great Lake Centre in the heart of Taupō.
-                Three rooms run at the same time, making it possible for a whole
-                household to take part without everyone having the same
-                experience.
-              </p>
+const FOUNDER_PORTRAIT =
+  "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/founder-portrait.jpg";
 
-              <ul
-                className="mt-7 space-y-3"
-                aria-label="Venue benefits"
-              >
-                {[
-                  "Adults, teens, and children meet in dedicated spaces",
-                  "Central Taupō location with nearby parking and amenities",
-                  "A consistent weekly room designed for belonging and follow-through",
-                ].map((item) => (
-                  <li key={item} className="flex gap-3 text-sm sm:text-base">
-                    <Check
-                      className="mt-0.5 shrink-0 text-primary"
-                      size={19}
-                      aria-hidden="true"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          }
-        />
+const FounderQuote = () => (
+  <section className="section-cream border-y border-border py-24 sm:py-28 lg:py-36">
+    <div className="mx-auto max-w-4xl px-5 text-center sm:px-6 lg:px-8">
+      <Reveal>
+        <blockquote className="mx-auto max-w-3xl font-display text-3xl leading-[1.15] tracking-tight text-[hsl(var(--navy))] sm:text-4xl md:text-5xl">
+          &ldquo;We don&apos;t have a knowledge problem. We have a
+          follow-through problem. Mindcast is the room that finally closes
+          that gap — together, every week.&rdquo;
+        </blockquote>
 
-        <Link
-          to="/about#where-we-meet"
-          className="mt-8 inline-flex min-h-12 items-center gap-2 font-body text-xs font-bold tracking-[0.14em] text-primary underline decoration-primary/25 underline-offset-8 transition-colors hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
-        >
-          ABOUT MINDCAST
-          <ArrowRight size={17} aria-hidden="true" />
-        </Link>
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <img
+            src={FOUNDER_PORTRAIT}
+            alt="Ashleigh Carlson, founder of Mindcast"
+            className="h-14 w-14 rounded-full object-cover"
+            width={112}
+            height={112}
+            loading="lazy"
+          />
+
+          <p className="text-left font-body text-sm text-muted-foreground">
+            Ashleigh Carlson
+            <span className="block text-xs text-muted-foreground/60">
+              Founder
+            </span>
+          </p>
+        </div>
       </Reveal>
     </div>
   </section>
 );
 
 const FinalCTA = () => (
-  <section className="section-cream border-t border-border py-20 sm:py-24 lg:py-32">
+  <section className="section-cream py-24 sm:py-32 lg:py-40">
     <div className="mx-auto max-w-4xl px-5 text-center sm:px-6 lg:px-8">
       <Reveal>
-        <CalendarDays
-          className="mx-auto mb-6 text-primary"
-          size={30}
-          strokeWidth={1.7}
-          aria-hidden="true"
-        />
-
         <p className="font-body text-[11px] font-bold uppercase tracking-[0.34em] text-primary">
-          Before you commit to anything
+          Secure your place
         </p>
 
         <h2 className="mt-5 font-display text-[clamp(3.2rem,9vw,7.5rem)] leading-[0.88] tracking-tight text-primary">
-          COME AND SIT IN
-          <br />
-          THE ROOM FIRST.
+          BE THE FIRST IN THE ROOM.
         </h2>
 
         <p className="mx-auto mt-7 max-w-2xl font-body text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-          Try one full Sunday session. No card details, no obligation, and no
-          awkward follow-up if it is not for you.
+          The pilot cohort is forming now. Join the waitlist to secure your
+          spot before the doors open to the public. The first 100 founding
+          members receive a complimentary NFC smart-bracelet—your physical key
+          for instant session access.
         </p>
 
-        <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-          <GlowButton to="/try">
-            GET A FREE SESSION PASS
-          </GlowButton>
-
-          <GlowButton to="/membership" variant="outline">
-            VIEW MEMBERSHIP OPTIONS
-          </GlowButton>
+        <div className="mt-10 flex justify-center">
+          <GlowButton to="/membership">JOIN THE FOUNDING WAITLIST</GlowButton>
         </div>
       </Reveal>
     </div>
@@ -671,10 +881,13 @@ const Home = () => (
 
     <main>
       <HeroSection />
+      <ManifestoSection />
+      <HowItWorksSection />
       <PracticeSection />
       <RhythmSection />
       <TracksSection />
       <VenueSection />
+      <FounderQuote />
       <FinalCTA />
     </main>
 

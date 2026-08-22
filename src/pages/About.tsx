@@ -183,26 +183,38 @@ const AboutHero = () => {
         >
           <div>
             <p className="mb-7 font-body text-[11px] font-bold uppercase tracking-[0.42em] text-primary">
-              About MINDCAST
+              About Mindcast
             </p>
 
-            <h1 className="max-w-5xl font-display text-[clamp(3.3rem,12vw,9rem)] leading-[0.84] tracking-[-0.025em] text-primary">
-              A PLACE TO COME BACK TO YOURSELF.
+            <h1 className="max-w-5xl font-display text-[clamp(3.3rem,10vw,7.5rem)] leading-[0.86] tracking-[-0.02em] text-primary">
+              WE WANT TO RECREATE
+              <br />
+              WHAT CHURCH DID WELL.
+              <br />
+              WITHOUT THE RELIGION.
             </h1>
           </div>
 
           <div className="border-l-2 border-primary/25 pl-6 sm:pl-8">
             <p className="font-body text-lg leading-8 text-foreground/80">
-              MINDCAST is a weekly personal-development and community practice
-              for adults, teens, and children—built around better questions,
-              honest reflection, and one small intention taken into real life.
+              A place to show up every week. A community that holds you
+              accountable. Frameworks for the hard stuff. Tools you carry into
+              real life.
+            </p>
+
+            <p className="mt-6 font-body text-lg leading-8 text-foreground/80">
+              We are often asked why a community like this requires a paid
+              membership. The truth is, no institution is free—churches run on
+              tithes; we run on transparency. Mindcast is a private
+              organisation, funded by its members to ensure the room remains
+              premium, sustainable, and entirely independent.
             </p>
 
             <a
               href="#the-story"
               className="mt-7 inline-flex min-h-12 items-center gap-3 font-body text-xs font-bold tracking-[0.16em] text-primary underline decoration-primary/25 underline-offset-8 transition-colors hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
             >
-              READ HOW IT STARTED
+              READ THE STORY
               <ArrowDown size={17} aria-hidden="true" />
             </a>
           </div>

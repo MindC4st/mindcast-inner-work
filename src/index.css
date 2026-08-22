@@ -127,6 +127,9 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    /* Global heading colour: the brand's lighter blue. Deliberately dark or
+       light surfaces override this with explicit text-* classes. */
+    color: hsl(var(--primary));
   }
 }
 
@@ -436,10 +439,22 @@
   }
 
   .curriculum-gold-emboss {
-    background: linear-gradient(105deg, #8d7144 0%, #d8c092 42%, #a88752 70%, #ead9b7 100%);
+    /* Pale champagne-ivory, like the foil pressed into the physical linen
+       cover. The definition comes from the raised light edge and shallow
+       recessed shadow rather than a saturated gold fill. */
+    background: linear-gradient(
+      108deg,
+      #bfae90 0%,
+      #ded0b7 22%,
+      #fffaf0 43%,
+      #cbb99b 62%,
+      #eee2cf 82%,
+      #b9a684 100%
+    );
     filter:
-      drop-shadow(0 1px 0 rgb(255 255 255 / 0.82))
-      drop-shadow(0 -1px 0 rgb(111 81 41 / 0.34));
+      drop-shadow(0 1px 0 rgb(255 255 255 / 0.98))
+      drop-shadow(0 -1px 0 rgb(111 91 65 / 0.32))
+      drop-shadow(0 2px 2px rgb(93 70 40 / 0.11));
   }
 
   @keyframes glow-pulse {
