@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpen,
   FileText,
@@ -533,6 +534,13 @@ const PhasesPage = ({
 }) => {
   const { weeks, loading } = useCurriculumWeeks(track);
 
+  // Week 1 opens the full lesson preview — it takes over the page rather than
+  // rendering somewhere below the fold of the fixed-height binder sheet. Week 1
+  // is the default selection, so the preview is the landing view for the tab.
+  const [previewOpen, setPreviewOpen] = useState(
+    selectedWeekNumber === 1,
+  );
+
   const phase =
     BLOCKS.find(
       (block) => block.number === activePhase,
@@ -571,6 +579,12 @@ const PhasesPage = ({
   ) => {
     setActivePhase(number);
     setSelectedWeekNumber(firstWeek);
+    setPreviewOpen(false);
+  };
+
+  const chooseWeek = (weekNumber: number) => {
+    setSelectedWeekNumber(weekNumber);
+    setPreviewOpen(weekNumber === 1);
   };
 
   return (
@@ -591,6 +605,30 @@ const PhasesPage = ({
         />
       </div>
 
+      {previewOpen ? (
+        <div className="mt-5">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(false)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-[#4a5a6a] transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <ArrowLeft size={14} /> Back to the year
+            </button>
+            <p className="font-body text-[9px] font-bold uppercase tracking-[0.2em] text-[#8a96a0]">
+              Week 1 ·{" "}
+              {
+                TRACKS.find(
+                  (item) => item.key === track,
+                )?.label
+              }{" "}
+              lens
+            </p>
+          </div>
+          <LessonOnePreview track={track} />
+        </div>
+      ) : (
+        <>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {BLOCKS.map((block) => {
           const active =
@@ -675,12 +713,6 @@ const PhasesPage = ({
                 Shared idea: {selectedWeek.weekly_theme}
               </p>
             ) : null}
-
-            {selectedWeekNumber === 1 ? (
-              <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
-                Lesson preview open below
-              </p>
-            ) : null}
           </div>
         </section>
 
@@ -727,7 +759,7 @@ const PhasesPage = ({
                       key={week.id}
                       type="button"
                       onClick={() =>
-                        setSelectedWeekNumber(
+                        chooseWeek(
                           week.week_number,
                         )
                       }
@@ -784,13 +816,10 @@ const PhasesPage = ({
         </section>
       </div>
 
-      {/* Week 1 opens into the full lesson preview — what the room actually
-          covers, pulled from the current lesson boards. */}
-      {selectedWeekNumber === 1 ? (
-        <div className="mt-6 border-t border-[#e4dccf] pt-8">
-          <LessonOnePreview track={track} />
-        </div>
-      ) : null}
+      {/* Week 1 opens the full lesson preview — handled by previewOpen above;
+          nothing renders below the fold. */}
+        </>
+      )}
     </div>
   );
 };
