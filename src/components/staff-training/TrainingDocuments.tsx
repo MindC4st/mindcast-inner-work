@@ -53,7 +53,7 @@ const TrainingDocuments = () => {
       </Link>
       <h2 className="font-display text-2xl text-primary tracking-wider mb-1">Controlled documents</h2>
       <p className="text-muted-foreground text-sm font-body mb-6">
-        The live controlled documents for your role. Signing records the version and the date â€” it never replaces earlier evidence.
+        The live controlled documents for your role. Signing records the version and the date — it never replaces earlier evidence.
       </p>
 
       <div className="space-y-2">
@@ -81,7 +81,7 @@ const TrainingDocuments = () => {
               </div>
               {!sig && oldSig && (
                 <p className="mt-2 text-[11px] font-body text-muted-foreground">
-                  You signed v{oldSig.document_version} on {new Date(oldSig.signed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })} â€” this version is new and needs a fresh signature.
+                  You signed v{oldSig.document_version} on {new Date(oldSig.signed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })} — this version is new and needs a fresh signature.
                 </p>
               )}
               {signing === d.id && !sig && (
@@ -92,7 +92,7 @@ const TrainingDocuments = () => {
                   </label>
                   <button onClick={() => sign(d)} disabled={!agree || busy}
                     className="mt-3 px-4 py-2 rounded-sm bg-primary text-primary-foreground text-[10px] font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
-                    {busy ? "Recordingâ€¦" : "Record my signature"}
+                    {busy ? "Recording…" : "Record my signature"}
                   </button>
                 </div>
               )}

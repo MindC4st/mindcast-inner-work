@@ -29,7 +29,7 @@ const TrainingPolicies = () => {
       </Link>
       <h2 className="font-display text-2xl text-primary tracking-wider mb-1">Policy acknowledgements</h2>
       <p className="text-muted-foreground text-sm font-body mb-6">
-        An immutable record of which version of each policy you accepted, and when. New versions ask for a fresh acknowledgement â€” history is never overwritten.
+        An immutable record of which version of each policy you accepted, and when. New versions ask for a fresh acknowledgement — history is never overwritten.
       </p>
 
       <div className="space-y-2">
@@ -47,7 +47,7 @@ const TrainingPolicies = () => {
         ))}
         {acks.length === 0 && (
           <p className="text-muted-foreground text-sm font-body py-12 text-center">
-            No acknowledgements yet â€” they are recorded as you complete the modules that carry them.
+            No acknowledgements yet — they are recorded as you complete the modules that carry them.
           </p>
         )}
       </div>

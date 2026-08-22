@@ -1,4 +1,4 @@
-﻿// CommerceDashboard â€” the working screen, not a vanity analytics page.
+﻿// CommerceDashboard — the working screen, not a vanity analytics page.
 // Today's orders, revenue, fulfilment queue, low stock, refunds, recent orders.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { db } from "@/lib/db";
@@ -131,7 +131,7 @@ const CommerceDashboard = () => {
           <div className="space-y-1">
             {lowStock.map((v) => (
               <p key={v.id} className="text-sm text-foreground">
-                {v.product_name}{v.name !== "Default" ? ` â€” ${v.name}` : ""}
+                {v.product_name}{v.name !== "Default" ? ` — ${v.name}` : ""}
                 <span className="text-muted-foreground"> Â· {v.stock_available} remaining (threshold {v.low_stock_threshold})</span>
               </p>
             ))}
@@ -160,8 +160,8 @@ const CommerceDashboard = () => {
               <tbody>
                 {orders.slice(0, 12).map((o) => (
                   <tr key={o.id} className="border-b border-border last:border-0">
-                    <td className="px-4 py-2.5 font-semibold">{o.order_number || "â€”"}</td>
-                    <td className="px-4 py-2.5 max-w-[200px] truncate">{o.ship_name || o.customer_email || "â€”"}</td>
+                    <td className="px-4 py-2.5 font-semibold">{o.order_number || "—"}</td>
+                    <td className="px-4 py-2.5 max-w-[200px] truncate">{o.ship_name || o.customer_email || "—"}</td>
                     <td className="px-4 py-2.5 text-right">{formatMoney(o.amount_total_cents, o.currency)}</td>
                     <td className="px-4 py-2.5 text-muted-foreground">{PAYMENT_STATUS_LABEL[o.payment_status] || o.payment_status}</td>
                     <td className="px-4 py-2.5 text-muted-foreground">{FULFILMENT_STATUS_LABEL[o.fulfilment_status] || o.fulfilment_status}</td>

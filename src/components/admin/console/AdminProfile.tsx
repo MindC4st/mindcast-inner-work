@@ -13,7 +13,7 @@ type Row = {
 const Field = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-lg border border-border bg-card p-4">
     <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-1">{label}</p>
-    <p className="text-sm font-body text-foreground">{value || "â€”"}</p>
+    <p className="text-sm font-body text-foreground">{value || "—"}</p>
   </div>
 );
 

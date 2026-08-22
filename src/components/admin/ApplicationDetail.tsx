@@ -129,7 +129,7 @@ export function ApplicationDetail({
         </div>
         <div className="space-y-1">
           <span className="text-muted-foreground">IP hash</span>
-          <span className="font-mono text-xs text-muted-foreground">{application.ip_hash || "â€”"}</span>
+          <span className="font-mono text-xs text-muted-foreground">{application.ip_hash || "—"}</span>
         </div>
       </div>
 
@@ -162,14 +162,14 @@ export function ApplicationDetail({
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
           className="input-underline w-full font-body resize-y"
-          placeholder="Internal notes â€” not visible to applicant"
+          placeholder="Internal notes — not visible to applicant"
         />
         <button
           onClick={handleSaveNotes}
           disabled={saving}
           className="mt-3 btn-outlined text-sm disabled:opacity-50"
         >
-          {saving ? "Savingâ€¦" : "Save notes"}
+          {saving ? "Saving…" : "Save notes"}
         </button>
       </div>
 
@@ -200,7 +200,7 @@ export function ApplicationDetail({
         <div className="space-y-2">
           <p className="font-serif italic text-lg text-foreground leading-relaxed">
             <span className="font-display font-medium mr-2">3.</span>
-            Tell us about something you once believed you weren't the kind of person who could do â€” until you did it.
+            Tell us about something you once believed you weren't the kind of person who could do — until you did it.
           </p>
           <p className="text-foreground whitespace-pre-wrap text-base leading-relaxed">
             {application.q3_didnt_think_could}

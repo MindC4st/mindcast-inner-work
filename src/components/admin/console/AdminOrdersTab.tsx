@@ -1,4 +1,4 @@
-﻿// AdminOrdersTab â€” the fulfilment side of the shop.
+﻿// AdminOrdersTab — the fulfilment side of the shop.
 //
 // Lists every order (counter and shipped), and drives the staff actions the
 // database guard keeps out of client hands: marking an order shipped (with
@@ -141,7 +141,7 @@ const AdminOrdersTab = () => {
         tracking_url: trackingUrl.trim(),
       });
       toast.success("Order marked shipped", {
-        description: res?.email_sent ? "Shipping email sent to the customer." : "Saved â€” the shipping email could not be sent (resend from here).",
+        description: res?.email_sent ? "Shipping email sent to the customer." : "Saved — the shipping email could not be sent (resend from here).",
       });
       await load();
       const fresh = orders.find((o) => o.id === selected.id);
@@ -193,14 +193,14 @@ const AdminOrdersTab = () => {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search order, email, nameâ€¦"
+            placeholder="Search order, email, name…"
             className="pl-8 pr-3 py-1.5 text-sm bg-card border border-border rounded-sm w-64 focus:outline-none focus:border-primary"
           />
         </div>
       </div>
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : visible.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-12 text-center">
           <p className="font-display text-lg tracking-wider text-foreground mb-1">NO ORDERS</p>
@@ -227,14 +227,14 @@ const AdminOrdersTab = () => {
                   className="border-b border-border last:border-0 hover:bg-foreground/[0.03] cursor-pointer"
                 >
                   <td className="px-4 py-3 font-body">
-                    <span className="font-semibold">{o.order_number || "â€”"}</span>
+                    <span className="font-semibold">{o.order_number || "—"}</span>
                     <span className="ml-2 text-[10px] uppercase tracking-widest text-muted-foreground">
                       {o.fulfilment === "ship" ? "ship" : o.fulfilment}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{fmtDate(o.created_at)}</td>
                   <td className="px-4 py-3">
-                    <div className="max-w-[220px] truncate">{o.ship_name || o.customer_email || "â€”"}</div>
+                    <div className="max-w-[220px] truncate">{o.ship_name || o.customer_email || "—"}</div>
                     {o.ship_name && o.customer_email && (
                       <div className="text-[11px] text-muted-foreground max-w-[220px] truncate">{o.customer_email}</div>
                     )}
@@ -312,7 +312,7 @@ const AdminOrdersTab = () => {
                   )}
                   {selected.ship_country && <p>{selected.ship_country}</p>}
                   {selected.customer_email && <p className="text-muted-foreground">{selected.customer_email}</p>}
-                  {!selected.ship_name && !selected.customer_email && <p className="text-muted-foreground">â€”</p>}
+                  {!selected.ship_name && !selected.customer_email && <p className="text-muted-foreground">—</p>}
                 </div>
               </div>
 

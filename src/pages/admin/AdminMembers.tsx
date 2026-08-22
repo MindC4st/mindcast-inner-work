@@ -8,7 +8,7 @@ import { ArrowLeft, X, Copy, Shuffle, Check, Nfc } from "lucide-react";
 
 /**
  * Generate a URL-safe ~10-char token (base62) for a member's bracelet.
- * Collision space is huge (â‰ˆ8.4e17) â€” plenty for a community of any size,
+ * Collision space is huge (≈8.4e17) — plenty for a community of any size,
  * and short enough that staff can read it on a sticker if needed.
  */
 const newBraceletToken = (): string => {
@@ -117,9 +117,9 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
                   className="border-b border-foreground/[0.04] cursor-pointer hover:bg-foreground/[0.02] transition-colors"
                 >
                   <td className="py-3 pr-4 text-foreground">{m.display_name || m.name}</td>
-                  <td className="py-3 pr-4 text-foreground/40">{m.email || "â€”"}</td>
-                  <td className="py-3 pr-4 text-foreground/40">{m.age_group || "â€”"}</td>
-                  <td className="py-3 pr-4 text-foreground/40 font-mono text-xs">{m.nfc_id || "â€”"}</td>
+                  <td className="py-3 pr-4 text-foreground/40">{m.email || "—"}</td>
+                  <td className="py-3 pr-4 text-foreground/40">{m.age_group || "—"}</td>
+                  <td className="py-3 pr-4 text-foreground/40 font-mono text-xs">{m.nfc_id || "—"}</td>
                   <td className="py-3 pr-4">
                     <button
                       onClick={(e) => { e.stopPropagation(); void rowBracelet(m); }}
@@ -155,7 +155,7 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
                     className={inputClass + " font-mono"}
                     value={nfcId}
                     onChange={(e) => setNfcId(e.target.value.replace(/[^A-Za-z0-9]/g, ""))}
-                    placeholder="Generate or paste a URL-safe tokenâ€¦"
+                    placeholder="Generate or paste a URL-safe token…"
                   />
                   <button
                     onClick={() => setNfcId(newBraceletToken())}
@@ -170,10 +170,10 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
                 </p>
               </div>
 
-              {/* URL preview + copy + QR â€” only when there's a token */}
+              {/* URL preview + copy + QR — only when there's a token */}
               {nfcId && (
                 <div className="border border-foreground/[0.08] rounded-lg p-4 bg-foreground/[0.02]">
-                  <label className="text-[10px] font-body text-foreground/30 uppercase tracking-[0.1em] block mb-2">Bracelet URL â€” write this to the NFC tag</label>
+                  <label className="text-[10px] font-body text-foreground/30 uppercase tracking-[0.1em] block mb-2">Bracelet URL — write this to the NFC tag</label>
                   <div className="flex gap-2 items-stretch">
                     <code className="flex-1 bg-foreground/[0.06] text-foreground/90 px-3 py-2 rounded font-mono text-[11px] break-all flex items-center">
                       {braceletUrlFor(nfcId)}

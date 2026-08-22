@@ -33,21 +33,21 @@ import {
 // Household rules:
 //   * the payer occupies one adult seat (unless the payer is a teen)
 //   * every additional adult and teen needs a first name + their own valid
-//     email â€” they get their own login after checkout
-//   * children need a first name only (no email, no login) â€” the name becomes
+//     email — they get their own login after checkout
+//   * children need a first name only (no email, no login) — the name becomes
 //     their household profile for check-in, room roll and the Welcome Wall
 //
 // Bracelets (Founding 100): the first 100 unique adult/teen member emails get
 // one free NFC bracelet each. Children never count. Display eligibility comes
 // from founding-bracelet-status; the authoritative reservation happens
 // server-side at checkout start. Anyone past the cap can add a bracelet for
-// $15 â€” a one-time charge on the same checkout, never recurring.
+// $15 — a one-time charge on the same checkout, never recurring.
 
 type Plan = "monthly" | "annual";
 
 const PLANS: { id: Plan; name: string; blurb: string; note: string }[] = [
-  { id: "monthly", name: "MONTHLY", blurb: "Rolling monthly membership.", note: "Cancel anytime â€” two clicks." },
-  { id: "annual", name: "ANNUAL", blurb: "Pay for the year â€” best value for regular attendance.", note: "Renews yearly." },
+  { id: "monthly", name: "MONTHLY", blurb: "Rolling monthly membership.", note: "Cancel anytime — two clicks." },
+  { id: "annual", name: "ANNUAL", blurb: "Pay for the year — best value for regular attendance.", note: "Renews yearly." },
 ];
 
 const ACTIVE = new Set(["active", "trialing"]);
@@ -90,7 +90,7 @@ const PortalBilling = () => {
   const familyDiscount = isFamilyDiscountEligible({ adults, teens, children });
 
   // Named members beyond the payer. Every row keeps its tier-specific source
-  // index â€” updates go through sourceIndex, never the combined render index.
+  // index — updates go through sourceIndex, never the combined render index.
   const extraAdultCount = expectedExtraAdults({ adults, teens, children }, isTeen);
   const [extraAdults, setExtraAdults] = useState<MemberDraft[]>([]);
   const [teenDetails, setTeenDetails] = useState<MemberDraft[]>([]);
@@ -104,7 +104,7 @@ const PortalBilling = () => {
     [extraAdults, teenDetails],
   );
 
-  // Founding-100 eligibility per email (display only â€” the server re-checks).
+  // Founding-100 eligibility per email (display only — the server re-checks).
   const payerEmail = normalizeEmail(profile?.email || user?.email || "");
   const [eligibility, setEligibility] = useState<Record<string, { state: EligibilityState; seat_number: number | null }>>({});
   const [remainingSeats, setRemainingSeats] = useState<number | null>(null);
@@ -186,7 +186,7 @@ const PortalBilling = () => {
 
   const startCheckout = async (plan: Plan) => {
     if (!user) { navigate("/auth?redirect=%2Fportal%2Fbilling"); return; }
-    if (busy) return; // one checkout at a time â€” double-tap guard
+    if (busy) return; // one checkout at a time — double-tap guard
     if (totalSeats < 1) { setCheckoutError("Select at least one membership."); return; }
 
     // Field-level validation keeps all entered data intact and points at the
@@ -305,12 +305,12 @@ const PortalBilling = () => {
           <div className="border border-foreground/10 rounded-sm p-5 mb-6 bg-foreground/[0.02]">
             <p className="font-display text-base tracking-wider text-foreground mb-1">YOUR HOUSEHOLD</p>
             <p className="text-xs text-foreground/50 font-body mb-4">
-              Choose how many memberships you need. Children don't get logins â€” a child membership unlocks the kids' lessons and colouring pages for your family.
+              Choose how many memberships you need. Children don't get logins — a child membership unlocks the kids' lessons and colouring pages for your family.
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               {([
                 { label: "ADULTS", value: adults, set: setAdults },
-                { label: "TEENS (13â€“17)", value: teens, set: setTeens },
+                { label: "TEENS (13–17)", value: teens, set: setTeens },
                 { label: "CHILDREN", value: children, set: setChildren },
               ] as const).map((row) => (
                 <div key={row.label} className="border border-foreground/10 rounded-sm p-3 flex items-center justify-between gap-2">
@@ -322,7 +322,7 @@ const PortalBilling = () => {
                       onClick={() => row.set(Math.max(0, row.value - 1))}
                       className="w-7 h-7 border border-foreground/20 rounded-sm text-foreground/70 hover:border-primary/60 hover:text-primary"
                     >
-                      âˆ’
+                      −
                     </button>
                     <span className="font-display text-lg w-6 text-center">{row.value}</span>
                     <button
@@ -401,7 +401,7 @@ const PortalBilling = () => {
                   {childDetails.map((c, i) => (
                     <div key={`child-${i}`}>
                       <p className="text-[10px] font-body font-semibold tracking-widest text-foreground/40 mb-1.5">
-                        CHILD {i + 1} <span className="normal-case tracking-normal font-normal">â€” no login needed</span>
+                        CHILD {i + 1} <span className="normal-case tracking-normal font-normal">— no login needed</span>
                       </p>
                       <div className="sm:w-[42%]">
                         <input
@@ -457,11 +457,11 @@ const PortalBilling = () => {
                         <span className="block text-[10px] font-body font-semibold tracking-widest uppercase text-foreground/40 mt-0.5">Bracelet arranged</span>
                       ) : free ? (
                         <span className="block text-[10px] font-body font-semibold tracking-widest uppercase text-primary mt-0.5">
-                          Free â€” first {FOUNDING_CAP} members
+                          Free — first {FOUNDING_CAP} members
                         </span>
                       ) : (
                         <span className="block text-[10px] font-body font-semibold tracking-widest uppercase text-foreground/50 mt-0.5">
-                          MINDCAST NFC Bracelet â€” {BRACELET_PRICE_LABEL}
+                          MINDCAST NFC Bracelet — {BRACELET_PRICE_LABEL}
                         </span>
                       )}
                     </span>
@@ -477,7 +477,7 @@ const PortalBilling = () => {
                         <span className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${freeSelected ? "bg-primary border-primary" : "border-foreground/25"}`}>
                           {freeSelected && <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />}
                         </span>
-                        {freeSelected ? "Added â€” free" : "Add â€” free"}
+                        {freeSelected ? "Added — free" : "Add — free"}
                       </button>
                     ) : (
                       <button
@@ -489,7 +489,7 @@ const PortalBilling = () => {
                         <span className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center ${paidSelected ? "bg-primary border-primary" : "border-foreground/25"}`}>
                           {paidSelected && <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />}
                         </span>
-                        {paidSelected ? `Added â€” ${BRACELET_PRICE_LABEL}` : `Add bracelet â€” ${BRACELET_PRICE_LABEL}`}
+                        {paidSelected ? `Added — ${BRACELET_PRICE_LABEL}` : `Add bracelet — ${BRACELET_PRICE_LABEL}`}
                       </button>
                     )}
                   </div>
@@ -498,12 +498,12 @@ const PortalBilling = () => {
             </div>
             {peopleForBracelets.some((p) => isFreeState(stateFor(p.email))) && (
               <p className="text-[11px] font-body text-primary mt-3">
-                You're among our first {FOUNDING_CAP} members â€” your bracelet is included.
+                You're among our first {FOUNDING_CAP} members — your bracelet is included.
               </p>
             )}
             {(selectedPaid.size > 0) && (
               <p className="text-[11px] font-body text-foreground/50 mt-3">
-                {selectedPaid.size} bracelet{selectedPaid.size > 1 ? "s" : ""} ({BRACELET_PRICE_LABEL} each) are added to this checkout as a one-time charge â€” they never recur.
+                {selectedPaid.size} bracelet{selectedPaid.size > 1 ? "s" : ""} ({BRACELET_PRICE_LABEL} each) are added to this checkout as a one-time charge — they never recur.
               </p>
             )}
           </div>
@@ -522,7 +522,7 @@ const PortalBilling = () => {
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-[11px] font-body font-semibold tracking-widest uppercase py-3 rounded-sm flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {busy === p.id
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Opening checkoutâ€¦</>
+                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Opening checkout…</>
                     : `Choose ${p.name}`}
                 </button>
               </div>
@@ -545,7 +545,7 @@ const PortalBilling = () => {
           </p>
         )}
 
-        {authLoading && <p className="text-xs font-body uppercase tracking-widest text-foreground/40 mt-6">Loadingâ€¦</p>}
+        {authLoading && <p className="text-xs font-body uppercase tracking-widest text-foreground/40 mt-6">Loading…</p>}
       </div>
     </PortalLayout>
   );

@@ -3,7 +3,7 @@ import { CalendarDays, ShieldAlert, Trash2, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Roster â€” who is staffing which room on a given Sunday, and the staffed
+// Roster — who is staffing which room on a given Sunday, and the staffed
 // capacity the roll call's ratio check measures against. Admin-writable;
 // facilitators can see it (RLS enforces the difference).
 
@@ -120,7 +120,7 @@ const AdminRoster = ({ embedded = false }: { embedded?: boolean }) => {
             <CalendarDays size={20} className="text-primary" /> SUNDAY ROSTER
           </h2>
           <p className="text-xs text-muted-foreground font-body mt-1">
-            Who runs each room â€” and the capacity the roll call checks against.
+            Who runs each room — and the capacity the roll call checks against.
           </p>
         </div>
         <input
@@ -190,7 +190,7 @@ const AdminRoster = ({ embedded = false }: { embedded?: boolean }) => {
                   aria-label={`Add staff to ${room} room`}
                   className="flex-1 min-w-0 bg-transparent border border-border rounded-sm px-2 py-2 text-xs font-body text-foreground focus:outline-none focus:border-primary"
                 >
-                  <option value="">Add staffâ€¦</option>
+                  <option value="">Add staff…</option>
                   {staff
                     .filter((s) => !roomAssigned(room).has(s.profile_id))
                     .map((s) => (

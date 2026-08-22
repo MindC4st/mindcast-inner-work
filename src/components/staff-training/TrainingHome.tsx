@@ -83,13 +83,13 @@ const TrainingHome = ({ embedded = false }: { embedded?: boolean }) => {
         <div>
           <h2 className="font-display text-2xl text-primary tracking-wider">Staff training</h2>
           <p className="text-muted-foreground text-sm font-body mt-1">
-            Your training path for the {role === "admin" ? "admin" : "facilitator"} role â€” the same ten modules for everyone, repeated annually.
+            Your training path for the {role === "admin" ? "admin" : "facilitator"} role — the same ten modules for everyone, repeated annually.
           </p>
         </div>
         <div className={`ml-auto flex items-center gap-2 rounded-md px-4 py-2.5 ${current ? "bg-primary/10 text-primary" : "bg-red-500/10 text-red-300"}`}>
           {current ? <ShieldCheck size={15} /> : <ShieldAlert size={15} />}
           <span className="text-xs font-body tracking-widest uppercase">
-            {current ? "Current for member-facing work" : "Not current â€” member-contact gate open"}
+            {current ? "Current for member-facing work" : "Not current — member-contact gate open"}
           </span>
         </div>
       </div>

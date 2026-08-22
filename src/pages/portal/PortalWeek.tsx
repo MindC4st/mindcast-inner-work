@@ -121,7 +121,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
           <ChevronLeft size={16} /> Back
         </Link>
 
-        {/* Header â€” always visible (title + description are free to browse) */}
+        {/* Header — always visible (title + description are free to browse) */}
         <section className="mb-6">
           <span className="portal-label text-foreground/40 block mb-2">
             WEEK {String(weekNum).padStart(2, "0")}{blockTheme ? ` Â· ${blockTheme}` : ""}
@@ -138,7 +138,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
             title="Members only"
             body={track === "Teen"
               ? "An active teen place unlocks this lesson history and its paper worksheet download. Teen accounts do not include a digital journal."
-              : "Become a Mindcast member to unlock the video, reflections and your private journal for this week."}
+              : "Become a Mindcast member to open the video, reflections and your private journal for this week."}
             cta
           />
         ) : !unlocked ? (
@@ -246,7 +246,7 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
   );
 };
 
-// Session record â€” the approved, on-screen shared reflections from the live
+// Session record — the approved, on-screen shared reflections from the live
 // session, plus the facilitator's saved whiteboard. Read-only for everyone.
 const SessionRecord = ({ weekNum, track }: { weekNum: number; track: string }) => {
   const [responses, setResponses] = useState<{ id: string; display_name: string; response_text: string }[]>([]);
@@ -425,16 +425,16 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
         </div>
       )}
 
-      {/* Journal fields follow the slide order: Video â†’ Reflect & Share â†’
-          Together â†’ notes, then Practice + Affirmation, then the intention
+      {/* Journal fields follow the slide order: Video → Reflect & Share →
+          Together → notes, then Practice + Affirmation, then the intention
           they carry into the week (the closing commitment slide). */}
       <div className="space-y-6">
-        {videoQs.q1 && field("video_question_1_response", `WHILE YOU WATCH Â· ${videoQs.q1}`, "Your answer while watching the videoâ€¦", 3)}
-        {videoQs.q2 && field("video_question_2_response", `WHILE YOU WATCH Â· ${videoQs.q2}`, "Your answer while watching the videoâ€¦", 3)}
-        {field("reflection_answer", reflectionLabel, "Your answer to this week's questionâ€¦", 4)}
-        {field("activity_response", activityLabel, "What you took from the interactive activityâ€¦")}
-        {field("personal_notes", "SUNDAY NOTES", "Anything else from the sessionâ€¦")}
-        {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Groupâ€¦")}
+        {videoQs.q1 && field("video_question_1_response", `WHILE YOU WATCH Â· ${videoQs.q1}`, "Your answer while watching the video…", 3)}
+        {videoQs.q2 && field("video_question_2_response", `WHILE YOU WATCH Â· ${videoQs.q2}`, "Your answer while watching the video…", 3)}
+        {field("reflection_answer", reflectionLabel, "Your answer to this week's question…", 4)}
+        {field("activity_response", activityLabel, "What you took from the interactive activity…")}
+        {field("personal_notes", "SUNDAY NOTES", "Anything else from the session…")}
+        {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Group…")}
       </div>
 
       {/* Weekly practice prompts (from worksheet) */}
@@ -472,11 +472,11 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       )}
 
       <div className="space-y-6 mt-6">
-        {field("weekly_intention", "MY INTENTION THIS WEEK Â· one specific thing I will do", "e.g. I'll put my phone in another room after 9pmâ€¦", 3)}
+        {field("weekly_intention", "MY INTENTION THIS WEEK Â· one specific thing I will do", "e.g. I'll put my phone in another room after 9pm…", 3)}
       </div>
       <button onClick={save} disabled={saving}
         className="mt-6 flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-60">
-        {saving ? <><Loader2 size={14} className="animate-spin" /> SAVINGâ€¦</> : saved ? <><Check size={14} /> SAVED</> : <><Save size={14} /> SAVE JOURNAL</>}
+        {saving ? <><Loader2 size={14} className="animate-spin" /> SAVING…</> : saved ? <><Check size={14} /> SAVED</> : <><Save size={14} /> SAVE JOURNAL</>}
       </button>
     </section>
   );

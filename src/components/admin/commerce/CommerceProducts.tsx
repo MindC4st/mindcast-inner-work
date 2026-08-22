@@ -1,6 +1,6 @@
-﻿// CommerceProducts â€” catalogue management for commerce admins.
+﻿// CommerceProducts — catalogue management for commerce admins.
 // Create / edit / archive products and their variants; images are URLs in the
-// assets bucket (upload via any storage tool â€” the field takes the public URL).
+// assets bucket (upload via any storage tool — the field takes the public URL).
 // Every change is audited by the shop-products-admin function.
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -138,7 +138,7 @@ const CommerceProducts = () => {
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : (
         <div className="border border-border rounded-xl overflow-x-auto bg-card">
           <table className="w-full min-w-[820px] text-sm">
@@ -159,12 +159,12 @@ const CommerceProducts = () => {
                     <div className="flex items-center gap-3">
                       {p.image_url && <img src={p.image_url} alt="" className="w-10 h-10 object-cover rounded-sm" />}
                       <div>
-                        <p className="font-semibold">{p.name}{p.featured ? " â˜…" : ""}</p>
+                        <p className="font-semibold">{p.name}{p.featured ? " ★" : ""}</p>
                         <p className="text-[11px] text-muted-foreground">/{p.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.sku || "â€”"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.sku || "—"}</td>
                   <td className="px-4 py-3 text-right">{formatMoney(p.price_cents)}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 text-[10px] tracking-widest uppercase rounded-sm border ${

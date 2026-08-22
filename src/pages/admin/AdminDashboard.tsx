@@ -260,7 +260,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                         </td>
                         <td className="py-3 px-2 text-foreground">
                           <div className="font-medium">{m.display_name || m.name}</div>
-                          <div className="text-[10px] text-foreground/40">{m.email || "â€”"}</div>
+                          <div className="text-[10px] text-foreground/40">{m.email || "—"}</div>
                         </td>
                         <td className="py-3 px-2 hidden md:table-cell"><TierLabel tier={m.membership_tier} /></td>
                         <td className="py-3 px-2"><StatusPill status={m.membership_status || "none"} /></td>
@@ -270,8 +270,8 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                             {memberCIs.length}
                           </span>
                         </td>
-                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.age_group || "â€”"}</td>
-                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.gender || "â€”"}</td>
+                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.age_group || "—"}</td>
+                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.gender || "—"}</td>
                       </tr>
                       {/* Expanded check-in log */}
                       <AnimatePresence>
@@ -290,7 +290,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                                     CHECK-IN HISTORY ({memberCIs.length} total)
                                   </h4>
                                   <span className="text-[9px] text-foreground/30 font-body">
-                                    ID: {m.id.slice(0, 8)}â€¦
+                                    ID: {m.id.slice(0, 8)}…
                                   </span>
                                   {m.date_of_birth && (
                                     <span className="text-[9px] text-foreground/30 font-body">
@@ -319,7 +319,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                                           </span>
                                         )}
                                         <span className="text-foreground/30 text-[10px] capitalize ml-auto shrink-0">
-                                          {ci.source?.replace("_", " ") || "â€”"}
+                                          {ci.source?.replace("_", " ") || "—"}
                                         </span>
                                       </div>
                                     ))}

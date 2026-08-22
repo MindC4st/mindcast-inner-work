@@ -11,7 +11,7 @@ import { resolveColouringUrl } from "@/lib/colouringUrl";
 import { toast } from "@/hooks/use-toast";
 import { db } from "@/lib/db";
 
-// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Types ──────────────────────────────────────────────────────────────────
 
 type DownloadItem = {
   week_number: number;
@@ -61,7 +61,7 @@ type DownloadItem = {
 
 const AUDIENCES = ["Adult", "Teen", "Child"] as const;
 
-// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Component ──────────────────────────────────────────────────────────────
 
 const PortalDownloads = () => {
   const { user, role, profile } = useAuth();
@@ -83,7 +83,7 @@ const PortalDownloads = () => {
     if (!isAdmin) setAudience(track);
   }, [isAdmin, track]);
 
-  // Direct DB fallback â€” catches cases where AuthContext isn't ready or lacks the flag
+  // Direct DB fallback — catches cases where AuthContext isn't ready or lacks the flag
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -164,7 +164,7 @@ const PortalDownloads = () => {
   // footer) is generated server-side by the generate-coloring-page edge
   // function and stored as `coloring_pdf_url` in the private `colouring`
   // bucket. We resolve the stored path to a short-lived signed URL and open
-  // it â€” never build a bare client-side PDF from the PNG.
+  // it — never build a bare client-side PDF from the PNG.
   const handleDownloadColoringPdf = async (pdfPath: string) => {
     try {
       const url = await resolveColouringUrl(pdfPath);
@@ -244,11 +244,11 @@ const PortalDownloads = () => {
         </h1>
         <p className="text-sm text-muted-foreground font-body">
           {isAdmin
-            ? "Admin view â€” all content is unlocked. Worksheets and colouring pages are available for every week."
+            ? "Admin view — all content is unlocked. Worksheets and colouring pages are available for every week."
             : canDownload
               ? track === "Teen"
-                ? "One-page teen worksheets unlock at 9:30am on each session day. Download them to print and complete on paper."
-                : "One-page worksheets unlock at 9:30am on each session day. Print at home or keep using your digital journal."
+                ? "One-page teen worksheets become available at 9:30am on each session day. Download them to print and complete on paper."
+                : "One-page worksheets become available at 9:30am on each session day. Print at home or keep using your digital journal."
               : "Weekly worksheet downloads are included with an active membership."}
         </p>
       </div>
@@ -274,7 +274,7 @@ const PortalDownloads = () => {
       {loading && (
         <div className="text-center py-20">
           <p className="text-xs font-body uppercase tracking-widest text-muted-foreground/40 animate-pulse">
-            Loading downloadsâ€¦
+            Loading downloads…
           </p>
         </div>
       )}
@@ -344,7 +344,7 @@ const PortalDownloads = () => {
                               )}
                             </div>
 
-                            {/* Lock / unlock indicator â€” hidden for admins */}
+                            {/* Lock / unlock indicator — hidden for admins */}
                             {!isAdmin && (
                               <div className="shrink-0">
                                 {unlocked ? (

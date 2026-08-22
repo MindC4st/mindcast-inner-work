@@ -131,7 +131,7 @@ const ExportReports = () => {
             <p className="text-[11px] font-body text-muted-foreground mb-4">{ex.desc}</p>
             <Button variant="outline" size="sm" onClick={ex.fn} disabled={loading !== null}
               className="gap-2">
-              <Download size={13} /> {loading === ex.key ? "Exportingâ€¦" : "Export CSV"}
+              <Download size={13} /> {loading === ex.key ? "Exporting…" : "Export CSV"}
             </Button>
           </div>
         ))}

@@ -9,12 +9,12 @@ import { Loader2, Ticket } from "lucide-react";
 // The member's door pass.
 //
 // The QR encodes the same /b/<token> URL as their NFC bracelet, so a member is
-// one identity readable two ways â€” tap it or show it. Nothing here is a
+// one identity readable two ways — tap it or show it. Nothing here is a
 // credential: the token identifies, the server decides entitlement, so a
 // screenshotted pass belonging to a lapsed member is refused at the door.
 //
 // One pass covers the household. A guardian's scan brings up everyone on the
-// family membership, so children and teens don't need their own phones â€” the
+// family membership, so children and teens don't need their own phones — the
 // door staff tick who came. A teen who gets dropped off can open this page on
 // their own phone and be scanned independently.
 
@@ -48,7 +48,7 @@ const PortalPass = () => {
         <span className="portal-label text-foreground/40 block mb-2">DOOR PASS</span>
         <h1 className="heading-display text-2xl text-primary mb-2">Show this at the door</h1>
         <p className="text-sm text-muted-foreground font-body font-light mb-8">
-          One pass for your whole household â€” the team will tick off who came.
+          One pass for your whole household — the team will tick off who came.
         </p>
 
         {loading ? (
@@ -78,7 +78,7 @@ const PortalPass = () => {
             )}
 
             <p className="mt-8 text-xs font-body text-muted-foreground/70 leading-relaxed">
-              Works offline once the page has loaded â€” the code is the same one on your bracelet.
+              Works offline once the page has loaded — the code is the same one on your bracelet.
             </p>
           </>
         )}

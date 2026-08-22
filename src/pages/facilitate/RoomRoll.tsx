@@ -9,7 +9,7 @@ import DepartureSheet, {
   type DepartureExtra,
 } from "@/components/roll/DepartureSheet";
 
-// The room roll â€” a child safety system operated with one hand, on a phone,
+// The room roll — a child safety system operated with one hand, on a phone,
 // in a room with children in it.
 //
 // Design intent, in order:
@@ -18,7 +18,7 @@ import DepartureSheet, {
 //   2. The common path (mark present) is one large tap. The uncommon path
 //      (unaccompanied departure) is deliberately harder and confirms.
 //   3. Everything works offline and syncs later; the queue badge says so.
-//   4. The room cannot close until every child is accounted for â€” the server
+//   4. The room cannot close until every child is accounted for — the server
 //      enforces it; this screen just makes the remaining names visible.
 
 type RollRow = {
@@ -74,7 +74,7 @@ const RoomRoll = () => {
   const [, forceTick] = useState(0);
   const alertedOverdue = useRef<Set<string>>(new Set());
 
-  /* â”€â”€ data â”€â”€ */
+  /* ── data ── */
 
   const loadRoll = useCallback(async () => {
     try {
@@ -91,7 +91,7 @@ const RoomRoll = () => {
         setAccessDenied(false);
       }
     } catch {
-      // Offline â€” run from the cached roll.
+      // Offline — run from the cached roll.
       const cached = localStorage.getItem(cacheKey(sessionDate, room));
       if (cached) setRows(JSON.parse(cached) as RollRow[]);
     }
@@ -154,7 +154,7 @@ const RoomRoll = () => {
     };
   }, [loadRoll, loadAlerts, sessionDate, room]);
 
-  /* â”€â”€ actions (offline-first: queue, then flush) â”€â”€ */
+  /* ── actions (offline-first: queue, then flush) ── */
 
   const act = useCallback(
     (mutate: (rows: RollRow[]) => RollRow[]) => {
@@ -260,7 +260,7 @@ const RoomRoll = () => {
     setClosed(true);
   };
 
-  /* â”€â”€ derived â”€â”€ */
+  /* ── derived ── */
 
   const flagged = rows.filter((r) => r.state === "expected");
   const present = rows.filter((r) => r.state === "present");
@@ -290,7 +290,7 @@ const RoomRoll = () => {
     }
   });
 
-  /* â”€â”€ render â”€â”€ */
+  /* ── render ── */
 
   if (closed) {
     return (
@@ -298,7 +298,7 @@ const RoomRoll = () => {
         <div className="text-center">
           <h1 className="font-display text-5xl text-primary mb-3">{room.toUpperCase()} ROOM CLOSED</h1>
           <p className="font-body text-sm text-muted-foreground mb-8">
-            Every child is accounted for. Thank you â€” this is the part that matters.
+            Every child is accounted for. Thank you — this is the part that matters.
           </p>
           <Link to="/admin" className="font-body text-sm text-primary underline underline-offset-4">
             Back to the console
@@ -321,7 +321,7 @@ const RoomRoll = () => {
         </div>
         {!online && (
           <span className="flex items-center gap-1.5 bg-cream/10 px-2.5 py-1.5 rounded-sm font-body text-[11px]">
-            <WifiOff size={13} /> OFFLINE â€” RECORDING LOCALLY
+            <WifiOff size={13} /> OFFLINE — RECORDING LOCALLY
           </span>
         )}
         {pending > 0 && (
@@ -343,16 +343,16 @@ const RoomRoll = () => {
         </div>
       )}
 
-      {/* In-room alerts â€” the loudest surface on the screen */}
+      {/* In-room alerts — the loudest surface on the screen */}
       {alerts.map((a) => (
         <div key={a.id} role="alert" className="m-4 border-2 border-destructive bg-destructive text-destructive-foreground p-4 print:hidden">
-          <p className="font-display text-xl tracking-wide mb-1">âš  {a.subject_name}</p>
+          <p className="font-display text-xl tracking-wide mb-1">⚠ {a.subject_name}</p>
           <p className="font-body text-sm mb-3">{a.body}</p>
           <button
             onClick={() => void ackAlert(a.id)}
             className="bg-white text-destructive font-display tracking-widest text-sm px-5 py-3"
           >
-            I'VE GOT IT â€” ACKNOWLEDGE
+            I'VE GOT IT — ACKNOWLEDGE
           </button>
         </div>
       ))}
@@ -370,15 +370,15 @@ const RoomRoll = () => {
             before the session starts, then acknowledge.
           </p>
           <button onClick={ackRatio} className="bg-primary text-primary-foreground font-display tracking-widest text-sm px-5 py-3">
-            ACKNOWLEDGED â€” IT'S BEING SORTED
+            ACKNOWLEDGED — IT'S BEING SORTED
           </button>
         </div>
       )}
 
-      {/* âš  Signed in, not in the room â€” the whole reason the roll exists */}
+      {/* ⚠ Signed in, not in the room — the whole reason the roll exists */}
       <section className="px-4 mt-5">
         <h2 className="font-display text-lg tracking-wider text-destructive mb-2">
-          âš  SIGNED IN AT THE DOOR â€” NOT IN THE ROOM ({flagged.length})
+          ⚠ SIGNED IN AT THE DOOR — NOT IN THE ROOM ({flagged.length})
         </h2>
         {flagged.length === 0 ? (
           <p className="font-body text-sm text-muted-foreground border border-border bg-card px-4 py-3">
@@ -429,7 +429,7 @@ const RoomRoll = () => {
                   <div className="flex-1 min-w-0">
                     <p className="font-body font-bold text-xl text-foreground truncate">{r.display_name}</p>
                     <p className={`font-body text-xs ${overdue ? "text-destructive font-bold" : "text-muted-foreground"}`}>
-                      Out {mins} min{overdue ? " â€” OVERDUE, adult room alerted" : ""}
+                      Out {mins} min{overdue ? " — OVERDUE, adult room alerted" : ""}
                     </p>
                   </div>
                   <button
@@ -492,7 +492,7 @@ const RoomRoll = () => {
       {/* Printable roll (paper fallback) */}
       <div className="hidden print:block px-4 mt-6">
         <h2 className="font-display text-2xl mb-2">
-          {room.toUpperCase()} ROOM ROLL â€” {sessionDate}
+          {room.toUpperCase()} ROOM ROLL — {sessionDate}
         </h2>
         <table className="w-full text-sm font-body border-collapse">
           <thead>
@@ -523,18 +523,18 @@ const RoomRoll = () => {
         </table>
       </div>
 
-      {/* Close room â€” the hard block */}
+      {/* Close room — the hard block */}
       <footer className="fixed bottom-0 inset-x-0 bg-card border-t border-border p-4 print:hidden safe-area-bottom">
         {closeError && (
           <div role="alert" className="mb-3 border-2 border-destructive bg-destructive/5 p-3">
             <p className="font-body text-sm text-destructive font-semibold mb-2">
-              The room can't close yet â€” {unresolved} child{unresolved === 1 ? " is" : "ren are"} not signed out:
+              The room can't close yet — {unresolved} child{unresolved === 1 ? " is" : "ren are"} not signed out:
             </p>
             <ul className="font-body text-sm text-foreground space-y-1">
               {[...flagged, ...present, ...away].map((r) => (
                 <li key={r.profile_id}>
                   <strong>{r.display_name}</strong>
-                  {r.guardian_name ? ` â€” ${r.guardian_name}${r.guardian_phone ? `, ${r.guardian_phone}` : ""}` : ""}
+                  {r.guardian_name ? ` — ${r.guardian_name}${r.guardian_phone ? `, ${r.guardian_phone}` : ""}` : ""}
                 </li>
               ))}
             </ul>
@@ -548,7 +548,7 @@ const RoomRoll = () => {
           {online
             ? unresolved > 0
               ? `CLOSE ROOM (${unresolved} STILL TO SIGN OUT)`
-              : "CLOSE ROOM â€” EVERYONE ACCOUNTED FOR"
+              : "CLOSE ROOM — EVERYONE ACCOUNTED FOR"
             : "RECONNECT TO CLOSE THE ROOM"}
         </button>
       </footer>

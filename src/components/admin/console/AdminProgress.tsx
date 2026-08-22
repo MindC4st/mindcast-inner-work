@@ -59,7 +59,7 @@ const AdminProgress = () => {
     return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load progress: {error}</p>;
   }
   if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading progressâ€¦</span></div>;
+    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading progress…</span></div>;
   }
 
   return (

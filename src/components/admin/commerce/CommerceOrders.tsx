@@ -1,8 +1,8 @@
-﻿// CommerceOrders â€” order list + full order detail.
+﻿// CommerceOrders — order list + full order detail.
 //
 // The detail drawer is the Shopify-style working screen: statuses, customer,
 // address, items, payment summary, immutable timeline, fulfilment actions
-// (pick â†’ pack â†’ ship with tracking), refunds (full/partial with optional
+// (pick → pack → ship with tracking), refunds (full/partial with optional
 // restock), email resends and a printable packing slip. All actions run
 // through the shop-admin edge function, which enforces roles and writes the
 // audit log + timeline.
@@ -216,14 +216,14 @@ const CommerceOrders = () => {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Order #, name, email, SKUâ€¦"
+            placeholder="Order #, name, email, SKU…"
             className="pl-8 pr-3 py-1.5 text-sm bg-card border border-border rounded-sm w-64 focus:outline-none focus:border-primary"
           />
         </div>
       </div>
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : visible.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-12 text-center text-sm text-muted-foreground">
           No orders match.
@@ -246,7 +246,7 @@ const CommerceOrders = () => {
               {visible.map((o) => (
                 <tr key={o.id} onClick={() => setSelected(o)} className="border-b border-border last:border-0 hover:bg-foreground/[0.03] cursor-pointer">
                   <td className="px-4 py-3 font-semibold">
-                    {o.order_number || "â€”"}
+                    {o.order_number || "—"}
                     <span className="ml-2 text-[10px] uppercase tracking-widest text-muted-foreground">{o.fulfilment === "ship" ? "ship" : o.fulfilment}</span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{fmtDate(o.created_at)}</td>
@@ -272,7 +272,7 @@ const CommerceOrders = () => {
         </div>
       )}
 
-      {/* â”€â”€ Order detail drawer â”€â”€ */}
+      {/* ── Order detail drawer ── */}
       {selected && (
         <OrderDetail
           order={selected}
@@ -309,7 +309,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
   const fulfillments = order.shop_fulfillments ?? [];
   const fulfilledQty = new Map<string, number>();
   for (const f of fulfillments.filter((f) => f.status !== "cancelled")) {
-    // quantities live on fulfillment_items; not joined here â€” approximate via
+    // quantities live on fulfillment_items; not joined here — approximate via
     // the fulfilment status display below when partial.
     void f;
   }
@@ -377,7 +377,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
           {/* Customer */}
           <section>
             <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mb-1.5">Customer</p>
-            <p className="text-sm">{[order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || order.ship_name || "â€”"}</p>
+            <p className="text-sm">{[order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || order.ship_name || "—"}</p>
             {order.customer_email && <p className="text-sm text-muted-foreground">{order.customer_email}</p>}
             {order.customer_phone && <p className="text-sm text-muted-foreground">{order.customer_phone}</p>}
           </section>
@@ -387,7 +387,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
             <section>
               <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mb-1.5">Shipping address</p>
               <div className="text-sm leading-relaxed">
-                <p>{order.ship_name || "â€”"}</p>
+                <p>{order.ship_name || "—"}</p>
                 {order.ship_line1 && <p>{order.ship_line1}</p>}
                 {order.ship_line2 && <p>{order.ship_line2}</p>}
                 {(order.ship_city || order.ship_postcode) && <p>{[order.ship_city, order.ship_postcode].filter(Boolean).join(" ")}</p>}
@@ -421,7 +421,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
             <div className="text-sm space-y-1">
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatMoney(order.amount_total_cents - order.shipping_cents + order.discount_cents, order.currency)}</span></div>
               {order.discount_cents > 0 && (
-                <div className="flex justify-between"><span className="text-muted-foreground">Discount{order.discount_code ? ` (${order.discount_code})` : ""}</span><span>âˆ’{formatMoney(order.discount_cents, order.currency)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Discount{order.discount_code ? ` (${order.discount_code})` : ""}</span><span>−{formatMoney(order.discount_cents, order.currency)}</span></div>
               )}
               {order.fulfilment === "ship" && (
                 <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{order.shipping_cents > 0 ? formatMoney(order.shipping_cents, order.currency) : "Free"}</span></div>
@@ -429,7 +429,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
               <div className="flex justify-between"><span className="text-muted-foreground">GST included</span><span>{formatMoney(order.gst_cents, order.currency)}</span></div>
               <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1"><span>Total</span><span>{formatMoney(order.amount_total_cents, order.currency)}</span></div>
               {order.refunded_cents > 0 && (
-                <div className="flex justify-between text-destructive"><span>Refunded</span><span>âˆ’{formatMoney(order.refunded_cents, order.currency)}</span></div>
+                <div className="flex justify-between text-destructive"><span>Refunded</span><span>−{formatMoney(order.refunded_cents, order.currency)}</span></div>
               )}
             </div>
           </section>
@@ -469,7 +469,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
                   <input value={trackingUrl} onChange={(e) => setTrackingUrl(e.target.value)} placeholder="Tracking URL (optional)"
                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-sm focus:outline-none focus:border-primary" />
                   <button
-                    onClick={() => run("create_fulfilment", { carrier, tracking_number: trackingNumber, tracking_url: trackingUrl }, "Fulfilment created â€” customer notified")}
+                    onClick={() => run("create_fulfilment", { carrier, tracking_number: trackingNumber, tracking_url: trackingUrl }, "Fulfilment created — customer notified")}
                     disabled={busy !== null}
                     className="w-full px-3 py-2.5 text-[11px] font-body font-semibold tracking-widest uppercase bg-foreground text-background rounded-sm disabled:opacity-50"
                   >
@@ -495,7 +495,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
               <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">Refunds & cancellation</p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => setRefundOpen(true)} className="px-3 py-2 text-[11px] font-body tracking-widest uppercase border border-border rounded-sm text-foreground">
-                  Refundâ€¦
+                  Refund…
                 </button>
                 {!["shipped", "delivered"].includes(order.fulfilment_status) && (
                   <button

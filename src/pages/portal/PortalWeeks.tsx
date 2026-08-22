@@ -70,12 +70,12 @@ const PortalWeeks = () => {
       </h1>
       <p className="text-sm text-muted-foreground mb-8 font-body">
         {isAdmin
-          ? `Admin view â€” all 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track are unlocked.`
+          ? `Admin view — all 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track are unlocked.`
           : `All 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track.`}
       </p>
 
       {loading && (
-        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
       )}
 
       {!loading && weeks.length === 0 && (

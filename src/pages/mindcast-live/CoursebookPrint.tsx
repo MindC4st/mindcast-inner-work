@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Printer, ArrowLeft, Loader2 } from "lucide-react";
 import { db } from "@/lib/db";
@@ -109,7 +109,7 @@ const CoursebookPrint = () => {
             {/* Cover */}
             <div className="cb-page" style={{ textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "60vh" }}>
               <p className="cb-eyebrow">Mindcast</p>
-              <h1 style={{ fontSize: 44, fontWeight: 800, letterSpacing: ".06em", margin: "12px 0" }}>THE 52-WEEK JOURNEY</h1>
+              <h1 style={{ fontSize: 44, fontWeight: 800, letterSpacing: ".06em", margin: "12px 0" }}>THE 52-WEEK CURRICULUM</h1>
               <p className="cb-body" style={{ color: "#5b7288" }}>{track} Coursebook{phase ? ` · Phase ${PHASES[phase]}` : ""}</p>
               <p className="cb-body" style={{ marginTop: 24, color: "#8a97a5" }}>Notice It · Name It · Do It</p>
             </div>

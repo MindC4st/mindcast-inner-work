@@ -9,10 +9,10 @@ import {
   type LessonSlide, type TrackName,
 } from "@/lib/lessonSlides";
 
-// Session Framework â€” the live deck structure, read dynamically from
+// Session Framework — the live deck structure, read dynamically from
 // lesson_slides (the same table Facilitate Live renders from). Titles, order,
 // beats, durations and track applicability all come from the database: change
-// a slide title there and this page updates on next load â€” no code change.
+// a slide title there and this page updates on next load — no code change.
 //
 // The old six-step framework_steps editor is retired: Facilitate Live ignores
 // it, so editing it here would be false configuration. Structure edits belong
@@ -54,7 +54,7 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
         setSlides(((data ?? []) as unknown as LessonSlide[]));
       });
 
-    // Today's session â†’ its week in the curriculum.
+    // Today's session → its week in the curriculum.
     (async () => {
       const { data: sched } = await supabase
         .from("scheduled_sessions")
@@ -95,12 +95,12 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
 
   return (
     <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
-      {/* Print-only run sheet â€” the CURRENT deck for the selected track */}
+      {/* Print-only run sheet — the CURRENT deck for the selected track */}
       <div className="hidden print:block print:bg-white print:text-black p-8">
-        <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET â€” {track.toUpperCase()}</h1>
+        <h1 className="text-2xl font-bold mb-1">MINDCAST SESSION RUN SHEET — {track.toUpperCase()}</h1>
         {week ? (
           <p className="text-sm text-gray-600 mb-6">
-            Week {week.week_number} Â· {sessionDate} Â· {week.block_theme} â€” {week.weekly_theme}
+            Week {week.week_number} Â· {sessionDate} Â· {week.block_theme} — {week.weekly_theme}
           </p>
         ) : (
           <p className="text-sm text-gray-600 mb-6">No session scheduled for today yet.</p>
@@ -148,7 +148,7 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
         <div className="max-w-2xl mx-auto px-6 pt-8 pb-20">
           <h1 className="font-display text-2xl font-bold text-primary mb-1">Session Framework</h1>
           <p className="text-xs text-muted-foreground font-body mb-6">
-            The live deck structure, read from lesson_slides â€” the same source Facilitate Live uses.
+            The live deck structure, read from lesson_slides — the same source Facilitate Live uses.
             Titles, order and durations update automatically when the database changes.
           </p>
 
@@ -196,7 +196,7 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
                   <div className="flex-1 min-w-0">
                     <p className="font-display text-base tracking-wide text-foreground break-words">{s.title.toUpperCase()}</p>
                     <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mt-0.5">
-                      {beatLabel(s.beat) || "â€”"} Â· {s.slide_key}
+                      {beatLabel(s.beat) || "—"} Â· {s.slide_key}
                     </p>
                   </div>
                   <span className="text-muted-foreground text-xs font-body shrink-0">{formatSlideDuration(s.default_duration_seconds)}</span>
@@ -210,7 +210,7 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
             )}
           </div>
 
-          {/* The journey arc â€” read from the live curriculum */}
+          {/* The journey arc — read from the live curriculum */}
           {arc.length > 0 && (
             <div className="mt-12 border-t border-border pt-8">
               <button
@@ -219,12 +219,12 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
                 aria-expanded={arcOpen}
               >
                 <div>
-                  <h2 className="font-display text-xl tracking-wide text-primary">THE YEAR â€” FOUR MOVEMENTS</h2>
+                  <h2 className="font-display text-xl tracking-wide text-primary">THE YEAR — FOUR MOVEMENTS</h2>
                   <p className="text-xs text-muted-foreground font-body mt-1">
-                    See Clearly â†’ Unlearn â†’ Rebuild â†’ Live It Â· 52 weeks
+                    See Clearly → Unlearn → Rebuild → Live It Â· 52 weeks
                   </p>
                 </div>
-                <span className="text-muted-foreground text-lg">{arcOpen ? "âˆ’" : "+"}</span>
+                <span className="text-muted-foreground text-lg">{arcOpen ? "−" : "+"}</span>
               </button>
 
               {arcOpen && (
@@ -232,7 +232,7 @@ const AdminFramework = ({ embedded = false }: { embedded?: boolean }) => {
                   {arc.map((b, i) => (
                     <div key={b.block} className="border border-border bg-card rounded-sm p-5">
                       <p className="text-[10px] font-body tracking-[0.25em] uppercase text-primary mb-1">
-                        Movement {["I", "II", "III", "IV"][i] ?? i + 1} Â· Weeks {b.weeks[0]?.week_number}â€“{b.weeks[b.weeks.length - 1]?.week_number}
+                        Movement {["I", "II", "III", "IV"][i] ?? i + 1} Â· Weeks {b.weeks[0]?.week_number}–{b.weeks[b.weeks.length - 1]?.week_number}
                       </p>
                       <h3 className="font-display text-lg tracking-wide text-primary mb-3">{b.block.toUpperCase()}</h3>
                       <ul className="space-y-1.5">

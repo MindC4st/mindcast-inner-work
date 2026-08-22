@@ -7,7 +7,7 @@ import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { db } from "@/lib/db";
 
-// Teen track for a guardian whose household includes a teen. Read-only â€” the
+// Teen track for a guardian whose household includes a teen. Read-only — the
 // adult views the teen lesson plan so the family can talk about it at home.
 // Gated on can_access_track('Teen') server-side + the weekly unlock.
 
@@ -43,7 +43,7 @@ const PortalTeens = () => {
     <PortalLayout>
       <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2 flex items-center gap-1.5"><GraduationCap size={13} /> Teens</p>
       <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-2">TEEN SESSIONS</h1>
-      <p className="text-sm text-muted-foreground mb-8 font-body">The teen track â€” the same weekly theme, in words and depth that fit 13â€“17.</p>
+      <p className="text-sm text-muted-foreground mb-8 font-body">The teen track — the same weekly theme, in words and depth that fit 13–17.</p>
 
       {gated ? (
         <div className="portal-card p-8 md:p-10 text-center">
@@ -57,13 +57,13 @@ const PortalTeens = () => {
           </Link>
         </div>
       ) : loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
       ) : weeks.length === 0 ? (
         <div className="portal-card p-8 md:p-10 text-center">
           <div className="w-14 h-14 rounded-full bg-foreground/[0.05] grid place-items-center mx-auto mb-4 text-foreground/40"><GraduationCap size={22} /></div>
           <h2 className="heading-display text-lg text-primary mb-2">No teens in your household yet</h2>
           <p className="text-sm text-muted-foreground font-body font-light max-w-sm mx-auto leading-relaxed">
-            Add a teen (13â€“17) to your household and their weekly lessons will appear here.
+            Add a teen (13–17) to your household and their weekly lessons will appear here.
           </p>
           <Link to="/portal/family" className="inline-block mt-6 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors">
             MANAGE FAMILY

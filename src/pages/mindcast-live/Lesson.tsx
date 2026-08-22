@@ -50,7 +50,7 @@ const Lesson = () => {
     (async () => {
       const [s, u, r, c, w] = await Promise.all([
         db.from("mindcast_live_sessions_public").select("*").eq("week_number", week).eq("audience", audience).maybeSingle(),
-        // Staff bypass â€” skip unlocked_lessons check, all weeks are unlocked
+        // Staff bypass — skip unlocked_lessons check, all weeks are unlocked
         isStaff ? Promise.resolve({ data: null }) : db.from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         db.from("session_responses")
           .select("prompt_type, response_text")
@@ -98,14 +98,14 @@ const Lesson = () => {
           <Lock className="mx-auto text-[hsl(var(--navy-mid))]/40 mb-4" size={32} />
           <h1 className="font-serif text-4xl text-primary mb-2">This lesson is still locked.</h1>
           <p className="text-[hsl(var(--navy-mid))] font-body text-sm mb-6">This lesson unlocks after the live session.</p>
-          <Link to="/mindcast-live/library" className="text-[hsl(var(--blue))] font-body text-sm tracking-widest uppercase">â† Back to library</Link>
+          <Link to="/mindcast-live/library" className="text-[hsl(var(--blue))] font-body text-sm tracking-widest uppercase">← Back to library</Link>
         </div>
       </div>
       </PortalLayout>
     );
   }
 
-  if (!session) return <PortalLayout><div className="min-h-[60vh] flex items-center justify-center text-[hsl(var(--navy-mid))] text-sm font-body animate-pulse" role="status">Loading lessonâ€¦</div></PortalLayout>;
+  if (!session) return <PortalLayout><div className="min-h-[60vh] flex items-center justify-center text-[hsl(var(--navy-mid))] text-sm font-body animate-pulse" role="status">Loading lesson…</div></PortalLayout>;
 
   const ytId = session.video_link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/)?.[1];
   const prevWeek = [...unlocked].reverse().find(w => w < week);
@@ -126,7 +126,7 @@ const Lesson = () => {
     <PortalLayout>
       <article className="max-w-3xl mx-auto">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <Link to="/mindcast-live/library" className="inline-flex min-h-10 items-center text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] text-sm font-body font-semibold">â† Coursebook</Link>
+          <Link to="/mindcast-live/library" className="inline-flex min-h-10 items-center text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] text-sm font-body font-semibold">← Coursebook</Link>
           <div className="flex gap-1" role="radiogroup" aria-label="Lesson track">
             {(["Adult","Teen","Child"] as const).map(a => (
               <button type="button" key={a} onClick={() => setAudience(a)} role="radio" aria-checked={audience === a}
@@ -219,7 +219,7 @@ const Lesson = () => {
           disabled={submitting || completed}
           className="w-full min-h-12 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm font-semibold py-3 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary/20"
         >
-          {completed ? "Submitted" : submitting ? "Submittingâ€¦" : "Mark worksheet complete"}
+          {completed ? "Submitted" : submitting ? "Submitting…" : "Mark worksheet complete"}
         </button>
 
         <div className="flex items-center justify-between mt-12 pt-6 border-t border-[hsl(var(--warm-border))]">
@@ -320,7 +320,7 @@ const PracticeRow = ({ day, text, done, onToggle }: {
         aria-label={`Mark ${day} practice ${local ? "not done" : "done"}`}
         className={`mt-1 w-5 h-5 rounded-sm border-2 shrink-0 flex items-center justify-center ${local ? "bg-[hsl(var(--blue))] border-[hsl(var(--blue))]" : "border-[hsl(var(--warm-border))]"}`}
       >
-        {local && <span className="text-white text-xs">âœ“</span>}
+        {local && <span className="text-white text-xs">✓</span>}
       </button>
       <div className="flex-1">
         <p className="font-display text-sm text-[hsl(var(--blue))] tracking-widest">{day.toUpperCase()}</p>

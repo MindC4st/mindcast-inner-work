@@ -4,8 +4,8 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { HANDBOOK } from "@/content/handbook";
 import Ripple from "@/components/brand/Ripple";
 
-// /admin/handbook â€” the operations handbook, on screen and printable from the
-// same source (print button â†’ browser print â†’ PDF). Written for a nervous
+// /admin/handbook — the operations handbook, on screen and printable from the
+// same source (print button → browser print → PDF). Written for a nervous
 // volunteer on their second Sunday; navigation is a fixed rail, content is
 // numbered steps with the fallback stated where the failure happens.
 
@@ -21,7 +21,7 @@ const AdminHandbook = () => {
         <div className="flex-1">
           <h1 className="font-display text-2xl tracking-wide">OPERATIONS HANDBOOK</h1>
           <p className="font-body text-[11px] text-muted-foreground">
-            Running a Sunday, end to end â€” and what to do when each system fails.
+            Running a Sunday, end to end — and what to do when each system fails.
           </p>
         </div>
         <button
@@ -37,7 +37,7 @@ const AdminHandbook = () => {
         <nav className="w-64 shrink-0 sticky top-8 self-start hidden md:block print:hidden" aria-label="Handbook contents">
           {HANDBOOK.map((part) => (
             <div key={part.id} className="mb-8">
-              <p className="font-display text-sm tracking-widest text-primary mb-2">{part.title.split("â€”")[0]}</p>
+              <p className="font-display text-sm tracking-widest text-primary mb-2">{part.title.split("—")[0]}</p>
               <ul className="space-y-1">
                 {part.sections.map((s) => (
                   <li key={s.id}>
@@ -59,7 +59,7 @@ const AdminHandbook = () => {
           ))}
         </nav>
 
-        {/* Content â€” also the print layout */}
+        {/* Content — also the print layout */}
         <main className="flex-1 min-w-0">
           {HANDBOOK.map((part) => (
             <article key={part.id} className="mb-16 print:break-before-page first:print:break-before-auto">

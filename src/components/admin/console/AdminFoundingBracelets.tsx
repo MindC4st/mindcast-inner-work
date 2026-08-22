@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { FOUNDING_CAP } from "@/lib/foundingBracelets";
 
-// Founding NFC Bracelets â€” the first-100 ledger. Shows who holds a founding
+// Founding NFC Bracelets — the first-100 ledger. Shows who holds a founding
 // entitlement, whether their free bracelet is claimed, and by which order.
 // Read-only: entitlements are created by checkout/webhook/RPCs only.
 
@@ -27,7 +27,7 @@ type Row = {
 
 const STATUS_LABEL: Record<Row["status"], string> = {
   reserved: "Reserved (checkout in flight)",
-  allocated: "Entitled â€” unclaimed",
+  allocated: "Entitled — unclaimed",
   claimed: "Claimed",
   released: "Released",
 };
@@ -108,7 +108,7 @@ const AdminFoundingBracelets = ({ embedded = false }: { embedded?: boolean }) =>
         <div>
           <h2 className="font-display text-2xl tracking-wider text-primary">FOUNDING NFC BRACELETS</h2>
           <p className="text-xs text-muted-foreground font-body mt-1">
-            First {FOUNDING_CAP} unique member emails â€” one free bracelet each, ever. Children without logins never count.
+            First {FOUNDING_CAP} unique member emails — one free bracelet each, ever. Children without logins never count.
           </p>
         </div>
         <div className="flex gap-3">
@@ -142,7 +142,7 @@ const AdminFoundingBracelets = ({ embedded = false }: { embedded?: boolean }) =>
       </div>
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : (
         <div className="border border-border rounded-md overflow-x-auto bg-card">
           <table className="w-full min-w-[760px] text-sm">
@@ -159,11 +159,11 @@ const AdminFoundingBracelets = ({ embedded = false }: { embedded?: boolean }) =>
               )}
               {visible.map((r) => (
                 <tr key={r.id} className="border-b border-border last:border-0">
-                  <td className="px-3 py-2.5 font-body text-foreground">{r.seat_number ?? "â€”"}</td>
-                  <td className="px-3 py-2.5 font-body text-foreground whitespace-nowrap">{r.member_name || "â€”"}</td>
+                  <td className="px-3 py-2.5 font-body text-foreground">{r.seat_number ?? "—"}</td>
+                  <td className="px-3 py-2.5 font-body text-foreground whitespace-nowrap">{r.member_name || "—"}</td>
                   <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.email_norm}</td>
-                  <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.household_name || "â€”"}</td>
-                  <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.membership_status || "â€”"}</td>
+                  <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.household_name || "—"}</td>
+                  <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.membership_status || "—"}</td>
                   <td className="px-3 py-2.5 font-body whitespace-nowrap">
                     <span className={`text-[10px] font-semibold tracking-widest uppercase px-2 py-0.5 rounded-sm border ${
                       r.status === "claimed" ? "text-primary border-primary/40 bg-primary/10"
@@ -177,7 +177,7 @@ const AdminFoundingBracelets = ({ embedded = false }: { embedded?: boolean }) =>
                   <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">
                     {r.status === "claimed" ? (r.claimed_at ? new Date(r.claimed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" }) : "Yes") : "Unclaimed"}
                   </td>
-                  <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.order_number ?? "â€”"}</td>
+                  <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">{r.order_number ?? "—"}</td>
                   <td className="px-3 py-2.5 font-body text-muted-foreground whitespace-nowrap">
                     {new Date(r.allocated_at ?? r.reserved_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}
                   </td>

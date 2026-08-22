@@ -91,7 +91,7 @@ const AdminApplications = () => {
               >
                 <span className="truncate">{app.full_name}</span>
                 <span className="truncate text-muted-foreground text-xs">{app.email}</span>
-                <span className="text-xs text-muted-foreground">{app.age_range || "â€”"}</span>
+                <span className="text-xs text-muted-foreground">{app.age_range || "—"}</span>
                 <span className={`text-[10px] tracking-wider px-2 py-0.5 rounded-full w-fit ${statusColors[app.application_status] || "text-gray-400"}`}>
                   {app.application_status.toUpperCase().replace("_", " ")}
                 </span>
@@ -133,7 +133,7 @@ const AdminApplications = () => {
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
   <div>
     <p className="text-[10px] tracking-[0.15em] text-muted-foreground mb-1 uppercase">{label}</p>
-    <p className="text-sm font-body text-foreground leading-relaxed">{value || "â€”"}</p>
+    <p className="text-sm font-body text-foreground leading-relaxed">{value || "—"}</p>
   </div>
 );
 

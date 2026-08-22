@@ -68,7 +68,7 @@ const Library = () => {
             <p className="portal-label mb-3">Mindcast Live</p>
             <h1 id="lesson-library-title" className="font-serif text-4xl leading-tight text-primary sm:text-5xl">Your 52-week coursebook</h1>
             <p className="mt-4 font-body text-sm leading-7 text-muted-foreground">
-              Revisit unlocked lessons, continue your own coursebook, or prepare the room if youâ€™re facilitating.
+              Revisit unlocked lessons, continue your own coursebook, or prepare the room if you’re facilitating.
             </p>
           </div>
 
@@ -88,7 +88,7 @@ const Library = () => {
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-4 font-body text-xs font-semibold text-cream transition hover:bg-navy-mid focus:outline-none focus:ring-4 focus:ring-navy/15 disabled:opacity-40"
               >
                 {bulkRunning ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Film className="h-4 w-4" aria-hidden="true" />}
-                {bulkRunning ? "Queueing videosâ€¦" : "Generate missing videos"}
+                {bulkRunning ? "Queueing videos…" : "Generate missing videos"}
               </button>
             </div>
           )}
@@ -117,7 +117,7 @@ const Library = () => {
         {loading ? (
           <div className="flex min-h-64 items-center justify-center" role="status">
             <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
-            <span className="ml-3 font-body text-sm text-muted-foreground">Loading your coursebookâ€¦</span>
+            <span className="ml-3 font-body text-sm text-muted-foreground">Loading your coursebook…</span>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

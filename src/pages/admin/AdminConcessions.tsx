@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-// Concession queue â€” one step requested, no explanation asked (the schema has
+// Concession queue — one step requested, no explanation asked (the schema has
 // nowhere to store one). Approve applies the status here; the concession rate
 // itself is then applied to their subscription in Stripe. Concession status is
 // never shown anywhere a member could see it.
@@ -91,13 +91,13 @@ const AdminConcessions = ({ embedded = false }: { embedded?: boolean }) => {
         <HandHeart size={20} className="text-primary" /> CONCESSION PLACES
       </h2>
       <p className="text-xs text-muted-foreground font-body mb-6 max-w-2xl leading-relaxed">
-        Requested in one step from the membership page. No reason is collected and none is needed â€”
+        Requested in one step from the membership page. No reason is collected and none is needed —
         approve or decline, then apply the concession rate in Stripe. Status here is never visible
         to members.
       </p>
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse">Loading…</p>
       ) : (
         <div className="space-y-8">
           <section>

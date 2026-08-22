@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 // they got, week by week.
 //
 // Deliberately not a score. No average, no total out of 4, no trend line, no
-// streak, and no comparison to other members â€” a member looking at twenty weeks
+// streak, and no comparison to other members — a member looking at twenty weeks
 // of 1s and 2s would have been handed evidence they are failing, in a programme
 // whose whole premise is that noticing IS the win.
 //
@@ -17,7 +17,7 @@ import { Loader2 } from "lucide-react";
 // is true of everyone who keeps turning up, plus where their weeks actually
 // landed. Level 1 is a completed week, not a gap.
 //
-// Private by construction â€” my_intention_history is SECURITY DEFINER scoped to
+// Private by construction — my_intention_history is SECURITY DEFINER scoped to
 // current_profile_id(), so this can only ever return the caller's own rows. A
 // facilitator has no view of this anywhere.
 
@@ -100,7 +100,7 @@ const IntentionProgress = () => {
           const rung = ladderRung(r.intention_outcome);
           return (
             <div key={r.week_number} className="flex-1 min-w-[6px] flex flex-col justify-end h-full"
-              title={`Week ${r.week_number} â€” ${ladderLabel(r.intention_outcome)}`}>
+              title={`Week ${r.week_number} — ${ladderLabel(r.intention_outcome)}`}>
               <div className={`w-full rounded-sm ${RUNG_COLOUR[rung]}`}
                 style={{ height: `${((rung + 1) / 4) * 100}%` }} />
             </div>
@@ -112,7 +112,7 @@ const IntentionProgress = () => {
         <span>Week {rows[rows.length - 1].week_number}</span>
       </div>
 
-      {/* Distribution â€” where the weeks actually landed. */}
+      {/* Distribution — where the weeks actually landed. */}
       <div className="space-y-2.5">
         {LADDER.map((rung, i) => (
           <div key={rung.value} className="flex items-center gap-3">

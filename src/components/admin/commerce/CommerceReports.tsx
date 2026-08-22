@@ -1,4 +1,4 @@
-﻿// CommerceReports â€” the accounting basics, exportable.
+﻿// CommerceReports — the accounting basics, exportable.
 // Gross/net sales, GST, refunds, shipping, units, per-product, AOV, orders
 // over time. Structured so an accounting integration (e.g. Xero) can read
 // the same numbers later.
@@ -139,7 +139,7 @@ const CommerceReports = () => {
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

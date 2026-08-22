@@ -103,7 +103,7 @@ export default function TermsPage() {
       <h2>10. Membership, payments &amp; refunds</h2>
       <p>
         Mindcast is a membership community. The live Sunday gathering may be attended free;
-        paid membership unlocks the app experience and the continuing digital journey. Pricing,
+        paid membership opens the app experience and the continuing digital programme. Pricing,
         billing, cancellation and refunds are set out on the website and in our{" "}
         <a href="/refund">Refund &amp; Cancellation Policy</a>. Your rights under the New Zealand
         Consumer Guarantees Act 1993 and Fair Trading Act 1986 are not affected.

@@ -92,7 +92,7 @@ const PortalProgress = () => {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <h1 className="portal-heading text-3xl mb-2">My Progress</h1>
         <p className="text-sm text-muted-foreground mb-8 font-body font-light">
-          Your journey across the 52 weeks.
+          Your progress across the 52 weeks.
         </p>
 
         {/* The self-assessment tracker sits above the session list: it is the

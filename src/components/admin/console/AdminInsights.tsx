@@ -60,7 +60,7 @@ const AdminInsights = () => {
     return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load insights: {error}</p>;
   }
   if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading insightsâ€¦</span></div>;
+    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading insights…</span></div>;
   }
 
   const { totals, status_mix } = stats;

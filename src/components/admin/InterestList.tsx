@@ -34,7 +34,7 @@ export function InterestList() {
     const headers = ["Email", "Age Band", "Created At"];
     const rows = entries.map((e) => [
       e.email,
-      e.age_band || "â€”",
+      e.age_band || "—",
       new Date(e.created_at).toLocaleString("en-NZ"),
     ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
@@ -57,7 +57,7 @@ export function InterestList() {
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-muted-foreground">Loadingâ€¦</div>
+        <div className="py-8 text-center text-muted-foreground">Loading…</div>
       ) : entries.length === 0 ? (
         <div className="py-8 text-center text-muted-foreground">No interest registrations yet</div>
       ) : (
@@ -88,7 +88,7 @@ export function InterestList() {
                     {entry.age_band === "under_30" && "Under 30"}
                     {entry.age_band === "over_45" && "Over 45"}
                     {entry.age_band === "after_close" && "After close"}
-                    {!entry.age_band && "â€”"}
+                    {!entry.age_band && "—"}
                   </td>
                   <td className="py-3 px-4 text-muted-foreground">
                     {new Date(entry.created_at).toLocaleString("en-NZ", {

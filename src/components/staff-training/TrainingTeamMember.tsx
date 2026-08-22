@@ -60,7 +60,7 @@ const TrainingTeamMember = () => {
       { ...row, id: `${row.id}-new`, status: "in_progress", superseded: false, attempts: 0, score: null, completed_at: null, started_at: new Date().toISOString() },
       ...ps.filter((p) => p.id !== row.id),
     ]);
-    toast.success(`Recertification opened for ${modTitle(row.module_code)} â€” their history is preserved.`);
+    toast.success(`Recertification opened for ${modTitle(row.module_code)} — their history is preserved.`);
   };
 
   const addNote = async () => {
@@ -140,7 +140,7 @@ const TrainingTeamMember = () => {
             <option value="staff_start">Staff start date</option>
           </select>
           <textarea value={detail} onChange={(e) => setDetail(e.target.value)} rows={3}
-            placeholder="Facts only â€” this record is administrative, not a safeguarding case file."
+            placeholder="Facts only — this record is administrative, not a safeguarding case file."
             className="w-full bg-transparent border border-border rounded-md px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary resize-y" />
           <button onClick={addNote} disabled={busy === "note" || !detail.trim()}
             className="px-4 py-2 rounded-sm bg-primary text-primary-foreground text-[10px] font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">

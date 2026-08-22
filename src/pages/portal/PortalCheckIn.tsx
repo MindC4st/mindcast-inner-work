@@ -81,7 +81,7 @@ const PortalCheckIn = () => {
             <p className="text-sm text-muted-foreground font-body">Your name is heading to the welcome wall now.</p>
             {today && (
               <Link to="/portal/dashboard" className="inline-block mt-6 text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
-                Back to portal â†’
+                Back to portal →
               </Link>
             )}
           </motion.div>
@@ -92,7 +92,7 @@ const PortalCheckIn = () => {
                 <Radio size={13} /> {today.status === "live" ? "Live now" : "Today"} Â· {today.track} Â· Week {today.week_number}{today.room ? ` Â· ${today.room}` : ""}
               </div>
             ) : (
-              <p className="mb-6 text-sm text-muted-foreground font-body">No session is scheduled for your track today â€” you can still check yourself in below.</p>
+              <p className="mb-6 text-sm text-muted-foreground font-body">No session is scheduled for your track today — you can still check yourself in below.</p>
             )}
 
             <button onClick={() => checkIn(false)} disabled={saving}

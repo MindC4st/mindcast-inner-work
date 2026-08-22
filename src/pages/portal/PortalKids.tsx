@@ -19,7 +19,7 @@ const openColouringPdf = async (week: number): Promise<boolean> => {
   return true;
 };
 
-// Kids view for a paying adult with the kids add-on. Kids never log in â€” the
+// Kids view for a paying adult with the kids add-on. Kids never log in — the
 // adult accesses the Child-track lessons and downloadable colouring pages here.
 // Content is read-only (no journal). Gated on isMember + kidsAddon + unlock.
 
@@ -72,7 +72,7 @@ const PortalKids = () => {
     <PortalLayout>
       <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2 flex items-center gap-1.5"><Baby size={13} /> Kids</p>
       <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-2">KID SESSIONS</h1>
-      <p className="text-sm text-muted-foreground mb-8 font-body">The children's track â€” lessons and colouring pages to do together at home.</p>
+      <p className="text-sm text-muted-foreground mb-8 font-body">The children's track — lessons and colouring pages to do together at home.</p>
 
       {gated ? (
         <div className="portal-card p-8 md:p-10 text-center">
@@ -80,15 +80,15 @@ const PortalKids = () => {
           <h2 className="heading-display text-lg text-primary mb-2">Add a kids membership</h2>
           <p className="text-sm text-muted-foreground font-body font-light max-w-sm mx-auto leading-relaxed">
             {isMember
-              ? "Add a kids membership to your plan to unlock the children's lessons and colouring pages."
-              : "Become a member and add a kids membership to unlock the children's track."}
+              ? "Add a kids membership to your plan to open the children's lessons and colouring pages."
+              : "Become a member and add a kids membership to open the children's track."}
           </p>
           <Link to="/portal/billing" className="inline-block mt-6 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors">
             MANAGE MEMBERSHIP
           </Link>
         </div>
       ) : loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loadingâ€¦</p>
+        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
       ) : (
         <div className="space-y-3">
           {weeks.map((w, i) => {
@@ -118,7 +118,7 @@ const PortalKids = () => {
                         <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
                         <span>
                           <span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>
-                          {c.kids_picture_book}{c.kids_picture_book_author ? ` â€” ${c.kids_picture_book_author}` : ""}{c.kids_picture_book_note ? ` Â· ${c.kids_picture_book_note}` : ""}
+                          {c.kids_picture_book}{c.kids_picture_book_author ? ` — ${c.kids_picture_book_author}` : ""}{c.kids_picture_book_note ? ` Â· ${c.kids_picture_book_note}` : ""}
                           {c.kids_picture_book_question && <span className="block text-foreground/60 italic mt-1">Ask: {c.kids_picture_book_question}</span>}
                         </span>
                       </p>
@@ -128,7 +128,7 @@ const PortalKids = () => {
                         <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
                         <span>
                           <span className="portal-label text-foreground/40 mr-2">NZ BOOK</span>
-                          {c.kids_nz_alternative}{c.kids_nz_alternative_author ? ` â€” ${c.kids_nz_alternative_author}` : ""}
+                          {c.kids_nz_alternative}{c.kids_nz_alternative_author ? ` — ${c.kids_nz_alternative_author}` : ""}
                           {c.kids_nz_alternative_verified && <span className="ml-1.5 text-[9px] font-body uppercase tracking-widest text-primary">Verified</span>}
                           {c.kids_nz_alternative_note && <span className="block text-foreground/50 text-xs mt-0.5">{c.kids_nz_alternative_note}</span>}
                         </span>

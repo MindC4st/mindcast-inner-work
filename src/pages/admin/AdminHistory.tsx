@@ -71,7 +71,7 @@ const AdminHistory = ({ embedded = false }: { embedded?: boolean }) => {
         </div>
 
         {loading ? (
-          <p className="text-foreground/30 text-sm font-body text-center py-8 animate-pulse">Loading sessionsâ€¦</p>
+          <p className="text-foreground/30 text-sm font-body text-center py-8 animate-pulse">Loading sessions…</p>
         ) : (
           <div className="space-y-1">
             {filtered.map((s) => (
@@ -89,13 +89,13 @@ const AdminHistory = ({ embedded = false }: { embedded?: boolean }) => {
                   <div className="px-4 pb-4 pt-2 border-t border-foreground/[0.04] space-y-2 text-xs font-body">
                     <p className="text-foreground/40">Status <span className="text-foreground/70">{s.status}</span>{s.room ? <> Â· Room <span className="text-foreground/70">{s.room}</span></> : null}{s.session_code ? <> Â· Join code <span className="text-foreground/70">{s.session_code}</span></> : null}</p>
                     <Link to={`/mindcast-live/facilitate/${s.week_number}?a=${s.track}`} className="inline-block text-blue-400/70 hover:text-blue-400">
-                      Open the Week {s.week_number} {s.track} deck â†’
+                      Open the Week {s.week_number} {s.track} deck →
                     </Link>
                   </div>
                 )}
               </div>
             ))}
-            {filtered.length === 0 && <p className="text-foreground/20 text-sm font-body text-center py-8">No scheduled sessions yet â€” set them up under Sessions â†’ Schedule.</p>}
+            {filtered.length === 0 && <p className="text-foreground/20 text-sm font-body text-center py-8">No scheduled sessions yet — set them up under Sessions → Schedule.</p>}
           </div>
         )}
       </div>

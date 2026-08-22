@@ -17,7 +17,7 @@ import logoLight from "@/assets/logo-blue-wordmark.png";
 
 // Onboarding keeps the age gate required by Mindcast safeguarding:
 //   - Under-13s cannot self-register. A guardian adds them to a household.
-//   - 13â€“17s need a guardian consent record before onboarding completes.
+//   - 13–17s need a guardian consent record before onboarding completes.
 //   - Age is derived from a date of birth, never a self-selected label.
 
 type ParsedDob = {
@@ -183,7 +183,7 @@ const Onboarding = () => {
             A few details, then the space is yours.
           </h1>
           <p className="mt-6 max-w-sm font-body text-sm leading-7 text-cream/60">
-            Weâ€™ll personalise your weekly experience and make sure everyone joins the right room,
+            We’ll personalise your weekly experience and make sure everyone joins the right room,
             safely.
           </p>
         </div>
@@ -341,7 +341,7 @@ const Onboarding = () => {
                       <div>
                         <h3 className="font-body text-sm font-semibold text-primary">Kids join with a parent or guardian</h3>
                         <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">
-                          Under-13s donâ€™t create their own account. Ask a parent or guardian to add
+                          Under-13s don’t create their own account. Ask a parent or guardian to add
                           you to their family membership instead.
                         </p>
                         <Link
@@ -392,13 +392,13 @@ const Onboarding = () => {
                   One thing first.
                 </h2>
                 <p className="mt-4 max-w-xl font-body text-sm leading-7 text-muted-foreground">
-                  Because youâ€™re under 18, a parent or legal guardian must create or approve your
+                  Because you’re under 18, a parent or legal guardian must create or approve your
                   account from their Family &amp; Safety setup. You cannot record that consent on their behalf.
                 </p>
 
                 <div className={`mt-8 max-w-xl rounded-2xl border p-5 ${guardianConsentRecorded ? "border-primary/20 bg-primary/[0.05]" : "border-foreground/10 bg-white"}`}>
                   <p className="font-body text-sm font-semibold text-foreground">
-                    {guardianConsentRecorded === null ? "Checking guardian approvalâ€¦" : guardianConsentRecorded ? "Guardian approval recorded" : "Guardian approval not found"}
+                    {guardianConsentRecorded === null ? "Checking guardian approval…" : guardianConsentRecorded ? "Guardian approval recorded" : "Guardian approval not found"}
                   </p>
                   <p className="mt-2 font-body text-xs leading-5 text-muted-foreground">
                     {guardianConsentRecorded
@@ -439,7 +439,7 @@ const Onboarding = () => {
                 {!isTeen && <fieldset className="mt-8 grid max-w-xl gap-3">
                   <legend className="sr-only">Weekly progress sharing preference</legend>
                   {[
-                    { value: true, title: "Yes, Iâ€™m happy to share", detail: "My group can celebrate how my weekly goal went." },
+                    { value: true, title: "Yes, I’m happy to share", detail: "My group can celebrate how my weekly goal went." },
                     { value: false, title: "No, keep my progress private", detail: "My check-ins and progress stay visible only to me." },
                   ].map((option) => {
                     const selected = optIn === option.value;
@@ -483,7 +483,7 @@ const Onboarding = () => {
                   disabled={(!isTeen && optIn === null) || saving || !user}
                   className="mt-10 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-body text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                 >
-                  {saving ? "Setting up your spaceâ€¦" : "Enter my member space"}
+                  {saving ? "Setting up your space…" : "Enter my member space"}
                   {!saving && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
                 </button>
               </motion.div>

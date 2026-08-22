@@ -127,11 +127,11 @@ const BraceletStudio = () => {
       const nav = navigator as unknown as { ndef?: { NDEFReader?: new () => { write: (m: unknown) => Promise<void> } } };
       const Reader = nav.ndef?.NDEFReader;
       if (!Reader) {
-        throw new Error("Web NFC isn't available here â€” open this page in Chrome on Android, or copy the URL and write it with any NFC writer app (NDEF URL record).");
+        throw new Error("Web NFC isn't available here — open this page in Chrome on Android, or copy the URL and write it with any NFC writer app (NDEF URL record).");
       }
       const reader = new Reader();
       await reader.write({ records: [{ recordType: "url", data: braceletUrl(token) }] });
-      toast.success("Bracelet written â€” now assign the token");
+      toast.success("Bracelet written — now assign the token");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : String(e));
     } finally {
@@ -144,7 +144,7 @@ const BraceletStudio = () => {
       await navigator.clipboard.writeText(braceletUrl(token));
       toast.success("Bracelet URL copied");
     } catch {
-      toast.error("Couldn't copy â€” select the URL manually");
+      toast.error("Couldn't copy — select the URL manually");
     }
   };
 
@@ -161,7 +161,7 @@ const BraceletStudio = () => {
             re-writing every bracelet by hand, so make it impossible to miss
             which one is about to be burned in. */}
         <p className="text-[11px] font-body mt-3 rounded-sm border border-primary/25 bg-blue-light/[0.06] px-3 py-2 text-primary">
-          Bracelets will be written with <strong className="font-semibold">{SITE || "(unknown host)"}</strong> â€” this is
+          Bracelets will be written with <strong className="font-semibold">{SITE || "(unknown host)"}</strong> — this is
           baked into the tag. Confirm that address loads in a browser before writing a batch.
         </p>
       </div>
@@ -173,7 +173,7 @@ const BraceletStudio = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, email or existing tokenâ€¦"
+            placeholder="Search name, email or existing token…"
             className="w-full bg-transparent border border-border rounded-md pl-9 pr-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
           />
         </div>
@@ -249,9 +249,9 @@ const BraceletStudio = () => {
       <div className="rounded-lg border border-border bg-card p-5">
         <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-3">How it works</p>
         <ol className="list-decimal list-inside space-y-1.5 text-[12px] font-body text-muted-foreground">
-          <li>Generate a token â€” it becomes the bracelet URL <span className="text-primary">/b/&lt;token&gt;</span>.</li>
+          <li>Generate a token — it becomes the bracelet URL <span className="text-primary">/b/&lt;token&gt;</span>.</li>
           <li>Write that URL to the bracelet as an NDEF URL record (Web NFC on Chrome/Android, or any NFC writer app).</li>
-          <li>Assign the token to the member â€” stored as their <span className="text-primary">nfc_id</span> (unique across all members).</li>
+          <li>Assign the token to the member — stored as their <span className="text-primary">nfc_id</span> (unique across all members).</li>
           <li>Test: tap the bracelet on a phone. It checks the member in and the name appears on the Welcome Wall.</li>
         </ol>
       </div>

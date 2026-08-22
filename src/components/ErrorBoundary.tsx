@@ -20,7 +20,7 @@ class ErrorBoundary extends Component<Props, State> {
             <p className="text-primary text-xs tracking-[0.5em] font-body uppercase mb-3">Mindcast</p>
             <h1 className="font-display text-4xl tracking-wider text-primary mb-3">SOMETHING SNAPPED</h1>
             <p className="font-body text-sm text-[hsl(var(--navy-mid))] mb-6">
-              That's static, not signal. A reload usually clears it â€” your journal and check-ins are safe.
+              That's static, not signal. A reload usually clears it — your journal and check-ins are safe.
             </p>
             <button
               onClick={() => window.location.reload()}

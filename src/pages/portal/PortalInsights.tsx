@@ -12,7 +12,7 @@ const PortalInsights = () => (
       <p className="portal-label mb-3">Personal reflection</p>
       <h1 className="font-serif text-4xl text-primary mb-4">Your Insights</h1>
       <p className="text-sm text-muted-foreground font-body leading-7 mb-6">
-        Your personal AI reflection and domain trends will unlock after you've completed a few sessions.
+        Your personal AI reflection and domain trends will appear after you've completed a few sessions.
       </p>
       <div className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-card px-4 py-2 text-[10px] tracking-[0.16em] text-muted-foreground font-body">
         <Lock size={12} strokeWidth={1.5} />

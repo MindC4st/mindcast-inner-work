@@ -13,10 +13,10 @@ import { db } from "@/lib/db";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { useHouseholdFlags } from "@/hooks/useHouseholdFlags";
 
-// Member portal home â€” an adaptive tile launcher that changes by role:
-//   member      â†’ their weekly journey (check-in, session, journal, progress)
-//   facilitator â†’ session tools (deck, schedule, moderation, kiosk, training)
-//   admin       â†’ community management (console, membership, training, team)
+// Member portal home — an adaptive tile launcher that changes by role:
+//   member      → their weekly journey (check-in, session, journal, progress)
+//   facilitator → session tools (deck, schedule, moderation, kiosk, training)
+//   admin       → community management (console, membership, training, team)
 // Settings is not a tile; it lives on the header gear and in the nav.
 
 const trackForAgeGroup = (age?: string | null): string => {
@@ -47,7 +47,7 @@ const PortalDashboard = () => {
   const weekNo = currentWeek;
   const notStarted = !schedLoading && !startDate;
 
-  // Today's scheduled session for the member's track â€” drives the live deep-link.
+  // Today's scheduled session for the member's track — drives the live deep-link.
   useEffect(() => {
     if (!profile || view !== "member") return;
     const date = new Date().toISOString().slice(0, 10);
@@ -96,12 +96,12 @@ const tiles = useMemo<Tile[]>(() => {
     // Teens get a read-only dashboard: read previous sessions, no submissions.
     const member: Tile[] = isTeen
       ? [
-          { key: "history", title: "My Sessions", subtitle: "Read this week's lesson â€” no submissions", icon: History, to: "/portal/weeks", accent: true },
+          { key: "history", title: "My Sessions", subtitle: "Read this week's lesson — no submissions", icon: History, to: "/portal/weeks", accent: true },
           { key: "downloads", title: "Downloads", subtitle: "Worksheets & resources", icon: Download, to: "/portal/downloads" },
         ]
       : [
           { key: "checkin", title: "Check-In", subtitle: "Mark your attendance Â· your name goes on the welcome wall", icon: UserCheck, to: "/portal/checkin", accent: true },
-          { key: "today", title: "Today's Session", subtitle: liveCode ? "Live now â€” join with one tap" : "Enter your join code to open the live session", icon: liveCode ? Radio : PlayCircle, onClick: openTodaysSession, accent: true, badge: liveCode ? "LIVE" : undefined },
+          { key: "today", title: "Today's Session", subtitle: liveCode ? "Live now — join with one tap" : "Enter your join code to open the live session", icon: liveCode ? Radio : PlayCircle, onClick: openTodaysSession, accent: true, badge: liveCode ? "LIVE" : undefined },
           { key: "history", title: "Session History", subtitle: "Revisit past lessons and your journal entries", icon: History, to: "/portal/weeks" },
           { key: "group", title: "Life Group", subtitle: "Your midweek group space", icon: Users, to: "/portal/group" },
           { key: "downloads", title: "Downloads", subtitle: hasKids ? "Worksheets & kids colouring pages" : "Worksheets & resources", icon: Download, to: "/portal/downloads" },
@@ -129,7 +129,7 @@ const tiles = useMemo<Tile[]>(() => {
             Welcome, {firstName}.
           </h1>
           {view === "member" && weekNo && (
-            <p className="text-sm text-muted-foreground mt-2 font-body">You're on Week {weekNo} of your journey.</p>
+            <p className="text-sm text-muted-foreground mt-2 font-body">You're on Week {weekNo} of 52.</p>
           )}
           {view === "facilitator" && (
             <p className="text-sm text-muted-foreground mt-2 font-body">Session tools and your own staff training.</p>
@@ -153,14 +153,14 @@ const tiles = useMemo<Tile[]>(() => {
           </span>
           <span className="text-sm font-body flex-1 min-w-0">Your session is running.</span>
           <Link to="/portal/checkin" className="inline-flex min-h-10 items-center text-[11px] font-body tracking-widest uppercase bg-primary-foreground/15 hover:bg-primary-foreground/25 rounded-lg px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-foreground/50">Check in</Link>
-          <button type="button" onClick={() => navigate(`/live/${liveCode}`)} className="inline-flex min-h-10 items-center text-[11px] font-body tracking-widest uppercase bg-primary-foreground text-primary rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50">Join â†’</button>
+          <button type="button" onClick={() => navigate(`/live/${liveCode}`)} className="inline-flex min-h-10 items-center text-[11px] font-body tracking-widest uppercase bg-primary-foreground text-primary rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50">Join →</button>
         </motion.div>
       )}
 
       {/* Member-only: cold-start */}
       {view === "member" && notStarted && (
         <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
-          <p className="text-sm font-body text-foreground/80">Your 52-week journey hasn't started yet â€” your facilitator will set the start date soon. You can still explore the coursebook below.</p>
+          <p className="text-sm font-body text-foreground/80">Your 52 weeks haven't started yet — your facilitator will set the start date soon. You can still explore the coursebook below.</p>
         </div>
       )}
 

@@ -1,4 +1,4 @@
-﻿// CommerceInventory â€” stock is a ledger, not an editable number.
+﻿// CommerceInventory — stock is a ledger, not an editable number.
 // Receive stock, record adjustments/damage/stocktake, and read the movement
 // history. Current levels come from the materialised variant stock that
 // shop_adjust_stock maintains transactionally.
@@ -97,17 +97,17 @@ const CommerceInventory = () => {
     <div className="space-y-6 max-w-5xl">
       <div>
         <h2 className="font-display text-2xl tracking-wider text-primary mb-1">INVENTORY</h2>
-        <p className="text-sm text-muted-foreground">Every change is a ledger movement â€” stock is never edited directly.</p>
+        <p className="text-sm text-muted-foreground">Every change is a ledger movement — stock is never edited directly.</p>
       </div>
 
       {/* Stock levels */}
       <div>
         <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mb-2">Current stock (tracked SKUs)</p>
         {loading ? (
-          <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-8 text-center">Loadingâ€¦</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-8 text-center">Loading…</p>
         ) : tracked.length === 0 ? (
           <div className="border border-border bg-card rounded-sm p-8 text-center text-sm text-muted-foreground">
-            No stock-tracked SKUs yet â€” enable tracking on a product to manage its inventory.
+            No stock-tracked SKUs yet — enable tracking on a product to manage its inventory.
           </div>
         ) : (
           <div className="border border-border rounded-xl overflow-x-auto bg-card">
@@ -124,7 +124,7 @@ const CommerceInventory = () => {
                 {tracked.map((r) => (
                   <tr key={r.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-2.5 font-semibold">{r.sku || r.name}</td>
-                    <td className="px-4 py-2.5">{r.products.name}{r.name !== "Default" ? ` â€” ${r.name}` : ""}</td>
+                    <td className="px-4 py-2.5">{r.products.name}{r.name !== "Default" ? ` — ${r.name}` : ""}</td>
                     <td className={`px-4 py-2.5 text-right font-semibold ${r.stock_available <= r.products.low_stock_threshold ? "text-amber-700" : ""}`}>
                       {r.stock_available}
                     </td>
@@ -145,9 +145,9 @@ const CommerceInventory = () => {
               <PackagePlus size={12} /> Receive stock
             </p>
             <select className={inputCls} value={receiveVariant} onChange={(e) => setReceiveVariant(e.target.value)}>
-              <option value="">Choose SKUâ€¦</option>
+              <option value="">Choose SKU…</option>
               {rows.map((r) => (
-                <option key={r.id} value={r.id}>{r.sku || r.name} â€” {r.products.name}{r.name !== "Default" ? ` ${r.name}` : ""}</option>
+                <option key={r.id} value={r.id}>{r.sku || r.name} — {r.products.name}{r.name !== "Default" ? ` ${r.name}` : ""}</option>
               ))}
             </select>
             <input className={inputCls} placeholder="Quantity" value={receiveQty} onChange={(e) => setReceiveQty(e.target.value)} />
@@ -172,9 +172,9 @@ const CommerceInventory = () => {
             <div className="border border-border rounded-sm p-4 space-y-3 bg-card">
               <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">Adjust stock</p>
               <select className={inputCls} value={adjustVariant} onChange={(e) => setAdjustVariant(e.target.value)}>
-                <option value="">Choose SKUâ€¦</option>
+                <option value="">Choose SKU…</option>
                 {rows.map((r) => (
-                  <option key={r.id} value={r.id}>{r.sku || r.name} â€” {r.products.name}{r.name !== "Default" ? ` ${r.name}` : ""}</option>
+                  <option key={r.id} value={r.id}>{r.sku || r.name} — {r.products.name}{r.name !== "Default" ? ` ${r.name}` : ""}</option>
                 ))}
               </select>
               <div className="grid grid-cols-2 gap-2">
@@ -191,7 +191,7 @@ const CommerceInventory = () => {
               <button
                 onClick={() => {
                   const delta = parseInt(adjustDelta, 10);
-                  if (!adjustVariant || !Number.isFinite(delta) || delta === 0) { toast.error("Choose a SKU and a non-zero quantity (use âˆ’ for reductions)"); return; }
+                  if (!adjustVariant || !Number.isFinite(delta) || delta === 0) { toast.error("Choose a SKU and a non-zero quantity (use − for reductions)"); return; }
                   run("adjust_stock", { variant_id: adjustVariant, delta, type: adjustType, reason: adjustReason }, "Stock adjusted");
                   setAdjustDelta(""); setAdjustReason("");
                 }}
@@ -226,7 +226,7 @@ const CommerceInventory = () => {
                 {movements.map((m) => (
                   <tr key={m.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">{fmtDate(m.created_at)}</td>
-                    <td className="px-4 py-2.5">{m.shop_product_variants?.sku || m.shop_product_variants?.name || "â€”"}</td>
+                    <td className="px-4 py-2.5">{m.shop_product_variants?.sku || m.shop_product_variants?.name || "—"}</td>
                     <td className="px-4 py-2.5">{m.type.replace(/_/g, " ")}</td>
                     <td className={`px-4 py-2.5 text-right font-semibold ${m.quantity_change > 0 ? "text-[hsl(152_48%_30%)]" : "text-destructive"}`}>
                       {m.quantity_change > 0 ? "+" : ""}{m.quantity_change}

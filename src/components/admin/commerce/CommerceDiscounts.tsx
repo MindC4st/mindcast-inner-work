@@ -1,4 +1,4 @@
-﻿// CommerceDiscounts â€” restrained by design: fixed / percent / free shipping,
+﻿// CommerceDiscounts — restrained by design: fixed / percent / free shipping,
 // date windows and usage limits. No urgency mechanics.
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +23,7 @@ type Discount = {
 };
 
 const fmtDate = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" }) : "â€”";
+  iso ? new Date(iso).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" }) : "—";
 
 const CommerceDiscounts = () => {
   const roles = useCommerceRoles();
@@ -103,7 +103,7 @@ const CommerceDiscounts = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-2xl tracking-wider text-primary mb-1">DISCOUNTS</h2>
-          <p className="text-sm text-muted-foreground">For customer service, staff, community support and testing â€” never scarcity.</p>
+          <p className="text-sm text-muted-foreground">For customer service, staff, community support and testing — never scarcity.</p>
         </div>
         <button onClick={() => setCreating(true)}
           className="flex items-center gap-2 px-4 py-2 text-[11px] font-body font-semibold tracking-widest uppercase bg-foreground text-background rounded-sm">
@@ -112,7 +112,7 @@ const CommerceDiscounts = () => {
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : discounts.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-10 text-center text-sm text-muted-foreground">No discounts yet.</div>
       ) : (
@@ -135,7 +135,7 @@ const CommerceDiscounts = () => {
                   <td className="px-4 py-3">
                     {d.kind === "fixed" ? formatMoney(d.value_cents) : d.kind === "percent" ? `${d.value_percent}%` : "Free shipping"}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{fmtDate(d.starts_at)} â†’ {fmtDate(d.ends_at)}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{fmtDate(d.starts_at)} → {fmtDate(d.ends_at)}</td>
                   <td className="px-4 py-3 text-right">{d.times_used}{d.usage_limit ? ` / ${d.usage_limit}` : ""}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 text-[10px] tracking-widest uppercase rounded-sm border ${

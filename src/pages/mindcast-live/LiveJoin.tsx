@@ -49,7 +49,7 @@ const LiveJoin = () => {
 
   // 'auto' = follow the user's profile setting; otherwise this session overrides it.
   // Cast: the generated Supabase types don't know about live_display_mode yet
-  // (migration is in this PR â€” type regen happens after deploy).
+  // (migration is in this PR — type regen happens after deploy).
   const profileLiveMode = profile?.live_display_mode as DisplayMode | undefined;
   const [displayMode, setDisplayMode] = useState<DisplayMode>(profileLiveMode || "first_initial");
   useEffect(() => {
@@ -96,18 +96,18 @@ const LiveJoin = () => {
       setState(payload as LiveState);
       setSubmittedFor(prev => prev === `${payload.slide}` ? prev : null);
     });
-    // Moderator decisions land here â€” we only act on events about *our* row.
+    // Moderator decisions land here — we only act on events about *our* row.
     ch.on("broadcast", { event: "moderation" }, ({ payload }) => {
       if (!payload || payload.id !== submittedRowId) return;
       if (payload.status === "approved") setModerationStatus("approved");
       else if (payload.status === "denied") {
         setModerationStatus("denied");
-        setDenialReason(payload.reason || "Held â€” not for tonight's room.");
+        setDenialReason(payload.reason || "Held — not for tonight's room.");
       }
     });
     ch.subscribe((status) => {
       if (status === "SUBSCRIBED") {
-        // Hello â€” asks the facilitator to (re)send current state for late joiners.
+        // Hello — asks the facilitator to (re)send current state for late joiners.
         ch.send({ type: "broadcast", event: "hello", payload: { ts: Date.now() } });
       }
     });
@@ -141,7 +141,7 @@ const LiveJoin = () => {
   }, [joined, sessionCode, submittedRowId]);
 
   // When the facilitator is on the opening intention slide, fetch this member's
-  // own intention from the previous week (never anyone else's â€” the RPC is
+  // own intention from the previous week (never anyone else's — the RPC is
   // scoped to the caller).
   useEffect(() => {
     if (!user || state?.promptType !== "intention_review" || !state?.week) return;
@@ -164,7 +164,7 @@ const LiveJoin = () => {
     if (!user || !state?.week) return;
     const prevWeek = state.week - 1;
     if (prevWeek < 1) return;
-    setLastOutcome(v);           // optimistic â€” a tap should feel instant
+    setLastOutcome(v);           // optimistic — a tap should feel instant
     setSavingOutcome(true);
     const { error } = await (db as unknown as {
       rpc: (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }>;
@@ -190,11 +190,11 @@ const LiveJoin = () => {
     if (!state || !response.trim() || !user) return;
 
     // Closing "intention" prompt: the one thing they'll do this week. Private by
-    // design â€” saved only to their own journal so it can be read back next
+    // design — saved only to their own journal so it can be read back next
     // Sunday. Never written to session_responses (nothing on the big screen).
     if (state.promptType === "intention") {
       const pid = profile?.id;
-      if (!pid) { toast({ title: "Couldn't save", description: "Profile not ready â€” try again." }); return; }
+      if (!pid) { toast({ title: "Couldn't save", description: "Profile not ready — try again." }); return; }
       setSubmitting(true);
       const { error: intErr } = await db.from("lesson_journal").upsert(
         { profile_id: pid, week_number: state.week, track: state.audience, weekly_intention: response.trim().slice(0, 2000) },
@@ -216,7 +216,7 @@ const LiveJoin = () => {
     if (state.promptType === "activity") {
       const kind = (state.activityType || "reflection").toLowerCase();
       // 60 chars suits a single word-cloud word, but a completed sentence stem
-      // is longer than that before the member types anything â€” truncating it
+      // is longer than that before the member types anything — truncating it
       // there would cut every phrase mid-word.
       const value = response.trim().slice(0, kind === "phrase" ? 220 : 60);
       setSubmitting(true);
@@ -284,7 +284,7 @@ const LiveJoin = () => {
     // Persist to the member's durable journal so their live activity input shows
     // up under Session History. Only activity_response is set, so a portal
     // reflection for the same week is preserved (on-conflict updates that column
-    // only). Best-effort â€” never block the live submission on it.
+    // only). Best-effort — never block the live submission on it.
     const pid = profile?.id;
     if (pid && state.audience) {
       try {
@@ -313,7 +313,7 @@ const LiveJoin = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center text-[hsl(var(--navy-mid))]/60 text-sm font-body" role="status">
-        Connecting to the sessionâ€¦
+        Connecting to the session…
       </div>
     );
   }
@@ -345,7 +345,7 @@ const LiveJoin = () => {
           </p>
 
           <p className="font-serif italic text-[hsl(var(--navy))] text-base leading-snug text-center mb-6">
-            "Your reflections from each session live in your member coursebook â€” yours to keep, yours to revisit."
+            "Your reflections from each session live in your member coursebook — yours to keep, yours to revisit."
           </p>
 
           <Link
@@ -356,7 +356,7 @@ const LiveJoin = () => {
           </Link>
 
           <p className="text-center text-[hsl(var(--navy-mid))]/70 text-[11px] mt-5 font-body leading-snug">
-            Not a member yet? Pick up a printed worksheet from the front desk for $10 â€” write your reflections by hand, take them home.
+            Not a member yet? Pick up a printed worksheet from the front desk for $10 — write your reflections by hand, take them home.
           </p>
 
           <div className="my-6 border-t border-[hsl(var(--warm-border))]" />
@@ -412,7 +412,7 @@ const LiveJoin = () => {
             <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="text-center py-20">
               <div className="inline-block w-2 h-2 rounded-full bg-[hsl(var(--blue))] animate-pulse mb-4" />
-              <p className="text-[hsl(var(--navy-mid))] text-sm font-body">Connected. Waiting for facilitatorâ€¦</p>
+              <p className="text-[hsl(var(--navy-mid))] text-sm font-body">Connected. Waiting for facilitator…</p>
             </motion.div>
           ) : !activePrompt ? (
             <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -441,7 +441,7 @@ const LiveJoin = () => {
                     </>
                   ) : (
                     <p className="text-[hsl(var(--navy-mid))]/70 font-body text-sm">
-                      No intention saved from last week â€” you can set one at the end of today's session.
+                      No intention saved from last week — you can set one at the end of today's session.
                     </p>
                   )}
                 </div>
@@ -453,7 +453,7 @@ const LiveJoin = () => {
               <p className="font-serif italic text-2xl text-[hsl(var(--navy))] leading-snug mb-6">"{state.promptText}"</p>
               <div className="border border-[hsl(var(--warm-border))] rounded-sm p-5 bg-white text-center">
                 <p className="text-[hsl(var(--navy-mid))]/80 text-sm font-body leading-snug mb-4">
-                  This prompt is for members to answer in their coursebook. You can sit with it in the room â€” or sign in to share.
+                  This prompt is for members to answer in their coursebook. You can sit with it in the room — or sign in to share.
                 </p>
                 <Link
                   to={`/auth?redirect=${encodeURIComponent(`/live/${sessionCode}`)}`}
@@ -507,7 +507,7 @@ const LiveJoin = () => {
                 </p>
               )}
 
-              {/* Scale â€” a 1-10 slider. The fastest interaction in the room, so
+              {/* Scale — a 1-10 slider. The fastest interaction in the room, so
                   it carries weeks that used to be a plain textarea. */}
               {isActivity && activityKind === "scale" ? (
                 <div className="mb-5">
@@ -542,7 +542,7 @@ const LiveJoin = () => {
                     onSave={({ selected }) => setResponse(selected[0] ?? "")}
                   />
                 </div>
-              ) : /* Poll â€” tap one of the facilitator's options. */
+              ) : /* Poll — tap one of the facilitator's options. */
               isActivity && activityKind === "poll" && pollOptions.length > 0 ? (
                 <div className="space-y-2 mb-5" role="radiogroup" aria-label="Choose a response">
                   {pollOptions.map((opt) => (
@@ -567,19 +567,19 @@ const LiveJoin = () => {
                   <input
                     value={response}
                     onChange={e => setResponse(e.target.value.slice(0, 24))}
-                    placeholder="One wordâ€¦"
+                    placeholder="One word…"
                     aria-label="One-word response"
                     autoComplete="off"
                     className="w-full px-4 py-3 border border-[hsl(var(--warm-border))] rounded-sm font-body text-xl text-center text-[hsl(var(--navy))] focus:outline-none focus:border-[hsl(var(--blue))]"
                   />
                   <p className="text-[10px] text-[hsl(var(--navy-mid))]/60 font-body mt-1 mb-4 text-center">
-                    Your word joins the wall â€” your name is not shown.
+                    Your word joins the wall — your name is not shown.
                   </p>
                 </>
               ) : (
               <>
               <textarea value={response} onChange={e => setResponse(e.target.value.slice(0, 300))}
-                placeholder={isIntentionPrompt ? "One specific thing I will do this weekâ€¦" : "Type your responseâ€¦"}
+                placeholder={isIntentionPrompt ? "One specific thing I will do this week…" : "Type your response…"}
                 aria-label={isIntentionPrompt ? "Your weekly intention" : "Your reflection"}
                 rows={5}
                 className="w-full px-4 py-3 border border-[hsl(var(--warm-border))] rounded-sm font-body text-[hsl(var(--navy))] resize-none focus:outline-none focus:border-[hsl(var(--blue))]" />
@@ -597,9 +597,9 @@ const LiveJoin = () => {
                 ) : isActivity ? (
                   <p className="text-[hsl(var(--navy-mid))]/70 font-body text-xs px-1">
                     {activityKind === "poll" || activityKind === "choice"
-                      ? "Your choice is counted in the room's totals â€” no names shown."
+                      ? "Your choice is counted in the room's totals — no names shown."
                       : activityKind === "scale"
-                      ? "Your number joins the room's spread â€” no names shown."
+                      ? "Your number joins the room's spread — no names shown."
                       : activityKind === "phrase"
                       ? "Your sentence joins the wall anonymously, once it's checked."
                       : "Your word joins the wall anonymously."}
@@ -646,7 +646,7 @@ const LiveJoin = () => {
 
               <button type="button" onClick={submit} disabled={!response.trim() || submitting}
                 className="w-full min-h-12 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm font-semibold py-3 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary/20">
-                {submitting ? "Sendingâ€¦" : "Submit"}
+                {submitting ? "Sending…" : "Submit"}
               </button>
 
               <p className="text-center text-[hsl(var(--navy-mid))]/50 text-[10px] mt-3 font-body">
