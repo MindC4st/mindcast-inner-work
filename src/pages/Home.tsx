@@ -588,7 +588,12 @@ const TracksSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
 
-  const { scrollYProgress } = useScroll({ target: sectionRef });
+  // Progress 0 when the section pins (top hits top), 1 when it unpins —
+  // the slide happens entirely while the viewer is held.
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-66.6667%"]);
 
   // Track which room is in view so the dashes follow the scroll.
@@ -682,8 +687,13 @@ const TracksSection = () => {
           className="mt-12 flex h-[52vh] w-[300%] min-h-[380px]"
           style={{ x }}
         >
+          {/* Each wrapper is 1/3 of the 300% track = exactly one viewport.
+              (A bare `w-full` slide resolves against the 300% track and
+              renders three viewports wide — the bug that hid rooms 2–3.) */}
           {TRACK_SLIDES.map((slide, index) => (
-            <TrackSlide key={slide.title} slide={slide} index={index} />
+            <div key={slide.title} className="flex w-1/3 shrink-0 items-center">
+              <TrackSlide slide={slide} index={index} />
+            </div>
           ))}
         </motion.div>
       </div>
