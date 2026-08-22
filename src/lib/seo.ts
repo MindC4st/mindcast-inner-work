@@ -110,6 +110,15 @@ export const PUBLIC_PAGES: PageSeo[] = [
     priority: 0.9,
   },
   {
+    path: "/apply",
+    title: "Apply for the Taupō Pilot Group | Mindcast",
+    description:
+      "Ten Tuesday nights, nine places, no cost. Mindcast's first pilot group is for people aged 30 to 45 in Taupō. Apply before 9am, Tuesday 29 September.",
+    ogTitle: "Apply for the Mindcast pilot group",
+    changefreq: "weekly",
+    priority: 0.9,
+  },
+  {
     path: "/shop",
     title: "Session Worksheets | Mindcast",
     description:

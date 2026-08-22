@@ -206,6 +206,7 @@ const AppRoutes = () => (
       <Route path="/about" element={<About />} />
       <Route path="/curriculum" element={<Curriculum />} />
       <Route path="/membership" element={<Membership />} />
+      <Route path="/apply" element={<Apply />} />
       <Route path="/pilot" element={<LegacyRedirect to="/membership" />} />
 
       {/* Legal */}
@@ -280,6 +281,7 @@ const TITLE_MAP: [string, string][] = [
   ["/admin/scan", "Door Scan · Mindcast"],
   ["/portal/pass", "Door Pass · Mindcast Portal"],
   ["/try", "Try a Session · Mindcast"],
+  ["/apply", "Apply · Mindcast"],
   ["/admin/staff-training", "Staff Training · Mindcast"],
   ["/admin", "Admin · Mindcast"],
   ["/workbook", "Workbook · Mindcast"],
