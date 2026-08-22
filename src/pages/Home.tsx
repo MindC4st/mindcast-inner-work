@@ -12,7 +12,6 @@ import logoBlue from "@/assets/logo-blue-wordmark.png";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import Ripple from "@/components/brand/Ripple";
-import SignalBar from "@/components/brand/SignalBar";
 import { CtaButton, Reveal } from "@/components/glow";
 
 const HOME_HOW_IT_WORKS =
@@ -139,6 +138,8 @@ const HeroSection = () => {
               className="mx-auto h-8 w-auto sm:h-9"
               width={286}
               height={48}
+            />
+          </motion.div>
             
 
           <motion.p
