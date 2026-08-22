@@ -21,10 +21,10 @@ test("home has no urgency or retention copy", async ({ page }) => {
   }
 });
 
-test("membership page shows the room, the trial pass and concession as peer tiers", async ({ page }) => {
+test("membership page shows the room, the free session pass and concession as peer tiers", async ({ page }) => {
   await page.goto("/membership");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/ROOM|TAUPŌ/i);
-  await expect(page.getByText("TRIAL PASS", { exact: false }).first()).toBeVisible();
+  await expect(page.getByText("FREE SESSION PASS", { exact: false }).first()).toBeVisible();
   await expect(page.getByText("CONCESSION", { exact: false }).first()).toBeVisible();
   // Charter rule: no urgency anywhere on the pricing page.
   const body = (await page.textContent("body"))?.toLowerCase() ?? "";
