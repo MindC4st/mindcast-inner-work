@@ -15,23 +15,30 @@ type Row = {
   room: string | null;
   session_code: string | null;
   status: string;
+  location_id: string | null;
 };
+type Location = { id: string; name: string };
 
 const TRACKS = ["Adult", "Teen", "Child"] as const;
 
 const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
-  const [form, setForm] = useState({ session_date: "", track: "Adult", week_number: 1, room: "", session_code: "" });
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [form, setForm] = useState({ session_date: "", track: "Adult", week_number: 1, room: "", session_code: "", location_id: "" });
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    const { data } = await db
-      .from("scheduled_sessions")
-      .select("*")
-      .order("session_date", { ascending: false })
-      .limit(200);
-    setRows(data || []);
+    const [sessionResult, locationResult] = await Promise.all([
+      db.from("scheduled_sessions").select("*").order("session_date", { ascending: false }).limit(200),
+      db.from("programme_locations" as never).select("id,name").eq("is_active", true),
+    ]);
+    const nextLocations = (locationResult.data || []) as unknown as Location[];
+    setRows((sessionResult.data || []) as unknown as Row[]);
+    setLocations(nextLocations);
+    setForm((current) => current.location_id || !nextLocations[0]
+      ? current
+      : { ...current, location_id: nextLocations[0].id });
   };
   useEffect(() => { load(); }, []);
 
@@ -45,8 +52,9 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
         week_number: Number(form.week_number),
         room: form.room || null,
         session_code: form.session_code ? form.session_code.toUpperCase() : null,
-      },
-      { onConflict: "session_date,track" },
+        location_id: form.location_id || null,
+      } as never,
+      { onConflict: "session_date,track,location_id" },
     );
     setSaving(false);
     if (error) { toast({ title: "Could not save", description: error.message, variant: "destructive" }); return; }
@@ -77,7 +85,7 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
         <h1 className="font-serif text-3xl sm:text-4xl mb-2">Session scheduling</h1>
         <p className="mb-7 font-body text-sm leading-6 text-muted-foreground">Create each room’s date, track and join code, then move it live when the facilitator is ready.</p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-8 items-end rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <div className="grid grid-cols-2 sm:grid-cols-7 gap-3 mb-8 items-end rounded-2xl border border-border bg-card p-4 sm:p-5">
           <label className="col-span-2 text-xs">Date
             <input type="date" value={form.session_date} onChange={(e) => setForm({ ...form, session_date: e.target.value })}
               className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background" />
@@ -86,6 +94,12 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
             <select value={form.track} onChange={(e) => setForm({ ...form, track: e.target.value })}
               className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background">
               {TRACKS.map((t) => <option key={t}>{t}</option>)}
+            </select>
+          </label>
+          <label className="text-xs">Location
+            <select value={form.location_id} onChange={(e) => setForm({ ...form, location_id: e.target.value })}
+              className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background">
+              {locations.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
           </label>
           <label className="text-xs">Week
@@ -102,7 +116,7 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
               className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background uppercase" />
           </label>
           <button type="button" onClick={add} disabled={saving}
-            className="col-span-2 sm:col-span-6 min-h-11 bg-primary text-primary-foreground rounded-xl py-2 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20">
+            className="col-span-2 sm:col-span-7 min-h-11 bg-primary text-primary-foreground rounded-xl py-2 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20">
             {saving ? "Saving…" : "Add / update session"}
           </button>
         </div>
@@ -110,12 +124,13 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
         <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full min-w-[760px] text-sm">
           <thead><tr className="text-left text-foreground/40 border-b">
-            <th className="py-2">Date</th><th>Track</th><th>Wk</th><th>Room</th><th>Code</th><th>Status</th><th></th>
+            <th className="py-2">Date</th><th>Location</th><th>Track</th><th>Wk</th><th>Room</th><th>Code</th><th>Status</th><th></th>
           </tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-foreground/[0.06]">
                 <td className="py-2">{r.session_date}</td>
+                <td>{locations.find((item) => item.id === r.location_id)?.name || "—"}</td>
                 <td>{r.track}</td>
                 <td>{r.week_number}</td>
                 <td>{r.room || "—"}</td>
@@ -127,7 +142,7 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
                 </td>
               </tr>
             ))}
-            {rows.length === 0 && <tr><td colSpan={7} className="py-6 text-center text-foreground/40">No sessions scheduled yet.</td></tr>}
+            {rows.length === 0 && <tr><td colSpan={8} className="py-6 text-center text-foreground/40">No sessions scheduled yet.</td></tr>}
           </tbody>
         </table>
         </div>

@@ -87,6 +87,10 @@ export const T = {
   wordmarkUrl:
     "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/Wordmark-White-Transparent.png",
 
+  // The signal mark (the brand's signature device), shown beneath the masthead.
+  signalMarkUrl:
+    "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/signal-mark-v4.png",
+
   // Retained only so legacy imports don't break.
   // New email layouts should not rely on external web fonts.
   fontsLink: "",

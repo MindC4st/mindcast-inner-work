@@ -139,9 +139,7 @@ const HeroSection = () => {
               className="mx-auto h-8 w-auto sm:h-9"
               width={286}
               height={48}
-            />
-            <SignalBar className="mx-auto mt-4 max-w-[240px]" />
-          </motion.div>
+            
 
           <motion.p
             variants={heroRise}

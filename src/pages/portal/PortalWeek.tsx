@@ -376,6 +376,11 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
     return () => { active = false; };
   }, [profileId, weekNum, track]);
 
+  useEffect(() => {
+    if (track !== "Adult") return;
+    void db.rpc("record_my_journal_open" as never, { p_week: weekNum } as never);
+  }, [track, weekNum]);
+
   const save = async () => {
     setSaving(true);
     const { error } = await db.from("lesson_journal").upsert(
@@ -413,7 +418,7 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   return (
     <section className="mb-12 portal-card p-6 md:p-8 border-2 border-foreground/10">
       <h2 className="portal-heading text-lg text-primary mb-1 flex items-center gap-2"><PenLine size={16} /> My journal</h2>
-      <p className="text-xs text-muted-foreground font-body font-light mb-6">Private to you. Only a linked guardian can read a child's entries.</p>
+      <p className="text-xs text-muted-foreground font-body font-light mb-6">Private to you. Facilitators and admins cannot read your journal.</p>
 
       {/* The accountability loop: every session opens by returning to the
           intention set seven days ago. */}

@@ -103,6 +103,65 @@ async function parseBundle(sub: Stripe.Subscription): Promise<{
   };
 }
 
+/**
+ * Snapshot a recurring subscription as monthly cents for reporting.
+ *
+ * This uses Stripe's own recurring price amounts from the webhook payload and
+ * normalises monthly/yearly/weekly/daily intervals. It is intentionally stored
+ * on subscriptions at event time: old rows without a post-migration webhook
+ * remain null and Admin shows "Not enough data yet" rather than guessing.
+ */
+function subscriptionMrr(
+  sub: Stripe.Subscription,
+  familyDiscount: boolean,
+): { mrrCents: number | null; currency: string | null } {
+  let monthly = 0;
+  let currency: string | null = null;
+
+  for (const item of sub.items?.data || []) {
+    const price = item.price;
+    const recurring = price?.recurring;
+    const amount = price?.unit_amount;
+    const quantity = item.quantity ?? 1;
+
+    if (!recurring || amount == null || !price.currency) {
+      return { mrrCents: null, currency: null };
+    }
+    if (currency && currency !== price.currency) {
+      return { mrrCents: null, currency: null };
+    }
+    currency = price.currency;
+
+    const intervalCount = Math.max(1, recurring.interval_count || 1);
+    const lineAmount = amount * quantity;
+    switch (recurring.interval) {
+      case "month":
+        monthly += lineAmount / intervalCount;
+        break;
+      case "year":
+        monthly += lineAmount / (12 * intervalCount);
+        break;
+      case "week":
+        monthly += (lineAmount * 52) / (12 * intervalCount);
+        break;
+      case "day":
+        monthly += (lineAmount * 365) / (12 * intervalCount);
+        break;
+      default:
+        return { mrrCents: null, currency: null };
+    }
+  }
+
+  if (!currency || monthly <= 0) {
+    return { mrrCents: null, currency };
+  }
+
+  // The family discount is the only automatic subscription discount currently
+  // supported by the membership checkout and is recorded in bundle metadata.
+  if (familyDiscount) monthly *= 0.9;
+  return { mrrCents: Math.round(monthly), currency };
+}
+
 // Map a raw Stripe subscription status to the profiles.membership_status enum.
 const toMembershipStatus = (s: string): string => {
   switch (s) {
@@ -468,6 +527,7 @@ async function syncSubscription(
   }
 
   const bundle = await parseBundle(sub);
+  const mrr = subscriptionMrr(sub, bundle.familyDiscount);
 
   const highestTier =
     bundle.children > 0
@@ -500,6 +560,8 @@ async function syncSubscription(
             bundle.children,
           family_discount:
             bundle.familyDiscount,
+          mrr_cents: mrr.mrrCents,
+          currency: mrr.currency,
           current_period_end:
             sub.current_period_end
               ? new Date(

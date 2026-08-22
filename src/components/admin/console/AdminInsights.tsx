@@ -1,133 +1,165 @@
-﻿import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  PieChart, Pie, Cell,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart,
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { CreditCard, Baby, TrendingUp, Activity } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { AlertTriangle, CalendarRange, Download, Info, RefreshCw, Search, ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { METRIC_DEFINITIONS, reportRangeForPreset, type DatePreset } from "@/lib/adminReporting";
+import { toast } from "sonner";
 
-type InsightsStats = {
-  status_mix: { name: string; value: number }[];
-  signups_by_month: { month: string; new: number }[];
-  totals: { profiles: number; active: number; kids_addon: number; checkins: number };
+type JsonRecord = Record<string, unknown>;
+type Member = {
+  profile_id: string; member: string; track: string; status: string; household: string | null;
+  eligible: number; attended: number; missed: number; attendance_rate: number | null;
+  current_streak: number; longest_streak: number; missed_streak: number;
+  last_attended: string | null; last_journal_activity: string | null; journal_supported: boolean;
+};
+type RiskMember = Member & { six_week_attendance: number | null; reasons: Record<string, true> };
+type Growth = { month: string; starting: number; new: number; lost: number; ending: number; net: number; churn_rate: number | null; Adult: number; Teen: number; Child: number; total: number };
+type Report = {
+  coverage: { history_started_at: string; is_partial: boolean; message: string | null };
+  filters: { statuses: string[]; locations: { id: string; name: string }[]; cohorts: { value: string; label: string }[]; attendance_target: number };
+  executive: { active_paying_members: number; active_members: number; new_members: number | null; lost_members: number | null; net_growth: number | null; growth_percent: number | null; inactive_members: number; adult_active: number; teen_active: number; child_active: number; active_households: number; mrr_cents: number | null; currency: string | null };
+  growth: Growth[];
+  retention: { label: string; denominator: number; retained: number; overall: number | null; Adult: number | null; Teen: number | null; Child: number | null }[];
+  cohorts: { cohort: string; months: Record<string, number | null> }[];
+  churn: { current_rate: number | null; average_duration_days: number | null; median_duration_days: number | null };
+  attendance: { eligible: number; attended: number; rate: number | null; mean_sessions: number | null; median_sessions: number | null; average_current_streak: number | null; median_current_streak: number | null; longest_current_streak: number | null; four_plus_streak_percent: number | null; eight_plus_streak_percent: number | null; return_after_miss: number | null; return_after_two_misses: number | null; return_after_three_misses: number | null; distribution: { sessions: number; members: number }[]; trend: { week: string; track: string; eligible: number; attended: number; rate: number | null }[] };
+  member_metrics: Member[];
+  at_risk: RiskMember[];
+  journal: { possible_entries: number | null; completed_entries: number | null; completion_rate: number | null; average_session_completion: number | null; median_session_completion: number | null; entries_per_active_member_month: number | null; trend: { month: string; sessions: number; possible_entries: number; completed_entries: number; completion: number | null }[]; funnel: { week: number; theme: string; eligible: number; attended: number; journal_started: number; half_complete: number; complete: number }[] };
+  sessions: { week: number; theme: string; track: string; eligible: number; attendance_rate: number | null; journal_completion: number | null; entries_per_member: number | null }[];
+  families: { active_households: number; average_members: number | null; adult_only: number; adult_child: number; adult_teen: number; adult_teen_child: number; family_participation_rate: number | null; household_retention: number | null };
+  relationships: { retention_by_attendance_band: { band: string; members: number; retained: number; retention: number | null }[]; retention_by_journal_band: { band: string; members: number; retained: number; retention: number | null }[]; retention_by_missed_streak: { band: string; members: number; retained: number; retention: number | null }[] };
+  track_comparison: JsonRecord[];
+  lifecycle: { stage: string; count: number | null }[];
+  investor_scorecard: Record<string, number | null>;
+  investor_scorecard_changes: Record<string, number | null>;
+};
+type Detail = {
+  membership: Record<string, string | number | boolean | null>;
+  attendance: { eligible: number; attended: number; missed: number; rate: number | null; last_attendance: string | null; history: { session_date: string; week: number; attended: boolean; location: string | null }[] };
+  journal: { supported: boolean; reason?: string; sessions_with_activity?: number; fields_available?: number; fields_completed?: number; completion_rate?: number | null };
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  active: "#3585AF",
-  trialing: "#C5E3F3",
-  past_due: "#8E9299",
-  canceled: "#475569",
-  none: "#1E293B",
-};
+const TABS = ["Overview", "Membership", "Attendance", "Engagement", "Families", "Cohorts", "Sessions", "Members"] as const;
+type Tab = (typeof TABS)[number];
+const PRESETS: [DatePreset, string][] = [["7d","Last 7 days"],["30d","Last 30 days"],["90d","Last 90 days"],["this-month","This month"],["last-month","Last month"],["this-quarter","This quarter"],["ytd","Year to date"],["12m","Last 12 months"],["all","All time"],["custom","Custom range"]];
+const EXPORTS = [["member_metrics","Member metrics"],["attendance","Attendance"],["retention_cohorts","Retention cohorts"],["session_engagement","Session engagement"],["journal_engagement","Journal engagement"]] as const;
+const pct = (value: number | null | undefined) => value == null ? "Not enough data yet" : `${Number(value).toFixed(1)}%`;
+const num = (value: number | null | undefined, digits = 0) => value == null ? "Not enough data yet" : Number(value).toLocaleString("en-NZ", { maximumFractionDigits: digits });
+const date = (value: string | null | undefined) => value ? new Date(value).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" }) : "—";
+const month = (value: string) => { const [y,m] = value.split("-").map(Number); return new Date(y,m-1,1).toLocaleDateString("en-NZ", { month: "short", year: "2-digit" }); };
+const title = (value: string) => value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-const Card = ({ icon: Icon, label, value, sub }: { icon: LucideIcon; label: string; value: string | number; sub?: string }) => (
-  <div className="rounded-lg border border-border bg-card p-5">
-    <div className="flex items-center gap-2 mb-3">
-      <Icon size={14} className="text-primary" />
-      <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">{label}</p>
-    </div>
-    <p className="font-display text-3xl text-foreground tracking-wider">{value}</p>
-    {sub && <p className="text-[11px] font-body text-muted-foreground mt-1">{sub}</p>}
-  </div>
-);
+const Tip = ({ text }: { text: string }) => <span className="cursor-help text-muted-foreground" title={text} aria-label={text}><Info size={13} /></span>;
+const Card = ({ label, value, note, help }: { label: string; value: string | number | null; note?: string; help?: string }) => { const shown=value==null?"Not enough data yet":value; return <article className="min-h-32 rounded-xl border border-border bg-card p-4"><div className="flex items-center gap-2 text-[10px] font-body font-semibold uppercase tracking-[0.16em] text-muted-foreground"><span>{label}</span>{help && <Tip text={help} />}</div><p className={`mt-3 font-display tracking-wide ${String(shown).startsWith("Not ") ? "text-lg text-muted-foreground" : "text-3xl text-foreground"}`}>{shown}</p>{note && <p className="mt-2 text-xs font-body leading-5 text-muted-foreground">{note}</p>}</article>; };
+const Heading = ({ eyebrow, title: heading, copy }: { eyebrow: string; title: string; copy: string }) => <header className="mb-5"><p className="text-[10px] font-body font-semibold uppercase tracking-[0.22em] text-primary">{eyebrow}</p><h2 className="mt-1 font-display text-2xl tracking-wider">{heading}</h2><p className="mt-1 max-w-3xl text-sm font-body leading-6 text-muted-foreground">{copy}</p></header>;
+const TableShell = ({ children }: { children: React.ReactNode }) => <div className="overflow-x-auto rounded-xl border border-border bg-card p-5">{children}</div>;
 
 const AdminInsights = () => {
-  const [stats, setStats] = useState<InsightsStats | null>(null);
+  const initial = reportRangeForPreset("90d");
+  const [preset, setPreset] = useState<DatePreset>("90d");
+  const [start, setStart] = useState(initial.start || "");
+  const [end, setEnd] = useState(initial.end);
+  const [track, setTrack] = useState("All");
+  const [status, setStatus] = useState("All");
+  const [location, setLocation] = useState("All");
+  const [cohort, setCohort] = useState("All");
+  const [tab, setTab] = useState<Tab>("Overview");
+  const [report, setReport] = useState<Report | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [exporting, setExporting] = useState("");
+  const [member, setMember] = useState<Member | RiskMember | null>(null);
+  const [detail, setDetail] = useState<Detail | null>(null);
+  const requestId = useRef(0);
+  const args = useMemo(() => ({ p_start_date:start || null,p_end_date:end || null,p_track:track === "All" ? null : track,p_status:status === "All" ? null : status,p_location_id:location === "All" ? null : location,p_cohort:cohort === "All" ? null : cohort }), [start,end,track,status,location,cohort]);
 
-  useEffect(() => {
-    (async () => {
-      const { data, error: rpcErr } = await supabase.rpc("admin_insights_stats" as never);
-      if (rpcErr) { setError(rpcErr.message); return; }
-      setStats(data as unknown as InsightsStats);
-    })();
-  }, []);
+  const load = useCallback(async () => {
+    const current = ++requestId.current; setLoading(true); setError("");
+    const response = await supabase.rpc("admin_reporting_dashboard" as never, args as never);
+    if (current !== requestId.current) return;
+    if (response.error) setError(response.error.message); else setReport(response.data as unknown as Report);
+    setLoading(false);
+  }, [args]);
+  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (!member) { setDetail(null); return; } setDetail(null); void supabase.rpc("admin_reporting_member_detail" as never,{ p_profile_id:member.profile_id } as never).then(({data,error:detailError}) => detailError ? toast.error(detailError.message) : setDetail(data as unknown as Detail)); }, [member]);
+  const choosePreset = (value: DatePreset) => { setPreset(value); if (value !== "custom") { const range=reportRangeForPreset(value); setStart(range.start || ""); setEnd(range.end); } };
+  const money = (cents:number|null,currency:string|null) => cents == null || !currency ? "Not enough data yet" : new Intl.NumberFormat("en-NZ",{style:"currency",currency:currency.toUpperCase(),maximumFractionDigits:0}).format(cents/100);
+  const attendanceTrend = useMemo(() => { const rows=new Map<string,{week:string;eligible:number;attended:number}>(); for (const item of report?.attendance.trend || []) { const row=rows.get(item.week)||{week:item.week,eligible:0,attended:0}; row.eligible+=Number(item.eligible); row.attended+=Number(item.attended); rows.set(item.week,row); } return [...rows.values()].map((row)=>({...row,rate:row.eligible?row.attended/row.eligible*100:null,target:Number(report?.filters.attendance_target||.65)*100})); },[report]);
+  const download = async (kind:string) => {
+    setExporting(kind); const response=await supabase.rpc("admin_reporting_export" as never,{p_report:kind,...args} as never);
+    if (response.error) { toast.error(response.error.message); setExporting(""); return; }
+    const rows=(response.data||[]) as unknown as JsonRecord[]; if (!rows.length) { toast.info("There is no filtered data to export yet."); setExporting(""); return; }
+    const flat=rows.map((row)=>Object.fromEntries(Object.entries(row).flatMap(([key,value])=>value&&typeof value==="object"&&!Array.isArray(value)?Object.entries(value as JsonRecord).map(([nested,nestedValue])=>[`${key}_${nested}`,nestedValue]):[[key,value]])));
+    const headers=[...new Set(flat.flatMap(Object.keys))]; const escape=(value:unknown)=>`"${String(value??"").replace(/"/g,'""')}"`; const csv=[headers.map(escape).join(","),...flat.map((row)=>headers.map((key)=>escape(row[key])).join(","))].join("\r\n");
+    const url=URL.createObjectURL(new Blob([`\uFEFF${csv}`],{type:"text/csv;charset=utf-8"})); const anchor=document.createElement("a"); anchor.href=url; anchor.download=`mindcast-${kind}-${end}.csv`; anchor.click(); URL.revokeObjectURL(url); setExporting(""); toast.success("Filtered report exported");
+  };
 
-  const signups = useMemo(() => {
-    let running = 0;
-    return (stats?.signups_by_month || []).map((m) => {
-      running += m.new;
-      const [y, mo] = m.month.split("-").map(Number);
-      return {
-        label: new Date(y, mo - 1, 1).toLocaleDateString("en-NZ", { month: "short", year: "2-digit" }),
-        Members: running,
-      };
-    });
-  }, [stats]);
-
-  if (error) {
-    return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load insights: {error}</p>;
-  }
-  if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading insights…</span></div>;
-  }
-
-  const { totals, status_mix } = stats;
-  const activeRate = totals.profiles ? Math.round((totals.active / totals.profiles) * 100) : 0;
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-display text-2xl text-primary tracking-wider">Insights</h2>
-        <p className="text-muted-foreground text-sm font-body mt-1">Membership health and community growth at a glance.</p>
-      </div>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card icon={CreditCard} label="Active members" value={totals.active} sub={`${totals.profiles} total profiles`} />
-        <Card icon={Baby} label="Kids add-ons" value={totals.kids_addon} sub="families on the child track" />
-        <Card icon={Activity} label="Total check-ins" value={totals.checkins} sub="NFC + kiosk + manual" />
-        <Card icon={TrendingUp} label="Active rate" value={`${activeRate}%`} sub="active or trialing" />
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-card p-5">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-4">Membership mix</p>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={status_mix} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2} stroke="#0A1120">
-                  {status_mix.map((s) => (
-                    <Cell key={s.name} fill={STATUS_COLORS[s.name] || "#64748B"} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ background: "#0A1120", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 12 }}
-                  itemStyle={{ color: "#E2E8F0" }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2">
-            {status_mix.map((s) => (
-              <span key={s.name} className="flex items-center gap-2 text-[11px] font-body text-muted-foreground">
-                <span className="w-2.5 h-2.5 rounded-sm" style={{ background: STATUS_COLORS[s.name] || "#64748B" }} />
-                {s.name} Â· {s.value}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-border bg-card p-5">
-          <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-4">Cumulative members</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={signups}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis dataKey="label" stroke="#8E9299" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#8E9299" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: "#0A1120", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 12 }}
-                  labelStyle={{ color: "#E2E8F0" }}
-                />
-                <Area type="monotone" dataKey="Members" stroke="#3585AF" fill="#3585AF" fillOpacity={0.2} strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  if (error) return <div className="mx-auto max-w-3xl rounded-xl border border-destructive/25 bg-destructive/[0.04] p-8 text-center"><AlertTriangle className="mx-auto text-destructive"/><h2 className="mt-3 font-display text-2xl">REPORTING COULD NOT LOAD</h2><p className="mt-2 text-sm font-body text-muted-foreground">{error}</p><p className="mt-2 text-xs font-body text-muted-foreground">Apply the September 2026 Admin reporting migrations first.</p><Button className="mt-5 gap-2" onClick={()=>void load()}><RefreshCw size={14}/>Try again</Button></div>;
+  return <div className="space-y-7">
+    <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between"><div><p className="text-[10px] font-body font-semibold uppercase tracking-[0.24em] text-primary">Admin reporting</p><h1 className="mt-1 font-display text-3xl tracking-wider md:text-4xl">MEMBERSHIP HEALTH</h1><p className="mt-2 max-w-2xl text-sm font-body text-muted-foreground">Are we growing, are people staying, are they attending, and are they actually participating?</p></div><div className="flex flex-wrap gap-2">{EXPORTS.map(([key,label])=><Button key={key} variant="outline" size="sm" className="gap-2" disabled={!report||Boolean(exporting)} onClick={()=>void download(key)}><Download size={13}/>{exporting===key?"Preparing…":label}</Button>)}</div></div>
+    <Filters preset={preset} choosePreset={choosePreset} start={start} setStart={setStart} end={end} setEnd={setEnd} track={track} setTrack={setTrack} status={status} setStatus={setStatus} location={location} setLocation={setLocation} cohort={cohort} setCohort={setCohort} report={report} loading={loading}/>
+    {report?.coverage.is_partial&&<div role="status" className="flex gap-3 rounded-xl border border-primary/20 bg-primary/[0.05] p-4 text-sm font-body"><ShieldCheck size={18} className="shrink-0 text-primary"/><div><strong>Historical coverage is partial.</strong><p className="mt-1 text-muted-foreground">{report.coverage.message}</p></div></div>}
+    <div className="overflow-x-auto" role="tablist" aria-label="Reporting views"><div className="flex min-w-max gap-1 rounded-xl border border-border bg-card p-1">{TABS.map((item)=><button key={item} role="tab" aria-selected={tab===item} onClick={()=>setTab(item)} className={`min-h-10 rounded-lg px-3.5 text-[11px] font-body font-semibold uppercase tracking-[0.12em] ${tab===item?"bg-primary text-primary-foreground":"text-muted-foreground hover:text-foreground"}`}>{item}</button>)}</div></div>
+    {!report?<div className="flex min-h-72 items-center justify-center rounded-xl border border-border bg-card"><span className="animate-pulse text-sm font-body text-muted-foreground">Calculating filtered reporting…</span></div>:<div className={loading?"pointer-events-none opacity-60":""}>{tab==="Overview"&&<Overview r={report} money={money}/>} {tab==="Membership"&&<Membership r={report}/>} {tab==="Attendance"&&<Attendance r={report} trend={attendanceTrend} open={setMember}/>} {tab==="Engagement"&&<Engagement r={report}/>} {tab==="Families"&&<Families r={report}/>} {tab==="Cohorts"&&<Cohorts r={report}/>} {tab==="Sessions"&&<Sessions r={report}/>} {tab==="Members"&&<Members r={report} open={setMember}/>}</div>}
+    {report&&tab==="Membership"&&<RelationshipAnalysis data={report.relationships}/>}
+    {report&&tab==="Attendance"&&<AttendanceDistribution data={report.attendance}/>}
+    {member&&<MemberDetail member={member} detail={detail} close={()=>setMember(null)}/>} </div>;
 };
+
+type FilterProps = { preset:DatePreset;choosePreset:(v:DatePreset)=>void;start:string;setStart:(v:string)=>void;end:string;setEnd:(v:string)=>void;track:string;setTrack:(v:string)=>void;status:string;setStatus:(v:string)=>void;location:string;setLocation:(v:string)=>void;cohort:string;setCohort:(v:string)=>void;report:Report|null;loading:boolean };
+const Filters = (p:FilterProps) => <section aria-label="Report filters" className="rounded-xl border border-border bg-card p-4"><div className="mb-3 flex items-center gap-2 text-[10px] font-body font-semibold uppercase tracking-[0.18em] text-muted-foreground"><CalendarRange size={14} className="text-primary"/>Report filters{p.loading&&<span className="ml-auto animate-pulse normal-case tracking-normal">Updating…</span>}</div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+  <Select label="Date range" value={p.preset} change={(v)=>p.choosePreset(v as DatePreset)} options={PRESETS.map(([value,label])=>({value,label}))}/>
+  <Select label="Member type" value={p.track} change={p.setTrack} options={["All","Adult","Teen","Child"].map(value=>({value,label:value}))}/>
+  <Select label="Membership status" value={p.status} change={p.setStatus} options={[{value:"All",label:"All"},...(p.report?.filters.statuses||[]).map(value=>({value,label:title(value)}))]}/>
+  <Select label="Location / community" value={p.location} change={p.setLocation} options={[{value:"All",label:"All locations"},...(p.report?.filters.locations||[]).map(row=>({value:row.id,label:row.name}))]}/>
+  <div className="lg:col-span-2"><Select label="Cohort" value={p.cohort} change={p.setCohort} options={[{value:"All",label:"All cohorts"},...(p.report?.filters.cohorts||[])]}/></div>
+  </div>{p.preset==="custom"&&<div className="mt-3 grid gap-3 sm:grid-cols-2 lg:w-2/3"><DateField label="Start date" value={p.start} max={p.end} change={p.setStart}/><DateField label="End date" value={p.end} min={p.start} change={p.setEnd}/></div>}</section>;
+const Select=({label,value,change,options}:{label:string;value:string;change:(v:string)=>void;options:{value:string;label:string}[]})=><label className="block text-xs font-body text-muted-foreground">{label}<select value={value} onChange={e=>change(e.target.value)} className="mt-1 min-h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground">{options.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
+const DateField=({label,value,change,min,max}:{label:string;value:string;change:(v:string)=>void;min?:string;max?:string})=><label className="text-xs font-body text-muted-foreground">{label}<input type="date" value={value} min={min} max={max} onChange={e=>change(e.target.value)} className="mt-1 min-h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"/></label>;
+
+const Overview=({r,money}:{r:Report;money:(c:number|null,u:string|null)=>string})=><div className="space-y-8"><section><Heading eyebrow="Overview" title="THE NUMBERS WE NEED CONSTANTLY" copy="Current membership position, selected-period movement, show-up and participation."/><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Card label="Active paying members" value={r.executive.active_paying_members} help={METRIC_DEFINITIONS.payingMember}/><Card label="Net growth" value={num(r.executive.net_growth)} note={r.executive.new_members==null?"No reliable history in this period":`${r.executive.new_members} joined · ${r.executive.lost_members} left`}/><Card label="Attendance" value={pct(r.attendance.rate)} note={`${r.attendance.attended} of ${r.attendance.eligible} eligible sessions`} help={METRIC_DEFINITIONS.attendanceRate}/><Card label="Return after miss" value={pct(r.attendance.return_after_miss)} help={METRIC_DEFINITIONS.returnAfterMiss}/><Card label="Adult journal completion" value={pct(r.journal.completion_rate)} note="Teen and Child are paper-only"/><Card label="Active households" value={r.executive.active_households}/><Card label="Monthly recurring revenue" value={money(r.executive.mrr_cents,r.executive.currency)} note={r.executive.mrr_cents==null?"Populates after a new Stripe subscription event.":"Recurring Stripe price snapshot"}/><Card label="Monthly churn" value={pct(r.churn.current_rate)} help={METRIC_DEFINITIONS.churn}/></div></section><section className="grid gap-4 xl:grid-cols-[1.4fr_1fr]"><ChartBox title="ACTIVE MEMBERS BY MONTH" note="Historical status intervals, not today's members grouped by join date."><ResponsiveContainer width="100%" height="100%"><AreaChart data={r.growth}><Grid/><XAxis dataKey="month" tickFormatter={month} fontSize={10}/><YAxis allowDecimals={false} fontSize={10}/><ChartTooltip/><Area dataKey="Adult" stackId="x" stroke="#337DA5" fill="#337DA5"/><Area dataKey="Teen" stackId="x" stroke="#789AAD" fill="#789AAD"/><Area dataKey="Child" stackId="x" stroke="#B8C8D1" fill="#B8C8D1"/></AreaChart></ResponsiveContainer></ChartBox><Scorecard values={r.investor_scorecard} changes={r.investor_scorecard_changes}/></section></div>;
+const Grid=()=> <CartesianGrid stroke="hsl(var(--border))" vertical={false}/>;
+const ChartTooltip=()=> <Tooltip contentStyle={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))",borderRadius:10}}/>;
+const ChartBox=({title:heading,note,children}:{title:string;note?:string;children:React.ReactNode})=><div className="rounded-xl border border-border bg-card p-5"><h3 className="font-display text-lg tracking-wider">{heading}</h3>{note&&<p className="mt-1 text-xs font-body text-muted-foreground">{note}</p>}<div className="mt-5 h-72">{children}</div></div>;
+const Scorecard=({values,changes}:{values:Record<string,number|null>;changes:Record<string,number|null>})=><div className="rounded-xl border border-border bg-card p-5"><h3 className="font-display text-lg tracking-wider">INVESTOR SCORECARD</h3><div className="mt-4 divide-y divide-border">{Object.entries(values).map(([key,value])=><div key={key} className="flex items-start justify-between gap-3 py-2.5 text-sm font-body"><span className="text-muted-foreground">{title(key)}</span><span className="text-right"><strong className="block">{["active_paying_members","net_growth","active_households","active_locations"].includes(key)?num(value):key==="mrr_cents"?(value==null?"Not enough data yet":`$${num(value/100)}`):pct(value)}</strong><small className="text-[10px] text-muted-foreground">{changes[key]==null?"Change not available yet":`${changes[key]!>0?"+":""}${Number(changes[key]).toFixed(1)} vs previous period`}</small></span></div>)}</div></div>;
+
+const Membership=({r}:{r:Report})=><div className="space-y-8"><Heading eyebrow="Membership" title="GROWTH, RETENTION & CHURN" copy="Observed transitions preserve prior months when someone later cancels."/><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Card label="Active members" value={r.executive.active_members}/><Card label="New in period" value={r.executive.new_members}/><Card label="Lost in period" value={r.executive.lost_members}/><Card label="Growth" value={pct(r.executive.growth_percent)}/></div><TableShell><h3 className="font-display text-lg tracking-wider">MONTHLY MOVEMENT</h3><table className="mt-4 w-full min-w-[680px] text-left text-sm font-body"><Head cells={["Month","Starting","New","Lost","Net","Ending","Churn"]}/><tbody>{r.growth.map(row=><tr key={row.month} className="border-b border-border/70"><Cell strong>{month(row.month)}</Cell><Cell>{row.starting}</Cell><Cell>{row.new}</Cell><Cell>{row.lost}</Cell><Cell>{row.net}</Cell><Cell>{row.ending}</Cell><Cell>{pct(row.churn_rate)}</Cell></tr>)}</tbody></table></TableShell><section><h3 className="font-display text-lg tracking-wider">RETENTION</h3><p className="mt-1 text-xs font-body text-muted-foreground">Only starts old enough to reach a milestone enter its denominator.</p><div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">{r.retention.map(row=><Card key={row.label} label={`${row.label} retention`} value={pct(row.overall)} note={`${row.retained} of ${row.denominator} matured members`}/>)}</div></section><div className="grid gap-3 lg:grid-cols-3"><Card label="Monthly churn" value={pct(r.churn.current_rate)}/><Card label="Average duration" value={r.churn.average_duration_days==null?"Not enough data yet":`${num(r.churn.average_duration_days,1)} days`}/><Card label="Median duration" value={r.churn.median_duration_days==null?"Not enough data yet":`${num(r.churn.median_duration_days,1)} days`}/></div></div>;
+
+const Attendance=({r,trend,open}:{r:Report;trend:JsonRecord[];open:(m:Member)=>void})=><div className="space-y-8"><Heading eyebrow="Attendance" title="ATTENDANCE & SHOW-UP" copy="Every denominator includes only sessions that member was active and eligible to attend."/><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Card label="Attendance rate" value={pct(r.attendance.rate)}/><Card label="Return after miss" value={pct(r.attendance.return_after_miss)}/><Card label="Return after 2 misses" value={pct(r.attendance.return_after_two_misses)}/><Card label="Return after 3 misses" value={pct(r.attendance.return_after_three_misses)}/><Card label="Average current streak" value={num(r.attendance.average_current_streak,1)}/><Card label="Median current streak" value={num(r.attendance.median_current_streak,1)}/><Card label="4+ week streak" value={pct(r.attendance.four_plus_streak_percent)}/><Card label="8+ week streak" value={pct(r.attendance.eight_plus_streak_percent)}/></div><ChartBox title="WEEKLY ATTENDANCE TREND" note={`Target comes from Admin settings (${Math.round(r.filters.attendance_target*100)}%).`}><ResponsiveContainer width="100%" height="100%"><LineChart data={trend}><Grid/><XAxis dataKey="week" fontSize={10}/><YAxis domain={[0,100]} fontSize={10}/><ChartTooltip/><Line dataKey="rate" stroke="#337DA5" strokeWidth={2.5}/><Line dataKey="target" stroke="#8E9299" strokeDasharray="5 5" dot={false}/></LineChart></ResponsiveContainer></ChartBox><MemberTable members={r.member_metrics} open={open}/></div>;
+
+const Engagement=({r}:{r:Report})=><div className="space-y-8"><Heading eyebrow="Engagement" title="ADULT JOURNAL ENGAGEMENT" copy="Completion metadata only. Admin never receives private response text; Teen and Child are paper-only."/><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Card label="Journal completion" value={pct(r.journal.completion_rate)}/><Card label="Average session completion" value={pct(r.journal.average_session_completion)}/><Card label="Median session completion" value={pct(r.journal.median_session_completion)}/><Card label="Entries / active adult" value={num(r.journal.entries_per_active_member_month,2)}/></div><ChartBox title="COMPLETION OVER TIME"><ResponsiveContainer width="100%" height="100%"><BarChart data={r.journal.trend}><Grid/><XAxis dataKey="month" tickFormatter={month} fontSize={10}/><YAxis domain={[0,100]} fontSize={10}/><ChartTooltip/><Bar dataKey="completion" fill="#337DA5" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></ChartBox><TableShell><h3 className="font-display text-lg tracking-wider">SESSION ENGAGEMENT FUNNEL</h3><table className="mt-4 w-full min-w-[720px] text-left text-sm font-body"><Head cells={["Week","Eligible","Attended","Started journal","50%+","100%"]}/><tbody>{r.journal.funnel.map(row=><tr key={row.week} className="border-b border-border/70"><Cell strong>Week {row.week}</Cell><Cell>{row.eligible}</Cell><Cell>{row.attended}</Cell><Cell>{row.journal_started}</Cell><Cell>{row.half_complete}</Cell><Cell>{row.complete}</Cell></tr>)}</tbody></table></TableShell></div>;
+
+const Families=({r}:{r:Report})=><div className="space-y-8"><Heading eyebrow="Families" title="HOUSEHOLD PARTICIPATION" copy="Existing household links power intergenerational reporting without a parallel model."/><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Card label="Active households" value={r.families.active_households}/><Card label="Average members" value={num(r.families.average_members,2)}/><Card label="Family participation" value={pct(r.families.family_participation_rate)}/><Card label="Household retention" value={pct(r.families.household_retention)} note="Awaiting observed household history"/><Card label="Adult only" value={r.families.adult_only}/><Card label="Adult + Child" value={r.families.adult_child}/><Card label="Adult + Teen" value={r.families.adult_teen}/><Card label="Adult + Teen + Child" value={r.families.adult_teen_child}/></div><TableShell><h3 className="font-display text-lg tracking-wider">TRACK COMPARISON</h3><table className="mt-4 w-full min-w-[850px] text-left text-sm font-body"><Head cells={["Track","Active","New","8-week retention","6-month retention","Attendance","Return after miss","Journal"]}/><tbody>{r.track_comparison.map(row=><tr key={String(row.track)} className="border-b border-border/70"><Cell strong>{String(row.track)}</Cell><Cell>{num(row.active_members as number)}</Cell><Cell>{num(row.new_members as number)}</Cell><Cell>{pct(row.eight_week_retention as number|null)}</Cell><Cell>{pct(row.six_month_retention as number|null)}</Cell><Cell>{pct(row.attendance as number|null)}</Cell><Cell>{pct(row.return_after_miss as number|null)}</Cell><Cell>{row.track==="Adult"?pct(row.journal_completion as number|null):"N/A — paper"}</Cell></tr>)}</tbody></table></TableShell><TableShell><h3 className="font-display text-lg tracking-wider">MEMBER LIFECYCLE</h3><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{r.lifecycle.map((row,index)=><div key={row.stage} className="rounded-lg border border-border p-4"><span className="text-[10px] text-muted-foreground">{String(index+1).padStart(2,"0")}</span><p className="mt-2 text-sm font-body font-semibold">{row.stage}</p><p className="mt-1 font-display text-2xl">{num(row.count)}</p></div>)}</div></TableShell></div>;
+
+const Cohorts=({r}:{r:Report})=>{const cols=Array.from({length:13},(_,i)=>`M${i}`);return <div><Heading eyebrow="Cohorts" title="RETENTION BY START MONTH" copy="Blank cells have not matured. Accessible values accompany the restrained heat treatment."/><TableShell><table className="w-full min-w-[980px] text-center text-xs font-body"><Head cells={["Cohort",...cols]}/><tbody>{r.cohorts.map(row=><tr key={row.cohort} className="border-b border-border/70"><Cell strong>{month(row.cohort)}</Cell>{cols.map(col=>{const value=row.months[col];const alpha=value==null?0:Math.max(.08,Number(value)/130);return <td key={col} className="p-1"><span className="block rounded-md px-2 py-2" style={{backgroundColor:value==null?"transparent":`rgb(51 125 165 / ${alpha})`}}>{value==null?"—":`${Number(value).toFixed(0)}%`}</span></td>;})}</tr>)}</tbody></table>{!r.cohorts.length&&<p className="py-12 text-center text-sm text-muted-foreground">Not enough observed start history yet.</p>}</TableShell></div>;};
+const Sessions=({r}:{r:Report})=><div><Heading eyebrow="Sessions" title="CURRICULUM WEEK PERFORMANCE" copy="Show-up and digital engagement remain separate measures."/><TableShell><table className="w-full min-w-[820px] text-left text-sm font-body"><Head cells={["Week","Theme","Track","Eligible","Attendance","Journal completion","Entries/member"]}/><tbody>{r.sessions.map(row=><tr key={`${row.week}-${row.track}`} className="border-b border-border/70"><Cell strong>{row.week}</Cell><Cell>{row.theme}</Cell><Cell>{row.track}</Cell><Cell>{row.eligible}</Cell><Cell>{pct(row.attendance_rate)}</Cell><Cell>{row.track==="Adult"?pct(row.journal_completion):"N/A — paper"}</Cell><Cell>{row.track==="Adult"?num(row.entries_per_member,2):"N/A"}</Cell></tr>)}</tbody></table>{!r.sessions.length&&<p className="py-12 text-center text-sm text-muted-foreground">No eligible sessions in this filter.</p>}</TableShell></div>;
+
+const Members=({r,open}:{r:Report;open:(m:Member|RiskMember)=>void})=><div className="space-y-8"><section><Heading eyebrow="Members" title="MEMBERS AT RISK" copy="Reporting only. Configurable signals never cancel a membership or contact someone automatically."/>{!r.at_risk.length?<div className="rounded-xl border border-border bg-card py-12 text-center"><ShieldCheck className="mx-auto text-primary"/><p className="mt-3 text-sm text-muted-foreground">No active members meet current risk rules.</p></div>:<TableShell><table className="w-full min-w-[900px] text-left text-sm font-body"><Head cells={["Member","Track","Last attended","Missed streak","6-week attendance","Last journal","Signals"]}/><tbody>{r.at_risk.map(row=><tr key={row.profile_id} className="border-b border-border/70"><Cell><button className="font-semibold text-primary hover:underline" onClick={()=>open(row)}>{row.member}</button></Cell><Cell>{row.track}</Cell><Cell>{date(row.last_attended)}</Cell><Cell>{row.missed_streak}</Cell><Cell>{pct(row.six_week_attendance)}</Cell><Cell>{row.journal_supported?date(row.last_journal_activity):"N/A — paper"}</Cell><Cell><div className="flex flex-wrap gap-1">{Object.keys(row.reasons||{}).map(reason=><span key={reason} className="rounded-full bg-destructive/10 px-2 py-1 text-[9px] uppercase text-destructive">{reason.replace(/_/g," ")}</span>)}</div></Cell></tr>)}</tbody></table></TableShell>}</section><MemberTable members={r.member_metrics} open={open}/></div>;
+const MemberTable=({members,open}:{members:Member[];open:(m:Member)=>void})=>{const [query,setQuery]=useState("");const rows=members.filter(row=>`${row.member} ${row.household||""}`.toLowerCase().includes(query.toLowerCase()));return <TableShell><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h3 className="font-display text-lg tracking-wider">MEMBER ATTENDANCE</h3><p className="mt-1 text-xs text-muted-foreground">Select a name for metadata-only detail.</p></div><label className="relative"><span className="sr-only">Search members</span><Search size={14} className="absolute left-3 top-3 text-muted-foreground"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search member" className="min-h-10 rounded-lg border border-border bg-background pl-9 pr-3 text-sm"/></label></div><table className="mt-4 w-full min-w-[820px] text-left text-sm font-body"><Head cells={["Member","Track","Eligible","Attended","Attendance","Missed","Current streak","Longest"]}/><tbody>{rows.map(row=><tr key={row.profile_id} className="border-b border-border/70"><Cell><button className="font-semibold text-primary hover:underline" onClick={()=>open(row)}>{row.member}</button>{row.household&&<span className="block text-xs text-muted-foreground">{row.household}</span>}</Cell><Cell>{row.track}</Cell><Cell>{row.eligible}</Cell><Cell>{row.attended}</Cell><Cell>{pct(row.attendance_rate)}</Cell><Cell>{row.missed}</Cell><Cell>{row.current_streak}</Cell><Cell>{row.longest_streak}</Cell></tr>)}</tbody></table>{!rows.length&&<p className="py-10 text-center text-sm text-muted-foreground">No matching members.</p>}</TableShell>;};
+
+const AttendanceDistribution=({data}:{data:Report["attendance"]})=><section className="mt-8"><Heading eyebrow="Distribution" title="SESSIONS ATTENDED PER MEMBER" copy="The mean can hide a long tail, so the complete member distribution sits alongside the median."/><div className="grid gap-4 xl:grid-cols-[1fr_2fr]"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1"><Card label="Mean sessions" value={num(data.mean_sessions,1)}/><Card label="Median sessions" value={num(data.median_sessions,1)}/></div><ChartBox title="MEMBER DISTRIBUTION"><ResponsiveContainer width="100%" height="100%"><BarChart data={data.distribution}><Grid/><XAxis dataKey="sessions" fontSize={10}/><YAxis allowDecimals={false} fontSize={10}/><ChartTooltip/><Bar dataKey="members" fill="#337DA5" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></ChartBox></div></section>;
+
+const RelationshipAnalysis=({data}:{data:Report["relationships"]})=><section className="mt-8"><Heading eyebrow="Behaviour" title="ENGAGEMENT & 8-WEEK RETENTION" copy="Observed cohorts only: whether first-eight-week attendance, Adult journal completion or consecutive misses are associated with retention."/><div className="grid gap-4 xl:grid-cols-2"><TableShell><h3 className="font-display text-lg tracking-wider">BY ATTENDANCE BAND</h3><table className="mt-4 w-full text-left text-sm font-body"><Head cells={["Band","Members","Retained","8-week retention"]}/><tbody>{data.retention_by_attendance_band.map(row=><tr key={row.band} className="border-b border-border/70"><Cell strong>{row.band}</Cell><Cell>{row.members}</Cell><Cell>{row.retained}</Cell><Cell>{pct(row.retention)}</Cell></tr>)}</tbody></table></TableShell><TableShell><h3 className="font-display text-lg tracking-wider">BY ADULT JOURNAL BAND</h3><table className="mt-4 w-full text-left text-sm font-body"><Head cells={["Band","Members","Retained","8-week retention"]}/><tbody>{data.retention_by_journal_band.map(row=><tr key={row.band} className="border-b border-border/70"><Cell strong>{row.band}</Cell><Cell>{row.members}</Cell><Cell>{row.retained}</Cell><Cell>{pct(row.retention)}</Cell></tr>)}</tbody></table></TableShell><TableShell><h3 className="font-display text-lg tracking-wider">BY MISSED-SESSION STREAK</h3><table className="mt-4 w-full text-left text-sm font-body"><Head cells={["Longest streak","Members","Retained","8-week retention"]}/><tbody>{data.retention_by_missed_streak.map(row=><tr key={row.band} className="border-b border-border/70"><Cell strong>{row.band}</Cell><Cell>{row.members}</Cell><Cell>{row.retained}</Cell><Cell>{pct(row.retention)}</Cell></tr>)}</tbody></table></TableShell></div></section>;
+
+const Head=({cells}:{cells:string[]})=><thead><tr className="border-b border-border text-[10px] uppercase tracking-widest text-muted-foreground">{cells.map(cell=><th key={cell} className="px-3 py-3">{cell}</th>)}</tr></thead>;
+const Cell=({children,strong=false}:{children:React.ReactNode;strong?:boolean})=><td className={`px-3 py-3 ${strong?"font-semibold":""}`}>{children}</td>;
+const MemberDetail=({member,detail,close}:{member:Member|RiskMember;detail:Detail|null;close:()=>void}) => (
+  <div className="fixed inset-0 z-[80] flex items-end justify-center bg-background/80 backdrop-blur-sm sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-labelledby="member-detail-title" onMouseDown={event=>{if(event.currentTarget===event.target)close();}}>
+    <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-t-2xl border border-border bg-card p-5 shadow-2xl sm:rounded-2xl sm:p-7">
+      <div className="flex justify-between gap-4"><div><p className="text-[10px] uppercase tracking-widest text-primary">Member report</p><h2 id="member-detail-title" className="mt-1 font-display text-3xl">{member.member}</h2><p className="mt-1 text-sm text-muted-foreground">Engagement metadata only — private journal writing is never shown.</p></div><Button variant="outline" size="sm" onClick={close}>Close</Button></div>
+      {!detail ? <div className="flex min-h-64 items-center justify-center text-sm text-muted-foreground">Loading member report…</div> : <div className="mt-6 space-y-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Card label="Status" value={title(String(detail.membership.status||"none"))}/><Card label="Track" value={String(detail.membership.track||"—")}/><Card label="Attendance" value={pct(detail.attendance.rate)}/><Card label="Last attended" value={date(detail.attendance.last_attendance)}/><Card label="Eligible sessions" value={detail.attendance.eligible}/><Card label="Attended" value={detail.attendance.attended}/><Card label="Missed" value={detail.attendance.missed}/><Card label="Current / longest streak" value={`${member.current_streak} / ${member.longest_streak}`} note={`${member.missed_streak} consecutive misses`}/></div>
+        <TableShell><h3 className="font-display text-lg">MEMBERSHIP</h3><dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">Household</dt><dd>{String(detail.membership.household||"—")}</dd></div><div><dt className="text-muted-foreground">Location</dt><dd>{String(detail.membership.location||"—")}</dd></div><div><dt className="text-muted-foreground">Registered</dt><dd>{date(String(detail.membership.registered_at||""))}</dd></div><div><dt className="text-muted-foreground">Observed membership start</dt><dd>{detail.membership.start_is_known?date(String(detail.membership.observed_membership_started_at||"")):"Not known before reporting capture"}</dd></div><div><dt className="text-muted-foreground">Membership duration</dt><dd>{detail.membership.membership_duration_days==null?"Not known before reporting capture":`${num(Number(detail.membership.membership_duration_days))} days`}</dd></div></dl></TableShell>
+        <TableShell><h3 className="font-display text-lg">ELIGIBLE SESSION HISTORY</h3><table className="mt-4 w-full text-left text-sm font-body"><Head cells={["Date","Week","Outcome","Location"]}/><tbody>{detail.attendance.history.map(row=><tr key={`${row.session_date}-${row.week}`} className="border-b border-border/70"><Cell>{date(row.session_date)}</Cell><Cell>{row.week}</Cell><Cell><span className={row.attended?"text-primary":"text-muted-foreground"}>{row.attended?"Attended":"Missed"}</span></Cell><Cell>{row.location||"—"}</Cell></tr>)}</tbody></table>{!detail.attendance.history.length&&<p className="py-8 text-center text-sm text-muted-foreground">No eligible session history yet.</p>}</TableShell>
+        <TableShell><h3 className="font-display text-lg">JOURNAL METADATA</h3>{!detail.journal.supported?<p className="mt-3 text-sm text-muted-foreground">{detail.journal.reason}</p>:<div className="mt-4 grid gap-3 sm:grid-cols-3"><Card label="Sessions with activity" value={num(detail.journal.sessions_with_activity)}/><Card label="Fields completed" value={`${num(detail.journal.fields_completed)} / ${num(detail.journal.fields_available)}`}/><Card label="Completion" value={pct(detail.journal.completion_rate)}/></div>}</TableShell>
+      </div>}
+    </div>
+  </div>
+);
 
 export default AdminInsights;

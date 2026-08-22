@@ -87,28 +87,15 @@ function masthead(): string {
     <img src="${T.wordmarkUrl}" width="150" alt="Mindcast"
          style="display:block;width:150px;max-width:150px;height:auto;">
   </td></tr>
-${signalBar()}`;
+${signalMark()}`;
 }
 
-// The canonical signal bar (MC-BRD-001 §4): 18 vertical segments, first seven
-// Signal Blue rising 30·44·58·72·86·100·86, then a flat 34 tail in Mist.
-// Table cells with bottom-aligned fixed-height divs — the only construction
-// that survives Outlook. Geometry mirrors src/lib/signalBar.ts (which parses
-// the controlled document); src/test/signal-bar.test.ts guards the numbers.
-function signalBar(): string {
-  const heights = [30, 44, 58, 72, 86, 100, 86, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34];
-  const blueCount = 7;
-  const maxPx = 14; // worksheet scale: 14–16px tall
-  const cells = heights
-    .map((h, i) => {
-      const px = Math.max(2, Math.round((h / 100) * maxPx));
-      const colour = i < blueCount ? T.signalBlue : T.mist;
-      return `<td valign="bottom" style="padding:0 1px;"><div style="height:${px}px;background:${colour};line-height:${px}px;font-size:1px;">&nbsp;</div></td>`;
-    })
-    .join("");
-  return `  <tr><td class="pad" style="padding:16px 44px 0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-           style="table-layout:fixed;" aria-hidden="true"><tr>${cells}</tr></table>
+// The signal mark — the brand's signature device, shown beneath the masthead.
+// An <img> so it survives Outlook and stays pixel-identical to the site.
+function signalMark(): string {
+  return `  <tr><td class="pad" style="padding:18px 44px 0;">
+    <img src="${T.signalMarkUrl}" width="200" alt="" aria-hidden="true"
+         style="display:block;width:200px;max-width:200px;height:auto;">
   </td></tr>`;
 }
 

@@ -74,21 +74,20 @@ const ExportReports = () => {
   const exportJournals = async () => {
     setLoading("journals");
     try {
-      const [j, names] = await Promise.all([
-        db.from("lesson_journal")
-          .select("profile_id, week_number, track, reflection_answer, video_question_1_response, video_question_2_response, activity_response, weekly_intention, updated_at")
-          .order("week_number").limit(5000),
-        nameMapOf(),
+      const { data, error } = await db.rpc(
+        "admin_reporting_export" as never,
+        { p_report: "journal_engagement" } as never,
+      );
+      if (error) throw error;
+      const records = (data || []) as unknown as Array<Record<string, unknown>>;
+      const headers = ["Month", "Sessions", "Possible entries", "Completed entries", "Completion %"];
+      const rows = records.map((row) => [
+        String(row.month || ""), String(row.sessions || ""),
+        String(row.possible_entries || ""), String(row.completed_entries || ""),
+        row.completion == null ? "" : String(row.completion),
       ]);
-      const headers = ["Member", "Week", "Track", "Video Q1", "Video Q2", "Reflection", "Activity", "Intention", "Updated"];
-      const rows = ((j || []) as unknown as Tables<"lesson_journal">[]).map(r => [
-        names[r.profile_id] || "Unknown", String(r.week_number), r.track || "",
-        r.video_question_1_response || "", r.video_question_2_response || "",
-        r.reflection_answer || "", r.activity_response || "", r.weekly_intention || "",
-        new Date(r.updated_at).toLocaleDateString(),
-      ]);
-      downloadCsv("mindcast-journals.csv", toCsv(headers, rows));
-      toast.success("Journals exported");
+      downloadCsv("mindcast-journal-engagement.csv", toCsv(headers, rows));
+      toast.success("Journal engagement exported");
     } catch (e) { toast.error((e as Error).message); }
     setLoading(null);
   };
@@ -115,7 +114,7 @@ const ExportReports = () => {
   const exports = [
     { key: "members", title: "MEMBERS", desc: "Roster with status, tier, kids add-on and bracelet tokens", fn: exportMembers },
     { key: "attendance", title: "ATTENDANCE", desc: "Every check-in with track, source and left-early flags", fn: exportAttendance },
-    { key: "journals", title: "JOURNALS", desc: "Per-week reflections, video answers and intentions", fn: exportJournals },
+    { key: "journals", title: "JOURNAL ENGAGEMENT", desc: "Monthly Adult completion metadata only — never private response text", fn: exportJournals },
     { key: "completions", title: "COMPLETIONS", desc: "Lesson completions per member per week", fn: exportCompletions },
   ];
 

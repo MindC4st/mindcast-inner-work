@@ -101,7 +101,7 @@ const AdminConsole = () => {
   const tabParam = search.get("tab") as TabId | null;
   const subParam = search.get("sub");
   const [tab, setTab] = useState<TabId>(
-    tabParam && TABS.some((t) => t.id === tabParam) && (tabParam !== "membership" || isAdmin)
+    tabParam && TABS.some((t) => t.id === tabParam) && (!["membership", "insights"].includes(tabParam) || isAdmin)
       ? tabParam
       : "dashboard",
   );
@@ -114,7 +114,7 @@ const AdminConsole = () => {
 
   useEffect(() => {
     const nextTab = search.get("tab") as TabId | null;
-    if (nextTab && TABS.some((item) => item.id === nextTab) && (nextTab !== "membership" || isAdmin)) {
+    if (nextTab && TABS.some((item) => item.id === nextTab) && (!["membership", "insights"].includes(nextTab) || isAdmin)) {
       setTab(nextTab);
     }
     const nextSub = search.get("sub");
@@ -139,7 +139,7 @@ const AdminConsole = () => {
     setSearch(next);
   };
 
-  const visibleTabs = TABS.filter((t) => t.id !== "membership" || isAdmin);
+  const visibleTabs = TABS.filter((t) => !["membership", "insights"].includes(t.id) || isAdmin);
 
   const renderTab = () => {
     switch (tab) {
@@ -147,7 +147,7 @@ const AdminConsole = () => {
       case "facilitate": return <FacilitateTab />;
       case "progress": return <AdminProgress />;
       case "training": return <TrainingHome embedded />;
-      case "insights": return <AdminInsights />;
+      case "insights": return isAdmin ? <AdminInsights /> : null;
       case "profile": return <AdminProfile />;
       case "downloads": return <AdminDownloadsTab />;
       case "orders": return <AdminOrdersTab />;

@@ -21,6 +21,8 @@ const MUTED = "#92979D";
 const DIVIDER = "#E9E5DE";
 const WORDMARK_URL =
   "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/Wordmark-White-Transparent.png";
+const SIGNAL_MARK_URL =
+  "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/signal-mark-v4.png";
 
 const escapeHtml = (s: string): string =>
   s
@@ -33,6 +35,13 @@ const masthead = () => `
   <tr><td style="background:${BLUE};padding:26px 44px;">
     <img src="${WORDMARK_URL}" width="150" alt="Mindcast"
          style="display:block;width:150px;max-width:150px;height:auto;">
+  </td></tr>
+${signalMark()}`;
+
+const signalMark = () => `
+  <tr><td style="padding:18px 44px 0;">
+    <img src="${SIGNAL_MARK_URL}" width="200" alt="" aria-hidden="true"
+         style="display:block;width:200px;max-width:200px;height:auto;">
   </td></tr>`;
 
 const footer = () => `
