@@ -25,8 +25,8 @@ const AuthShell = ({
   description,
   children,
   footer,
-  asideTitle = "Your weekly space to pause, reflect and reconnect.",
-  asideCopy = "One secure sign-in keeps your sessions, progress and family details together.",
+  asideTitle = "NOTICE IT.\nNAME IT.\nDO IT.",
+  asideCopy = "A 52-week journey built around one simple practice: notice what is happening, name it honestly, then take one small action.",
 }: AuthShellProps) => (
   <main className="min-h-screen bg-ivory lg:grid lg:grid-cols-[minmax(340px,0.85fr)_minmax(560px,1.15fr)]">
     <aside className="relative hidden min-h-screen overflow-hidden bg-navy px-12 py-12 text-cream lg:flex lg:flex-col lg:justify-between xl:px-16">
@@ -46,7 +46,7 @@ const AuthShell = ({
         <div className="mb-7 flex h-12 w-12 items-center justify-center rounded-full border border-cream/15 bg-cream/[0.06] text-blue-light">
           <ShieldCheck className="h-5 w-5" aria-hidden="true" />
         </div>
-        <h2 className="font-serif text-5xl leading-[1.03] text-cream xl:text-6xl">{asideTitle}</h2>
+        <h2 className="whitespace-pre-line font-serif text-5xl leading-[1.03] text-cream">{asideTitle}</h2>
         <p className="mt-6 max-w-sm font-body text-sm leading-7 text-cream/60">{asideCopy}</p>
       </div>
 

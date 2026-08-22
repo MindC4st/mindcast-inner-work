@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Loader2, Mail } from "lucide-react";
+import { ArrowRight, Facebook, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -22,24 +22,78 @@ const GoogleMark = () => (
   </svg>
 );
 
+type AuthMode = "signin" | "signup";
+type OAuthProvider = "google" | "facebook";
+
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const { signIn, session, loading: authLoading } = useAuth();
+  const [oauthLoading, setOAuthLoading] = useState<OAuthProvider | null>(null);
+  const { signIn, session, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const mode: AuthMode = searchParams.get("mode") === "signup" ? "signup" : "signin";
   const redirectTo = safeAuthDestination(searchParams.get("redirect"));
 
   // OAuth returns through this canonical page. Once AuthContext has restored
   // the session, complete the same safe return journey as email sign-in.
   useEffect(() => {
-    if (!authLoading && session) navigate(redirectTo, { replace: true });
-  }, [authLoading, session, navigate, redirectTo]);
+    if (authLoading || !session) return;
+    const needsOnboarding = mode === "signup" && profile?.onboarding_complete !== true;
+    navigate(needsOnboarding ? "/onboarding" : redirectTo, { replace: true });
+  }, [authLoading, session, profile?.onboarding_complete, mode, navigate, redirectTo]);
+
+  const changeMode = (nextMode: AuthMode) => {
+    const next = new URLSearchParams(searchParams);
+    if (nextMode === "signup") next.set("mode", "signup");
+    else next.delete("mode");
+    setSearchParams(next, { replace: true });
+    setPassword("");
+    setConfirmPassword("");
+    setEmailSent(false);
+  };
+
+  const authReturnUrl = (destination: string, returnMode: AuthMode) => {
+    const url = new URL(AUTH_PATH, window.location.origin);
+    url.searchParams.set("redirect", destination);
+    if (returnMode === "signup") url.searchParams.set("mode", "signup");
+    return url.toString();
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (mode === "signup") {
+      if (password.length < 8) {
+        toast({ title: "Choose a longer password", description: "Use at least 8 characters.", variant: "destructive" });
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast({ title: "Passwords do not match", description: "Please enter the same password twice.", variant: "destructive" });
+        return;
+      }
+
+      setLoading(true);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: authReturnUrl("/onboarding", "signup"),
+        },
+      });
+      setLoading(false);
+      if (error) {
+        toast({ title: "Account not created", description: error.message, variant: "destructive" });
+      } else if (data.session) {
+        navigate("/onboarding", { replace: true });
+      } else {
+        setEmailSent(true);
+      }
+      return;
+    }
+
     setLoading(true);
     const { error } = await signIn(email, password);
     setLoading(false);
@@ -55,16 +109,23 @@ const Auth = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    const authReturnUrl = new URL(AUTH_PATH, window.location.origin);
-    authReturnUrl.searchParams.set("redirect", redirectTo);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: authReturnUrl.toString(),
-    });
-    setGoogleLoading(false);
+  const handleOAuth = async (provider: OAuthProvider) => {
+    setOAuthLoading(provider);
+    const destination = mode === "signup" ? "/onboarding" : redirectTo;
+    const returnUrl = authReturnUrl(destination, mode);
+    const { error } = provider === "google"
+      ? await lovable.auth.signInWithOAuth("google", { redirect_uri: returnUrl })
+      : await supabase.auth.signInWithOAuth({
+          provider: "facebook",
+          options: {
+            redirectTo: returnUrl,
+            scopes: "email,public_profile",
+          },
+        });
+    setOAuthLoading(null);
     if (error) {
-      toast({ title: "Google sign in failed", description: error.message, variant: "destructive" });
+      const label = provider === "google" ? "Google" : "Facebook";
+      toast({ title: `${label} sign in failed`, description: error.message, variant: "destructive" });
     }
   };
 
@@ -91,23 +152,45 @@ const Auth = () => {
 
   return (
     <AuthShell
-      eyebrow="Mindcast member portal"
-      title="Welcome back."
-      description="Sign in to continue your weekly sessions, revisit your progress and manage your membership."
-      footer={
-        <>
-          Not a member yet?{" "}
-          <Link to="/membership" className="font-semibold text-foreground underline underline-offset-4">
-            Explore membership
-          </Link>
-          <span className="mx-2 text-foreground/20" aria-hidden="true">•</span>
-          <Link to="/terms" className="hover:text-foreground">Terms</Link>
-          <span className="mx-2 text-foreground/20" aria-hidden="true">•</span>
-          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
-        </>
-      }
+      eyebrow="Mindcast account"
+      title={mode === "signup" ? "Create your account." : "Welcome back."}
+      description={mode === "signup"
+        ? "Create your login here, then complete the short age and household setup."
+        : "Sign in to access your sessions, worksheets and membership."}
     >
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+        <div className="mb-5 grid grid-cols-2 rounded-xl bg-foreground/[0.045] p-1" role="tablist" aria-label="Account access">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "signin"}
+            onClick={() => changeMode("signin")}
+            className={`min-h-11 rounded-lg px-4 font-body text-sm font-semibold transition ${mode === "signin" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Sign in
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "signup"}
+            onClick={() => changeMode("signup")}
+            className={`min-h-11 rounded-lg px-4 font-body text-sm font-semibold transition ${mode === "signup" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Create account
+          </button>
+        </div>
+
+        {emailSent ? (
+          <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-5">
+            <h2 className="font-serif text-2xl text-foreground">Check your email.</h2>
+            <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">
+              We sent a confirmation link to <strong className="text-foreground">{email}</strong>. Open it to finish creating your account.
+            </p>
+            <button type="button" onClick={() => changeMode("signin")} className="mt-4 font-body text-sm font-semibold text-primary underline underline-offset-4">
+              Back to sign in
+            </button>
+          </div>
+        ) : <>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="login-email" className="font-body text-sm font-semibold text-foreground">
@@ -132,14 +215,25 @@ const Auth = () => {
 
           <PasswordField
             id="login-password"
-            label="Password"
+            label={mode === "signup" ? "Create a password" : "Password"}
             value={password}
             onChange={setPassword}
-            autoComplete="current-password"
+            autoComplete={mode === "signup" ? "new-password" : "current-password"}
             disabled={loading}
           />
 
-          <div className="flex justify-end">
+          {mode === "signup" && (
+            <PasswordField
+              id="confirm-password"
+              label="Confirm password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              autoComplete="new-password"
+              disabled={loading}
+            />
+          )}
+
+          {mode === "signin" && <div className="flex justify-end">
             <button
               type="button"
               onClick={handleForgotPassword}
@@ -148,30 +242,42 @@ const Auth = () => {
             >
               Forgot your password?
             </button>
-          </div>
+          </div>}
 
           <button type="submit" disabled={loading} className={authPrimaryButtonClass}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? (mode === "signup" ? "Creating account…" : "Signing in…") : (mode === "signup" ? "Sign up with email" : "Sign in with email")}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </button>
         </form>
 
-        <div className="my-7 flex items-center gap-4" aria-hidden="true">
+        <div className="my-5 flex items-center gap-4" aria-hidden="true">
           <div className="h-px flex-1 bg-foreground/[0.08]" />
           <span className="font-body text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">or</span>
           <div className="h-px flex-1 bg-foreground/[0.08]" />
         </div>
 
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={googleLoading}
-          className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-foreground/10 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-primary/30 hover:bg-primary/[0.03] focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:opacity-45"
-        >
-          {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <GoogleMark />}
-          {googleLoading ? "Connecting…" : "Continue with Google"}
-        </button>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => void handleOAuth("google")}
+            disabled={oauthLoading !== null}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-foreground/10 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-primary/30 hover:bg-primary/[0.03] focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:opacity-45"
+          >
+            {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <GoogleMark />}
+            {oauthLoading === "google" ? "Connecting…" : mode === "signup" ? "Sign up with Google" : "Continue with Google"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleOAuth("facebook")}
+            disabled={oauthLoading !== null}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#1877F2]/20 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-[#1877F2]/50 hover:bg-[#1877F2]/[0.04] focus:outline-none focus:ring-4 focus:ring-[#1877F2]/10 disabled:opacity-45"
+          >
+            {oauthLoading === "facebook" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Facebook className="h-5 w-5 text-[#1877F2]" aria-hidden="true" />}
+            {oauthLoading === "facebook" ? "Connecting…" : mode === "signup" ? "Sign up with Facebook" : "Continue with Facebook"}
+          </button>
+        </div>
+        </>}
       </motion.div>
     </AuthShell>
   );
