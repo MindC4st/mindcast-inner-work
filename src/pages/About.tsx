@@ -1,376 +1,715 @@
-import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AmbientVideo from "@/components/AmbientVideo";
+import {
+  ArrowDown,
+  ArrowRight,
+  ChevronDown,
+  NotebookPen,
+  Quote,
+  Repeat2,
+  UsersRound,
+} from "lucide-react";
 
+import AmbientVideo from "@/components/AmbientVideo";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+
+/* -------------------------------------------------------------------------- */
+/* Content                                                                     */
+/* -------------------------------------------------------------------------- */
+
+const missionPillars = [
+  {
+    title: "THE ROOM",
+    eyebrow: "Community",
+    icon: UsersRound,
+    body: "A real group of people who return each week, reflect alongside one another, and make showing up feel normal.",
+  },
+  {
+    title: "THE RHYTHM",
+    eyebrow: "Practice",
+    icon: Repeat2,
+    body: "One theme, better questions, one practical intention, and a reason to come back to it before the week disappears.",
+  },
+  {
+    title: "THE TOOLS",
+    eyebrow: "Into real life",
+    icon: NotebookPen,
+    body: "A live coursebook, private reflection, weekly check-ins, and Life Groups that carry the practice beyond Sunday.",
+  },
+] as const;
 
 const foundations = [
   {
-    title: "Space Over Information",
-    subhead: "Why We Exist",
-    subheadText: "Most people don't need more information—they need space to slow down, notice what is actually shaping them, and practise making intentional choices.",
-    standard: "Life is noisy, fast, and full of competing demands. Mindcast creates a regular place to come back to yourself, reflect without pressure, and take one practical thing into the week that genuinely helps.",
+    number: "01",
+    lens: "WHY WE EXIST",
+    title: "SPACE OVER INFORMATION",
+    belief:
+      "Most people don’t need more information. They need space to slow down, notice what is actually shaping them, and practise making more intentional choices.",
+    standard:
+      "Life is noisy, fast, and full of competing demands. MINDCAST creates a regular place to come back to yourself, reflect without pressure, and take one small thing into the week that might genuinely help.",
   },
   {
-    title: "The Practice of Showing Up",
-    subhead: "What We Do",
-    subheadText: "We explore one theme each week, ask better questions, and turn reflection into action. The content matters, but the real product is the habit of coming back each week and doing it alongside other people.",
-    standard: "Every session follows a simple, repeatable rhythm: Notice It. Name It. Do It.",
+    number: "02",
+    lens: "WHAT WE DO",
+    title: "THE PRACTICE OF SHOWING UP",
+    belief:
+      "Each week we explore one theme, ask better questions, make space for reflection, and turn that reflection into one practical intention.",
+    standard:
+      "The content matters, but the real product is the practice of coming back each week and doing it alongside other people. The rhythm is simple: Notice It. Name It. Do It.",
   },
   {
-    title: "Real People, No Preaching",
-    subhead: "Who We Do It For",
-    subheadText: "Built for ordinary people trying to live well in a noisy world—parents, teenagers, young people, and busy adults.",
-    standard: "You will not be preached at, diagnosed, fixed, or told who you should become. Mindcast is a place to think, connect, and practise becoming more yourself, together.",
+    number: "03",
+    lens: "WHO IT’S FOR",
+    title: "REAL PEOPLE, NO PREACHING",
+    belief:
+      "MINDCAST is for ordinary people trying to live well in a noisy world—parents, teenagers, young people, and busy adults.",
+    standard:
+      "You will not be preached at, diagnosed, fixed, or told who you should become. This is a place to think, connect, and practise becoming more yourself, together.",
   },
   {
-    title: "Shared Language at Home",
-    subhead: "Generational Impact",
-    subheadText: "Real behavioural change starts with a shared language at home.",
-    standard: "Designed for multi-generational participation, Mindcast equips parents, teens, and young people with a unified framework for reflection, making growth a collective household practice rather than an isolated effort.",
+    number: "04",
+    lens: "WHAT CONNECTS US",
+    title: "SHARED LANGUAGE AT HOME",
+    belief: "Real behavioural change starts with a shared language at home.",
+    standard:
+      "Adults, teens, and children explore the same weekly theme in age-appropriate spaces. That gives households a natural way to reflect and grow together without expecting everyone to have the same experience.",
   },
   {
-    title: "Safe by Design",
-    subhead: "Psychological Safety",
-    subheadText: "Safety isn't added after the program is built; it shapes how every session runs.",
-    standard: "Clear boundaries, privacy, moderated interactions, and trained facilitators safeguard the room. Mindcast is a personal development space—not therapy or medical care—and our facilitators operate strictly within that scope.",
+    number: "05",
+    lens: "HOW WE HOLD THE ROOM",
+    title: "SAFE BY DESIGN",
+    belief:
+      "Safety is not added after the programme is built. It shapes how every session works.",
+    standard:
+      "Clear boundaries, privacy, moderated interactions, age-appropriate participation, and trained facilitators protect the experience. MINDCAST is personal development and community—not therapy or medical care—and we stay inside that boundary.",
   },
   {
-    title: "Honest & Unpressured",
-    subhead: "Intellectual Integrity",
-    subheadText: "No magic, no gurus, and no promise that one exercise works for everyone.",
-    standard: "We ground our curriculum in practical frameworks, stay transparent about our limits, and maintain clear membership pathways—with zero artificial urgency, guilt, or forced disclosure.",
+    number: "06",
+    lens: "HOW WE EARN TRUST",
+    title: "HONEST & UNPRESSURED",
+    belief: "No magic. No guru. No promise that one exercise works for everyone.",
+    standard:
+      "We use research where it helps, distinguish evidence from teaching tools, and stay open about what we do not know. There is no forced disclosure, artificial urgency, guilt, or pressure to perform a particular kind of growth.",
   },
-];
+] as const;
 
-// The page body, exported so the homepage can embed it as an ivory band
-// (/#about) while /about keeps working as a standalone route. Same content,
-// one source — no drift between the two.
-export const AboutContent = ({ membershipHref = "/membership" }: { membershipHref?: string }) => (
-  <>
-    <section className="section-cream min-h-[60vh] flex items-center pt-16">
-      <div className="container mx-auto px-6 text-center py-28 md:py-36 max-w-4xl">
-        <p className="font-body text-[11px] font-bold tracking-[0.5em] text-primary uppercase mb-8">
-          About Mindcast
-        </p>
-        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="heading-display text-4xl sm:text-5xl md:text-7xl leading-[0.95] text-foreground mb-8">
-          WE WANT TO RECREATE WHAT CHURCH DID WELL—WITHOUT THE RELIGION.
-        </motion.h1>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="font-body text-foreground font-medium text-xl max-w-3xl mx-auto leading-relaxed mb-6">
-          A place to show up every week. A community that holds you accountable. Frameworks for the hard stuff. Tools you carry into real life.
-        </motion.p>
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="font-body text-muted-foreground text-base max-w-3xl mx-auto leading-relaxed">
-          We are often asked why a community like this requires a paid membership. The truth is, no institution is free—churches run on tithes; we run on transparency. Mindcast is a private organisation, funded by its members to ensure the room remains premium, sustainable, and entirely independent. And as this community grows, so does our capacity to redistribute a percentage of that success directly back into the local causes our members care about.
-        </motion.p>
+/* -------------------------------------------------------------------------- */
+/* Shared UI                                                                   */
+/* -------------------------------------------------------------------------- */
+
+type RevealProps = {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+};
+
+const Reveal = ({ children, className = "", delay = 0 }: RevealProps) => {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{
+        duration: reduceMotion ? 0 : 0.55,
+        delay,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+type SectionHeadingProps = {
+  eyebrow: string;
+  title: ReactNode;
+  body?: ReactNode;
+  align?: "left" | "center";
+};
+
+const SectionHeading = ({
+  eyebrow,
+  title,
+  body,
+  align = "left",
+}: SectionHeadingProps) => (
+  <div
+    className={
+      align === "center"
+        ? "mx-auto max-w-3xl text-center"
+        : "max-w-3xl"
+    }
+  >
+    <p className="mb-4 font-body text-[11px] font-bold uppercase tracking-[0.34em] text-primary">
+      {eyebrow}
+    </p>
+
+    <h2 className="font-display text-[clamp(2.8rem,7vw,5.8rem)] leading-[0.92] tracking-tight text-primary">
+      {title}
+    </h2>
+
+    {body ? (
+      <div className="mt-6 font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+        {body}
       </div>
-    </section>
+    ) : null}
+  </div>
+);
 
-    {/* The Story */}
-    <section id="the-story" className="section-white py-24">
-      <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <div className="w-full h-[32rem] overflow-hidden rounded-sm">
-            <AmbientVideo src="/videos/women_with_notepad.mp4" className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <h2 className="heading-display text-4xl text-primary mb-6">THE STORY</h2>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I loved podcasts the way some people love music. But I could never retain what I was learning. The ideas would hit, stir something, and then dissolve into the noise of the week.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I tried book clubs, but half the room hadn't read the book. I tried the gym, but external motivators never lasted. Then I started a women in business group. We rotated roles, shared wins, and spoke our intentions aloud each week. Because we had said them in front of each other, we actually followed through. The structure worked.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              But I was told to relax. To loosen the format.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              And I realised: I didn't want to relax. I didn't want an unorganised meeting with no shape. I wanted a room where the structure was the container that made everything else possible. I craved mental stimulation and real accountability—and I thought, surely there must be others who feel the same way.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              That's where Mindcast began. Not a book club, not a lecture—a facilitated weekly gathering. A 52-week journey where we work through the same theme, reflect in our workbooks, and leave with one thing to implement before next week. During the week, we meet to revisit the session and go deeper. Not to be taught. Just to do the work, side by side.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed">
-              So I built the room.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+/* -------------------------------------------------------------------------- */
+/* Hero                                                                        */
+/* -------------------------------------------------------------------------- */
 
-    {/* The Mission */}
-    <section className="section-cream py-24">
-      <div className="container mx-auto px-6">
-        <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">THE MISSION</h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-        {[
-            { title: "COMMUNITY", body: "A weekly gathering of people who show up for each other. Not followers. Not fans. A real group doing real work together — in person, face to face." },
-            { title: "PRACTICE", body: "A 52-week journey with a weekly rhythm: a facilitated Sunday session works through the theme, you reflect in your course book and set one intention, then a midweek Life Group revisits it and goes deeper — and every session opens by asking whether last week's intention actually happened." },
-            { title: "TOOLS", body: "A live digital course book, guided reflection and journaling, weekly practices, and Life Groups — designed to make the inner work tangible and trackable across the whole 52-week journey." },
-          ].map((pillar, i) => (
-            <motion.div key={pillar.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="border-2 border-border p-8 text-center">
-              <h3 className="font-display text-3xl tracking-widest mb-4">{pillar.title}</h3>
-              <p className="text-muted-foreground text-sm font-body leading-relaxed">{pillar.body}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
+const AboutHero = () => {
+  const reduceMotion = useReducedMotion();
 
-    {/* The Founder */}
-    <section className="section-white py-24">
-      <div className="container mx-auto px-6">
-        <h2 className="heading-display text-4xl md:text-6xl text-primary text-center mb-16">THE FOUNDER</h2>
-        <div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-            <div className="w-full h-[28rem] overflow-hidden rounded-sm">
-              <AmbientVideo src="/videos/founder_on_couch.mp4" className="w-full h-full object-cover" />
-            </div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
-            <h3 className="font-display text-3xl tracking-wider text-primary mb-1">ASHLEIGH CARLSON</h3>
-            <p className="text-xs tracking-[0.2em] text-primary/60 mb-6">Founder &amp; Facilitator &nbsp;|&nbsp; Taupō, New Zealand</p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I am not a teacher, a guru, or a prophet. I didn't invent the wisdom, the ideas, or the frameworks we draw from—those already exist in the world.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              My job is simple: I built the room. I created the shape of the evening. I wrote the questions and set the table. What happens at that table belongs entirely to everyone who sits at it.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed mb-4">
-              I built Mindcast because I needed it myself—a place where reflection wasn't rushed, where structure created safety, and where showing up week after week meant actually growing, not just consuming. I wasn't looking to lead anyone; I was looking for my people: those tired of surfaces and small talk, ready to understand themselves better.
-            </p>
-            <p className="text-muted-foreground font-body text-base leading-relaxed">
-              If you need a label, I am the first participant: the one who needed this room badly enough to build it, and then left the door open for whoever else might need it too.
-            </p>
-          </motion.div>
-        </div>
-      </div>
-    </section>
-
-    {/* Our Core Foundations */}
-    <section className="section-cream py-24">
-      <div className="container mx-auto px-6">
-        <h2 className="heading-display text-4xl md:text-6xl text-center mb-16">OUR CORE FOUNDATIONS</h2>
-        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {foundations.map((f, i) => (
-            <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="border-2 border-border p-7">
-              <h3 className="font-display text-2xl tracking-wider text-foreground leading-snug mb-4">{f.title}</h3>
-              <p className="text-muted-foreground text-sm font-body leading-relaxed mb-3">
-                <em className="text-foreground font-medium">{f.subhead}:</em> {f.subheadText}
-              </p>
-              <p className="text-muted-foreground/80 text-sm font-body leading-relaxed">
-                <em className="text-foreground font-medium">The Standard:</em> {f.standard}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* Our Relationship With AI */}
-    <section className="relative overflow-hidden min-h-screen py-16 md:py-24">
-      {/* Background video — visible as ambient warmth */}
-      <AmbientVideo
-        src="/videos/hero-loop.mp4"
-        className="absolute inset-0 w-full h-full object-cover opacity-50 md:opacity-60"
-      />
-      {/* Dark warm tint overlay (25-30%) with subtle vignette */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "rgba(15, 23, 42, 0.35)" }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 40%, rgba(15, 23, 42, 0.45) 100%)",
-        }}
-      />
-
-      <div className="container mx-auto px-6 relative z-10 max-w-6xl">
-        <div className="grid md:grid-cols-[2fr_3fr] gap-8 lg:gap-12 items-start">
-          {/* LEFT COLUMN: Sticky heading & quote callout */}
-          <div className="md:sticky md:top-24 md:self-start space-y-6 pb-8 md:pb-0">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="heading-display text-3xl sm:text-4xl md:text-5xl text-white leading-[1.1]"
-            >
-              WE USE AI. HERE'S WHY WE'RE PROUD OF THAT.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.15 }}
-              className="text-white/60 font-body text-sm tracking-wide"
-            >
-              A note on how Mindcast was built — and what we believe about the tools we use.
-            </motion.p>
-
-            {/* Hero quote callout — desktop sticky, mobile closing badge */}
-            <motion.blockquote
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="border-l-2 border-white/30 pl-5 py-3 mt-6 md:mt-10"
-            >
-              <p className="font-display text-xl sm:text-2xl md:text-3xl tracking-wider text-white leading-snug">
-                "AI didn't replace the human work. It made the human work possible."
-              </p>
-            </motion.blockquote>
-          </div>
-
-          {/* RIGHT COLUMN: Frosted glass body text container */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="space-y-5 p-6 sm:p-8 lg:p-10"
-            style={{
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
-              background: "rgba(15, 23, 42, 0.65)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              borderRadius: "16px",
-            }}
-          >
-            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
-              The images and videos on this website were generated using AI. The resources we share are researched and written by leading experts — and AI helps us surface, synthesise, and apply that knowledge faster than any team of researchers could alone.
-            </p>
-            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
-              We believe AI should make us more human, not less. It should free up the hours we waste on things that don't require a human touch — so we can spend more time in rooms with real people, having conversations that actually matter.
-            </p>
-            <p className="font-body text-base leading-relaxed font-semibold text-[#F8FAFC]">
-              Mindcast exists because of AI. Not in spite of it.
-            </p>
-            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
-              Without it, this idea would still be a note on my phone. I didn't have a team, a budget, or ample free time. What I had was a clear vision and access to tools that meant I didn't need any of those things to get started. AI levelled that playing field completely.
-            </p>
-            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
-              Our resources are evidence-based because AI lets us stand on the shoulders of the researchers, scientists, and authors who have spent decades studying human behaviour, healing, and connection. We don't make things up. We find the best thinking that exists, translate it into something you can actually use, and bring it into the room with us every week.
-            </p>
-            <p className="font-body text-base leading-relaxed text-[#F8FAFC]">
-              That's the version of AI we're interested in: the one that makes human experience richer, more accessible, and more honest.
-            </p>
-          </motion.div>
-        </div>
-      </div>
-    </section>
-
-    {/* Interactive curriculum book-preview CTA */}
-    <section className="py-20" style={{ background: "hsl(var(--cream, 0 0% 96%))" }}>
-      <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center px-6 max-w-5xl">
-        {/* LEFT: Copy & CTA */}
-        <div className="space-y-6 order-2 lg:order-1">
-          <span className="text-xs uppercase tracking-widest text-primary font-bold font-body">Inside the Practice</span>
-          <h2 className="heading-display text-4xl md:text-5xl text-foreground leading-tight">OPEN THE FIRST PAGE.</h2>
-          <p className="text-lg text-muted-foreground font-body leading-relaxed">
-            Take a look inside the 52-week coursebook. See how quiet reflection translates into simple, weekly intentions across every stage of the journey.
-          </p>
-          <ul className="space-y-3 text-muted-foreground font-body font-medium">
-            <li className="flex items-center gap-3">
-              <span className="text-primary font-bold">✓</span> 52 Structured Weekly Themes
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="text-primary font-bold">✓</span> "Notice It. Name It. Do It." Reflection Prompts
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="text-primary font-bold">✓</span> Interactive Midweek Action Trackers
-            </li>
-          </ul>
-          <div className="pt-4">
-            <Link
-              to="/curriculum"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-body font-semibold rounded-lg shadow-lg hover:opacity-90 transition-all"
-            >
-              EXPLORE THE FULL CURRICULUM →
-            </Link>
-          </div>
-        </div>
-
-        {/* RIGHT: 3D open-book mockup */}
-        <div
-          className="relative group cursor-pointer order-1 lg:order-2"
-          style={{ perspective: "1200px" }}
+  return (
+    <section className="section-cream flex min-h-[72svh] items-center border-b border-border pt-16 lg:pt-[72px]">
+      <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: reduceMotion ? 0 : 0.7,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.55fr)] lg:gap-16"
         >
-          {/* Glow */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-muted-foreground/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500" />
+          <div>
+            <p className="mb-7 font-body text-[11px] font-bold uppercase tracking-[0.42em] text-primary">
+              About MINDCAST
+            </p>
 
-          {/* Book outer box with 3D tilt on hover */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative bg-white p-8 rounded-2xl border border-border shadow-2xl transition-transform duration-500 group-hover:-translate-y-2"
-            style={{
-              transformStyle: "preserve-3d",
-              boxShadow: "0 20px 40px -15px rgba(0,0,0,0.15)",
-            }}
-          >
-            {/* Book spread */}
-            <div className="aspect-[4/3] bg-amber-50/50 border border-amber-100/60 rounded-lg p-6 flex gap-6">
-              {/* Left page */}
-              <div className="w-1/2 border-r border-amber-200/50 pr-4 space-y-3">
-                <div className="h-3 bg-slate-300 rounded w-1/3" />
-                <div className="h-6 bg-slate-800 rounded w-3/4" />
-                <div className="space-y-2 pt-4">
-                  <div className="h-2 bg-slate-200 rounded w-full" />
-                  <div className="h-2 bg-slate-200 rounded w-5/6" />
-                  <div className="h-2 bg-slate-200 rounded w-4/6" />
-                </div>
-              </div>
-              {/* Right page */}
-              <div className="w-1/2 pl-4 space-y-3">
-                <div className="h-3 bg-primary/40 rounded w-1/4" />
-                <div className="h-20 bg-primary/5 border border-primary/10 rounded-lg p-3">
-                  <div className="h-2 bg-primary/40 rounded w-1/2 mb-2" />
-                  <div className="h-2 bg-primary/20 rounded w-full" />
-                </div>
-                <div className="h-2 bg-slate-200 rounded w-full" />
-              </div>
-            </div>
+            <h1 className="max-w-5xl font-display text-[clamp(3.3rem,12vw,9rem)] leading-[0.84] tracking-[-0.025em] text-primary">
+              A PLACE TO COME BACK TO YOURSELF.
+            </h1>
+          </div>
 
-            {/* Badge */}
-            <div className="absolute bottom-4 right-4 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-full font-medium shadow-md">
-              Click to Flip Through
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </section>
+          <div className="border-l-2 border-primary/25 pl-6 sm:pl-8">
+            <p className="font-body text-lg leading-8 text-foreground/80">
+              MINDCAST is a weekly personal-development and community practice
+              for adults, teens, and children—built around better questions,
+              honest reflection, and one small intention taken into real life.
+            </p>
 
-    {/* Closing CTA — an EXPLORATION cta, not a conversion one.
-        Someone who has just read the founder's story is ready to look inside
-        the curriculum, not to be sold a membership. The join CTA lives at the
-        bottom of /curriculum, after they have actually seen the year. */}
-    <section className="section-white py-24">
-      <div className="container mx-auto px-6 text-center max-w-3xl">
-        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="heading-display text-4xl md:text-6xl text-primary mb-6">
-          CURIOUS WHAT MINDCAST LOOKS LIKE?
-        </motion.h2>
-        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.15 }} className="text-muted-foreground font-body text-base leading-relaxed mb-10">
-          Explore inside the MINDCAST curriculum and see how the 52-week journey helps adults, teens and children build greater awareness, intention and follow-through — one week at a time.
-        </motion.p>
-        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }}>
-          <Link to="/curriculum" className="inline-block bg-primary text-primary-foreground font-display tracking-widest text-sm px-10 py-4 hover:bg-primary/90 transition-colors">
-            LOOK INSIDE OUR CURRICULUM &rarr;
-          </Link>
+            <a
+              href="#the-story"
+              className="mt-7 inline-flex min-h-12 items-center gap-3 font-body text-xs font-bold tracking-[0.16em] text-primary underline decoration-primary/25 underline-offset-8 transition-colors hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+            >
+              READ HOW IT STARTED
+              <ArrowDown size={17} aria-hidden="true" />
+            </a>
+          </div>
         </motion.div>
       </div>
     </section>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/* Story                                                                       */
+/* -------------------------------------------------------------------------- */
+
+const StorySection = () => (
+  <section
+    id="the-story"
+    className="scroll-mt-20 bg-white py-20 sm:py-24 lg:py-32"
+  >
+    <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.88fr_1.12fr] lg:gap-20 lg:px-8">
+      <Reveal className="lg:sticky lg:top-28 lg:self-start">
+        <div className="relative overflow-hidden rounded-2xl bg-muted shadow-[0_18px_55px_rgba(16,36,56,0.12)]">
+          <AmbientVideo
+            src="/videos/women_with_notepad.mp4"
+            className="aspect-[4/5] h-full w-full object-cover"
+          />
+
+          <div className="absolute inset-x-4 bottom-4 rounded-xl border border-white/20 bg-[#102438]/70 p-4 text-white backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-5">
+            <Quote
+              className="mb-3 text-white/60"
+              size={21}
+              aria-hidden="true"
+            />
+
+            <p className="font-display text-2xl tracking-wide sm:text-3xl">
+              THE STRUCTURE WORKED.
+            </p>
+          </div>
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.08}>
+        <SectionHeading eyebrow="The origin" title="THE STORY" />
+
+        <div className="mt-8 space-y-5 font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+          <p>
+            I loved podcasts the way some people love music. But I could never
+            retain what I was learning. The ideas would hit, stir something, and
+            then dissolve into the noise of the week.
+          </p>
+
+          <p>
+            I tried book clubs, but half the room hadn&apos;t read the book. I
+            tried the gym, but external motivators never lasted. Then I started
+            a women in business group. We rotated roles, shared wins, and spoke
+            our intentions aloud each week. Because we had said them in front
+            of each other, we actually followed through. The structure worked.
+          </p>
+
+          <p>But I was told to relax. To loosen the format.</p>
+
+          <p>
+            And I realised: I didn&apos;t want to relax. I didn&apos;t want an
+            unorganised meeting with no shape. I wanted a room where the
+            structure was the container that made everything else possible. I
+            craved mental stimulation and real accountability—and I thought,
+            surely there must be others who feel the same way.
+          </p>
+
+          <p>
+            That&apos;s where MINDCAST began. Not a book club, not a lecture—a
+            facilitated weekly gathering where people explore the same theme,
+            reflect honestly, and leave with one practical intention to carry
+            into the week.
+          </p>
+        </div>
+
+        <p className="mt-10 border-t border-border pt-8 font-display text-4xl tracking-wide text-primary sm:text-5xl">
+          SO I BUILT THE ROOM.
+        </p>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* -------------------------------------------------------------------------- */
+/* Mission                                                                     */
+/* -------------------------------------------------------------------------- */
+
+const MissionSection = () => (
+  <section className="section-cream border-y border-border py-20 sm:py-24 lg:py-32">
+    <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+      <Reveal>
+        <SectionHeading
+          eyebrow="The mission"
+          title="MAKE INTENTIONAL LIVING A PRACTICE, NOT ANOTHER IDEA."
+          body={
+            <p className="max-w-3xl">
+              We create a regular place where ordinary people can slow down,
+              understand themselves better, and practise making more
+              intentional choices alongside others.
+            </p>
+          }
+        />
+      </Reveal>
+
+      <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-3">
+        {missionPillars.map((pillar, index) => {
+          const Icon = pillar.icon;
+
+          return (
+            <Reveal key={pillar.title} delay={index * 0.08}>
+              <article className="h-full bg-white p-6 sm:p-8 lg:p-9">
+                <div className="flex items-start justify-between gap-5">
+                  <Icon
+                    className="text-primary"
+                    size={28}
+                    strokeWidth={1.7}
+                    aria-hidden="true"
+                  />
+
+                  <span className="font-display text-3xl text-primary/20">
+                    0{index + 1}
+                  </span>
+                </div>
+
+                <p className="mt-10 font-body text-[10px] font-bold uppercase tracking-[0.22em] text-primary/70">
+                  {pillar.eyebrow}
+                </p>
+
+                <h3 className="mt-2 font-display text-4xl tracking-wide text-primary">
+                  {pillar.title}
+                </h3>
+
+                <p className="mt-4 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+                  {pillar.body}
+                </p>
+              </article>
+            </Reveal>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+);
+
+/* -------------------------------------------------------------------------- */
+/* Founder                                                                     */
+/* -------------------------------------------------------------------------- */
+
+const FounderSection = () => (
+  <section className="bg-white py-20 sm:py-24 lg:py-32">
+    <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+      <Reveal>
+        <SectionHeading
+          eyebrow="The first participant"
+          title="THE FOUNDER"
+        />
+      </Reveal>
+
+      <div className="mt-12 grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+        <Reveal>
+          <div className="overflow-hidden rounded-2xl bg-muted shadow-[0_18px_55px_rgba(16,36,56,0.12)]">
+            <AmbientVideo
+              src="/videos/founder_on_couch.mp4"
+              className="aspect-[4/3] h-full w-full object-cover lg:aspect-[5/6]"
+            />
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <p className="font-body text-[11px] font-bold uppercase tracking-[0.28em] text-primary/70">
+            Founder &amp; Facilitator · Taupō, New Zealand
+          </p>
+
+          <h3 className="mt-3 font-display text-5xl tracking-wide text-primary sm:text-6xl">
+            ASHLEIGH CARLSON
+          </h3>
+
+          <div className="mt-8 space-y-5 font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+            <p>
+              I am not here as a guru, a prophet, or the source of whatever
+              wisdom surfaces in a MINDCAST session. The ideas, thinkers, and
+              frameworks we draw from already exist in the world.
+            </p>
+
+            <p>
+              My role is to shape and protect the room: choose the theme, write
+              the questions, set the pace, and create enough structure for
+              people to reflect honestly. I facilitate the conversation; I do
+              not tell people what their answers should be.
+            </p>
+
+            <p>
+              I am also the first participant. I built MINDCAST because I
+              wanted a place like this in my own life. I am not standing above
+              the room—I am sitting in it too.
+            </p>
+          </div>
+
+          <blockquote className="mt-9 border-l-2 border-primary pl-6">
+            <p className="font-display text-3xl leading-tight tracking-wide text-primary sm:text-4xl">
+              “I BUILT THE DOOR—THEN LEFT IT OPEN.”
+            </p>
+          </blockquote>
+        </Reveal>
+      </div>
+    </div>
+  </section>
+);
+
+/* -------------------------------------------------------------------------- */
+/* Foundations browser                                                        */
+/* -------------------------------------------------------------------------- */
+
+const FoundationsSection = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const reduceMotion = useReducedMotion();
+  const active = foundations[activeIndex];
+
+  return (
+    <section className="section-cream border-y border-border py-20 sm:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <Reveal>
+          <SectionHeading
+            eyebrow="Why · What · Who · How"
+            title="OUR CORE FOUNDATIONS"
+            body={
+              <p className="max-w-3xl">
+                These are not slogans sitting beside the work. They explain why
+                MINDCAST exists, who it is for, and the standards that shape
+                every room we create.
+              </p>
+            }
+          />
+        </Reveal>
+
+        <div className="mt-12 grid gap-5 lg:grid-cols-[minmax(260px,0.42fr)_minmax(0,1fr)] lg:gap-8">
+          <div
+            className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0"
+            aria-label="Choose a MINDCAST foundation"
+          >
+            {foundations.map((foundation, index) => {
+              const selected = index === activeIndex;
+
+              return (
+                <button
+                  key={foundation.number}
+                  type="button"
+                  aria-pressed={selected}
+                  aria-controls="foundation-detail"
+                  onClick={() => setActiveIndex(index)}
+                  className={`group min-h-[74px] min-w-[235px] snap-start rounded-xl border p-4 text-left transition-[background-color,border-color,box-shadow,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 lg:min-w-0 ${
+                    selected
+                      ? "border-primary bg-primary text-primary-foreground shadow-[0_12px_30px_rgba(53,133,175,0.2)]"
+                      : "border-border bg-white text-primary hover:-translate-y-0.5 hover:border-primary/40"
+                  }`}
+                >
+                  <span className="flex items-center justify-between gap-4">
+                    <span>
+                      <span
+                        className={`block font-body text-[9px] font-bold uppercase tracking-[0.18em] ${
+                          selected
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {foundation.number} · {foundation.lens}
+                      </span>
+
+                      <span className="mt-2 block font-display text-xl tracking-wide sm:text-2xl">
+                        {foundation.title}
+                      </span>
+                    </span>
+
+                    <ArrowRight
+                      size={18}
+                      className={`shrink-0 transition-transform ${
+                        selected
+                          ? "translate-x-1"
+                          : "group-hover:translate-x-1"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div
+            id="foundation-detail"
+            aria-live="polite"
+            className="relative min-h-[430px] overflow-hidden rounded-2xl border border-border bg-white shadow-[0_18px_55px_rgba(16,36,56,0.08)] sm:min-h-[390px]"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.article
+                key={active.number}
+                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={
+                  reduceMotion ? undefined : { opacity: 0, y: -8 }
+                }
+                transition={{
+                  duration: reduceMotion ? 0 : 0.24,
+                }}
+                className="relative flex min-h-[430px] flex-col justify-between p-6 sm:min-h-[390px] sm:p-9 lg:p-12"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-2 -top-8 font-display text-[10rem] leading-none text-primary/[0.055] sm:text-[13rem]"
+                >
+                  {active.number}
+                </span>
+
+                <div className="relative max-w-3xl">
+                  <p className="font-body text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+                    {active.number} · {active.lens}
+                  </p>
+
+                  <h3 className="mt-4 font-display text-[clamp(2.6rem,6vw,5rem)] leading-[0.92] tracking-tight text-primary">
+                    {active.title}
+                  </h3>
+                </div>
+
+                <div className="relative mt-12 grid gap-7 border-t border-border pt-7 md:grid-cols-2 md:gap-10">
+                  <div>
+                    <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">
+                      The belief
+                    </p>
+
+                    <p className="mt-3 font-body text-base leading-7 text-foreground/80 md:text-lg md:leading-8">
+                      {active.belief}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-body text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">
+                      How it shows up
+                    </p>
+
+                    <p className="mt-3 font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
+                      {active.standard}
+                    </p>
+                  </div>
+                </div>
+              </motion.article>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/* AI disclosure                                                              */
+/* -------------------------------------------------------------------------- */
+
+const AiDisclosure = () => (
+  <section className="bg-white py-16 sm:py-20">
+    <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
+      <details className="group overflow-hidden rounded-2xl border border-border bg-card shadow-[0_12px_35px_rgba(16,36,56,0.06)]">
+        <summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-6 p-5 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:p-7 [&::-webkit-details-marker]:hidden">
+          <span>
+            <span className="block font-body text-[10px] font-bold uppercase tracking-[0.22em] text-primary/60">
+              Transparency note
+            </span>
+
+            <span className="mt-2 block font-display text-3xl tracking-wide text-primary sm:text-4xl">
+              HOW MINDCAST USES AI
+            </span>
+          </span>
+
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-primary/20 text-primary transition-transform group-open:rotate-180">
+            <ChevronDown size={20} aria-hidden="true" />
+          </span>
+        </summary>
+
+        <div className="border-t border-border px-5 py-7 sm:px-7 sm:py-9">
+          <div className="grid gap-7 md:grid-cols-3 md:gap-9">
+            <div>
+              <h3 className="font-display text-2xl tracking-wide text-primary">
+                CREATION
+              </h3>
+
+              <p className="mt-3 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+                Some images and videos on this website were created with AI. We
+                use it to make a small team capable of expressing a much larger
+                vision.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-display text-2xl tracking-wide text-primary">
+                RESEARCH
+              </h3>
+
+              <p className="mt-3 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+                Our curriculum draws from published research and established
+                thinkers. AI helps us search, organise, and synthesise; human
+                judgement decides what belongs in the room.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-display text-2xl tracking-wide text-primary">
+                THE BOUNDARY
+              </h3>
+
+              <p className="mt-3 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+                AI supports the work. It does not replace live facilitation,
+                human connection, or responsibility for what MINDCAST publishes
+                and teaches.
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+);
+
+/* -------------------------------------------------------------------------- */
+/* CTA                                                                         */
+/* -------------------------------------------------------------------------- */
+
+const AboutCta = ({ membershipHref }: { membershipHref: string }) => (
+  <section className="section-cream border-t border-border py-20 sm:py-24 lg:py-32">
+    <div className="mx-auto max-w-4xl px-5 text-center sm:px-6 lg:px-8">
+      <Reveal>
+        <p className="font-body text-[11px] font-bold uppercase tracking-[0.34em] text-primary">
+          The next question
+        </p>
+
+        <h2 className="mt-5 font-display text-[clamp(3.4rem,9vw,7.5rem)] leading-[0.86] tracking-tight text-primary">
+          WHAT DOES A WEEK ACTUALLY LOOK LIKE?
+        </h2>
+
+        <p className="mx-auto mt-7 max-w-2xl font-body text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+          Look inside the curriculum, follow the Sunday-to-Friday rhythm, and
+          see how one theme is adapted for adults, teens, and children.
+        </p>
+
+        <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+          <Link
+            to="/curriculum"
+            className="inline-flex min-h-[52px] items-center justify-center gap-2 bg-primary px-7 py-4 font-body text-xs font-bold tracking-[0.14em] text-primary-foreground shadow-[0_10px_30px_rgba(53,133,175,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          >
+            LOOK INSIDE THE CURRICULUM
+            <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+
+          <Link
+            to="/try"
+            className="inline-flex min-h-[52px] items-center justify-center gap-2 border border-primary/40 bg-white px-7 py-4 font-body text-xs font-bold tracking-[0.14em] text-primary transition-[transform,border-color] hover:-translate-y-0.5 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          >
+            TRY A SESSION FIRST
+          </Link>
+        </div>
+
+        <p className="mt-6 font-body text-sm text-muted-foreground">
+          Already ready?{" "}
+          <Link
+            to={membershipHref}
+            className="font-semibold text-primary underline decoration-primary/25 underline-offset-4 hover:decoration-primary"
+          >
+            View membership options.
+          </Link>
+        </p>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* -------------------------------------------------------------------------- */
+/* Page                                                                        */
+/* -------------------------------------------------------------------------- */
+
+// Kept as an export so existing imports continue to compile.
+// Home should link to /about rather than rendering this full page
+// inside the homepage.
+export const AboutContent = ({
+  membershipHref = "/membership",
+}: {
+  membershipHref?: string;
+}) => (
+  <>
+    <AboutHero />
+    <StorySection />
+    <MissionSection />
+    <FounderSection />
+    <FoundationsSection />
+    <AiDisclosure />
+    <AboutCta membershipHref={membershipHref} />
   </>
 );
 
 const About = () => (
-  <>
+  <div className="min-h-screen bg-white">
     <Navbar />
-    <AboutContent />
+
+    <main>
+      <AboutContent />
+    </main>
+
     <Footer />
-  </>
+  </div>
 );
 
 export default About;

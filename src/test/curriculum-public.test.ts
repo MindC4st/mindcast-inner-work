@@ -206,34 +206,34 @@ describe("no gamification", () => {
 
 describe("the homepage closing block is an exploration CTA", () => {
   // AboutContent is embedded on the homepage as an ivory band and also serves
-  // /about, so this one block is the closing CTA on both.
+  // /about, so this one block is the closing CTA on both. The redesign moved
+  // the block into the AboutCta component; the rule it must keep: explore the
+  // curriculum first, membership is a quiet tertiary link, never the headline.
   const about = read("src/pages/About.tsx");
-  const closing = about.slice(about.lastIndexOf("<section className=\"section-white py-24\">"));
+  const closing = about.slice(about.indexOf("const AboutCta"));
+
+  it("finds the closing block", () => {
+    // If this fails, the landmark moved — and every assertion below would
+    // pass vacuously on a near-empty slice. Fail loudly instead.
+    expect(closing.length, "closing slice is empty — the AboutCta landmark moved").toBeGreaterThan(200);
+  });
 
   it("no longer asks the visitor to become a member", () => {
     expect(closing).not.toContain("READY TO START?");
     expect(closing).not.toContain("BECOME A MEMBER");
     expect(closing).not.toContain("52 weeks of showing up");
+    expect(closing).not.toContain("JOIN THE ROOM");
   });
 
-  it("carries the new heading and copy exactly", () => {
-    expect(closing).toContain("CURIOUS WHAT MINDCAST LOOKS LIKE?");
-    expect(closing).toContain(
-      "Explore inside the MINDCAST curriculum and see how the 52-week journey helps adults, " +
-      "teens and children build greater awareness, intention and follow-through — one week at a time.",
-    );
+  it("leads with the curriculum exploration CTA", () => {
+    expect(closing).toContain("WHAT DOES A WEEK ACTUALLY LOOK LIKE?");
+    expect(closing).toContain("LOOK INSIDE THE CURRICULUM");
   });
 
-  it("routes to /curriculum", () => {
-    expect(closing).toMatch(/<Link to="\/curriculum"/);
-    expect(closing).toContain("LOOK INSIDE OUR CURRICULUM");
-  });
-
-  it("keeps the surrounding section styling", () => {
-    // Same ivory band, container, max width and type scale as before — the
-    // block changed its message, not its design.
-    expect(closing).toContain('className="section-white py-24"');
-    expect(closing).toContain("heading-display text-4xl md:text-6xl text-primary");
+  it("routes to /curriculum as the primary action", () => {
+    expect(closing).toMatch(/to="\/curriculum"/);
+    // Membership is offered, but only as a low-key text link, not the button.
+    expect(closing).toContain("View membership options.");
   });
 });
 
