@@ -81,7 +81,7 @@ const WallName = ({
       } as CSSProperties}
     >
       <span
-        className="font-display tracking-wide text-[hsl(var(--ivory))]/90 whitespace-nowrap -translate-x-1/2 -translate-y-1/2"
+        className="font-display tracking-wide text-[hsl(var(--navy))]/90 whitespace-nowrap -translate-x-1/2 -translate-y-1/2"
         style={{ fontSize: `${fontRem * fontScaleForName(name)}rem` }}
       >
         {name}
@@ -159,7 +159,7 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
 
       {/* Centre title — sits in the reserved safe zone, so nothing covers it. */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none px-8">
-        <p className="text-[hsl(var(--bronze))]/70 text-[10px] tracking-[0.6em] font-body uppercase mb-4">
+        <p className="text-[hsl(var(--primary))]/70 text-[10px] tracking-[0.6em] font-body uppercase mb-4">
           Week {weekNumber} · {phaseName}
         </p>
         {/* Title scales back as the room fills so names keep their space —
@@ -170,10 +170,10 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
           transition={{ type: "spring", stiffness: 80, damping: 18 }}
           style={{ transformOrigin: "center" }}
         >
-          <h1 className="font-display text-6xl md:text-8xl tracking-wide text-[hsl(var(--ivory))]/25 text-center leading-none">
+          <h1 className="font-display text-6xl md:text-8xl tracking-wide text-[hsl(var(--navy))]/25 text-center leading-none">
             {(themeTitle || "").toUpperCase()}
           </h1>
-          <p className="text-[hsl(var(--ivory))]/40 font-serif italic text-xl md:text-2xl mt-4 text-center">
+          <p className="text-[hsl(var(--navy))]/40 font-serif italic text-xl md:text-2xl mt-4 text-center">
             {sessionTitle}
           </p>
         </motion.div>
@@ -184,11 +184,11 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
           <Ripple
             size={people.length === 0 ? 84 : 56}
             animate
-            className={people.length === 0 ? "text-[hsl(var(--ivory))]/40" : "text-[hsl(var(--ivory))]/15"}
+            className={people.length === 0 ? "text-[hsl(var(--navy))]/40" : "text-[hsl(var(--navy))]/15"}
           />
         </div>
 
-        <p className="text-[hsl(var(--ivory))]/45 text-[10px] tracking-[0.5em] font-body uppercase mt-8">
+        <p className="text-[hsl(var(--navy))]/45 text-[10px] tracking-[0.5em] font-body uppercase mt-8">
           {people.length === 0
             ? "The room is ready."
             : `${people.length} in the room`}
@@ -198,10 +198,10 @@ export const WelcomeWall = ({ weekNumber, themeTitle, sessionTitle, phaseName, j
       {/* Join code badge — bottom-left, in its own reserved zone. */}
       {joinCode && (
         <div className="absolute bottom-8 left-8 z-30 flex flex-col items-start gap-1">
-          <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase">Join Code</p>
-          <p className="font-display text-4xl md:text-5xl tracking-[0.3em] text-[hsl(var(--ivory))]/90">{joinCode}</p>
+          <p className="text-[hsl(var(--primary))] text-[9px] tracking-[0.4em] font-body uppercase">Join Code</p>
+          <p className="font-display text-4xl md:text-5xl tracking-[0.3em] text-[hsl(var(--navy))]/90">{joinCode}</p>
           {joinUrl && (
-            <p className="text-[hsl(var(--ivory))]/40 text-[10px] font-body mt-1">
+            <p className="text-[hsl(var(--navy))]/40 text-[10px] font-body mt-1">
               {joinUrl.replace(/^https?:\/\//, "")}
             </p>
           )}

@@ -127,18 +127,18 @@ const WelcomeWall = () => {
     : rows.map((c) => ({ key: c.id, label: firstNameOnly(c.display_name).toUpperCase() }));
 
   return (
-    <div className="fixed inset-0 section-navy grain-overlay flex flex-col overflow-hidden">
+    <div className="deck-canvas fixed inset-0 grain-overlay flex flex-col overflow-hidden">
       {/* Quiet header — the room, not a scoreboard. */}
       <header className="px-12 pt-10 flex items-start justify-between">
         <div>
-          <p className="font-body text-[11px] tracking-[0.5em] text-cream/40 uppercase">Mindcast</p>
-          <h1 className="font-display text-2xl tracking-[0.2em] text-cream/70 mt-1">
+          <p className="font-body text-[11px] tracking-[0.5em] text-primary/70 uppercase">Mindcast</p>
+          <h1 className="font-display text-2xl tracking-[0.2em] text-navy/80 mt-1">
             {heading}
           </h1>
         </div>
         <button
           onClick={goFullscreen}
-          className="text-cream/20 hover:text-cream/50 transition-colors p-2"
+          className="text-navy/25 hover:text-navy/60 transition-colors p-2"
           title="Fullscreen"
           aria-label="Fullscreen"
         >
@@ -150,8 +150,8 @@ const WelcomeWall = () => {
       <div className="flex-1 px-12 py-10 overflow-hidden">
         {displayRows.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center">
-            <Ripple size={72} animate className="text-cream/40 mb-8" />
-            <p className="font-serif italic text-2xl text-cream/50">The room is ready.</p>
+            <Ripple size={72} animate className="text-primary/70 mb-8" />
+            <p className="font-serif italic text-2xl text-navy-mid">The room is ready.</p>
           </div>
         ) : (
           <div className="flex flex-wrap content-start gap-x-14 gap-y-8">
@@ -165,10 +165,10 @@ const WelcomeWall = () => {
                   transition={{ duration: 0.7, delay: Math.min(i * 0.04, 0.5) }}
                   className="flex items-center gap-4"
                 >
-                  {i === 0 && <Ripple size={34} animate className="text-cream/60 shrink-0" />}
+                  {i === 0 && <Ripple size={34} animate className="text-primary shrink-0" />}
                   <p
-                    className={`font-display text-cream leading-none tracking-wide ${
-                      i === 0 ? "text-7xl" : "text-5xl text-cream/85"
+                    className={`font-display text-navy leading-none tracking-wide ${
+                      i === 0 ? "text-7xl" : "text-5xl text-navy/85"
                     }`}
                   >
                     {c.label}
@@ -181,7 +181,7 @@ const WelcomeWall = () => {
       </div>
 
       <footer className="px-12 pb-8">
-        <p className="font-body text-[11px] tracking-[0.4em] text-cream/30 uppercase">
+        <p className="font-body text-[11px] tracking-[0.4em] text-navy/40 uppercase">
           NOTICE IT, NAME IT, DO IT
         </p>
       </footer>

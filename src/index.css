@@ -98,6 +98,17 @@
        ink, distinct from the cool Ink Navy used on plain ivory. */
     --paper-ink: #4e463c;
     --paper-ink-muted: #6d655c;
+
+    /* ── Facilitator deck surfaces ─────────────────────────────────────────
+       Two surfaces, two jobs. The PROJECTED canvas is paper: projectors
+       cannot project black — a dark slide is just ambient room light on a
+       screen — so the projected surface carries the projector's own
+       brightness. The OPERATOR chrome (top bar, moderation, controls, notes)
+       stays deep slate: it is only ever read on the facilitator's laptop,
+       and the hard visual line marks "this is only mine" against "this is
+       projected". */
+    --chrome: 216 45% 10%; /* deep slate — operator chrome only */
+    --chrome-ink: 30 100% 98%; /* ivory type on chrome */
     --shadow-page:
       0 1px 2px rgba(79, 58, 31, 0.05),
       0 18px 40px -28px rgba(79, 58, 31, 0.4);
@@ -332,6 +343,21 @@
     height: 2px;
     border: 0;
     background: hsl(var(--blue));
+  }
+
+  /* ── Facilitator deck surfaces (see --chrome tokens for the rationale) ── */
+  .deck-canvas {
+    background-color: hsl(var(--ivory));
+    /* The linen weave at very low strength: present as material up close,
+       invisible as pattern from row 20. */
+    background-image:
+      repeating-linear-gradient(0deg, rgb(112 91 60 / 0.025) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgb(112 91 60 / 0.02) 0 1px, transparent 1px 3px);
+    color: hsl(var(--navy));
+  }
+  .deck-chrome {
+    background: hsl(var(--chrome));
+    color: hsl(var(--chrome-ink));
   }
 
   /* ── Embossed ivory system ───────────────────────────────────────────────

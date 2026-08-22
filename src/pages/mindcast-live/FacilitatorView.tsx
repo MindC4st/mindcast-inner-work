@@ -677,7 +677,7 @@ const FacilitatorView = () => {
   };
 
   if (!session) {
-    return <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center text-[hsl(var(--ivory))]/60 font-body text-sm" role="status">Loading Week {week} ({audience})…</div>;
+    return <div className="min-h-screen bg-[hsl(var(--chrome))] flex items-center justify-center text-[hsl(var(--chrome-ink))]/60 font-body text-sm" role="status">Loading Week {week} ({audience})…</div>;
   }
 
   const liveBoard = responses.filter(r => !r.hidden && r.moderation_status === "approved");
@@ -688,27 +688,27 @@ const FacilitatorView = () => {
   const joinUrl = `${window.location.origin}/live/${code}`;
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] flex flex-col relative overflow-hidden">
+    <div ref={containerRef} className="deck-canvas min-h-screen flex flex-col relative overflow-hidden">
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-5 overflow-x-auto scrollbar-none px-4 sm:px-6 py-3 border-b border-[hsl(var(--ivory))]/10 z-30">
+      <div className="deck-chrome flex items-center justify-between gap-5 overflow-x-auto scrollbar-none px-4 sm:px-6 py-3 border-b border-[hsl(var(--chrome-ink))]/10 z-30">
         <div className="flex shrink-0 items-center gap-4">
-          <button type="button" onClick={() => navigate("/mindcast-live/library")} className="min-h-9 rounded-lg px-2 text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30">← LIBRARY</button>
+          <button type="button" onClick={() => navigate("/mindcast-live/library")} className="min-h-9 rounded-lg px-2 text-[hsl(var(--chrome-ink))]/40 hover:text-[hsl(var(--chrome-ink))]/80 text-xs font-body tracking-widest focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30">← LIBRARY</button>
           <span className="text-[hsl(var(--bronze))] font-display text-2xl tracking-wider">WEEK {week}</span>
-          <span className="text-[hsl(var(--ivory))]/50 text-xs font-body tracking-widest uppercase">{session.phase_name}</span>
+          <span className="text-[hsl(var(--chrome-ink))]/50 text-xs font-body tracking-widest uppercase">{session.phase_name}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <div className="flex items-center gap-1" role="radiogroup" aria-label="Facilitation track">
           {(["Adult", "Teen", "Child"] as const).map(a => (
             <button type="button" key={a} onClick={() => setAudience(a)} role="radio" aria-checked={audience === a}
-              className={`px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${audience === a ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/60 hover:bg-[hsl(var(--ivory))]/10"}`}>{a}</button>
+              className={`px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${audience === a ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--chrome-ink))]/5 text-[hsl(var(--chrome-ink))]/60 hover:bg-[hsl(var(--chrome-ink))]/10"}`}>{a}</button>
           ))}
           </div>
-          <div className="w-px h-5 bg-[hsl(var(--ivory))]/20 mx-2" />
+          <div className="w-px h-5 bg-[hsl(var(--chrome-ink))]/20 mx-2" />
           <button type="button" onClick={handleUnlock} disabled={unlocked}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${unlocked ? "bg-[hsl(var(--bronze))]/20 text-[hsl(var(--bronze))]" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10"}`}>
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${unlocked ? "bg-[hsl(var(--bronze))]/20 text-[hsl(var(--bronze))]" : "bg-[hsl(var(--chrome-ink))]/5 text-[hsl(var(--chrome-ink))]/70 hover:bg-[hsl(var(--chrome-ink))]/10"}`}>
             {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
           </button>
-          <button type="button" onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" aria-label="Download worksheet PDF" className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><Download size={14} /></button>
+          <button type="button" onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" aria-label="Download worksheet PDF" className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30"><Download size={14} /></button>
           {isFacilitator && (currentKind === "wisdom" || currentKind === "metaphor" || currentKind === "wisdomworld") && (() => {
             // The merged slide carries BOTH columns, so offer controls for each.
             const slideKeys: ("ancient" | "todays_world")[] =
@@ -725,7 +725,7 @@ const FacilitatorView = () => {
                     onClick={() => handleGenerateMetaphor(slideKey)}
                     disabled={metaphorBusy}
                     title="Generate 10s metaphor video (Gemini)"
-                    className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-40"
+                    className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--chrome-ink))]/5 text-[hsl(var(--chrome-ink))]/70 hover:bg-[hsl(var(--chrome-ink))]/10 disabled:opacity-40"
                   >
                     <Film size={12} />{metaphorBusy ? "Generating…" : `Generate ${slideKey === "ancient" ? "wisdom" : "today"}`}
                   </button>
@@ -733,7 +733,7 @@ const FacilitatorView = () => {
                     <button
                       type="button"
                       onClick={() => handleApproveMetaphor(slideKey)}
-                      className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--blue))] text-white hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))]"
+                      className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--blue))] text-white hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--chrome))]"
                     >
                       <Check size={12} /> Approve
                     </button>
@@ -742,14 +742,14 @@ const FacilitatorView = () => {
               );
             });
           })()}
-          <button type="button" onClick={() => setNotesOpen(true)} aria-label="Open facilitator notes" className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><StickyNote size={14} /></button>
+          <button type="button" onClick={() => setNotesOpen(true)} aria-label="Open facilitator notes" className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30"><StickyNote size={14} /></button>
           {isFacilitator && (
             <button type="button" onClick={handleCloseSession} title="Close the session — invalidates the join code"
-              className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10">
+              className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--chrome-ink))]/5 text-[hsl(var(--chrome-ink))]/70 hover:bg-[hsl(var(--chrome-ink))]/10">
               <Lock size={12} /> Close session
             </button>
           )}
-          <button type="button" onClick={toggleFs} aria-label={isFs ? "Exit full screen" : "Enter full screen"} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
+          <button type="button" onClick={toggleFs} aria-label={isFs ? "Exit full screen" : "Enter full screen"} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
         </div>
       </div>
 
@@ -768,7 +768,7 @@ const FacilitatorView = () => {
           {/* Brand footer — projected once at the deck level, so it stays on
               every slide (and future slide kinds) without per-slide markup. */}
           <div className="absolute bottom-5 inset-x-0 z-20 pointer-events-none flex justify-center">
-            <p className="font-body text-[10px] tracking-[0.5em] text-[hsl(var(--ivory))]/25 uppercase">
+            <p className="font-body text-[10px] tracking-[0.5em] text-[hsl(var(--navy))]/25 uppercase">
               NOTICE IT. NAME IT. DO IT.
             </p>
           </div>
@@ -776,11 +776,11 @@ const FacilitatorView = () => {
 
         {/* Live response panel on reflection slides */}
         {onReflection && showResponses && (
-          <div className="hidden lg:flex w-1/3 border-l border-[hsl(var(--ivory))]/10 bg-black/20 flex-col">
-            <div className="p-4 border-b border-[hsl(var(--ivory))]/10 flex items-center justify-between">
+          <div className="deck-chrome hidden lg:flex w-1/3 border-l border-[hsl(var(--chrome-ink))]/10 flex-col">
+            <div className="p-4 border-b border-[hsl(var(--chrome-ink))]/10 flex items-center justify-between">
               <div>
                 <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.3em] font-body uppercase">Moderation</p>
-                <p className="text-[hsl(var(--ivory))]/70 text-xs font-body mt-0.5">
+                <p className="text-[hsl(var(--chrome-ink))]/70 text-xs font-body mt-0.5">
                   {pendingQueue.length} pending · {liveBoard.length} on screen
                 </p>
               </div>
@@ -793,7 +793,7 @@ const FacilitatorView = () => {
               <div>
                 <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.3em] font-body uppercase mb-2">Awaiting approval</p>
                 {pendingQueue.length === 0 && (
-                  <div className="text-center py-6 text-[hsl(var(--ivory))]/20 text-[10px] font-body tracking-widest uppercase">No pending responses</div>
+                  <div className="text-center py-6 text-[hsl(var(--chrome-ink))]/20 text-[10px] font-body tracking-widest uppercase">No pending responses</div>
                 )}
                 <div className="space-y-2">
                   {pendingQueue.map(r => (
@@ -809,13 +809,13 @@ const FacilitatorView = () => {
                   <div className="space-y-2">
                     {liveBoard.map(r => (
                       <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                        className="group bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-3 relative">
-                        <p className="text-[hsl(var(--ivory))] text-sm font-body leading-relaxed">{r.response_text}</p>
+                        className="group bg-[hsl(var(--chrome-ink))]/[0.04] border border-[hsl(var(--chrome-ink))]/10 rounded-sm p-3 relative">
+                        <p className="text-[hsl(var(--chrome-ink))] text-sm font-body leading-relaxed">{r.response_text}</p>
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase">
+                          <span className="text-[hsl(var(--chrome-ink))]/30 text-[10px] font-body tracking-widest uppercase">
                             {r.show_name ? r.display_name : "Anonymous"}
                           </span>
-                          <button onClick={() => hideResponse(r.id)} title="Hide from screen" className="opacity-0 group-hover:opacity-100 text-[hsl(var(--ivory))]/30 hover:text-red-400">
+                          <button onClick={() => hideResponse(r.id)} title="Hide from screen" className="opacity-0 group-hover:opacity-100 text-[hsl(var(--chrome-ink))]/30 hover:text-red-400">
                             <X size={12} />
                           </button>
                         </div>
@@ -831,7 +831,7 @@ const FacilitatorView = () => {
 
       {/* Calm, clickable progress navigation. It gives the room a sense of
           movement without adding another animated object to the slide. */}
-      <nav aria-label="Lesson progress" className="px-6 pt-2 z-30">
+      <nav aria-label="Lesson progress" className="deck-chrome px-6 pt-3 z-30 border-t border-[hsl(var(--chrome-ink))]/10">
         <ol className="flex items-center gap-1.5">
           {deck.map((kind, index) => {
             const complete = index < slide;
@@ -844,12 +844,12 @@ const FacilitatorView = () => {
                   aria-current={active ? "step" : undefined}
                   aria-label={`Go to slide ${index + 1}: ${SLIDE_TITLE[kind]}`}
                   title={`${index + 1}. ${SLIDE_TITLE[kind]}`}
-                  className={`block h-2 w-full rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[hsl(var(--blue-light))]/60 focus:ring-offset-2 focus:ring-offset-[hsl(var(--navy))] ${
+                  className={`block h-2 w-full rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[hsl(var(--blue-light))]/60 focus:ring-offset-2 focus:ring-offset-[hsl(var(--chrome))] ${
                     active
                       ? "bg-[hsl(var(--bronze))]"
                       : complete
                       ? "bg-[hsl(var(--blue))]"
-                      : "bg-[hsl(var(--ivory))]/15 hover:bg-[hsl(var(--ivory))]/25"
+                      : "bg-[hsl(var(--chrome-ink))]/15 hover:bg-[hsl(var(--chrome-ink))]/25"
                   }`}
                 >
                   <span className="sr-only">{SLIDE_TITLE[kind]}</span>
@@ -861,13 +861,13 @@ const FacilitatorView = () => {
       </nav>
 
       {/* Bottom controls */}
-      <div className="flex items-center justify-between px-6 py-3 border-t border-[hsl(var(--ivory))]/10 z-30">
+      <div className="deck-chrome flex items-center justify-between px-6 py-3 z-30">
         <div className="flex items-center gap-2">
-          <button type="button" onClick={goPrev} disabled={slide === 0} aria-label="Previous slide" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><ChevronLeft size={18} /></button>
-          <button type="button" onClick={goNext} disabled={slide === lastSlide} aria-label="Next slide" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><ChevronRight size={18} /></button>
+          <button type="button" onClick={goPrev} disabled={slide === 0} aria-label="Previous slide" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 disabled:opacity-20 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30"><ChevronLeft size={18} /></button>
+          <button type="button" onClick={goNext} disabled={slide === lastSlide} aria-label="Next slide" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 disabled:opacity-20 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30"><ChevronRight size={18} /></button>
         </div>
         <div className="flex flex-col items-center">
-          <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLE[currentKind]}</span>
+          <span className="text-[hsl(var(--chrome-ink))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLE[currentKind]}</span>
           <span className="text-[hsl(var(--bronze))] font-display text-lg tracking-wider">{slide + 1} / {deck.length}</span>
           {(() => {
             const expected = slideDefs.find((d) => SLIDE_KEY_TO_KIND[d.slide_key] === currentKind)?.default_duration_seconds ?? 0;
@@ -875,7 +875,7 @@ const FacilitatorView = () => {
             const mm = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
             const over = elapsed > expected;
             return (
-              <span className={`text-[10px] font-mono ${over ? "text-amber-400" : "text-[hsl(var(--ivory))]/40"}`} title="Elapsed vs expected — facilitator only, never projected">
+              <span className={`text-[10px] font-mono ${over ? "text-amber-400" : "text-[hsl(var(--chrome-ink))]/40"}`} title="Elapsed vs expected — facilitator only, never projected">
                 {mm(elapsed)} / {mm(expected)}{over ? " · over" : ""}
               </span>
             );
@@ -883,14 +883,14 @@ const FacilitatorView = () => {
         </div>
         <div className="flex items-center gap-2">
           {onReflection && (
-            <button type="button" onClick={() => setShowResponses(s => !s)} aria-pressed={showResponses} className="flex min-h-10 items-center gap-1.5 px-3 py-1.5 text-xs font-body tracking-widest uppercase rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30">
+            <button type="button" onClick={() => setShowResponses(s => !s)} aria-pressed={showResponses} className="flex min-h-10 items-center gap-1.5 px-3 py-1.5 text-xs font-body tracking-widest uppercase rounded-lg bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30">
               {showResponses ? <Eye size={12} /> : <EyeOff size={12} />}{showResponses ? "Showing" : "Hidden"}
             </button>
           )}
           {/* No join code in the children's room — attendance is the roll call. */}
           {audience !== "Child" && (
             <>
-              <span className="text-[hsl(var(--ivory))]/40 text-[10px] font-body tracking-widest uppercase">Code</span>
+              <span className="text-[hsl(var(--chrome-ink))]/40 text-[10px] font-body tracking-widest uppercase">Code</span>
               <span className="font-display text-[hsl(var(--bronze))] text-xl tracking-[0.3em]">{code}</span>
             </>
           )}
@@ -901,33 +901,33 @@ const FacilitatorView = () => {
       <AnimatePresence>
         {notesOpen && (
           <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.3 }}
-            className="absolute top-0 right-0 h-full w-full max-w-96 bg-[hsl(var(--navy))] border-l border-[hsl(var(--ivory))]/15 z-40 p-6 overflow-y-auto"
+            className="absolute top-0 right-0 h-full w-full max-w-96 bg-[hsl(var(--chrome))] border-l border-[hsl(var(--chrome-ink))]/15 z-40 p-6 overflow-y-auto"
             role="dialog" aria-modal="true" aria-labelledby="facilitator-notes-title">
             <div className="flex items-center justify-between mb-4">
               <h3 id="facilitator-notes-title" className="font-display text-xl tracking-wider text-[hsl(var(--bronze))]">FACILITATOR NOTES</h3>
-              <button type="button" onClick={() => setNotesOpen(false)} aria-label="Close facilitator notes" className="flex h-10 w-10 items-center justify-center rounded-lg text-[hsl(var(--ivory))]/40 hover:bg-[hsl(var(--ivory))]/5 hover:text-[hsl(var(--ivory))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><X size={18} /></button>
+              <button type="button" onClick={() => setNotesOpen(false)} aria-label="Close facilitator notes" className="flex h-10 w-10 items-center justify-center rounded-lg text-[hsl(var(--chrome-ink))]/40 hover:bg-[hsl(var(--chrome-ink))]/5 hover:text-[hsl(var(--chrome-ink))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--chrome-ink))]/30"><X size={18} /></button>
             </div>
-            <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
+            <p className="text-[hsl(var(--chrome-ink))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
             {/* Child — a pre-session quick reference. The same content becomes
                 the final projected slide while the facilitator runs the game. */}
             {audience === "Child" && (session.kids_game || session.kids_game_equipment || session.kids_game_under5) && (
-              <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
+              <div className="mt-6 pt-6 border-t border-[hsl(var(--chrome-ink))]/10">
                 <p className="text-[hsl(var(--bronze))] text-[10px] tracking-widest uppercase mb-2 font-body">Group game — closing</p>
-                {session.kids_game && <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap mb-3">{session.kids_game}</p>}
+                {session.kids_game && <p className="text-[hsl(var(--chrome-ink))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap mb-3">{session.kids_game}</p>}
                 {session.kids_game_equipment && (
-                  <p className="text-[hsl(var(--ivory))]/60 text-xs font-body mb-2"><span className="text-[hsl(var(--ivory))]/40 uppercase tracking-widest text-[10px]">Equipment · </span>{session.kids_game_equipment}</p>
+                  <p className="text-[hsl(var(--chrome-ink))]/60 text-xs font-body mb-2"><span className="text-[hsl(var(--chrome-ink))]/40 uppercase tracking-widest text-[10px]">Equipment · </span>{session.kids_game_equipment}</p>
                 )}
                 {session.kids_game_under5 && (
-                  <p className="text-[hsl(var(--ivory))]/60 text-xs font-body"><span className="text-[hsl(var(--ivory))]/40 uppercase tracking-widest text-[10px]">Under-5s · </span>{session.kids_game_under5}</p>
+                  <p className="text-[hsl(var(--chrome-ink))]/60 text-xs font-body"><span className="text-[hsl(var(--chrome-ink))]/40 uppercase tracking-widest text-[10px]">Under-5s · </span>{session.kids_game_under5}</p>
                 )}
               </div>
             )}
             {/* No member devices in the children's room — no join QR. */}
             {audience !== "Child" && (
-              <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
-                <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest uppercase mb-2 font-body">Join QR</p>
+              <div className="mt-6 pt-6 border-t border-[hsl(var(--chrome-ink))]/10">
+                <p className="text-[hsl(var(--chrome-ink))]/40 text-[10px] tracking-widest uppercase mb-2 font-body">Join QR</p>
                 <div className="bg-white p-3 rounded inline-block"><QRCode value={joinUrl} size={150} level="M" /></div>
-                <p className="text-[hsl(var(--ivory))]/60 text-xs mt-2 font-body">{joinUrl}</p>
+                <p className="text-[hsl(var(--chrome-ink))]/60 text-xs mt-2 font-body">{joinUrl}</p>
               </div>
             )}
           </motion.div>
@@ -948,7 +948,7 @@ const PrivateWriteGate = ({ prompt, children }: { prompt: string; children: Reac
   const fallback = "Take 90 seconds — write what you actually think, before anyone else speaks.";
   return (
     <div className="text-center max-w-4xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">90-second private write</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">90-second private write</p>
       {!started ? (
         <button onClick={() => setStarted(true)}
           className="px-8 py-4 bg-[hsl(var(--blue))] text-white font-display tracking-[0.2em] text-xl rounded-sm hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))] transition-colors">
@@ -957,7 +957,7 @@ const PrivateWriteGate = ({ prompt, children }: { prompt: string; children: Reac
       ) : (
         <>
           <SlideTimer seconds={90} running={started} projected onComplete={() => setDone(true)} />
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 italic mt-8 max-w-3xl mx-auto leading-snug">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))]/95 italic mt-8 max-w-3xl mx-auto leading-snug">
             {prompt || fallback}
           </p>
         </>
@@ -1032,12 +1032,12 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
       <TalkAboutPictureSlide />
     ) : (
       <div className="text-center max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">Reflect & Share</p>
         <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-10">"{session.journaling_prompt}"</motion.p>
-        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
-          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
-          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">Join at <span className="text-[hsl(var(--bronze))] font-bold">{joinUrl.replace(/^https?:\/\//, "")}</span> · code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.2em]">{code}</span></span>
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-10">"{session.journaling_prompt}"</motion.p>
+        <div className="inline-flex items-center gap-4 bg-[hsl(var(--navy))]/5 px-6 py-3 rounded-sm">
+          <QrCode size={16} className="text-[hsl(var(--primary))]" />
+          <span className="text-[hsl(var(--navy))]/70 font-body text-sm">Join at <span className="text-[hsl(var(--primary))] font-bold">{joinUrl.replace(/^https?:\/\//, "")}</span> · code <span className="text-[hsl(var(--primary))] font-bold tracking-[0.2em]">{code}</span></span>
         </div>
       </div>
     );
@@ -1076,9 +1076,9 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
     }
     case "guided": return (
       <div className="max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Guided Reflection</p>
         <div className="border-l-2 border-[hsl(var(--blue))] pl-8 py-4">
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-relaxed italic">{session.guided_reflection}</p>
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))]/95 leading-relaxed italic">{session.guided_reflection}</p>
         </div>
       </div>
     );
@@ -1092,20 +1092,20 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
         ].filter(d => (d.text || "").trim().length > 0);
         return (
           <div className="max-w-5xl w-full text-center">
-            <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">One Thing This Week</p>
+            <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">One Thing This Week</p>
             <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-              className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+              className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-6">
               One thing I want to work on this week is…
             </motion.p>
-            <p className="text-[hsl(var(--ivory))]/60 font-body text-lg mb-10">
+            <p className="text-[hsl(var(--navy))]/60 font-body text-lg mb-10">
               Write it or draw it on your worksheet. You can say it out loud if you want to — you don't have to.
             </p>
             {childDays.length > 0 && (
               <div className="grid md:grid-cols-3 gap-5 text-left">
                 {childDays.map(({ day, text }) => (
-                  <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
+                  <div key={day} className="border border-[hsl(var(--navy))]/15 rounded-sm p-6 bg-[hsl(var(--navy))]/[0.03]">
                     <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
-                    <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+                    <p className="text-[hsl(var(--navy))]/90 font-body text-base leading-relaxed">{text}</p>
                   </div>
                 ))}
               </div>
@@ -1120,19 +1120,19 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
       const days = practiceEntries(session).map(e => ({ day: e.label, text: e.text }));
       return (
         <div className="max-w-6xl w-full">
-          <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
+          <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8 text-center">This Week's Practice</p>
           {days.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-5">
               {days.map(({ day, text }) => (
-                <div key={day} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 bg-[hsl(var(--ivory))]/[0.03]">
+                <div key={day} className="border border-[hsl(var(--navy))]/15 rounded-sm p-6 bg-[hsl(var(--navy))]/[0.03]">
                   <p className="font-display text-[hsl(var(--blue))] text-3xl tracking-wider mb-4">{day.toUpperCase()}</p>
-                  <p className="text-[hsl(var(--ivory))]/90 font-body text-base leading-relaxed">{text}</p>
+                  <p className="text-[hsl(var(--navy))]/90 font-body text-base leading-relaxed">{text}</p>
                 </div>
               ))}
             </div>
           ) : (
             // Fallback: carry the week's metaphor "Today: ..." action into the room.
-            <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-relaxed text-center max-w-3xl mx-auto">
+            <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))]/95 leading-relaxed text-center max-w-3xl mx-auto">
               {session.signal_metaphor || "Carry this week's practice into your everyday life."}
             </p>
           )}
@@ -1144,33 +1144,33 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
     // depends on: what's written here comes back next Sunday.
     case "commitment": return (
       <div className="text-center max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Before You Leave</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">Before You Leave</p>
         <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-6">
           Write down one specific thing you will do this week.
         </motion.p>
-        <p className="text-[hsl(var(--ivory))]/60 font-body text-lg mb-10">
+        <p className="text-[hsl(var(--navy))]/60 font-body text-lg mb-10">
           It goes in your workbook — and it comes back with you next Sunday.
         </p>
-        <div className="inline-flex items-center gap-4 bg-[hsl(var(--ivory))]/5 px-6 py-3 rounded-sm">
-          <QrCode size={16} className="text-[hsl(var(--blue-light))]" />
-          <span className="text-[hsl(var(--ivory))]/70 font-body text-sm">
-            Add it in the app · code <span className="text-[hsl(var(--bronze))] font-bold tracking-[0.3em]">{code}</span>
+        <div className="inline-flex items-center gap-4 bg-[hsl(var(--navy))]/5 px-6 py-3 rounded-sm">
+          <QrCode size={16} className="text-[hsl(var(--primary))]" />
+          <span className="text-[hsl(var(--navy))]/70 font-body text-sm">
+            Add it in the app · code <span className="text-[hsl(var(--primary))] font-bold tracking-[0.3em]">{code}</span>
           </span>
         </div>
-        <p className="text-[hsl(var(--ivory))]/30 text-[11px] font-body tracking-widest uppercase mt-6">Private to you — it is not shown on screen</p>
+        <p className="text-[hsl(var(--navy))]/30 text-[11px] font-body tracking-widest uppercase mt-6">Private to you — it is not shown on screen</p>
       </div>
     );
     // Closing affirmation — a quote from the author or speaker in the video.
     case "affirmation": return (
       <div className="text-center max-w-4xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Closing Affirmation</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">Closing Affirmation</p>
         <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-6">
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-6">
           "{session.closing_quote || session.core_affirmation}"
         </motion.p>
         {session.closing_quote_attribution && (
-          <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">{session.closing_quote_attribution}</p>
+          <p className="text-[hsl(var(--navy))]/60 font-body text-lg">{session.closing_quote_attribution}</p>
         )}
       </div>
     );
@@ -1290,12 +1290,12 @@ const ColoringActivitySlide = ({
   if (!coloringPageUrl) {
     return (
       <div className="text-center max-w-2xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Coloring Activity</p>
-        <div className="border border-dashed border-[hsl(var(--ivory))]/20 rounded-sm p-16 flex flex-col items-center gap-4">
-          <div className="w-24 h-24 rounded-full bg-[hsl(var(--ivory))]/[0.04] flex items-center justify-center">
-            <span className="text-4xl text-[hsl(var(--ivory))]/20">🖍️</span>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6">Coloring Activity</p>
+        <div className="border border-dashed border-[hsl(var(--navy))]/20 rounded-sm p-16 flex flex-col items-center gap-4">
+          <div className="w-24 h-24 rounded-full bg-[hsl(var(--navy))]/[0.04] flex items-center justify-center">
+            <span className="text-4xl text-[hsl(var(--navy))]/20">🖍️</span>
           </div>
-          <p className="font-serif text-xl text-[hsl(var(--ivory))]/50 italic">
+          <p className="font-serif text-xl text-[hsl(var(--navy))]/50 italic">
             Coloring page not yet generated for this session.
           </p>
           {canApprove && (
@@ -1314,7 +1314,7 @@ const ColoringActivitySlide = ({
   if (approval !== "approved") {
     return (
       <div className="flex flex-col items-center gap-6 max-w-4xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase">
           Coloring Activity — Week {weekNumber}
         </p>
         <div className="relative w-full max-w-lg">
@@ -1324,7 +1324,7 @@ const ColoringActivitySlide = ({
             className="w-full rounded-sm shadow-lg opacity-40"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <p className="bg-[hsl(var(--navy))]/85 border border-[hsl(var(--bronze))]/40 text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest uppercase px-4 py-2 rounded-sm">
+            <p className="bg-[hsl(var(--ivory))]/95 border border-[hsl(var(--primary))]/40 text-[hsl(var(--navy))]/80 text-xs font-body tracking-widest uppercase px-4 py-2 rounded-sm">
               Awaiting approval — not live yet
             </p>
           </div>
@@ -1341,10 +1341,10 @@ const ColoringActivitySlide = ({
 
   return (
     <div className="flex flex-col items-center gap-6 max-w-4xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase">
         Coloring Activity — Week {weekNumber}
       </p>
-      <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 -mt-3">
+      <p className="font-serif text-xl text-[hsl(var(--navy))]/90 -mt-3">
         {themeTitle}: {sessionTitle}
       </p>
 
@@ -1355,7 +1355,7 @@ const ColoringActivitySlide = ({
         className="relative w-full max-w-lg"
       >
         {!imgLoaded && (
-          <div className="aspect-square bg-[hsl(var(--ivory))]/[0.02] animate-pulse rounded-sm" />
+          <div className="aspect-square bg-[hsl(var(--navy))]/[0.02] animate-pulse rounded-sm" />
         )}
         <img
           src={signedSrc ?? undefined}
@@ -1436,24 +1436,24 @@ const RollCallSlide = ({ weekNumber, themeTitle, sessionTitle, phaseName }: {
   return (
     <div className="w-full max-w-5xl">
       <div className="text-center mb-8">
-        <p className="text-[hsl(var(--bronze))]/70 text-[10px] tracking-[0.6em] font-body uppercase mb-3">
+        <p className="text-[hsl(var(--primary))]/70 text-[10px] tracking-[0.6em] font-body uppercase mb-3">
           Week {weekNumber} · {phaseName}
         </p>
-        <h1 className="font-display text-4xl md:text-6xl tracking-wide text-[hsl(var(--ivory))]/40 leading-none">
+        <h1 className="font-display text-4xl md:text-6xl tracking-wide text-[hsl(var(--navy))]/40 leading-none">
           {(themeTitle || "").toUpperCase()}
         </h1>
-        <p className="text-[hsl(var(--ivory))]/40 font-serif italic text-lg md:text-xl mt-3">{sessionTitle}</p>
+        <p className="text-[hsl(var(--navy))]/40 font-serif italic text-lg md:text-xl mt-3">{sessionTitle}</p>
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase">Roll Call</p>
-        <p className="text-[hsl(var(--bronze))] font-display text-xl tracking-wider">{present.length} in the room</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase">Roll Call</p>
+        <p className="text-[hsl(var(--primary))] font-display text-xl tracking-wider">{present.length} in the room</p>
       </div>
 
       {!loaded ? (
-        <p className="text-[hsl(var(--ivory))]/40 font-body text-sm">Loading the roll…</p>
+        <p className="text-[hsl(var(--navy))]/40 font-body text-sm">Loading the roll…</p>
       ) : rows.length === 0 ? (
-        <p className="text-[hsl(var(--ivory))]/50 font-body text-base border border-dashed border-[hsl(var(--ivory))]/20 rounded-sm p-8 text-center">
+        <p className="text-[hsl(var(--navy))]/50 font-body text-base border border-dashed border-[hsl(var(--navy))]/20 rounded-sm p-8 text-center">
           No children are rostered for today's session yet. Read names aloud and welcome each child as they arrive.
         </p>
       ) : (
@@ -1468,14 +1468,14 @@ const RollCallSlide = ({ weekNumber, themeTitle, sessionTitle, phaseName }: {
                 onClick={() => { if (canMark) markPresent(child); }}
                 className={`text-left px-4 py-3 rounded-sm border transition-colors ${
                   here
-                    ? "bg-[hsl(var(--blue))]/20 border-[hsl(var(--blue))] text-[hsl(var(--ivory))]"
+                    ? "bg-[hsl(var(--blue))]/20 border-[hsl(var(--blue))] text-[hsl(var(--navy))]"
                     : away
-                    ? "bg-[hsl(var(--ivory))]/[0.02] border-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/30"
-                    : "bg-[hsl(var(--ivory))]/[0.03] border-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/[0.07]"
+                    ? "bg-[hsl(var(--navy))]/[0.02] border-[hsl(var(--navy))]/10 text-[hsl(var(--navy))]/30"
+                    : "bg-[hsl(var(--navy))]/[0.03] border-[hsl(var(--navy))]/15 text-[hsl(var(--navy))]/70 hover:bg-[hsl(var(--navy))]/[0.07]"
                 }`}
               >
                 <span className="font-body text-lg leading-tight block">{child.display_name}</span>
-                <span className={`text-[10px] tracking-widest uppercase font-body ${here ? "text-[hsl(var(--blue-light))]" : "text-[hsl(var(--ivory))]/30"}`}>
+                <span className={`text-[10px] tracking-widest uppercase font-body ${here ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--navy))]/30"}`}>
                   {here ? "Here" : away ? "Signed out" : "Tap when here"}
                 </span>
               </button>
@@ -1495,12 +1495,12 @@ const LastWeekWeLearntSlide = ({ weekNumber, lastWeekTheme }: { weekNumber: numb
   if (weekNumber === 1) {
     return (
       <div className="text-center max-w-3xl">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Welcome</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">Welcome</p>
         <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-          className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-8">
+          className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-8">
           This is our very first week together!
         </motion.p>
-        <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">
+        <p className="text-[hsl(var(--navy))]/60 font-body text-lg">
           There's nothing to remember yet — today we start. Let's learn each other's names.
         </p>
       </div>
@@ -1508,12 +1508,12 @@ const LastWeekWeLearntSlide = ({ weekNumber, lastWeekTheme }: { weekNumber: numb
   }
   return (
     <div className="text-center max-w-3xl">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Last Week We Learnt</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">Last Week We Learnt</p>
       <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-        className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-8">
-        Last week we learnt about {lastWeekTheme ? <span className="text-[hsl(var(--bronze))]">{lastWeekTheme.toLowerCase()}</span> : "our last idea"}.
+        className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-8">
+        Last week we learnt about {lastWeekTheme ? <span className="text-[hsl(var(--primary))]">{lastWeekTheme.toLowerCase()}</span> : "our last idea"}.
       </motion.p>
-      <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">
+      <p className="text-[hsl(var(--navy))]/60 font-body text-lg">
         Who remembers something from last week?
       </p>
     </div>
@@ -1526,12 +1526,12 @@ const LastWeekWeLearntSlide = ({ weekNumber, lastWeekTheme }: { weekNumber: numb
  */
 const TalkAboutPictureSlide = () => (
   <div className="text-center max-w-3xl">
-    <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">Talk About Your Picture</p>
+    <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">Talk About Your Picture</p>
     <motion.p initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
-      className="font-serif text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-snug mb-8">
+      className="font-serif text-3xl md:text-5xl text-[hsl(var(--navy))] leading-snug mb-8">
       Who wants to tell us about their picture?
     </motion.p>
-    <p className="text-[hsl(var(--ivory))]/50 font-body text-base">
+    <p className="text-[hsl(var(--navy))]/50 font-body text-base">
       Spoken only — nothing written down, nothing put on the screen.
     </p>
   </div>
@@ -1579,40 +1579,40 @@ const ClosingGameSlide = ({ game, equipment, under5 }: {
   return (
     <div className="w-full max-w-6xl max-h-[72vh] overflow-y-auto pr-2">
       <div className="text-center mb-7">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">The Closing Game / Activity</p>
-        <h2 className="font-display text-4xl md:text-6xl tracking-wide text-[hsl(var(--ivory))] leading-none">
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-3">The Closing Game / Activity</p>
+        <h2 className="font-display text-4xl md:text-6xl tracking-wide text-[hsl(var(--navy))] leading-none">
           {parts.title.toUpperCase()}
         </h2>
       </div>
 
       <div className="grid md:grid-cols-[1.45fr_0.75fr] gap-6 items-stretch">
-        <section className="rounded-xl border border-[hsl(var(--ivory))]/15 bg-[hsl(var(--ivory))]/[0.04] p-6 md:p-8">
-          <p className="text-[hsl(var(--blue-light))] text-[10px] tracking-[0.35em] font-body uppercase mb-3">How to play</p>
-          <p className="max-h-[30vh] overflow-y-auto pr-2 whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-[hsl(var(--ivory))]/90">
+        <section className="rounded-xl border border-[hsl(var(--navy))]/15 bg-[hsl(var(--navy))]/[0.04] p-6 md:p-8">
+          <p className="text-[hsl(var(--primary))] text-[10px] tracking-[0.35em] font-body uppercase mb-3">How to play</p>
+          <p className="max-h-[30vh] overflow-y-auto pr-2 whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-[hsl(var(--navy))]/90">
             {parts.instructions}
           </p>
         </section>
 
         <div className="space-y-4">
-          <section className="rounded-xl border border-[hsl(var(--bronze))]/30 bg-[hsl(var(--bronze))]/[0.06] p-5">
-            <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.35em] font-body uppercase mb-2">What you need</p>
-            <p className="font-body text-sm md:text-base leading-relaxed text-[hsl(var(--ivory))]/85">
+          <section className="rounded-xl border border-[hsl(var(--primary))]/30 bg-[hsl(var(--primary))]/[0.06] p-5">
+            <p className="text-[hsl(var(--primary))] text-[10px] tracking-[0.35em] font-body uppercase mb-2">What you need</p>
+            <p className="font-body text-sm md:text-base leading-relaxed text-[hsl(var(--navy))]/85">
               {equipment || "No special equipment."}
             </p>
           </section>
 
           {under5 && (
-            <section className="rounded-xl border border-[hsl(var(--ivory))]/10 bg-black/10 p-5">
-              <p className="text-[hsl(var(--ivory))]/45 text-[10px] tracking-[0.35em] font-body uppercase mb-2">For younger children</p>
-              <p className="font-body text-xs md:text-sm leading-relaxed text-[hsl(var(--ivory))]/70">{under5}</p>
+            <section className="rounded-xl border border-[hsl(var(--navy))]/10 bg-black/10 p-5">
+              <p className="text-[hsl(var(--navy))]/45 text-[10px] tracking-[0.35em] font-body uppercase mb-2">For younger children</p>
+              <p className="font-body text-xs md:text-sm leading-relaxed text-[hsl(var(--navy))]/70">{under5}</p>
             </section>
           )}
 
-          <section className="rounded-xl border border-[hsl(var(--ivory))]/15 p-5" aria-label="Game timer">
+          <section className="rounded-xl border border-[hsl(var(--navy))]/15 p-5" aria-label="Game timer">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-[0.35em] font-body uppercase mb-1">Game timer</p>
-                <p role="timer" aria-live="off" className="font-display text-5xl tracking-wider tabular-nums text-[hsl(var(--ivory))]">
+                <p className="text-[hsl(var(--navy))]/40 text-[10px] tracking-[0.35em] font-body uppercase mb-1">Game timer</p>
+                <p role="timer" aria-live="off" className="font-display text-5xl tracking-wider tabular-nums text-[hsl(var(--navy))]">
                   {mm}:{ss}
                 </p>
               </div>
@@ -1620,17 +1620,17 @@ const ClosingGameSlide = ({ game, equipment, under5 }: {
                 <button type="button" onClick={() => setRunning((value) => !value)} aria-label={running ? "Pause game timer" : "Start game timer"} className="grid h-11 w-11 place-items-center rounded-full bg-[hsl(var(--blue))] text-white focus:outline-none focus:ring-2 focus:ring-[hsl(var(--blue-light))]">
                   {running ? <Pause size={16} /> : <Play size={16} />}
                 </button>
-                <button type="button" onClick={reset} aria-label="Reset game timer" className="grid h-11 w-11 place-items-center rounded-full bg-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/75 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/40">
+                <button type="button" onClick={reset} aria-label="Reset game timer" className="grid h-11 w-11 place-items-center rounded-full bg-[hsl(var(--navy))]/10 text-[hsl(var(--navy))]/75 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--navy))]/40">
                   <RotateCcw size={15} />
                 </button>
               </div>
             </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[hsl(var(--ivory))]/10">
-              <div className="h-full rounded-full bg-[hsl(var(--bronze))] transition-[width] duration-1000 ease-linear" style={{ width: `${progress}%` }} />
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[hsl(var(--navy))]/10">
+              <div className="h-full rounded-full bg-[hsl(var(--primary))] transition-[width] duration-1000 ease-linear" style={{ width: `${progress}%` }} />
             </div>
             <div className="mt-3 flex gap-2">
               {[5, 8, 10].map((value) => (
-                <button type="button" key={value} onClick={() => chooseMinutes(value)} aria-pressed={minutes === value} className={`min-h-9 flex-1 rounded-lg text-[10px] font-body tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30 ${minutes === value ? "bg-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/45"}`}>
+                <button type="button" key={value} onClick={() => chooseMinutes(value)} aria-pressed={minutes === value} className={`min-h-9 flex-1 rounded-lg text-[10px] font-body tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[hsl(var(--navy))]/30 ${minutes === value ? "bg-[hsl(var(--navy))]/15 text-[hsl(var(--navy))]" : "bg-[hsl(var(--navy))]/5 text-[hsl(var(--navy))]/45"}`}>
                   {value} min
                 </button>
               ))}
@@ -1659,25 +1659,25 @@ const PictureBookSlide = ({ book, author, question, readAloudUrl, sourceCheck }:
 
   return (
     <div className="max-w-5xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase text-center mb-6">This Week's Story</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase text-center mb-6">This Week's Story</p>
 
       <div className="text-center mb-8">
-        <p className="font-display text-3xl md:text-5xl text-[hsl(var(--ivory))] leading-tight mb-3">
+        <p className="font-display text-3xl md:text-5xl text-[hsl(var(--navy))] leading-tight mb-3">
           {book || "The picture book for this week"}
         </p>
-        {author && <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">by {author}</p>}
+        {author && <p className="text-[hsl(var(--navy))]/60 font-body text-lg">by {author}</p>}
       </div>
 
       {ytId ? (
-        <div className="aspect-video w-full max-w-3xl mx-auto rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
+        <div className="aspect-video w-full max-w-3xl mx-auto rounded-sm overflow-hidden border border-[hsl(var(--navy))]/15">
           <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} title="Lesson video" className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
-        <div className="max-w-3xl mx-auto border border-[hsl(var(--ivory))]/15 rounded-sm p-10 text-center bg-[hsl(var(--ivory))]/[0.03]">
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/90 italic leading-relaxed">
+        <div className="max-w-3xl mx-auto border border-[hsl(var(--navy))]/15 rounded-sm p-10 text-center bg-[hsl(var(--navy))]/[0.03]">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))]/90 italic leading-relaxed">
             Read live from a purchased copy.
           </p>
-          <p className="text-[hsl(var(--ivory))]/50 font-body text-sm mt-4">
+          <p className="text-[hsl(var(--navy))]/50 font-body text-sm mt-4">
             No video is set — gather the children close and read the book aloud together.
           </p>
         </div>
@@ -1685,8 +1685,8 @@ const PictureBookSlide = ({ book, author, question, readAloudUrl, sourceCheck }:
 
       {question && (
         <div className="max-w-3xl mx-auto mt-8 border-l-2 border-[hsl(var(--blue))] pl-6 py-2">
-          <p className="text-[hsl(var(--blue-light))] text-[10px] tracking-[0.4em] font-body uppercase mb-2">Ask the children</p>
-          <p className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 italic leading-relaxed">{question}</p>
+          <p className="text-[hsl(var(--primary))] text-[10px] tracking-[0.4em] font-body uppercase mb-2">Ask the children</p>
+          <p className="font-serif text-xl md:text-2xl text-[hsl(var(--navy))]/90 italic leading-relaxed">{question}</p>
         </div>
       )}
     </div>
@@ -1717,10 +1717,10 @@ const WordCloudSlide = ({ text, responses }: { text: string; responses: Response
 
   return (
     <div className="max-w-6xl w-full text-center">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Together</p>
-      {text && <p className="text-[hsl(var(--ivory))]/60 font-body text-sm mb-8 max-w-3xl mx-auto">{text}</p>}
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-3">Together</p>
+      {text && <p className="text-[hsl(var(--navy))]/60 font-body text-sm mb-8 max-w-3xl mx-auto">{text}</p>}
       {words.length === 0 ? (
-        <p className="text-[hsl(var(--ivory))]/40 font-body text-lg py-16">Waiting for the room…</p>
+        <p className="text-[hsl(var(--navy))]/40 font-body text-lg py-16">Waiting for the room…</p>
       ) : (
         <div className="flex flex-wrap items-baseline justify-center gap-x-6 gap-y-3 py-6">
           <AnimatePresence>
@@ -1735,7 +1735,7 @@ const WordCloudSlide = ({ text, responses }: { text: string; responses: Response
                   animate={{ opacity, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.6 }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                  className="font-display tracking-wide text-[hsl(var(--ivory))] leading-none"
+                  className="font-display tracking-wide text-[hsl(var(--navy))] leading-none"
                   style={{ fontSize: `${size}rem` }}
                   title={`${n}`}
                 >
@@ -1746,7 +1746,7 @@ const WordCloudSlide = ({ text, responses }: { text: string; responses: Response
           </AnimatePresence>
         </div>
       )}
-      <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-6">
+      <p className="text-[hsl(var(--navy))]/30 text-[10px] tracking-widest font-body uppercase mt-6">
         {responses.length} {responses.length === 1 ? "voice" : "voices"}
       </p>
     </div>
@@ -1782,14 +1782,14 @@ const ScaleSlide = ({
 
   return (
     <div className="max-w-5xl w-full">
-      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
-      <p className="font-body text-lg text-[hsl(var(--ivory))]/80 mb-8 text-center">{text}</p>
-      <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] mb-10 text-center italic">{statement}</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="font-body text-lg text-[hsl(var(--navy))]/80 mb-8 text-center">{text}</p>
+      <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))] mb-10 text-center italic">{statement}</p>
 
       <div className="flex items-end justify-between gap-2 md:gap-3 h-56">
         {buckets.map((count, i) => (
           <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
-            <span className={`font-display text-lg mb-2 ${count ? "text-[hsl(var(--ivory))]" : "text-[hsl(var(--ivory))]/20"}`}>
+            <span className={`font-display text-lg mb-2 ${count ? "text-[hsl(var(--navy))]" : "text-[hsl(var(--navy))]/20"}`}>
               {count || ""}
             </span>
             <motion.div
@@ -1799,17 +1799,17 @@ const ScaleSlide = ({
               transition={{ type: "spring", stiffness: 90, damping: 18 }}
               style={{ minHeight: count ? 6 : 2, opacity: count ? 1 : 0.15 }}
             />
-            <span className="font-body text-[11px] text-[hsl(var(--ivory))]/40 mt-2">{i + 1}</span>
+            <span className="font-body text-[11px] text-[hsl(var(--navy))]/40 mt-2">{i + 1}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex justify-between mt-4 text-[11px] tracking-[0.2em] font-body uppercase text-[hsl(var(--ivory))]/40">
+      <div className="flex justify-between mt-4 text-[11px] tracking-[0.2em] font-body uppercase text-[hsl(var(--navy))]/40">
         <span>{minLabel}</span>
         <span>{maxLabel}</span>
       </div>
 
-      <p className="text-center mt-8 font-body text-sm text-[hsl(var(--ivory))]/50">
+      <p className="text-center mt-8 font-body text-sm text-[hsl(var(--navy))]/50">
         {total === 0
           ? "Waiting for the room…"
           : `${total} ${total === 1 ? "response" : "responses"} · average ${average.toFixed(1)}`}
@@ -1832,11 +1832,11 @@ const PhraseWallSlide = ({ text, responses }: { text: string; responses: Respons
 
   return (
     <div className="max-w-5xl w-full">
-      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
-      <p className="font-body text-lg text-[hsl(var(--ivory))]/80 mb-10 text-center">{text}</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="font-body text-lg text-[hsl(var(--navy))]/80 mb-10 text-center">{text}</p>
 
       {phrases.length === 0 ? (
-        <p className="text-center font-body text-sm text-[hsl(var(--ivory))]/40">Waiting for the room…</p>
+        <p className="text-center font-body text-sm text-[hsl(var(--navy))]/40">Waiting for the room…</p>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           <AnimatePresence initial={false}>
@@ -1847,7 +1847,7 @@ const PhraseWallSlide = ({ text, responses }: { text: string; responses: Respons
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35 }}
-                className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-snug border-l-2 border-[hsl(var(--blue))] pl-5 py-2"
+                className="font-serif text-xl md:text-2xl text-[hsl(var(--navy))]/90 leading-snug border-l-2 border-[hsl(var(--blue))] pl-5 py-2"
               >
                 {p}
               </motion.p>
@@ -1856,7 +1856,7 @@ const PhraseWallSlide = ({ text, responses }: { text: string; responses: Respons
         </div>
       )}
 
-      <p className="text-center mt-10 font-body text-sm text-[hsl(var(--ivory))]/50">
+      <p className="text-center mt-10 font-body text-sm text-[hsl(var(--navy))]/50">
         {responses.length === 0 ? "" : `${responses.length} shared`}
       </p>
     </div>
@@ -1876,19 +1876,19 @@ const WisdomWorldSlide = ({
   <div className="w-full max-w-6xl">
     <div className="grid md:grid-cols-2 gap-10 md:gap-14">
       <div>
-        <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">Inner Wisdom</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6">Inner Wisdom</p>
         {wisdomVideoUrl ? (
           <video src={wisdomVideoUrl} autoPlay muted loop playsInline className="w-full rounded-sm mb-5" />
         ) : null}
-        <p className="font-serif text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">{wisdom}</p>
+        <p className="font-serif text-xl md:text-2xl text-[hsl(var(--navy))]/90 leading-relaxed italic">{wisdom}</p>
       </div>
 
-      <div className="md:border-l md:border-[hsl(var(--ivory))]/15 md:pl-14">
-        <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">In Today's World</p>
+      <div className="md:border-l md:border-[hsl(var(--navy))]/15 md:pl-14">
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6">In Today's World</p>
         {worldVideoUrl ? (
           <video src={worldVideoUrl} autoPlay muted loop playsInline className="w-full rounded-sm mb-5" />
         ) : null}
-        <p className="font-body text-xl md:text-2xl text-[hsl(var(--ivory))]/90 leading-relaxed">{world}</p>
+        <p className="font-body text-xl md:text-2xl text-[hsl(var(--navy))]/90 leading-relaxed">{world}</p>
       </div>
     </div>
   </div>
@@ -1912,29 +1912,29 @@ const DeeperSlide = ({
   const isChild = audience === "Child";
   return (
     <div className="w-full max-w-6xl">
-      <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">Go Deeper</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6">Go Deeper</p>
 
       {paras.length > 0 && (
         <div className="space-y-4 mb-8 max-h-[26vh] overflow-y-auto pr-2">
           {paras.map((para, i) => (
-            <p key={i} className="text-[hsl(var(--ivory))]/85 text-lg md:text-xl font-body leading-relaxed">{para}</p>
+            <p key={i} className="text-[hsl(var(--navy))]/85 text-lg md:text-xl font-body leading-relaxed">{para}</p>
           ))}
         </div>
       )}
 
       {question ? (
-        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] italic leading-snug border-l-2 border-[hsl(var(--blue))] pl-6 mb-8">
+        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))] italic leading-snug border-l-2 border-[hsl(var(--blue))] pl-6 mb-8">
           {question}
         </p>
       ) : null}
 
-      <div className="border-t border-[hsl(var(--ivory))]/10 pt-8">
+      <div className="border-t border-[hsl(var(--navy))]/10 pt-8">
         {isChild ? (
           <ExerciseSlide text={exercise} week={week} audience={audience} sessionCode={sessionCode} />
         ) : isCanvasSurface(activityType) ? (
           <>
             {exercise ? (
-              <p className="font-body text-base text-[hsl(var(--ivory))]/70 mb-4 leading-relaxed">{exercise}</p>
+              <p className="font-body text-base text-[hsl(var(--navy))]/70 mb-4 leading-relaxed">{exercise}</p>
             ) : null}
             <CanvasSurface activityType={activityType} week={week} audience={audience} sessionCode={sessionCode} />
           </>
@@ -1975,18 +1975,18 @@ const PollSlide = ({ text, options, responses }: { text: string; options: string
 
   return (
     <div className="max-w-4xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3 text-center">Together</p>
-      {text && <p className="text-[hsl(var(--ivory))]/60 font-body text-sm mb-8 text-center">{text}</p>}
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-3 text-center">Together</p>
+      {text && <p className="text-[hsl(var(--navy))]/60 font-body text-sm mb-8 text-center">{text}</p>}
       <div className="space-y-4">
         {tally.map(({ option, count }) => {
           const pct = total === 0 ? 0 : Math.round((count / total) * 100);
           return (
             <div key={option}>
               <div className="flex items-baseline justify-between mb-1.5">
-                <span className="font-body text-lg md:text-xl text-[hsl(var(--ivory))]/90">{option}</span>
+                <span className="font-body text-lg md:text-xl text-[hsl(var(--navy))]/90">{option}</span>
                 <span className="font-display text-xl text-[hsl(var(--blue))] tabular-nums">{pct}%</span>
               </div>
-              <div className="h-4 rounded-sm bg-[hsl(var(--ivory))]/[0.07] overflow-hidden">
+              <div className="h-4 rounded-sm bg-[hsl(var(--navy))]/[0.07] overflow-hidden">
                 <motion.div
                   className="h-full bg-[hsl(var(--blue))]"
                   initial={{ width: 0 }}
@@ -1998,7 +1998,7 @@ const PollSlide = ({ text, options, responses }: { text: string; options: string
           );
         })}
       </div>
-      <p className="text-[hsl(var(--ivory))]/30 text-[10px] tracking-widest font-body uppercase mt-8 text-center">
+      <p className="text-[hsl(var(--navy))]/30 text-[10px] tracking-widest font-body uppercase mt-8 text-center">
         {total} {total === 1 ? "response" : "responses"}
       </p>
     </div>
@@ -2016,10 +2016,10 @@ const PendingCard = ({
   const [customReason, setCustomReason] = useState("");
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-      className="bg-[hsl(var(--bronze))]/[0.06] border border-[hsl(var(--bronze))]/30 rounded-sm p-3">
-      <p className="text-[hsl(var(--ivory))] text-sm font-body leading-relaxed">{response.response_text}</p>
+      className="bg-[hsl(var(--primary))]/[0.06] border border-[hsl(var(--primary))]/30 rounded-sm p-3">
+      <p className="text-[hsl(var(--chrome-ink))] text-sm font-body leading-relaxed">{response.response_text}</p>
       <div className="flex items-center justify-between mt-2 mb-2">
-        <span className="text-[hsl(var(--ivory))]/30 text-[10px] font-body tracking-widest uppercase">
+        <span className="text-[hsl(var(--chrome-ink))]/30 text-[10px] font-body tracking-widest uppercase">
           {response.show_name ? response.display_name : "Anonymous"}
         </span>
       </div>
@@ -2031,18 +2031,18 @@ const PendingCard = ({
         </button>
         <button
           onClick={() => setShowDenyMenu(s => !s)}
-          className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/70 text-[10px] font-body tracking-widest uppercase py-1.5 rounded-sm">
+          className="flex-1 flex items-center justify-center gap-1.5 bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 text-[hsl(var(--chrome-ink))]/70 text-[10px] font-body tracking-widest uppercase py-1.5 rounded-sm">
           <ShieldOff size={11} /> Hold back
         </button>
       </div>
       <AnimatePresence>
         {showDenyMenu && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-            className="mt-3 pt-3 border-t border-[hsl(var(--ivory))]/10 space-y-1.5">
-            <p className="text-[hsl(var(--ivory))]/40 text-[9px] tracking-widest font-body uppercase mb-1">Pick a message to send back</p>
+            className="mt-3 pt-3 border-t border-[hsl(var(--chrome-ink))]/10 space-y-1.5">
+            <p className="text-[hsl(var(--chrome-ink))]/40 text-[9px] tracking-widest font-body uppercase mb-1">Pick a message to send back</p>
             {DENIAL_PRESETS.map((preset, i) => (
               <button key={i} onClick={() => onDeny(response.id, preset)}
-                className="w-full text-left text-[hsl(var(--ivory))]/80 text-xs font-body leading-snug bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 px-2.5 py-2 rounded-sm">
+                className="w-full text-left text-[hsl(var(--chrome-ink))]/80 text-xs font-body leading-snug bg-[hsl(var(--chrome-ink))]/5 hover:bg-[hsl(var(--chrome-ink))]/10 px-2.5 py-2 rounded-sm">
                 {preset}
               </button>
             ))}
@@ -2051,12 +2051,12 @@ const PendingCard = ({
                 value={customReason}
                 onChange={e => setCustomReason(e.target.value.slice(0, 200))}
                 placeholder="Custom message…"
-                className="flex-1 bg-[hsl(var(--ivory))]/5 border border-[hsl(var(--ivory))]/10 rounded-sm px-2 py-1.5 text-xs text-[hsl(var(--ivory))] font-body focus:outline-none focus:border-[hsl(var(--blue))]"
+                className="flex-1 bg-[hsl(var(--chrome-ink))]/5 border border-[hsl(var(--chrome-ink))]/10 rounded-sm px-2 py-1.5 text-xs text-[hsl(var(--chrome-ink))] font-body focus:outline-none focus:border-[hsl(var(--blue))]"
               />
               <button
                 onClick={() => customReason.trim() && onDeny(response.id, customReason.trim())}
                 disabled={!customReason.trim()}
-                className="bg-[hsl(var(--ivory))]/10 hover:bg-[hsl(var(--ivory))]/15 disabled:opacity-30 text-[hsl(var(--ivory))] text-[10px] font-body tracking-widest uppercase px-3 rounded-sm">
+                className="bg-[hsl(var(--chrome-ink))]/10 hover:bg-[hsl(var(--chrome-ink))]/15 disabled:opacity-30 text-[hsl(var(--chrome-ink))] text-[10px] font-body tracking-widest uppercase px-3 rounded-sm">
                 Send
               </button>
             </div>
@@ -2080,30 +2080,30 @@ const ReturnToIntentionSlide = ({
   if (weekNumber === 1 || !previousWeekCallback) {
     return (
       <div className="max-w-4xl text-center">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Return to Your Intention</p>
-        <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed mb-6">
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6">Return to Your Intention</p>
+        <div className="border border-[hsl(var(--primary))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--navy))]/[0.03] to-transparent">
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))] leading-relaxed mb-6">
             {weekNumber === 1
               ? "This is your first session — there's no intention to return to yet. Take a moment to introduce yourself to someone new. What brought you here today?"
               : "Open your workbook to the intention you wrote seven days ago."}
           </p>
           <div className="space-y-4 text-left max-w-2xl mx-auto">
-            <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
-              <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
+            <div className="bg-[hsl(var(--navy))]/[0.04] border border-[hsl(var(--navy))]/10 rounded-sm p-5">
+              <p className="font-serif text-xl text-[hsl(var(--navy))]/90 leading-relaxed italic">
                 {weekNumber === 1
                   ? '"What intention would you like to set for your first session together?"'
                   : '"Did you do it?"'}
               </p>
             </div>
-            <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
-              <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
+            <div className="bg-[hsl(var(--navy))]/[0.04] border border-[hsl(var(--navy))]/10 rounded-sm p-5">
+              <p className="font-serif text-xl text-[hsl(var(--navy))]/90 leading-relaxed italic">
                 {weekNumber === 1
                   ? '"Who are you and what does being here mean to you right now?"'
                   : '"What got in the way?"'}
               </p>
             </div>
-            <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
-              <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">
+            <div className="bg-[hsl(var(--navy))]/[0.04] border border-[hsl(var(--navy))]/10 rounded-sm p-5">
+              <p className="font-serif text-xl text-[hsl(var(--navy))]/90 leading-relaxed italic">
                 {weekNumber === 1
                   ? '"Find someone you do not know and share what you hope to find here."'
                   : '"What did you notice? Share briefly with someone beside you."'}
@@ -2117,23 +2117,23 @@ const ReturnToIntentionSlide = ({
 
   return (
     <div className="max-w-4xl text-center">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6">Return to Your Intention</p>
-      <div className="border border-[hsl(var(--bronze))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--ivory))]/[0.03] to-transparent">
-        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))] leading-relaxed mb-6">
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6">Return to Your Intention</p>
+      <div className="border border-[hsl(var(--primary))]/30 rounded-sm p-10 md:p-14 bg-gradient-to-br from-[hsl(var(--navy))]/[0.03] to-transparent">
+        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))] leading-relaxed mb-6">
           Open your workbook to the intention you wrote seven days ago.
         </p>
-        <p className="font-serif text-xl md:text-2xl text-[hsl(var(--bronze))]/80 italic mb-8">
+        <p className="font-serif text-xl md:text-2xl text-[hsl(var(--primary))]/80 italic mb-8">
           "{previousWeekCallback}"
         </p>
         <div className="space-y-4 text-left max-w-2xl mx-auto">
-          <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
-            <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">"Did you do it?"</p>
+          <div className="bg-[hsl(var(--navy))]/[0.04] border border-[hsl(var(--navy))]/10 rounded-sm p-5">
+            <p className="font-serif text-xl text-[hsl(var(--navy))]/90 leading-relaxed italic">"Did you do it?"</p>
           </div>
-          <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
-            <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">"What got in the way?"</p>
+          <div className="bg-[hsl(var(--navy))]/[0.04] border border-[hsl(var(--navy))]/10 rounded-sm p-5">
+            <p className="font-serif text-xl text-[hsl(var(--navy))]/90 leading-relaxed italic">"What got in the way?"</p>
           </div>
-          <div className="bg-[hsl(var(--ivory))]/[0.04] border border-[hsl(var(--ivory))]/10 rounded-sm p-5">
-            <p className="font-serif text-xl text-[hsl(var(--ivory))]/90 leading-relaxed italic">"What did you notice? Share briefly with someone beside you."</p>
+          <div className="bg-[hsl(var(--navy))]/[0.04] border border-[hsl(var(--navy))]/10 rounded-sm p-5">
+            <p className="font-serif text-xl text-[hsl(var(--navy))]/90 leading-relaxed italic">"What did you notice? Share briefly with someone beside you."</p>
           </div>
         </div>
       </div>
@@ -2170,32 +2170,32 @@ const ExerciseSlide = ({ text, week, audience, sessionCode }: { text: string; we
         <div className="flex items-center justify-between gap-3 mb-3 z-20">
           <button
             onClick={() => setWhiteboardOpen(false)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[hsl(var(--ivory))]/10 hover:bg-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest uppercase rounded-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[hsl(var(--navy))]/10 hover:bg-[hsl(var(--navy))]/15 text-[hsl(var(--navy))]/80 text-xs font-body tracking-widest uppercase rounded-sm"
           >
             <ArrowLeft size={12} /> Back to instructions
           </button>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setInstructionsCollapsed(c => !c)}
-              className="px-3 py-1.5 bg-[hsl(var(--ivory))]/10 hover:bg-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]/70 text-[10px] font-body tracking-widest uppercase rounded-sm"
+              className="px-3 py-1.5 bg-[hsl(var(--navy))]/10 hover:bg-[hsl(var(--navy))]/15 text-[hsl(var(--navy))]/70 text-[10px] font-body tracking-widest uppercase rounded-sm"
             >
               {instructionsCollapsed ? "Show instructions" : "Hide instructions"}
             </button>
-            <div className="flex items-center gap-2 bg-[hsl(var(--ivory))]/10 px-3 py-1.5 rounded-sm">
-              <span className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest font-body uppercase">Timer</span>
-              <span className="font-display text-[hsl(var(--bronze))] text-base tracking-wider tabular-nums">
+            <div className="flex items-center gap-2 bg-[hsl(var(--navy))]/10 px-3 py-1.5 rounded-sm">
+              <span className="text-[hsl(var(--navy))]/40 text-[10px] tracking-widest font-body uppercase">Timer</span>
+              <span className="font-display text-[hsl(var(--primary))] text-base tracking-wider tabular-nums">
                 {running || remaining > 0 ? `${mm}:${ss}` : `${duration}:00`}
               </span>
               <button onClick={start} className="p-1 bg-[hsl(var(--blue))] text-white rounded-sm"><Play size={10} /></button>
-              <button onClick={() => setRunning(r => !r)} className="p-1 bg-[hsl(var(--ivory))]/10 rounded-sm">{running ? <Pause size={10} /> : <Play size={10} />}</button>
-              <button onClick={() => { setRunning(false); setRemaining(0); }} className="p-1 bg-[hsl(var(--ivory))]/10 rounded-sm"><RotateCcw size={10} /></button>
+              <button onClick={() => setRunning(r => !r)} className="p-1 bg-[hsl(var(--navy))]/10 rounded-sm">{running ? <Pause size={10} /> : <Play size={10} />}</button>
+              <button onClick={() => { setRunning(false); setRemaining(0); }} className="p-1 bg-[hsl(var(--navy))]/10 rounded-sm"><RotateCcw size={10} /></button>
             </div>
           </div>
         </div>
 
         {/* Whiteboard surface (fills remaining height). The light theme keeps
             ink readable; the surrounding slide stays dark navy. */}
-        <div className="relative flex-1 rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-white min-h-[60vh]">
+        <div className="relative flex-1 rounded-sm overflow-hidden border border-[hsl(var(--navy))]/15 bg-white min-h-[60vh]">
           <Suspense fallback={
             <div className="absolute inset-0 flex items-center justify-center text-[hsl(var(--navy-mid))]/60 text-xs font-body tracking-widest uppercase">
               Loading whiteboard…
@@ -2206,13 +2206,13 @@ const ExerciseSlide = ({ text, week, audience, sessionCode }: { text: string; we
 
           {/* Floating instructions card — collapsible reference */}
           {!instructionsCollapsed && (
-            <div className="absolute top-3 left-3 z-30 max-w-sm bg-[hsl(var(--navy))]/90 backdrop-blur-sm border border-[hsl(var(--ivory))]/15 rounded-sm p-4 shadow-xl">
-              <p className="text-[hsl(var(--bronze))] text-[9px] tracking-[0.4em] font-body uppercase mb-2">Exercise</p>
+            <div className="absolute top-3 left-3 z-30 max-w-sm bg-[hsl(var(--ivory))]/95 backdrop-blur-sm border border-[hsl(var(--navy))]/15 rounded-sm p-4 shadow-xl">
+              <p className="text-[hsl(var(--primary))] text-[9px] tracking-[0.4em] font-body uppercase mb-2">Exercise</p>
               <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
                 {steps.map((s, i) => (
                   <div key={i} className="flex gap-2 items-start">
-                    <span className="font-display text-[hsl(var(--blue-light))] text-xs shrink-0 w-4">{i + 1}.</span>
-                    <p className="text-[hsl(var(--ivory))]/90 font-body text-xs leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
+                    <span className="font-display text-[hsl(var(--primary))] text-xs shrink-0 w-4">{i + 1}.</span>
+                    <p className="text-[hsl(var(--navy))]/90 font-body text-xs leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
                   </div>
                 ))}
               </div>
@@ -2226,13 +2226,13 @@ const ExerciseSlide = ({ text, week, audience, sessionCode }: { text: string; we
   // ---------- Default (instructions + timer) view ----------
   return (
     <div className="max-w-5xl w-full">
-      <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
+      <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-6 text-center">Together</p>
       <div className="grid md:grid-cols-[1fr_auto] gap-10 items-center">
         <div className="space-y-3">
           {steps.map((s, i) => (
             <div key={i} className="flex gap-4 items-start">
               <span className="font-display text-[hsl(var(--blue))] text-xl shrink-0 w-7">{i + 1}.</span>
-              <p className="text-[hsl(var(--ivory))]/90 font-body text-base md:text-lg leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
+              <p className="text-[hsl(var(--navy))]/90 font-body text-base md:text-lg leading-relaxed">{s.replace(/^\d+\.?\s*/, "")}</p>
             </div>
           ))}
           <button
@@ -2241,25 +2241,25 @@ const ExerciseSlide = ({ text, week, audience, sessionCode }: { text: string; we
           >
             <PenLine size={13} /> Open whiteboard
           </button>
-          <p className="mt-2 text-[10px] font-body text-[hsl(var(--ivory))]/40">
+          <p className="mt-2 text-[10px] font-body text-[hsl(var(--navy))]/40">
             This board is saved to session {sessionCode} and remains visible in member lesson history.
           </p>
         </div>
-        <div className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 text-center min-w-[180px]">
-          <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest font-body uppercase mb-3">Timer</p>
-          <p className="font-display text-[hsl(var(--bronze))] text-5xl tracking-wider tabular-nums">{running || remaining > 0 ? `${mm}:${ss}` : `${duration}:00`}</p>
+        <div className="border border-[hsl(var(--navy))]/15 rounded-sm p-6 text-center min-w-[180px]">
+          <p className="text-[hsl(var(--navy))]/40 text-[10px] tracking-widest font-body uppercase mb-3">Timer</p>
+          <p className="font-display text-[hsl(var(--primary))] text-5xl tracking-wider tabular-nums">{running || remaining > 0 ? `${mm}:${ss}` : `${duration}:00`}</p>
           <div className="flex justify-center gap-1 mt-3">
             {[1,3,5,10,15].map(m => (
               <button key={m} onClick={() => setDuration(m)}
-                className={`px-2 py-1 text-[10px] font-body rounded-sm ${duration === m ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/60"}`}>{m}m</button>
+                className={`px-2 py-1 text-[10px] font-body rounded-sm ${duration === m ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--navy))]/10 text-[hsl(var(--navy))]/60"}`}>{m}m</button>
             ))}
           </div>
           <div className="flex gap-2 mt-3 justify-center">
             <button onClick={start} className="flex items-center gap-1 px-3 py-1.5 bg-[hsl(var(--blue))] text-white text-xs font-body rounded-sm">
               <Play size={12} />Start
             </button>
-            <button onClick={() => setRunning(r => !r)} className="p-1.5 bg-[hsl(var(--ivory))]/10 rounded-sm">{running ? <Pause size={12} /> : <Play size={12} />}</button>
-            <button onClick={() => { setRunning(false); setRemaining(0); }} className="p-1.5 bg-[hsl(var(--ivory))]/10 rounded-sm"><RotateCcw size={12} /></button>
+            <button onClick={() => setRunning(r => !r)} className="p-1.5 bg-[hsl(var(--navy))]/10 rounded-sm">{running ? <Pause size={12} /> : <Play size={12} />}</button>
+            <button onClick={() => { setRunning(false); setRemaining(0); }} className="p-1.5 bg-[hsl(var(--navy))]/10 rounded-sm"><RotateCcw size={12} /></button>
           </div>
         </div>
       </div>
@@ -2284,8 +2284,8 @@ const MetaphorVideoSlide = ({
   if (approved) {
     return (
       <div className="max-w-5xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">{title}</p>
-        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">{title}</p>
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--navy))]/15 bg-black">
           {isImage ? (
             <img src={videoUrl} alt="" className="w-full h-full object-contain" />
           ) : (
@@ -2296,7 +2296,7 @@ const MetaphorVideoSlide = ({
         </div>
         <motion.blockquote initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1 }}
           className="text-center mt-6 px-8">
-          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-snug italic">"{text}"</p>
+          <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))]/95 leading-snug italic">"{text}"</p>
         </motion.blockquote>
       </div>
     );
@@ -2305,14 +2305,14 @@ const MetaphorVideoSlide = ({
   if (videoUrl && approval === "unapproved") {
     return (
       <div className="max-w-5xl w-full">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">{title}</p>
-        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--bronze))]/30 bg-black flex items-center justify-center">
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-4 text-center">{title}</p>
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--primary))]/30 bg-black flex items-center justify-center">
           <video src={videoUrl} muted loop playsInline autoPlay className="w-full h-full opacity-40" />
           <div className="absolute text-center">
-            <p className="text-[hsl(var(--ivory))]/70 text-xs font-body tracking-widest uppercase">Awaiting approval — not live yet</p>
+            <p className="text-[hsl(var(--navy))]/70 text-xs font-body tracking-widest uppercase">Awaiting approval — not live yet</p>
           </div>
         </div>
-        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--ivory))]/95 leading-snug italic text-center mt-6 px-8">"{text}"</p>
+        <p className="font-serif text-2xl md:text-3xl text-[hsl(var(--navy))]/95 leading-snug italic text-center mt-6 px-8">"{text}"</p>
       </div>
     );
   }
@@ -2320,11 +2320,11 @@ const MetaphorVideoSlide = ({
   // Text only — the metaphor stands alone (and is the fallback if generation fails).
   return (
     <div className="relative w-full h-full flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--bronze))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--blue))]/10 via-transparent to-[hsl(var(--primary))]/10 animate-pulse" style={{ animationDuration: "6s" }} />
       <motion.blockquote initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.2 }}
         className="relative max-w-4xl text-center px-8">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-8">{title}</p>
-        <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--ivory))] leading-snug italic">"{text}"</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase mb-8">{title}</p>
+        <p className="font-serif text-4xl md:text-5xl text-[hsl(var(--navy))] leading-snug italic">"{text}"</p>
       </motion.blockquote>
     </div>
   );
@@ -2339,30 +2339,30 @@ const VideoSlide = ({ link, description, backup, question1, question2, localUrl 
   return (
     <div className="max-w-5xl w-full">
       <div className="flex items-center justify-center gap-3 mb-4">
-        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
+        <p className="text-[hsl(var(--primary))] text-xs tracking-[0.5em] font-body uppercase">This Week's Listen</p>
         {localUrl && <span className="text-[hsl(var(--blue))] text-[9px] font-body tracking-widest uppercase">Local copy</span>}
       </div>
       {localUrl ? (
         // Pre-downloaded local copy — venue wifi cannot be trusted with a 20-min
         // stream. Played from our storage instead of YouTube.
-        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15 bg-black">
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--navy))]/15 bg-black">
           <video src={localUrl} controls preload="auto" className="w-full h-full" />
         </div>
       ) : ytId ? (
-        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
+        <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--navy))]/15">
           <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} title="Lesson video" className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
-        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">
-          <p className="text-[hsl(var(--ivory))]/40 text-sm font-body">No video set for this session yet</p>
+        <div className="aspect-video w-full rounded-sm border border-[hsl(var(--navy))]/15 flex items-center justify-center bg-[hsl(var(--navy))]/[0.03]">
+          <p className="text-[hsl(var(--navy))]/40 text-sm font-body">No video set for this session yet</p>
         </div>
       )}
       {(question1 || question2) && (
         <div className="mt-6 grid md:grid-cols-2 gap-4">
           {[question1, question2].filter(Boolean).map((q, i) => (
-            <div key={i} className="border border-[hsl(var(--ivory))]/15 rounded-sm p-4 bg-[hsl(var(--ivory))]/[0.03]">
-              <p className="text-[hsl(var(--bronze))] text-[11px] tracking-[0.2em] font-body mb-2">Reflective Question {i + 1}:</p>
-              <p className="text-[hsl(var(--ivory))]/90 font-serif italic text-base leading-relaxed">"{q}"</p>
+            <div key={i} className="border border-[hsl(var(--navy))]/15 rounded-sm p-4 bg-[hsl(var(--navy))]/[0.03]">
+              <p className="text-[hsl(var(--primary))] text-[11px] tracking-[0.2em] font-body mb-2">Reflective Question {i + 1}:</p>
+              <p className="text-[hsl(var(--navy))]/90 font-serif italic text-base leading-relaxed">"{q}"</p>
             </div>
           ))}
         </div>
