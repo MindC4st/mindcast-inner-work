@@ -22,11 +22,11 @@ import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 export const INK = "#102438";
-export const SIGNAL_DEEP = "#307191";
-export const RULE = "#C9D3DE";
+export const SIGNAL_DEEP = "#2B7091";
+export const RULE = "#C4D4DC";
 
 /** margin ÷ page width, as a percentage — keeps the gutter proportional. */
-const MARGIN = "6.72%";
+const MARGIN = "8.40%";
 
 /**
  * Ruled response lines, at the printed 24pt pitch.
@@ -38,7 +38,7 @@ const MARGIN = "6.72%";
 export const WritingLines = ({ n = 3, className = "" }: { n?: number; className?: string }) => (
   <div className={`mt-5 ${className}`} aria-hidden>
     {Array.from({ length: n }, (_, i) => (
-      <div key={i} className="h-[26px] border-b" style={{ borderColor: RULE }} />
+      <div key={i} className="h-[24px] border-b" style={{ borderColor: RULE }} />
     ))}
   </div>
 );
@@ -215,7 +215,7 @@ const WorkbookPage = ({
               className="font-display text-[11px] tracking-[0.22em]"
               style={{ color: SIGNAL_DEEP }}
             >
-              NOTICE IT, NAME IT, DO IT
+              NOTICE IT. NAME IT. DO IT.
             </span>
             <span className="font-body text-[9px] tracking-[0.1em]" style={{ color: INK, opacity: 0.45 }}>
               {page && pages ? `${page} / ${pages}` : ""}

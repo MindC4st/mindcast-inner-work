@@ -233,7 +233,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         {/* Member list */}
         <div className="border border-foreground/[0.08] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm font-body">
+            <table className="w-full min-w-[780px] text-sm font-body">
               <thead className="bg-foreground/[0.03]">
                 <tr className="text-left text-[9px] font-body uppercase tracking-[0.12em] text-foreground/40">
                   <th className="py-3 px-4 w-8" />

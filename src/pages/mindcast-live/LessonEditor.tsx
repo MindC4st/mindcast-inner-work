@@ -315,8 +315,8 @@ const LessonEditor = () => {
       {/* Header */}
       <header className="sticky top-0 z-20 backdrop-blur-xl bg-[hsl(var(--ivory))]/80 border-b border-[hsl(var(--warm-border))]">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 flex items-center gap-3 flex-wrap">
-          <button onClick={() => navigate("/mindcast-live/library")}
-            className="flex items-center gap-1.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] transition-colors text-sm">
+          <button type="button" onClick={() => navigate("/mindcast-live/library")}
+            className="flex min-h-10 items-center gap-1.5 rounded-lg text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
             <ArrowLeft size={16} /> Library
           </button>
           <div className="ml-1">
@@ -324,9 +324,9 @@ const LessonEditor = () => {
             <h1 className="font-display text-2xl md:text-3xl tracking-wide leading-none">WEEK {String(week).padStart(2, "0")}</h1>
           </div>
           {/* Track toggle */}
-          <div className="flex gap-1 ml-auto bg-[hsl(var(--warm-border))]/40 rounded-full p-1">
+          <div className="flex gap-1 ml-auto bg-[hsl(var(--warm-border))]/40 rounded-full p-1" role="radiogroup" aria-label="Lesson track">
             {AUDIENCES.map((a) => (
-              <button key={a} onClick={() => setAudience(a)}
+              <button type="button" key={a} onClick={() => setAudience(a)} role="radio" aria-checked={audience === a}
                 className={`relative px-3 md:px-4 py-1.5 text-xs font-body tracking-widest uppercase rounded-full transition-colors ${audience === a ? "text-white" : "text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]"}`}>
                 {audience === a && (
                   <motion.span layoutId="trackPill" transition={ease}
@@ -346,7 +346,7 @@ const LessonEditor = () => {
             {SLIDES.map((s) => {
               const isActive = s.idx === active;
               return (
-                <button key={s.idx} onClick={() => setActive(s.idx)}
+                <button type="button" key={s.idx} onClick={() => setActive(s.idx)} aria-current={isActive ? "step" : undefined}
                   className={`relative shrink-0 text-left rounded-lg px-3 py-2 transition-all duration-200 ${isActive ? "bg-white shadow-[0_2px_20px_-8px_rgba(20,40,60,0.35)]" : "hover:bg-white/60"}`}>
                   {isActive && !reduce && (
                     <motion.span layoutId="slideActive" transition={ease}
@@ -508,7 +508,7 @@ const LessonEditor = () => {
               <>All changes saved</>
             )}
           </span>
-          <button onClick={save} disabled={saving || (!dirty && !activityDirty)}
+          <button type="button" onClick={save} disabled={saving || (!dirty && !activityDirty)}
             className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-[hsl(var(--navy))] hover:bg-[hsl(var(--navy-mid))] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-body tracking-widest uppercase transition-all active:scale-95">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
             {saving ? "Saving…" : "Save changes"}

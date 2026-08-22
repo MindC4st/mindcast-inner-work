@@ -205,9 +205,9 @@ const Onboarding = () => {
             to="/"
             className="rounded-sm focus:outline-none focus:ring-2 focus:ring-primary/40 lg:hidden"
           >
-            <img src={logoLight} alt="Mindcast home" className="h-8" />
+            <img src={logoLight} alt="Mindcast home" className="h-7 sm:h-8" />
           </Link>
-          <p className="ml-auto font-body text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <p className="ml-auto font-body text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs sm:tracking-[0.18em]">
             Step {currentStep} of {totalSteps}
           </p>
         </header>

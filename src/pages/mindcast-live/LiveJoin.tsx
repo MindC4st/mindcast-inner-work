@@ -310,8 +310,8 @@ const LiveJoin = () => {
   // ---------- Sign-in gate ----------
   if (loading) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center text-[hsl(var(--navy-mid))]/60 text-xs font-body tracking-widest uppercase">
-        Loading…
+      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center text-[hsl(var(--navy-mid))]/60 text-sm font-body" role="status">
+        Connecting to the session…
       </div>
     );
   }
@@ -321,11 +321,11 @@ const LiveJoin = () => {
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
         <div className="max-w-sm text-center">
           <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">Mindcast LIVE</p>
-          <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">SESSION ENDED</h1>
+          <h1 className="font-serif text-4xl text-[hsl(var(--navy))] mb-3">This session has ended.</h1>
           <p className="font-body text-sm text-[hsl(var(--navy-mid))] mb-6">
             This session has closed. Your reflections are already saved to your coursebook.
           </p>
-          <Link to="/portal/dashboard" className="text-primary text-xs tracking-widest uppercase font-body border-b border-primary/40">Back to your dashboard</Link>
+          <Link to="/portal/dashboard" className="inline-flex min-h-11 items-center rounded-xl bg-primary px-5 text-primary-foreground text-sm font-semibold font-body">Back to your dashboard</Link>
         </div>
       </div>
     );
@@ -335,9 +335,9 @@ const LiveJoin = () => {
     const redirectPath = `/live/${sessionCode}`;
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
-        <div className="max-w-sm w-full">
+        <div className="max-w-md w-full rounded-3xl border border-foreground/[0.08] bg-white p-6 shadow-xl shadow-navy/[0.05] sm:p-9">
           <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3 text-center">Mindcast LIVE</p>
-          <h1 className="font-display text-5xl tracking-wider text-[hsl(var(--navy))] mb-1 text-center">JOIN SESSION</h1>
+          <h1 className="font-serif text-4xl text-[hsl(var(--navy))] mb-2 text-center">Join this session</h1>
           <p className="text-center text-[hsl(var(--navy-mid))] font-body text-sm mb-8 tracking-widest">
             CODE · <span className="text-[hsl(var(--blue))] font-bold">{sessionCode}</span>
           </p>
@@ -348,7 +348,7 @@ const LiveJoin = () => {
 
           <Link
             to={`/portal/login?redirect=${encodeURIComponent(redirectPath)}`}
-            className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] text-white font-body text-sm tracking-widest uppercase py-3 rounded-sm transition-colors"
+            className="w-full min-h-12 flex items-center justify-center gap-2 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] text-white font-body text-sm font-semibold py-3 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary/20"
           >
             <LogIn size={14} /> Sign in to join
           </Link>
@@ -360,8 +360,9 @@ const LiveJoin = () => {
           <div className="my-6 border-t border-[hsl(var(--warm-border))]" />
 
           <button
+            type="button"
             onClick={() => setMode("spectator")}
-            className="w-full flex items-center justify-center gap-2 text-[hsl(var(--navy-mid))]/70 hover:text-[hsl(var(--navy))] font-body text-xs tracking-widest uppercase py-2"
+            className="w-full min-h-11 flex items-center justify-center gap-2 text-[hsl(var(--navy-mid))]/70 hover:text-[hsl(var(--navy))] font-body text-xs font-semibold py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <Eye size={13} /> Just watching tonight
           </button>
@@ -389,7 +390,7 @@ const LiveJoin = () => {
   const isSpectator = mode === "spectator";
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))] px-6 py-8" style={{ paddingTop: "max(2rem, env(safe-area-inset-top))", paddingBottom: "max(2rem, env(safe-area-inset-bottom))" }}>
+    <main className="min-h-screen bg-[hsl(var(--ivory))] px-5 sm:px-6 py-8" style={{ paddingTop: "max(2rem, env(safe-area-inset-top))", paddingBottom: "max(2rem, env(safe-area-inset-bottom))" }}>
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -541,11 +542,14 @@ const LiveJoin = () => {
                 </div>
               ) : /* Poll — tap one of the facilitator's options. */
               isActivity && activityKind === "poll" && pollOptions.length > 0 ? (
-                <div className="space-y-2 mb-5">
+                <div className="space-y-2 mb-5" role="radiogroup" aria-label="Choose a response">
                   {pollOptions.map((opt) => (
                     <button
+                      type="button"
                       key={opt}
                       onClick={() => setResponse(opt)}
+                      role="radio"
+                      aria-checked={response === opt}
                       className={`w-full text-left px-4 py-3 rounded-sm border font-body text-base transition-colors ${
                         response === opt
                           ? "border-[hsl(var(--blue))] bg-[hsl(var(--blue))]/10 text-[hsl(var(--navy))]"
@@ -562,6 +566,8 @@ const LiveJoin = () => {
                     value={response}
                     onChange={e => setResponse(e.target.value.slice(0, 24))}
                     placeholder="One word…"
+                    aria-label="One-word response"
+                    autoComplete="off"
                     className="w-full px-4 py-3 border border-[hsl(var(--warm-border))] rounded-sm font-body text-xl text-center text-[hsl(var(--navy))] focus:outline-none focus:border-[hsl(var(--blue))]"
                   />
                   <p className="text-[10px] text-[hsl(var(--navy-mid))]/60 font-body mt-1 mb-4 text-center">
@@ -572,6 +578,7 @@ const LiveJoin = () => {
               <>
               <textarea value={response} onChange={e => setResponse(e.target.value.slice(0, 300))}
                 placeholder={isIntentionPrompt ? "One specific thing I will do this week…" : "Type your response…"}
+                aria-label={isIntentionPrompt ? "Your weekly intention" : "Your reflection"}
                 rows={5}
                 className="w-full px-4 py-3 border border-[hsl(var(--warm-border))] rounded-sm font-body text-[hsl(var(--navy))] resize-none focus:outline-none focus:border-[hsl(var(--blue))]" />
               <div className="flex justify-between text-[10px] text-[hsl(var(--navy-mid))]/60 font-body mt-1 mb-4">
@@ -606,15 +613,18 @@ const LiveJoin = () => {
                       {displayMode === "anonymous" ? "Anonymous" : displayName}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-3 gap-1" role="radiogroup" aria-label="Display name preference">
                     {([
                       { v: "full",          label: "Full name" },
                       { v: "first_initial", label: "First + initial" },
                       { v: "anonymous",     label: "Anonymous" },
                     ] as const).map(opt => (
                       <button
+                        type="button"
                         key={opt.v}
                         onClick={() => updateDisplayMode(opt.v)}
+                        role="radio"
+                        aria-checked={displayMode === opt.v}
                         className={`text-[10px] font-body tracking-widest uppercase py-1.5 rounded-sm transition-colors ${
                           displayMode === opt.v
                             ? "bg-[hsl(var(--blue))] text-white"
@@ -632,8 +642,8 @@ const LiveJoin = () => {
                 </div>
               </div>
 
-              <button onClick={submit} disabled={!response.trim() || submitting}
-                className="w-full bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm tracking-widest uppercase py-3 rounded-sm transition-colors">
+              <button type="button" onClick={submit} disabled={!response.trim() || submitting}
+                className="w-full min-h-12 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm font-semibold py-3 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary/20">
                 {submitting ? "Sending…" : "Submit"}
               </button>
 
@@ -647,12 +657,12 @@ const LiveJoin = () => {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </main>
   );
 };
 
 const Toggle = ({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) => (
-  <button onClick={() => onChange(!value)} className="w-full flex items-center justify-between px-3 py-2.5 bg-white border border-[hsl(var(--warm-border))] rounded-sm">
+  <button type="button" role="switch" aria-checked={value} onClick={() => onChange(!value)} className="w-full min-h-11 flex items-center justify-between px-3 py-2.5 bg-white border border-[hsl(var(--warm-border))] rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30">
     <span className="text-[hsl(var(--navy))] font-body text-sm">{label}</span>
     <span className={`w-9 h-5 rounded-full relative transition-colors ${value ? "bg-[hsl(var(--blue))]" : "bg-[hsl(var(--warm-border))]"}`}>
       <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${value ? "left-[18px]" : "left-0.5"}`} />

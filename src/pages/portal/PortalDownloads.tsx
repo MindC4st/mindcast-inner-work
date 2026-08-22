@@ -25,15 +25,34 @@ type DownloadItem = {
   coloring_page_url: string | null;   // PNG for on-screen preview
   coloring_pdf_url: string | null;    // PDF for download
   // For building the WorksheetSession
+  opening_hook: string | null;
+  opening_question: string | null;
+  previous_week_callback: string | null;
+  core_concept: string | null;
+  ancient_wisdom_reframe: string | null;
   signal_metaphor: string | null;
+  kids_signal_metaphor: string | null;
+  video_description: string | null;
   video_question_1: string | null;
   video_question_2: string | null;
+  kids_picture_book: string | null;
+  kids_picture_book_author: string | null;
+  kids_picture_book_question: string | null;
+  kids_colouring_prompt: string | null;
+  thought_provoking_question: string | null;
+  private_write_prompt: string | null;
   journaling_prompt: string | null;
   experiential_exercise: string | null;
+  intention_prompt: string | null;
   practice_sun_today: string | null;
   practice_midweek: string | null;
   practice_fri: string | null;
   core_affirmation: string | null;
+  closing_quote: string | null;
+  closing_quote_attribution: string | null;
+  kids_game: string | null;
+  kids_game_equipment: string | null;
+  kids_game_under5: string | null;
 };
 
 const AUDIENCES = ["Adult", "Teen", "Child"] as const;
@@ -67,14 +86,24 @@ const PortalDownloads = () => {
     let active = true;
     setLoading(true);
     (async () => {
-      const { data } = await db
-        .from("mindcast_live_sessions")
-        .select("week_number, audience, phase_name, theme_title, session_title, signal_metaphor, video_question_1, video_question_2, journaling_prompt, experiential_exercise, practice_sun_today, practice_midweek, practice_fri, core_affirmation, coloring_page_url, coloring_pdf_url")
-        .eq("audience", audience)
-        .order("week_number", { ascending: true });
+      const [{ data }, { data: curriculum }] = await Promise.all([
+        db
+          .from("mindcast_live_sessions")
+          .select("week_number, audience, phase_name, theme_title, session_title, opening_hook, previous_week_callback, core_concept, ancient_wisdom_reframe, signal_metaphor, video_description, video_question_1, video_question_2, thought_provoking_question, private_write_prompt, journaling_prompt, experiential_exercise, intention_prompt, practice_sun_today, practice_midweek, practice_fri, core_affirmation, closing_quote, closing_quote_attribution, coloring_page_url, coloring_pdf_url")
+          .eq("audience", audience)
+          .order("week_number", { ascending: true }),
+        db
+          .from("curriculum_weeks")
+          .select("week_number, opening_question, kids_signal_metaphor, kids_picture_book, kids_picture_book_author, kids_picture_book_question, kids_colouring_prompt, kids_game, kids_game_equipment, kids_game_under5"),
+      ]);
 
       if (!active) return;
+      const curriculumByWeek = new Map<number, Partial<DownloadItem>>(
+        ((curriculum || []) as unknown as Array<Partial<DownloadItem> & { week_number: number }>)
+          .map((row) => [row.week_number, row]),
+      );
       const rows: DownloadItem[] = ((data || []) as unknown as DownloadItem[]).map(r => ({
+        ...curriculumByWeek.get(r.week_number),
         ...r,
         worksheet_url: null, // will be filled from worksheets table
       }));
@@ -91,15 +120,34 @@ const PortalDownloads = () => {
     theme_title: item.theme_title,
     session_title: item.session_title || undefined,
     audience: item.audience,
+    opening_hook: item.opening_hook || undefined,
+    opening_question: item.opening_question || undefined,
+    previous_week_callback: item.previous_week_callback || undefined,
+    core_concept: item.core_concept || undefined,
+    ancient_wisdom_reframe: item.ancient_wisdom_reframe || undefined,
     signal_metaphor: item.signal_metaphor || undefined,
+    kids_signal_metaphor: item.kids_signal_metaphor || undefined,
+    video_description: item.video_description || undefined,
     video_question_1: item.video_question_1 || undefined,
     video_question_2: item.video_question_2 || undefined,
+    kids_picture_book: item.kids_picture_book || undefined,
+    kids_picture_book_author: item.kids_picture_book_author || undefined,
+    kids_picture_book_question: item.kids_picture_book_question || undefined,
+    kids_colouring_prompt: item.kids_colouring_prompt || undefined,
+    thought_provoking_question: item.thought_provoking_question || undefined,
+    private_write_prompt: item.private_write_prompt || undefined,
     journaling_prompt: item.journaling_prompt || undefined,
     experiential_exercise: item.experiential_exercise || undefined,
+    intention_prompt: item.intention_prompt || undefined,
     practice_sun_today: item.practice_sun_today || undefined,
     practice_midweek: item.practice_midweek || undefined,
     practice_fri: item.practice_fri || undefined,
     core_affirmation: item.core_affirmation || undefined,
+    closing_quote: item.closing_quote || undefined,
+    closing_quote_attribution: item.closing_quote_attribution || undefined,
+    kids_game: item.kids_game || undefined,
+    kids_game_equipment: item.kids_game_equipment || undefined,
+    kids_game_under5: item.kids_game_under5 || undefined,
   });
 
   // Handle worksheet download

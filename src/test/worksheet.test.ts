@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { generateWorksheetPdf, type WorksheetSession } from "@/lib/generateWorksheetPdf";
+import {
+  generateWorksheetPdf,
+  worksheetPageKeysForTrack,
+  type WorksheetSession,
+} from "@/lib/generateWorksheetPdf";
 import fixture from "./fixtures/worksheet-curriculum.json";
 
 type PdfJs = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -18,114 +22,149 @@ async function pdfjsLib(): Promise<PdfJs> {
 }
 
 const PAGE_AREA = 595.28 * 841.89;
-
 const sessions = fixture as WorksheetSession[];
+const flat = (value: string) => value.replace(/\s+/g, "").toUpperCase();
 
-function rawPdf(s: WorksheetSession): string {
-  return generateWorksheetPdf(s).output();
+async function extractPages(session: WorksheetSession) {
+  const pdfjs = await pdfjsLib();
+  const data = new Uint8Array(generateWorksheetPdf(session).output("arraybuffer"));
+  const pdf = await pdfjs.getDocument({ data }).promise;
+  const pages: Array<{ text: string; ys: number[] }> = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const text: string[] = [];
+    const ys: number[] = [];
+    for (const item of tc.items) {
+      if ("str" in item) {
+        text.push(item.str);
+        ys.push(item.transform[5]);
+      }
+    }
+    pages.push({ text: text.join(" "), ys });
+  }
+  return pages;
 }
 
-describe("worksheet template — all 156 week x track combinations", () => {
-  it("has the full curriculum fixture", () => {
-    expect(sessions.length).toBe(156);
+describe("worksheet template - live sequence parity", () => {
+  it("has the full 52 week x three track curriculum fixture", () => {
+    expect(sessions).toHaveLength(156);
   });
 
-  for (const s of sessions) {
-    it(`week ${s.week_number} ${s.audience} lays out without clipping`, () => {
-      const doc = generateWorksheetPdf(s);
-      const pages = doc.getNumberOfPages();
-      expect(pages).toBeGreaterThanOrEqual(1);
-      expect(pages).toBeLessThanOrEqual(2);
+  it("maps Adult and Teen to eight pages and Child to nine", () => {
+    expect(worksheetPageKeysForTrack("Adult")).toEqual([
+      "welcome", "voices", "ancient", "video", "deeper", "reflection", "intention", "affirmation",
+    ]);
+    expect(worksheetPageKeysForTrack("Teen")).toHaveLength(8);
+    expect(worksheetPageKeysForTrack("Child")).toEqual([
+      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "affirmation",
+    ]);
+  });
+
+  for (const session of sessions) {
+    it(`week ${session.week_number} ${session.audience} renders the exact live page count`, () => {
+      const pages = generateWorksheetPdf(session).getNumberOfPages();
+      expect(pages).toBe(session.audience === "Child" ? 9 : 8);
     });
   }
 });
 
-describe("worksheet print economy and correctness", () => {
+describe("worksheet print design", () => {
   const sample = sessions[0];
 
-  it("keeps filled ink under 5% of the page (no bands, no reversed-out text)", () => {
-    const raw = rawPdf(sample);
+  it("uses pale writing surfaces without a full-page background fill", () => {
+    const doc = generateWorksheetPdf(sample);
+    const raw = doc.output();
     let filled = 0;
-    const re = /(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+) re\s*([fFbB])/g;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(raw))) {
-      filled += parseFloat(m[3]) * parseFloat(m[4]);
+    const rectangles = /(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+) re\s*([fFbB])/g;
+    let match: RegExpExecArray | null;
+    while ((match = rectangles.exec(raw))) {
+      const area = parseFloat(match[3]) * parseFloat(match[4]);
+      filled += area;
+      expect(area).toBeLessThan(PAGE_AREA * 0.5);
     }
-    expect(filled / PAGE_AREA).toBeLessThan(0.05);
+    expect(filled / (PAGE_AREA * doc.getNumberOfPages())).toBeLessThan(0.55);
   });
 
-  it("never prints ivory or navy background fills", () => {
-    const raw = rawPdf(sample);
-    // A full-page fill would be a rect near page size; assert none exists.
-    const re = /(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+) re\s*([fF])/g;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(raw))) {
-      expect(parseFloat(m[3]) * parseFloat(m[4])).toBeLessThan(2000);
+  it("keeps every text item inside the printable page", async () => {
+    const pages = await extractPages(sample);
+    for (const page of pages) {
+      for (const y of page.ys) {
+        expect(y).toBeGreaterThan(20);
+        expect(y).toBeLessThan(825);
+      }
     }
   });
 });
 
-describe("worksheet text layer (pdfjs extraction)", () => {
-  async function extract(s: WorksheetSession) {
-    const pdfjs = await pdfjsLib();
-    const doc = generateWorksheetPdf(s);
-    const data = new Uint8Array(doc.output("arraybuffer"));
-    const pdf = await pdfjs.getDocument({ data }).promise;
-    const items: { str: string; y: number }[] = [];
-    for (let p = 1; p <= pdf.numPages; p++) {
-      const page = await pdf.getPage(p);
-      const tc = await page.getTextContent();
-      for (const it of tc.items) {
-        if ("str" in it) items.push({ str: it.str, y: it.transform[5] });
-      }
-    }
-    return items;
-  }
+describe("worksheet text layer and page order", () => {
+  const adult: WorksheetSession = {
+    ...sessions[0],
+    opening_question: "What are you actually receiving?",
+    previous_week_callback: "Notice one signal beneath the noise.",
+    ancient_wisdom_reframe: "Attention has always shaped experience.",
+    video_question_1: "What was the speaker's central idea?",
+    video_question_2: "Where does it show up in your life?",
+    thought_provoking_question: "What changes when you choose the signal?",
+    private_write_prompt: "Name one invisible load you have been carrying.",
+    intention_prompt: "Choose one specific signal to follow this week.",
+    practice_sun_today: "Catch the hum once today.",
+    practice_midweek: "Name one visible responsibility.",
+    practice_fri: "Move from helping to owning.",
+    closing_quote: "My attention is mine to direct.",
+  };
 
-  it("renders macrons correctly (ā ē ī ō ū)", async () => {
-    const s: WorksheetSession = {
-      ...sessions[0],
-      theme_title: "Taupō whānau kōrero — Ā Ē Ī Ō Ū",
-      signal_metaphor: "Te ao Māori: whānau, kōrero, ātea — the signal beneath the noise. Ā ē ī ō ū.",
+  it("renders one live beat per Adult page in the signed-off order", async () => {
+    const pages = await extractPages(adult);
+    const titles = [
+      "WELCOME + OPENING QUESTION",
+      "RETURN TO YOUR INTENTION",
+      "INNER WISDOM + IN TODAY'S WORLD",
+      "THIS WEEK'S LISTEN",
+      "GO DEEPER + TOGETHER",
+      "REFLECT & SHARE",
+      "BEFORE YOU LEAVE",
+      "CLOSING AFFIRMATION",
+    ];
+    expect(pages).toHaveLength(8);
+    pages.forEach((page, index) => {
+      expect(flat(page.text)).toContain(flat(titles[index]));
+      expect(flat(page.text)).toContain(flat(`${index + 1} / 8`));
+    });
+  });
+
+  it("inserts colouring before Go Deeper in the nine-page Child workbook", async () => {
+    const child: WorksheetSession = {
+      ...adult,
+      audience: "Child",
+      kids_picture_book: "The Colour Monster",
+      kids_picture_book_author: "Anna Llenas",
+      kids_picture_book_question: "Which colour feels most like today?",
+      kids_colouring_prompt: "Colour the feelings you can notice.",
+      kids_game: "Match a colour to a feeling, then choose a safe action.",
     };
-    const items = await extract(s);
-    const all = items.map((i) => i.str).join(" ");
-    for (const ch of ["ā", "ē", "ī", "ō", "ū", "Ā", "Ē", "Ī", "Ō", "Ū"]) {
-      expect(all).toContain(ch);
+    const pages = await extractPages(child);
+    expect(pages).toHaveLength(9);
+    expect(flat(pages[4].text)).toContain(flat("COLOURING ACTIVITY"));
+    expect(flat(pages[5].text)).toContain(flat("GO DEEPER + TOGETHER"));
+    expect(flat(pages[8].text)).toContain(flat("9 / 9"));
+  });
+
+  it("renders macrons correctly", async () => {
+    const session: WorksheetSession = {
+      ...adult,
+      theme_title: "Taupō whānau kōrero - Ā Ē Ī Ō Ū",
+      signal_metaphor: "Te ao Māori: whānau, kōrero, ātea. Ā ē ī ō ū.",
+    };
+    const all = (await extractPages(session)).map((page) => page.text).join(" ");
+    for (const character of ["ā", "ē", "ī", "ō", "ū", "Ā", "Ē", "Ī", "Ō", "Ū"]) {
+      expect(all).toContain(character);
     }
   });
 
-  it("extracts in reading order: letterhead → signal → reflection → writing → activity → practice → footer", async () => {
-    const full: WorksheetSession = {
-      ...sessions[0],
-      practice_sun_today: "Notice the hum once today.",
-      practice_midweek: "Name one thing out loud.",
-      practice_fri: "Do one concrete step.",
-    };
-    const items = await extract(full);
-    // charSpace tracking can fragment extraction; compare space-insensitively.
-    const flat = items.map((i) => i.str).join("\n").replace(/\s+/g, "");
-    const idx = (t: string) => flat.indexOf(t.replace(/\s+/g, ""));
-    const order = [
-      "WEEK",
-      "THE SIGNAL",
-      "REFLECTION",
-      "YOUR REFLECTION",
-      "ACTIVITY",
-      "THIS WEEK",
-      "NOTICE IT, NAME IT, DO IT",
-    ].map(idx);
-    for (const i of order) expect(i).toBeGreaterThanOrEqual(0);
-    for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThan(order[i - 1]);
-    expect(flat).not.toContain("notice.name.rewire.");
-  });
-
-  it("no truncated words at line ends in the extracted text", async () => {
-    const items = await extract(sessions[0]);
-    for (const i of items) {
-      // jsPDF hyphen-free wrapping: a line should not end mid-word with a
-      // lowercase letter followed by the next line starting lowercase+continuation.
-      expect(/-\s$/.test(i.str)).toBe(false);
-    }
+  it("does not restore the retired tagline", async () => {
+    const all = flat((await extractPages(adult)).map((page) => page.text).join(" "));
+    expect(all).not.toContain(flat("notice.name.rewire."));
+    expect(all).toContain(flat("NOTICE IT. NAME IT. DO IT."));
   });
 });

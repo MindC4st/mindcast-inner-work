@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import logoBlue from "@/assets/logo-blue-wordmark.png";
@@ -75,8 +75,8 @@ const MEMBERSHIP_SUBTABS = [
 ] as const;
 
 const Fallback = () => (
-  <div className="py-24 flex justify-center">
-    <span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading…</span>
+  <div className="py-24 flex justify-center" role="status">
+    <span className="text-muted-foreground text-sm font-body animate-pulse">Loading admin tools…</span>
   </div>
 );
 
@@ -85,10 +85,10 @@ const SubTabBar = ({ tabs, active, onChange }: {
   active: string;
   onChange: (id: string) => void;
 }) => (
-  <div className="flex gap-1 rounded-md border border-border bg-card p-1 w-fit mb-6 overflow-x-auto max-w-full">
+  <div className="flex gap-1 rounded-xl border border-border bg-card p-1 w-fit mb-6 overflow-x-auto max-w-full" role="tablist">
     {tabs.map((t) => (
-      <button key={t.id} onClick={() => onChange(t.id)}
-        className={`px-3.5 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${active === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+      <button type="button" role="tab" aria-selected={active === t.id} key={t.id} onClick={() => onChange(t.id)}
+        className={`min-h-10 px-3.5 py-2 text-[11px] font-body font-semibold rounded-lg whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${active === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
         {t.label}
       </button>
     ))}
@@ -97,7 +97,7 @@ const SubTabBar = ({ tabs, active, onChange }: {
 
 const AdminConsole = () => {
   const { role, isAdmin } = useAuth();
-  const [search] = useSearchParams();
+  const [search, setSearch] = useSearchParams();
   const tabParam = search.get("tab") as TabId | null;
   const subParam = search.get("sub");
   const [tab, setTab] = useState<TabId>(
@@ -111,6 +111,33 @@ const AdminConsole = () => {
   const [membershipSub, setMembershipSub] = useState<string>(
     subParam && MEMBERSHIP_SUBTABS.some((s) => s.id === subParam) ? subParam : "overview",
   );
+
+  useEffect(() => {
+    const nextTab = search.get("tab") as TabId | null;
+    if (nextTab && TABS.some((item) => item.id === nextTab) && (nextTab !== "membership" || isAdmin)) {
+      setTab(nextTab);
+    }
+    const nextSub = search.get("sub");
+    if (nextSub && SESSION_SUBTABS.some((item) => item.id === nextSub)) setSessionSub(nextSub);
+    if (nextSub && MEMBERSHIP_SUBTABS.some((item) => item.id === nextSub)) setMembershipSub(nextSub);
+  }, [search, isAdmin]);
+
+  const changeTab = (nextTab: TabId) => {
+    setTab(nextTab);
+    const next = new URLSearchParams(search);
+    next.set("tab", nextTab);
+    next.delete("sub");
+    setSearch(next);
+  };
+
+  const changeSubTab = (kind: "sessions" | "membership", nextSub: string) => {
+    if (kind === "sessions") setSessionSub(nextSub);
+    else setMembershipSub(nextSub);
+    const next = new URLSearchParams(search);
+    next.set("tab", kind);
+    next.set("sub", nextSub);
+    setSearch(next);
+  };
 
   const visibleTabs = TABS.filter((t) => t.id !== "membership" || isAdmin);
 
@@ -129,7 +156,7 @@ const AdminConsole = () => {
       case "groups": return <AdminLifeGroups embedded />;
       case "sessions": return (
         <div>
-          <SubTabBar tabs={SESSION_SUBTABS} active={sessionSub} onChange={setSessionSub} />
+          <SubTabBar tabs={SESSION_SUBTABS} active={sessionSub} onChange={(id) => changeSubTab("sessions", id)} />
           {sessionSub === "schedule" && <AdminScheduling embedded />}
           {sessionSub === "roster" && <AdminRoster embedded />}
           {sessionSub === "program" && <AdminProgram embedded />}
@@ -141,7 +168,7 @@ const AdminConsole = () => {
       );
       case "membership": return (
         <div>
-          <SubTabBar tabs={MEMBERSHIP_SUBTABS} active={membershipSub} onChange={setMembershipSub} />
+          <SubTabBar tabs={MEMBERSHIP_SUBTABS} active={membershipSub} onChange={(id) => changeSubTab("membership", id)} />
           {membershipSub === "overview" && <AdminMembership embedded />}
           {membershipSub === "applications" && <AdminApplicationsPage embedded />}
           {membershipSub === "members" && <AdminMembers embedded />}
@@ -157,6 +184,7 @@ const AdminConsole = () => {
 
   return (
     <div className="min-h-screen portal-bg text-foreground">
+      <a href="#admin-content" className="sr-only z-[100] rounded bg-card px-4 py-3 text-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to admin content</a>
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
         <div className="flex items-center justify-between px-4 md:px-6 h-14">
           <div className="flex items-center gap-3">
@@ -165,15 +193,15 @@ const AdminConsole = () => {
           </div>
           <div className="flex items-center gap-4">
             <span className="hidden sm:block text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground">{role}</span>
-            <Link to="/portal/dashboard" className="text-[11px] font-body tracking-widest uppercase text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/portal/dashboard" className="inline-flex min-h-10 items-center text-[11px] font-body font-semibold text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-lg">
               Member portal →
             </Link>
           </div>
         </div>
-        <nav className="md:hidden flex gap-1 overflow-x-auto px-3 pb-2">
+        <nav className="md:hidden flex gap-1 overflow-x-auto px-3 pb-2 scrollbar-none" aria-label="Admin sections">
           {visibleTabs.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-body tracking-widest uppercase rounded-sm whitespace-nowrap transition-colors ${tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
+            <button type="button" key={t.id} onClick={() => changeTab(t.id)} aria-pressed={tab === t.id}
+              className={`flex min-h-10 items-center gap-1.5 px-3 py-2 text-[11px] font-body font-semibold rounded-lg whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
               <t.icon size={12} /> {t.label}
             </button>
           ))}
@@ -181,10 +209,10 @@ const AdminConsole = () => {
       </header>
 
       <div className="flex">
-        <aside className="hidden md:flex flex-col gap-1 w-56 shrink-0 p-4 border-r border-border min-h-[calc(100vh-3.5rem)] sticky top-14 self-start">
+        <aside className="hidden md:flex flex-col gap-1 w-60 shrink-0 p-4 border-r border-border min-h-[calc(100vh-3.5rem)] sticky top-14 self-start" aria-label="Admin sections">
           {visibleTabs.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-md text-left transition-colors ${tab === t.id ? "bg-foreground/[0.05] text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-card"}`}>
+            <button type="button" key={t.id} onClick={() => changeTab(t.id)} aria-pressed={tab === t.id}
+              className={`relative flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${tab === t.id ? "bg-foreground/[0.05] text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-card"}`}>
               {tab === t.id && <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-primary" />}
               <t.icon size={15} strokeWidth={1.75} className={tab === t.id ? "text-primary" : ""} />
               <span className="text-xs font-body tracking-[0.15em] uppercase">{t.label}</span>
@@ -197,7 +225,7 @@ const AdminConsole = () => {
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0 p-4 md:p-8">
+        <main id="admin-content" className="flex-1 min-w-0 p-4 md:p-8">
           <Suspense fallback={<Fallback />}>
             {renderTab()}
           </Suspense>

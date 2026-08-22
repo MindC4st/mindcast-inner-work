@@ -39,3 +39,7 @@ backups/
 supabase/.temp/
 review-warnings.txt
 
+# Render/verification artifacts (worksheet sample PDFs, page renders)
+output/
+tmp/
+

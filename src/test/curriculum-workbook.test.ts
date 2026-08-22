@@ -54,17 +54,17 @@ describe("the screen worksheet matches the printed one", () => {
   });
 
   it("keeps the page gutter proportional to the printed margin", () => {
-    // 40pt on a 595.28pt page. The component works in percentages so the
+    // 50pt on a 595.28pt page. The component works in percentages so the
     // sheet holds its proportions at any width.
-    const expected = (pdfNumber("M") / pdfNumber("PAGE_W")) * 100;
+    const expected = (pdfNumber("LEFT") / pdfNumber("PAGE_W")) * 100;
     const m = sheet.match(/const MARGIN = "([\d.]+)%"/);
     expect(m, "MARGIN not found in WorkbookPage.tsx").not.toBeNull();
     expect(Number(m![1])).toBeCloseTo(expected, 1);
   });
 
   it("carries the line every printed page carries", () => {
-    expect(pdf).toContain("NOTICE IT, NAME IT, DO IT");
-    expect(sheet).toContain("NOTICE IT, NAME IT, DO IT");
+    expect(pdf).toContain("NOTICE IT. NAME IT. DO IT.");
+    expect(sheet).toContain("NOTICE IT. NAME IT. DO IT.");
   });
 
   it("sets ruled writing lines at roughly the printed pitch", () => {

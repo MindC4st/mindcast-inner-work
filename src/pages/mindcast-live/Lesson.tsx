@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { toast } from "@/hooks/use-toast";
+import PortalLayout from "@/components/portal/PortalLayout";
 
 type Session = {
   week_number: number;
@@ -13,7 +14,11 @@ type Session = {
   session_title: string;
   phase_name: string;
   core_concept: string;
+  opening_hook: string;
+  ancient_wisdom_reframe: string;
   signal_metaphor: string;
+  video_question_1: string;
+  video_question_2: string;
   journaling_prompt: string;
   experiential_exercise: string;
   practice_sun_today: string;
@@ -87,18 +92,20 @@ const Lesson = () => {
 
   if (isUnlocked === false) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6 text-center">
+      <PortalLayout>
+      <div className="min-h-[60vh] flex items-center justify-center px-6 text-center">
         <div>
           <Lock className="mx-auto text-[hsl(var(--navy-mid))]/40 mb-4" size={32} />
-          <h1 className="font-display text-4xl text-[hsl(var(--navy))] tracking-wider mb-2">LOCKED</h1>
+          <h1 className="font-serif text-4xl text-[hsl(var(--navy))] mb-2">This lesson is still locked.</h1>
           <p className="text-[hsl(var(--navy-mid))] font-body text-sm mb-6">This lesson unlocks after the live session.</p>
           <Link to="/mindcast-live/library" className="text-[hsl(var(--blue))] font-body text-sm tracking-widest uppercase">← Back to library</Link>
         </div>
       </div>
+      </PortalLayout>
     );
   }
 
-  if (!session) return <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center text-[hsl(var(--navy-mid))] text-xs tracking-widest font-body animate-pulse">LOADING...</div>;
+  if (!session) return <PortalLayout><div className="min-h-[60vh] flex items-center justify-center text-[hsl(var(--navy-mid))] text-sm font-body animate-pulse" role="status">Loading lesson…</div></PortalLayout>;
 
   const ytId = session.video_link?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/)?.[1];
   const prevWeek = [...unlocked].reverse().find(w => w < week);
@@ -116,28 +123,28 @@ const Lesson = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))] px-6 py-10">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <Link to="/mindcast-live/library" className="text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] text-xs font-body tracking-widest uppercase">← Library</Link>
-          <div className="flex gap-1">
+    <PortalLayout>
+      <article className="max-w-3xl mx-auto">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <Link to="/mindcast-live/library" className="inline-flex min-h-10 items-center text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] text-sm font-body font-semibold">← Coursebook</Link>
+          <div className="flex gap-1" role="radiogroup" aria-label="Lesson track">
             {(["Adult","Teen","Child"] as const).map(a => (
-              <button key={a} onClick={() => setAudience(a)}
-                className={`px-3 py-1 text-[10px] font-body tracking-widest uppercase rounded-sm ${audience === a ? "bg-[hsl(var(--blue))] text-white" : "bg-white border border-[hsl(var(--warm-border))] text-[hsl(var(--navy-mid))]"}`}>{a}</button>
+              <button type="button" key={a} onClick={() => setAudience(a)} role="radio" aria-checked={audience === a}
+                className={`min-h-10 px-3 py-2 text-[10px] font-body tracking-widest uppercase rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 ${audience === a ? "bg-[hsl(var(--blue))] text-white" : "bg-white border border-[hsl(var(--warm-border))] text-[hsl(var(--navy-mid))]"}`}>{a}</button>
             ))}
           </div>
         </div>
 
         <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-2">Week {week}</p>
-        <h1 className="font-display text-5xl md:text-6xl text-[hsl(var(--navy))] tracking-wider mb-2">{session.theme_title.toUpperCase()}</h1>
+        <h1 className="font-serif text-4xl md:text-6xl text-[hsl(var(--navy))] leading-tight mb-2">{session.theme_title}</h1>
         <p className="font-serif italic text-[hsl(var(--navy-mid))] text-xl mb-6">{session.session_title}</p>
 
         <div className="flex flex-wrap items-center gap-2 mb-8">
-          <button onClick={() => downloadWorksheetPdf({ ...session, audience })}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:opacity-90">
+          <button type="button" onClick={() => downloadWorksheetPdf({ ...session, audience })}
+            className="inline-flex min-h-11 items-center gap-2 px-4 py-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] text-[11px] font-body tracking-widest uppercase rounded-xl hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-navy/15">
             <Download size={13} /> Download Worksheet
           </button>
-          <button onClick={async () => {
+          <button type="button" onClick={async () => {
             try {
               const { data, error } = await supabase.functions.invoke("buy-worksheet", { body: { week_number: week, audience } });
               if (error) throw error;
@@ -145,7 +152,7 @@ const Lesson = () => {
             } catch (e) {
               toast({ title: "Couldn't start checkout", description: (e as Error).message });
             }
-          }} className="inline-flex items-center gap-2 px-4 py-2 border border-[hsl(var(--bronze))] text-[hsl(var(--bronze))] text-[11px] font-body tracking-widest uppercase rounded-sm hover:bg-[hsl(var(--bronze))]/10">
+          }} className="inline-flex min-h-11 items-center gap-2 px-4 py-2 border border-[hsl(var(--bronze))] text-[hsl(var(--bronze))] text-[11px] font-body tracking-widest uppercase rounded-xl hover:bg-[hsl(var(--bronze))]/10 focus:outline-none focus:ring-2 focus:ring-primary/30">
             <ShoppingCart size={13} /> Buy Printed Copy · $5 NZD
           </button>
           {completed && (
@@ -156,15 +163,15 @@ const Lesson = () => {
         </div>
 
         {ytId && (
-          <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-8">
-            <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+          <div className="aspect-video rounded-2xl overflow-hidden border border-[hsl(var(--warm-border))] mb-8">
+            <iframe src={`https://www.youtube.com/embed/${ytId}`} title={`${session.theme_title} video`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
           </div>
         )}
 
         <Section title="The Signal">
           {renderedMp4 && (
             <div className="aspect-video rounded-sm overflow-hidden border border-[hsl(var(--warm-border))] mb-4 bg-black">
-              <video src={renderedMp4} controls className="w-full h-full" />
+              <video src={renderedMp4} controls className="w-full h-full" aria-label={`${session.theme_title} lesson film`} />
             </div>
           )}
           <p className="font-serif italic text-xl text-[hsl(var(--navy))] leading-snug">"{session.signal_metaphor}"</p>
@@ -207,25 +214,26 @@ const Lesson = () => {
         </div>
 
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={submitting || completed}
-          className="w-full bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm tracking-widest uppercase py-3 rounded-sm transition-colors"
+          className="w-full min-h-12 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] disabled:opacity-40 text-white font-body text-sm font-semibold py-3 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary/20"
         >
           {completed ? "Submitted" : submitting ? "Submitting…" : "Mark worksheet complete"}
         </button>
 
         <div className="flex items-center justify-between mt-12 pt-6 border-t border-[hsl(var(--warm-border))]">
-          <button onClick={() => prevWeek && nav(`/mindcast-live/lesson/${prevWeek}`)} disabled={!prevWeek}
-            className="flex items-center gap-2 text-xs font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] disabled:opacity-30">
+          <button type="button" onClick={() => prevWeek && nav(`/mindcast-live/lesson/${prevWeek}`)} disabled={!prevWeek}
+            className="flex min-h-11 items-center gap-2 text-xs font-body font-semibold text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-lg">
             <ChevronLeft size={14} />Previous lesson
           </button>
-          <button onClick={() => nextWeek && nav(`/mindcast-live/lesson/${nextWeek}`)} disabled={!nextWeek}
-            className="flex items-center gap-2 text-xs font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] disabled:opacity-30">
+          <button type="button" onClick={() => nextWeek && nav(`/mindcast-live/lesson/${nextWeek}`)} disabled={!nextWeek}
+            className="flex min-h-11 items-center gap-2 text-xs font-body font-semibold text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-lg">
             Next lesson<ChevronRight size={14} />
           </button>
         </div>
-      </div>
-    </div>
+      </article>
+    </PortalLayout>
   );
 };
 
@@ -284,6 +292,7 @@ const SupabaseTextarea = ({ initialValue, placeholder, onSave }: {
         onChange={(e) => setVal(e.target.value)}
         placeholder={placeholder}
         rows={4}
+        aria-label={placeholder}
         className="w-full px-4 py-3 bg-white border border-[hsl(var(--warm-border))] rounded-sm font-body text-[hsl(var(--navy))] resize-none focus:outline-none focus:border-[hsl(var(--blue))]"
       />
       {savedAt && (
@@ -304,7 +313,11 @@ const PracticeRow = ({ day, text, done, onToggle }: {
   return (
     <div className="flex gap-3 items-start py-3 border-b border-[hsl(var(--warm-border))] last:border-0">
       <button
+        type="button"
         onClick={() => { const n = !local; setLocal(n); onToggle(n); }}
+        role="checkbox"
+        aria-checked={local}
+        aria-label={`Mark ${day} practice ${local ? "not done" : "done"}`}
         className={`mt-1 w-5 h-5 rounded-sm border-2 shrink-0 flex items-center justify-center ${local ? "bg-[hsl(var(--blue))] border-[hsl(var(--blue))]" : "border-[hsl(var(--warm-border))]"}`}
       >
         {local && <span className="text-white text-xs">✓</span>}

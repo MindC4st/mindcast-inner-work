@@ -110,8 +110,8 @@ const CommerceInventory = () => {
             No stock-tracked SKUs yet — enable tracking on a product to manage its inventory.
           </div>
         ) : (
-          <div className="border border-border rounded-sm overflow-hidden bg-card">
-            <table className="w-full text-sm">
+          <div className="border border-border rounded-xl overflow-x-auto bg-card">
+            <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-foreground/[0.03] text-left">
                   <th className="px-4 py-2.5 text-[10px] font-body tracking-widest uppercase text-muted-foreground">SKU</th>
@@ -211,8 +211,8 @@ const CommerceInventory = () => {
         {movements.length === 0 ? (
           <div className="border border-border bg-card rounded-sm p-8 text-center text-sm text-muted-foreground">No movements yet.</div>
         ) : (
-          <div className="border border-border rounded-sm overflow-hidden bg-card">
-            <table className="w-full text-sm">
+          <div className="border border-border rounded-xl overflow-x-auto bg-card">
+            <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-foreground/[0.03] text-left">
                   <th className="px-4 py-2.5 text-[10px] font-body tracking-widest uppercase text-muted-foreground">When</th>

@@ -116,8 +116,8 @@ const CommerceDiscounts = () => {
       ) : discounts.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-10 text-center text-sm text-muted-foreground">No discounts yet.</div>
       ) : (
-        <div className="border border-border rounded-sm overflow-hidden bg-card">
-          <table className="w-full text-sm">
+        <div className="border border-border rounded-xl overflow-x-auto bg-card">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-b border-border bg-foreground/[0.03] text-left">
                 <th className="px-4 py-2.5 text-[10px] font-body tracking-widest uppercase text-muted-foreground">Code</th>

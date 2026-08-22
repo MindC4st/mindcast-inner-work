@@ -94,8 +94,8 @@ const AdminEmailReminders = ({ embedded = false }: { embedded?: boolean }) => {
             <p className="text-sm">No reminders sent yet</p>
           </div>
         ) : (
-          <div className="rounded-xl overflow-hidden border border-border">
-            <table className="w-full text-sm">
+          <div className="rounded-xl overflow-x-auto border border-border">
+            <table className="w-full min-w-[700px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
                   <th className="px-4 py-3 text-[10px] tracking-widest uppercase opacity-40">Week</th>

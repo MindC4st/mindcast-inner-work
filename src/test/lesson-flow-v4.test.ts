@@ -15,6 +15,9 @@ const migration = readFileSync(
   resolve(root, "supabase/migrations/20260820120001_lesson_flow_v4_eight_slides.sql"), "utf8");
 const childMigration = readFileSync(
   resolve(root, "supabase/migrations/20260823130000_child_track_variants.sql"), "utf8");
+// Restores the nine-slide child sequence (colouring before Go Deeper).
+const parityMigration = readFileSync(
+  resolve(root, "supabase/migrations/20260829120000_child_nine_slide_workbook_parity.sql"), "utf8");
 const view = readFileSync(
   resolve(root, "src/pages/mindcast-live/FacilitatorView.tsx"), "utf8");
 
@@ -29,10 +32,12 @@ const slidesFromMigration = () => {
 
 /** Apply later `UPDATE ... applies_to_tracks` statements (child variants). */
 const applyTrackUpdates = (slides: { key: string; position: number; tracks: string[] }[]) => {
-  for (const [, tracks, key] of childMigration.matchAll(
-    /applies_to_tracks\s*=\s*'\{([^}]*)\}'\s*\n\s*WHERE\s+slide_key\s*=\s*'([a-z_]+)'/g)) {
-    const slide = slides.find(s => s.key === key);
-    if (slide) slide.tracks = tracks.split(",").map(t => t.trim());
+  for (const source of [childMigration, parityMigration]) {
+    for (const [, tracks, key] of source.matchAll(
+      /SET\s+applies_to_tracks\s*=\s*'\{([^}]*)\}'[\s\S]*?WHERE\s+slide_key\s*=\s*'([a-z_]+)'/g)) {
+      const slide = slides.find(s => s.key === key);
+      if (slide) slide.tracks = tracks.split(",").map(t => t.trim());
+    }
   }
   return slides;
 };
@@ -69,15 +74,14 @@ describe("lesson flow v4", () => {
     }
   });
 
-  it("Child runs the same 8 positions with colouring replacing Go Deeper", () => {
+  it("Child runs nine positions with colouring before Go Deeper", () => {
     const projected = slides
       .filter(s => s.tracks.includes("Child") && map[s.key] !== null)
       .sort((a, b) => a.position - b.position)
       .map(s => s.key);
     expect(projected).toEqual([
-      "welcome", "voices", "ancient", "video", "coloring", "reflection", "intention", "affirmation",
+      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "affirmation",
     ]);
-    expect(projected).not.toContain("deeper");
   });
 
   it("the video lands straight after In Today's World, not after Go Deeper", () => {

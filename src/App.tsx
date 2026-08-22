@@ -13,6 +13,7 @@ import DevPageMenu from "@/components/DevPageMenu";
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
 // jspdf) stay inside the chunks of the pages that use them.
 const Home = lazy(() => import("./pages/Home"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Apply = lazy(() => import("./pages/Apply"));
 const AdminConsole = lazy(() => import("./pages/admin/AdminConsole"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
@@ -120,6 +121,7 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<LegacyRedirect to="/portal/login" />} />
+      <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/try" element={<TryASession />} />
 
       {/* Admin — one console; old deep links forward to the right tab.
@@ -262,6 +264,7 @@ const TITLE_MAP: [string, string][] = [
   ["/portal/orders", "My Orders · Mindcast Portal"],
   ["/portal/family", "Family & Safety · Mindcast Portal"],
   ["/portal/login", "Member Login · Mindcast"],
+  ["/onboarding", "Welcome · Mindcast"],
   ["/shop", "Shop · Mindcast"],
   ["/mindcast-live/library", "Coursebook Library · Mindcast"],
   ["/mindcast-live/lesson", "Lesson · Mindcast"],

@@ -55,7 +55,12 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   const setStatus = async (id: string, status: string) => {
-    await db.from("scheduled_sessions").update({ status }).eq("id", id);
+    if (status === "ended" && !window.confirm("End this scheduled session? Members will no longer see it as live.")) return;
+    const { error } = await db.from("scheduled_sessions").update({ status }).eq("id", id);
+    if (error) {
+      toast({ title: "Could not update session", description: error.message, variant: "destructive" });
+      return;
+    }
     load();
   };
 
@@ -67,40 +72,43 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
         <Link to="/admin" className="text-sm text-foreground/50 hover:text-foreground">← Admin</Link>
       </nav>
       )}
-      <div className="max-w-3xl mx-auto px-6 pt-10">
-        <h1 className="font-display text-2xl font-bold mb-6">Session scheduling</h1>
+      <div className="max-w-5xl mx-auto px-0 sm:px-6 pt-4 sm:pt-10">
+        <p className="portal-label mb-2">Sessions</p>
+        <h1 className="font-serif text-3xl sm:text-4xl mb-2">Session scheduling</h1>
+        <p className="mb-7 font-body text-sm leading-6 text-muted-foreground">Create each room’s date, track and join code, then move it live when the facilitator is ready.</p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 mb-8 items-end">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-8 items-end rounded-2xl border border-border bg-card p-4 sm:p-5">
           <label className="col-span-2 text-xs">Date
             <input type="date" value={form.session_date} onChange={(e) => setForm({ ...form, session_date: e.target.value })}
-              className="w-full border rounded px-2 py-1.5 bg-background" />
+              className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background" />
           </label>
           <label className="text-xs">Track
             <select value={form.track} onChange={(e) => setForm({ ...form, track: e.target.value })}
-              className="w-full border rounded px-2 py-1.5 bg-background">
+              className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background">
               {TRACKS.map((t) => <option key={t}>{t}</option>)}
             </select>
           </label>
           <label className="text-xs">Week
             <input type="number" min={1} max={52} value={form.week_number}
               onChange={(e) => setForm({ ...form, week_number: Number(e.target.value) })}
-              className="w-full border rounded px-2 py-1.5 bg-background" />
+              className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background" />
           </label>
           <label className="text-xs">Room
             <input value={form.room} onChange={(e) => setForm({ ...form, room: e.target.value })}
-              className="w-full border rounded px-2 py-1.5 bg-background" />
+              className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background" />
           </label>
           <label className="text-xs">Code
             <input value={form.session_code} onChange={(e) => setForm({ ...form, session_code: e.target.value })}
-              className="w-full border rounded px-2 py-1.5 bg-background" />
+              className="mt-1 w-full min-h-10 border rounded-lg px-3 py-2 bg-background uppercase" />
           </label>
-          <button onClick={add} disabled={saving}
-            className="col-span-2 sm:col-span-6 bg-primary text-primary-foreground rounded py-2 text-sm">
+          <button type="button" onClick={add} disabled={saving}
+            className="col-span-2 sm:col-span-6 min-h-11 bg-primary text-primary-foreground rounded-xl py-2 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20">
             {saving ? "Saving…" : "Add / update session"}
           </button>
         </div>
 
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <table className="w-full min-w-[760px] text-sm">
           <thead><tr className="text-left text-foreground/40 border-b">
             <th className="py-2">Date</th><th>Track</th><th>Wk</th><th>Room</th><th>Code</th><th>Status</th><th></th>
           </tr></thead>
@@ -114,14 +122,15 @@ const AdminScheduling = ({ embedded = false }: { embedded?: boolean }) => {
                 <td className="font-mono">{r.session_code || "—"}</td>
                 <td>{r.status}</td>
                 <td className="text-right">
-                  {r.status !== "live" && <button onClick={() => setStatus(r.id, "live")} className="text-xs text-primary mr-2">Go live</button>}
-                  {r.status !== "ended" && <button onClick={() => setStatus(r.id, "ended")} className="text-xs text-foreground/50">End</button>}
+                  {r.status !== "live" && <button type="button" onClick={() => setStatus(r.id, "live")} className="min-h-9 rounded-lg px-2 text-xs font-semibold text-primary mr-2 focus:outline-none focus:ring-2 focus:ring-primary/30">Go live</button>}
+                  {r.status !== "ended" && <button type="button" onClick={() => setStatus(r.id, "ended")} className="min-h-9 rounded-lg px-2 text-xs text-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30">End</button>}
                 </td>
               </tr>
             ))}
             {rows.length === 0 && <tr><td colSpan={7} className="py-6 text-center text-foreground/40">No sessions scheduled yet.</td></tr>}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

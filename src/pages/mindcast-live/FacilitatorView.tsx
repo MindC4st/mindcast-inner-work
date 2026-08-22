@@ -80,12 +80,12 @@ const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
-  // Child runs the same eight positions with the content swapped: colouring IS
-  // the child's Go Deeper slot, so deeper is replaced rather than added.
+  // Child keeps the full lesson journey and inserts an approved colouring
+  // activity before Go Deeper, matching the nine-page child workbook.
   if (audience === "Child") {
     return [
       "title", "intention", "wisdomworld", "video",
-      "coloring", "reflect", "practice", "affirmation",
+      "coloring", "deeper", "reflect", "practice", "affirmation",
     ];
   }
   return [
@@ -106,6 +106,7 @@ type Session = {
   ancient_wisdom_reframe: string;
   session_title: string;
   opening_hook: string;
+  opening_question: string;
   teaching_points: string;
   experiential_exercise: string;
   guided_reflection: string;
@@ -143,6 +144,7 @@ type Session = {
   kids_picture_book: string;
   kids_picture_book_author: string;
   kids_picture_book_question: string;
+  kids_colouring_prompt: string;
   kids_game: string;
   kids_game_equipment: string;
   kids_game_under5: string;
@@ -205,6 +207,7 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     ancient_wisdom_reframe: pick(live?.ancient_wisdom_reframe, cur?.inner_wisdom_alignment),
     session_title: pick(live?.session_title, cur?.weekly_theme),
     opening_hook: live?.opening_hook || "",
+    opening_question: cur?.opening_question || "",
     teaching_points: live?.teaching_points || "",
     experiential_exercise: pick(live?.experiential_exercise, cur?.interactive_activity),
     guided_reflection: pick(live?.guided_reflection, cur?.reflective_question),
@@ -249,6 +252,7 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     kids_picture_book: cur?.kids_picture_book || "",
     kids_picture_book_author: cur?.kids_picture_book_author || "",
     kids_picture_book_question: cur?.kids_picture_book_question || "",
+    kids_colouring_prompt: cur?.kids_colouring_prompt || "",
     kids_game: cur?.kids_game || "",
     kids_game_equipment: cur?.kids_game_equipment || "",
     kids_game_under5: cur?.kids_game_under5 || "",
@@ -508,6 +512,10 @@ const FacilitatorView = () => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.tagName === "INPUT" || (e.target as HTMLElement)?.tagName === "TEXTAREA") return;
+      if (notesOpen) {
+        if (e.key === "Escape") setNotesOpen(false);
+        return;
+      }
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); goNext(); }
       if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
       if (e.key === "f") toggleFs();
@@ -516,7 +524,7 @@ const FacilitatorView = () => {
     const onFs = () => setIsFs(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onFs);
     return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("fullscreenchange", onFs); };
-  }, [goNext, goPrev, toggleFs]);
+  }, [goNext, goPrev, toggleFs, notesOpen]);
 
   const isFacilitator = role === "facilitator" || role === "admin";
 
@@ -653,13 +661,14 @@ const FacilitatorView = () => {
   // Gate E — closing the session invalidates the join code (members see
   // "session ended" the moment is_live flips false).
   const handleCloseSession = async () => {
+    if (!window.confirm("Close this live session? The join code will stop working for everyone in the room.")) return;
     const { error } = await db.from("live_session_state").update({ is_live: false, closed_at: new Date().toISOString() }).eq("session_code", code);
     if (error) { toast({ title: "Could not close session", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Session closed", description: "The join code is now invalid." });
   };
 
   if (!session) {
-    return <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center text-[hsl(var(--ivory))]/60 font-body text-sm tracking-widest">LOADING WEEK {week} ({audience})...</div>;
+    return <div className="min-h-screen bg-[hsl(var(--navy))] flex items-center justify-center text-[hsl(var(--ivory))]/60 font-body text-sm" role="status">Loading Week {week} ({audience})…</div>;
   }
 
   const liveBoard = responses.filter(r => !r.hidden && r.moderation_status === "approved");
@@ -672,23 +681,25 @@ const FacilitatorView = () => {
   return (
     <div ref={containerRef} className="min-h-screen bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] flex flex-col relative overflow-hidden">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-[hsl(var(--ivory))]/10 z-30">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate("/mindcast-live/library")} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest">← LIBRARY</button>
+      <div className="flex items-center justify-between gap-5 overflow-x-auto scrollbar-none px-4 sm:px-6 py-3 border-b border-[hsl(var(--ivory))]/10 z-30">
+        <div className="flex shrink-0 items-center gap-4">
+          <button type="button" onClick={() => navigate("/mindcast-live/library")} className="min-h-9 rounded-lg px-2 text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]/80 text-xs font-body tracking-widest focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30">← LIBRARY</button>
           <span className="text-[hsl(var(--bronze))] font-display text-2xl tracking-wider">WEEK {week}</span>
           <span className="text-[hsl(var(--ivory))]/50 text-xs font-body tracking-widest uppercase">{session.phase_name}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center gap-1" role="radiogroup" aria-label="Facilitation track">
           {(["Adult", "Teen", "Child"] as const).map(a => (
-            <button key={a} onClick={() => setAudience(a)}
+            <button type="button" key={a} onClick={() => setAudience(a)} role="radio" aria-checked={audience === a}
               className={`px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${audience === a ? "bg-[hsl(var(--blue))] text-white" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/60 hover:bg-[hsl(var(--ivory))]/10"}`}>{a}</button>
           ))}
+          </div>
           <div className="w-px h-5 bg-[hsl(var(--ivory))]/20 mx-2" />
-          <button onClick={handleUnlock} disabled={unlocked}
+          <button type="button" onClick={handleUnlock} disabled={unlocked}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm transition-colors ${unlocked ? "bg-[hsl(var(--bronze))]/20 text-[hsl(var(--bronze))]" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10"}`}>
             {unlocked ? <Unlock size={12} /> : <Lock size={12} />}{unlocked ? "Unlocked" : "Unlock"}
           </button>
-          <button onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><Download size={14} /></button>
+          <button type="button" onClick={() => session && downloadWorksheetPdf(session)} title="Download worksheet PDF" aria-label="Download worksheet PDF" className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><Download size={14} /></button>
           {isFacilitator && (currentKind === "wisdom" || currentKind === "metaphor" || currentKind === "wisdomworld") && (() => {
             // The merged slide carries BOTH columns, so offer controls for each.
             const slideKeys: ("ancient" | "todays_world")[] =
@@ -701,6 +712,7 @@ const FacilitatorView = () => {
               return (
                 <span key={slideKey} className="flex items-center gap-2">
                   <button
+                    type="button"
                     onClick={() => handleGenerateMetaphor(slideKey)}
                     disabled={metaphorBusy}
                     title="Generate 10s metaphor video (Gemini)"
@@ -710,6 +722,7 @@ const FacilitatorView = () => {
                   </button>
                   {hasVideo && approval === "unapproved" && (
                     <button
+                      type="button"
                       onClick={() => handleApproveMetaphor(slideKey)}
                       className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--blue))] text-white hover:bg-[hsl(var(--blue-light))] hover:text-[hsl(var(--navy))]"
                     >
@@ -720,14 +733,14 @@ const FacilitatorView = () => {
               );
             });
           })()}
-          <button onClick={() => setNotesOpen(true)} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10"><StickyNote size={14} /></button>
+          <button type="button" onClick={() => setNotesOpen(true)} aria-label="Open facilitator notes" className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><StickyNote size={14} /></button>
           {isFacilitator && (
-            <button onClick={handleCloseSession} title="Close the session — invalidates the join code"
+            <button type="button" onClick={handleCloseSession} title="Close the session — invalidates the join code"
               className="flex items-center gap-1.5 px-3 py-1 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/70 hover:bg-[hsl(var(--ivory))]/10">
               <Lock size={12} /> Close session
             </button>
           )}
-          <button onClick={toggleFs} className="p-1.5 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
+          <button type="button" onClick={toggleFs} aria-label={isFs ? "Exit full screen" : "Enter full screen"} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30">{isFs ? <Minimize size={14} /> : <Maximize size={14} />}</button>
         </div>
       </div>
 
@@ -810,8 +823,8 @@ const FacilitatorView = () => {
       {/* Bottom controls */}
       <div className="flex items-center justify-between px-6 py-3 border-t border-[hsl(var(--ivory))]/10 z-30">
         <div className="flex items-center gap-2">
-          <button onClick={goPrev} disabled={slide === 0} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronLeft size={18} /></button>
-          <button onClick={goNext} disabled={slide === lastSlide} className="p-2 rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20"><ChevronRight size={18} /></button>
+          <button type="button" onClick={goPrev} disabled={slide === 0} aria-label="Previous slide" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><ChevronLeft size={18} /></button>
+          <button type="button" onClick={goNext} disabled={slide === lastSlide} aria-label="Next slide" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 disabled:opacity-20 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><ChevronRight size={18} /></button>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[hsl(var(--ivory))]/50 text-[10px] font-body tracking-widest uppercase">{SLIDE_TITLE[currentKind]}</span>
@@ -830,7 +843,7 @@ const FacilitatorView = () => {
         </div>
         <div className="flex items-center gap-2">
           {onReflection && (
-            <button onClick={() => setShowResponses(s => !s)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-body tracking-widest uppercase rounded-sm bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10">
+            <button type="button" onClick={() => setShowResponses(s => !s)} aria-pressed={showResponses} className="flex min-h-10 items-center gap-1.5 px-3 py-1.5 text-xs font-body tracking-widest uppercase rounded-lg bg-[hsl(var(--ivory))]/5 hover:bg-[hsl(var(--ivory))]/10 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30">
               {showResponses ? <Eye size={12} /> : <EyeOff size={12} />}{showResponses ? "Showing" : "Hidden"}
             </button>
           )}
@@ -848,10 +861,11 @@ const FacilitatorView = () => {
       <AnimatePresence>
         {notesOpen && (
           <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.3 }}
-            className="absolute top-0 right-0 h-full w-96 bg-[hsl(var(--navy))] border-l border-[hsl(var(--ivory))]/15 z-40 p-6 overflow-y-auto">
+            className="absolute top-0 right-0 h-full w-full max-w-96 bg-[hsl(var(--navy))] border-l border-[hsl(var(--ivory))]/15 z-40 p-6 overflow-y-auto"
+            role="dialog" aria-modal="true" aria-labelledby="facilitator-notes-title">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-xl tracking-wider text-[hsl(var(--bronze))]">FACILITATOR NOTES</h3>
-              <button onClick={() => setNotesOpen(false)} className="text-[hsl(var(--ivory))]/40 hover:text-[hsl(var(--ivory))]"><X size={18} /></button>
+              <h3 id="facilitator-notes-title" className="font-display text-xl tracking-wider text-[hsl(var(--bronze))]">FACILITATOR NOTES</h3>
+              <button type="button" onClick={() => setNotesOpen(false)} aria-label="Close facilitator notes" className="flex h-10 w-10 items-center justify-center rounded-lg text-[hsl(var(--ivory))]/40 hover:bg-[hsl(var(--ivory))]/5 hover:text-[hsl(var(--ivory))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><X size={18} /></button>
             </div>
             <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
             {/* Child — the group game lives in the facilitator view only. The
@@ -1503,7 +1517,7 @@ const PictureBookSlide = ({ book, author, question, readAloudUrl, sourceCheck }:
 
       {ytId ? (
         <div className="aspect-video w-full max-w-3xl mx-auto rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
-          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} title="Lesson video" className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="max-w-3xl mx-auto border border-[hsl(var(--ivory))]/15 rounded-sm p-10 text-center bg-[hsl(var(--ivory))]/[0.03]">
@@ -2177,7 +2191,7 @@ const VideoSlide = ({ link, description, backup, question1, question2, localUrl 
         </div>
       ) : ytId ? (
         <div className="aspect-video w-full rounded-sm overflow-hidden border border-[hsl(var(--ivory))]/15">
-          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
+          <iframe key={ytId} src={`https://www.youtube.com/embed/${ytId}?cc_load_policy=1&rel=0`} title="Lesson video" className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen />
         </div>
       ) : (
         <div className="aspect-video w-full rounded-sm border border-[hsl(var(--ivory))]/15 flex items-center justify-center bg-[hsl(var(--ivory))]/[0.03]">

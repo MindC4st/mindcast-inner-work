@@ -83,14 +83,14 @@ const AdminProgram = ({ embedded = false }: { embedded?: boolean }) => {
       )}
 
       <div className="max-w-2xl mx-auto px-6 pt-10 pb-16">
-        <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Admin</p>
-        <h1 className="font-display text-3xl md:text-4xl tracking-wider mb-2">PROGRAM SCHEDULE</h1>
+        <p className="portal-label text-primary mb-2">Admin · program</p>
+        <h1 className="font-serif text-3xl md:text-4xl mb-2">Program schedule</h1>
         <p className="text-foreground/50 text-sm font-body mb-10">
           Anchor Week 1. Lessons unlock at 9:30am in the chosen timezone, one per week thereafter.
         </p>
 
         {loading ? (
-          <p className="text-foreground/40 text-sm">Loading…</p>
+          <p className="text-foreground/40 text-sm" role="status">Loading schedule…</p>
         ) : (
           <>
             <div className="space-y-6 mb-8">
@@ -100,7 +100,7 @@ const AdminProgram = ({ embedded = false }: { embedded?: boolean }) => {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="mt-2 w-full border border-foreground/15 rounded-sm px-3 py-2 bg-background font-body text-sm"
+                  className="mt-2 w-full min-h-11 border border-foreground/15 rounded-xl px-4 py-3 bg-background font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                 />
               </label>
 
@@ -109,27 +109,28 @@ const AdminProgram = ({ embedded = false }: { embedded?: boolean }) => {
                 <select
                   value={tz}
                   onChange={(e) => setTz(e.target.value)}
-                  className="mt-2 w-full border border-foreground/15 rounded-sm px-3 py-2 bg-background font-body text-sm"
+                  className="mt-2 w-full min-h-11 border border-foreground/15 rounded-xl px-4 py-3 bg-background font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                 >
                   {TZ_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </label>
 
               <button
+                type="button"
                 onClick={save}
                 disabled={saving}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-sm px-5 py-2.5 text-[11px] font-body tracking-widest uppercase disabled:opacity-50"
+                className="inline-flex min-h-11 items-center gap-2 bg-primary text-primary-foreground rounded-xl px-5 py-2.5 text-sm font-body font-semibold disabled:opacity-50 focus:outline-none focus:ring-4 focus:ring-primary/20"
               >
                 <Check size={14} /> {saving ? "Saving…" : "Save schedule"}
               </button>
             </div>
 
             {previewUnlocks().length > 0 && (
-              <div className="border border-foreground/10 rounded-sm p-5 bg-foreground/[0.02]">
+              <div className="border border-foreground/10 rounded-2xl p-5 bg-foreground/[0.02]">
                 <p className="text-[10px] font-body uppercase tracking-widest text-foreground/50 mb-3">Next unlocks (preview)</p>
                 <ul className="space-y-1.5 text-sm font-body">
                   {previewUnlocks().map((r) => (
-                    <li key={r.week} className="flex justify-between text-foreground/80">
+                    <li key={r.week} className="flex flex-col gap-1 sm:flex-row sm:justify-between text-foreground/80">
                       <span className="text-foreground/50">Week {r.week}</span>
                       <span>{r.date} · 9:30am</span>
                     </li>

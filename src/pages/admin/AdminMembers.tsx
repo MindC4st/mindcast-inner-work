@@ -98,7 +98,7 @@ const AdminMembers = ({ embedded = false }: { embedded?: boolean }) => {
         <h1 className="font-display text-2xl font-bold text-foreground mb-8">Members</h1>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm font-body">
+          <table className="w-full min-w-[760px] text-sm font-body">
             <thead>
               <tr className="text-left text-[10px] text-foreground/30 uppercase tracking-wide border-b border-foreground/[0.06]">
                 <th className="pb-3 pr-4">Name</th>

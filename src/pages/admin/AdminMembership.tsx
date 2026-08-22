@@ -83,8 +83,8 @@ const AdminMembership = ({ embedded = false }: { embedded?: boolean }) => {
         </div>
 
         <h2 className="font-display text-lg tracking-wider mb-3">SUBSCRIPTIONS</h2>
-        <div className="border border-foreground/10 rounded-sm overflow-hidden">
-          <table className="w-full text-sm font-body">
+        <div className="border border-foreground/10 rounded-xl overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm font-body">
             <thead className="bg-foreground/[0.03]">
               <tr className="text-left text-[10px] font-body uppercase tracking-widest text-foreground/40">
                 <th className="py-3 px-4">Member</th><th className="px-2">Plan</th><th className="px-2">Status</th><th className="px-2">Renews</th><th className="px-2">Cancelling</th>

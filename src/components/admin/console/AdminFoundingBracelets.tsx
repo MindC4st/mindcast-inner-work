@@ -145,7 +145,7 @@ const AdminFoundingBracelets = ({ embedded = false }: { embedded?: boolean }) =>
         <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
       ) : (
         <div className="border border-border rounded-md overflow-x-auto bg-card">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-b border-border text-left">
                 {["#", "Member", "Email", "Household", "Membership", "Entitlement", "Bracelet", "Order", "Date"].map((h) => (

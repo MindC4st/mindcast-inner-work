@@ -9,10 +9,9 @@ import {
 // projects 9 (Child keeps Go Deeper AND adds Colouring Activity), and
 // Facilitator Notes is active but never projected.
 //
-// NOTE: the live DB currently lists `deeper` for Adult+Teen only, which makes
-// the live Child deck 8 slides. To reach the stated 9, `deeper.applies_to_tracks`
-// must include 'Child' — a one-line data change flagged in the PR. The fixture
-// below encodes the intended (9-slide) Child configuration.
+// The later workbook-parity migration restores `deeper` to Child after the
+// safeguarded colouring page, so the fixture encodes the current 9-slide Child
+// configuration from the timestamp-ordered migration chain.
 const LIVE_SLIDES: LessonSlide[] = [
   { id: "1", slide_key: "welcome", position: 1, beat: "notice", title: "Welcome + Opening Question", component_key: "WelcomeWall", is_active: true, default_duration_seconds: 180, applies_to_tracks: ["Adult", "Teen", "Child"] },
   { id: "2", slide_key: "voices", position: 2, beat: "notice", title: "Return to Your Intention", component_key: "Voices", is_active: true, default_duration_seconds: 300, applies_to_tracks: ["Adult", "Teen", "Child"] },

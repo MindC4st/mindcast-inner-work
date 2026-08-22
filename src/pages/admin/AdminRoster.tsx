@@ -82,6 +82,7 @@ const AdminRoster = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   const remove = async (id: string) => {
+    if (!window.confirm("Remove this person from the room roster?")) return;
     const { error } = await supabase.from("room_roster").delete().eq("id", id);
     if (!error) void loadDay();
     else toast({ title: "Couldn't remove", description: error.message, variant: "destructive" });
