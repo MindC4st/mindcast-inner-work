@@ -1,17 +1,21 @@
-// The Life Binder — the interactive curriculum explorer.
+// The block explorer — the nested UI inside the Phases tab of the master
+// Life Binder on /curriculum.
 //
-// Replaces the old scroll-through journey map with the thing it was always
-// describing: a binder. Four index tabs (one per block) flip the page in
-// place instead of sending the visitor down an endless scroll, and each block
-// page carries an ADULT / TEEN / CHILD toggle so the same week can be read
-// through whichever lens the visitor cares about.
+// Owns block + track state and the in-place page turn between them. The
+// surrounding canvas, cover header and top-level tabs belong to the master
+// shell in Curriculum.tsx; this component deliberately renders bare so it can
+// sit on the shell's paper without a binder-inside-a-binder effect.
 //
-// Data discipline is unchanged from the page it lives on: week numbers,
-// themes and track titles come from the anon-safe `curriculum_public` RPC
-// (via useCurriculumWeeks), and the block framing comes from the curated
-// constants in lib/curriculumPublic. Nothing from the session tables.
+// `blockExtra` lets the shell fold extra material into a block's page — the
+// Week 1 preview lives there, so selecting Block 1 surfaces the full preview
+// in place instead of sending the visitor scrolling for it.
+//
+// Data discipline is unchanged: week numbers, themes and track titles come
+// from the anon-safe `curriculum_public` RPC (via useCurriculumWeeks), and
+// the block framing comes from the curated constants in lib/curriculumPublic.
+// Nothing from the session tables.
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { BLOCKS, blockRange } from "@/lib/curriculumPublic";
 import type { CurriculumWeek, Track } from "@/hooks/useCurriculumWeeks";
@@ -68,14 +72,12 @@ const BlockPage = ({
   onTrackChange,
   weeks,
   loading,
-  onPreviewWeekOne,
 }: {
   blockNumber: number;
   track: Track;
   onTrackChange: (t: Track) => void;
   weeks: CurriculumWeek[];
   loading: boolean;
-  onPreviewWeekOne: () => void;
 }) => {
   const block = BLOCKS.find((b) => b.number === blockNumber) ?? BLOCKS[0];
   const [from, to] = blockRange(block, weeks);
@@ -89,7 +91,7 @@ const BlockPage = ({
   };
 
   return (
-    <div className="paper-page p-6 sm:p-8 lg:p-10 min-h-[540px]">
+    <div className="paper-page p-6 sm:p-8 lg:p-10">
       {/* Block heading + track toggle */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 border-b border-[#efe9dd] pb-6 mb-8">
         <div>
@@ -137,7 +139,6 @@ const BlockPage = ({
         <ol>
           {blockWeeks.map((w) => {
             const title = titleFor(w);
-            const isWeekOne = w.week_number === 1;
             return (
               <li
                 key={w.week_number}
@@ -158,14 +159,6 @@ const BlockPage = ({
                     </span>
                   )}
                 </span>
-                {isWeekOne && (
-                  <button
-                    onClick={onPreviewWeekOne}
-                    className="font-body text-[10px] font-bold tracking-[0.22em] text-primary uppercase shrink-0 hover:underline"
-                  >
-                    Preview ↓
-                  </button>
-                )}
               </li>
             );
           })}
@@ -175,50 +168,17 @@ const BlockPage = ({
   );
 };
 
-/* ── Desktop index tab ────────────────────────────────────────────────────*/
-
-const IndexTab = ({
-  blockNumber,
-  active,
-  onSelect,
-}: {
-  blockNumber: number;
-  active: boolean;
-  onSelect: () => void;
-}) => {
-  const block = BLOCKS.find((b) => b.number === blockNumber) ?? BLOCKS[0];
-  return (
-    <button
-      role="tab"
-      id={`binder-tab-${block.number}`}
-      aria-selected={active}
-      aria-controls="binder-page"
-      onClick={onSelect}
-      className="binder-tab text-left px-4 py-4 min-h-[84px] w-full"
-    >
-      <span className={`font-display text-2xl leading-none ${active ? "text-primary" : "text-foreground/25"}`}>
-        {pad(block.number)}
-      </span>
-      <span className="block font-body text-xs font-bold tracking-[0.16em] uppercase mt-1.5">
-        {block.name}
-      </span>
-      <span className="block font-body text-[10px] text-muted-foreground/80 mt-0.5">
-        Weeks {block.weeks[0]}–{block.weeks[1]}
-      </span>
-    </button>
-  );
-};
-
-/* ── The binder ───────────────────────────────────────────────────────────*/
+/* ── The explorer ─────────────────────────────────────────────────────────*/
 
 const LifeBinder = ({
   weeks,
   loading,
-  onPreviewWeekOne,
+  blockExtra,
 }: {
   weeks: CurriculumWeek[];
   loading: boolean;
-  onPreviewWeekOne: () => void;
+  /** Folded into a block's page when it returns something — the Week 1 preview. */
+  blockExtra?: (blockNumber: number) => ReactNode;
 }) => {
   const [blockNumber, setBlockNumber] = useState(1);
   const [track, setTrack] = useState<Track>("adult");
@@ -226,36 +186,24 @@ const LifeBinder = ({
 
   // A flip carries the block AND the track — either one turning the page.
   const flipKey = `${blockNumber}-${track}`;
+  const extra = blockExtra?.(blockNumber) ?? null;
 
   return (
-    <div className="binder-canvas p-5 sm:p-8 lg:p-12">
-      {/* The cover: embossed wordmark, then the explorer's label. */}
-      <header className="text-center border-b border-[#e8e2d5] pb-8 mb-8">
-        <p className="binder-emboss font-display text-4xl md:text-5xl select-none" aria-hidden>
-          MINDCAST
-        </p>
-        <p className="font-body text-[10px] font-bold tracking-[0.3em] uppercase text-muted-foreground mt-4">
-          Interactive Curriculum Explorer
-        </p>
-        <p className="font-body text-sm text-muted-foreground mt-2">
-          52 weeks · Four blocks · Three tracks
-        </p>
-      </header>
-
-      {/* Mobile / tablet: the index tabs lie flat along the top as paper
-          tabs, sticky under the navbar while the page turns beneath. */}
+    <div>
+      {/* Block tabs: paper tabs along a rule, at every size — the master
+          shell already carries the sticky tab row for its five sections. */}
       <div
         role="tablist"
         aria-label="Curriculum blocks"
-        className="lg:hidden sticky top-16 z-30 -mx-1 px-1 pt-3 bg-[#faf8f5]/95 backdrop-blur-sm flex gap-1.5 overflow-x-auto scrollbar-none"
+        className="flex gap-1.5 overflow-x-auto scrollbar-none mb-6"
       >
         {BLOCKS.map((b) => (
           <button
             key={b.number}
             role="tab"
-            id={`binder-tab-m-${b.number}`}
+            id={`block-tab-${b.number}`}
             aria-selected={blockNumber === b.number}
-            aria-controls="binder-page"
+            aria-controls="block-page"
             onClick={() => setBlockNumber(b.number)}
             className="binder-tab-top shrink-0 px-4 py-3 text-[11px] font-body font-bold tracking-[0.14em] uppercase min-h-[44px]"
           >
@@ -264,46 +212,26 @@ const LifeBinder = ({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-0 items-start">
-        {/* The page that turns. */}
-        <div id="binder-page" role="tabpanel" aria-live="polite" className="lg:col-span-10 lg:pr-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={flipKey}
-              initial={reduce ? false : { opacity: 0, rotateY: -7, x: 36 }}
-              animate={{ opacity: 1, rotateY: 0, x: 0 }}
-              exit={reduce ? undefined : { opacity: 0, rotateY: 5, x: -28 }}
-              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-              style={{ transformPerspective: 1400, transformOrigin: "left center" }}
-            >
-              <BlockPage
-                blockNumber={blockNumber}
-                track={track}
-                onTrackChange={setTrack}
-                weeks={weeks}
-                loading={loading}
-                onPreviewWeekOne={onPreviewWeekOne}
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Desktop: the physical index tabs on the right edge. */}
-        <div
-          role="tablist"
-          aria-label="Curriculum blocks"
-          aria-orientation="vertical"
-          className="hidden lg:flex lg:col-span-2 flex-col gap-2.5 self-stretch justify-center"
-        >
-          {BLOCKS.map((b) => (
-            <IndexTab
-              key={b.number}
-              blockNumber={b.number}
-              active={blockNumber === b.number}
-              onSelect={() => setBlockNumber(b.number)}
+      <div id="block-page" role="tabpanel" aria-live="polite">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={flipKey}
+            initial={reduce ? false : { opacity: 0, rotateY: -7, x: 36 }}
+            animate={{ opacity: 1, rotateY: 0, x: 0 }}
+            exit={reduce ? undefined : { opacity: 0, rotateY: 5, x: -28 }}
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            style={{ transformPerspective: 1400, transformOrigin: "left center" }}
+          >
+            <BlockPage
+              blockNumber={blockNumber}
+              track={track}
+              onTrackChange={setTrack}
+              weeks={weeks}
+              loading={loading}
             />
-          ))}
-        </div>
+            {extra && <div className="mt-12">{extra}</div>}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
