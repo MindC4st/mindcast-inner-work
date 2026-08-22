@@ -147,7 +147,7 @@ async function sendApplicantEmail(data: {
   </div>
   <div class="content">
     <h1>Thanks for applying, ${data.firstName}.</h1>
-    <p>Here's a copy of your answers:</p>
+    <p>Your application has been received — here's a copy of exactly what you sent:</p>
 
     <div class="question">1. If money were no barrier, what would you actually be doing with your life?</div>
     <div class="answer">${data.q1}</div>
@@ -161,7 +161,7 @@ async function sendApplicantEmail(data: {
     <div class="question">Anything else you'd like Ash to know?</div>
     <div class="answer">${data.anythingElse || "—"}</div>
 
-    <p>Applications close at 9am on Tuesday 29 September, and you'll hear back before then either way.</p>
+    <p>Applications close at 9am on Tuesday 29 September. Ashleigh reads every application herself and will reach out to you personally before then, either way.</p>
   </div>
   <div class="footer">
     <p>Mindcast Limited · Taupō, Aotearoa New Zealand<br>
@@ -173,7 +173,7 @@ async function sendApplicantEmail(data: {
 
   const text = `Thanks for applying, ${data.firstName}.
 
-Here's a copy of your answers:
+Your application has been received — here's a copy of exactly what you sent:
 
 1. If money were no barrier, what would you actually be doing with your life?
 ${data.q1}
@@ -187,7 +187,7 @@ ${data.q3}
 Anything else you'd like Ash to know?
 ${data.anythingElse || "—"}
 
-Applications close at 9am on Tuesday 29 September, and you'll hear back before then either way.
+Applications close at 9am on Tuesday 29 September. Ashleigh reads every application herself and will reach out to you personally before then, either way.
 
 --
 Mindcast Limited
