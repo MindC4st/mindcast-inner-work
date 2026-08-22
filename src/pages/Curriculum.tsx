@@ -42,6 +42,7 @@ import {
   RHYTHM,
   SHARED_LANGUAGE_COPY,
   SHARED_LANGUAGE_TAGLINE,
+  WEEK1_CHILD,
   WEEK1_THEME,
 } from "@/lib/curriculumPublic";
 
@@ -899,7 +900,7 @@ const PhasesPage = ({
 /* -------------------------------------------------------------------------- */
 
 const WORKSHEET_LABELS: Record<
-  Track,
+  Exclude<Track, "child">,
   Array<{
     label: string;
     prompt: string;
@@ -941,25 +942,47 @@ const WORKSHEET_LABELS: Record<
       prompt: "What would I do next time?",
     },
   ],
-  child: [
-    {
-      label: "Notice it",
-      prompt: "Draw or write what you noticed.",
-    },
-    {
-      label: "Name it",
-      prompt: "What could you call it?",
-    },
-    {
-      label: "Do it",
-      prompt: "What is one small thing to try?",
-    },
-    {
-      label: "Come back",
-      prompt: "What happened when you tried?",
-    },
-  ],
 };
+
+/** Line-art lighthouse — the Week 1 colouring page rendered as a colouring
+ *  outline (the real printable lives in the private paid bucket, so the
+ *  public preview draws its own). Canonical to Week 1: the light that keeps
+ *  going in a storm is the child's version of the signal. */
+const ColouringLighthouse = () => (
+  <svg
+    viewBox="0 0 240 170"
+    className="mx-auto h-auto w-full max-w-[300px]"
+    role="img"
+    aria-label="Colouring outline of a lighthouse shining through wind and waves"
+    fill="none"
+    stroke="#4e463c"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    {/* light beams */}
+    <path d="M104 34 60 16M136 34 180 16M104 42 52 42M136 42 188 42" strokeWidth="1.2" />
+    {/* lantern room */}
+    <path d="M108 30h24l-3 12h-18l-3-12Z" />
+    <circle cx="120" cy="36" r="2.6" strokeWidth="1.2" />
+    {/* roof */}
+    <path d="M106 30 120 18l14 12" />
+    {/* tower with stripes */}
+    <path d="M111 42 100 122h40l-11-80" />
+    <path d="M108.5 62h23M105.5 84h29M102.5 106h35" strokeWidth="1.2" />
+    {/* door */}
+    <path d="M115 122v-12a5 5 0 0 1 10 0v12" strokeWidth="1.2" />
+    {/* rocks */}
+    <path d="M92 122h56l8 12H84l8-12Z" />
+    {/* waves */}
+    <path d="M16 146c10-8 20-8 30 0s20 8 30 0 20-8 30 0 20 8 30 0 20-8 30 0 20 8 30 0" strokeWidth="1.4" />
+    <path d="M30 158c8-6 16-6 24 0s16 6 24 0 16-6 24 0 16 6 24 0 16-6 24 0 16 6 24 0" strokeWidth="1.2" />
+    {/* wind */}
+    <path d="M28 76c8-4 14 2 10 7M196 92c9-3 14 4 9 8" strokeWidth="1.2" />
+    {/* clouds */}
+    <path d="M40 52c1-7 12-8 14-2 6-3 12 3 8 8H42c-3 0-3-4-2-6ZM178 60c1-6 10-7 12-2 5-2 10 3 7 7h-17c-3 0-3-3-2-5Z" strokeWidth="1.2" />
+  </svg>
+);
 
 const WorksheetPreview = ({
   track,
@@ -983,32 +1006,61 @@ const WorksheetPreview = ({
       <Ripple size={24} />
     </div>
 
-    <div className="min-h-0 flex-1 px-5 py-4">
-      {WORKSHEET_LABELS[track].map((item) => (
-        <div
-          key={item.label}
-          className="mb-4 last:mb-0"
+    {track === "child" ? (
+      /* The child sheet is the colouring page for the session, not a ruled
+         worksheet — children draw the week, they don't write it. */
+      <div className="min-h-0 flex-1 px-5 py-4">
+        <p className="font-body text-[8px] font-bold uppercase tracking-[0.24em] text-primary">
+          Colouring page
+        </p>
+
+        <p
+          className="mt-1 text-sm italic text-[#766a5e]"
+          style={{ fontFamily: "var(--font-serif)" }}
         >
-          <p className="font-body text-[8px] font-bold uppercase tracking-[0.24em] text-primary">
-            {item.label}
-          </p>
+          {WEEK1_CHILD.colouring.title}
+        </p>
 
-          <p
-            className="mt-1 text-sm italic text-[#766a5e]"
-            style={{
-              fontFamily: "var(--font-serif)",
-            }}
-          >
-            {item.prompt}
-          </p>
-
-          <div className="mt-2 space-y-2">
-            <div className="border-b border-[#cdd7de]" />
-            <div className="border-b border-[#cdd7de]" />
-          </div>
+        <div className="mt-3 rounded-sm border border-[#ddcfbb] bg-white px-3 py-2">
+          <ColouringLighthouse />
         </div>
-      ))}
-    </div>
+
+        <p className="mt-3 font-body text-[11px] leading-5 text-[#6d655c]">
+          {WEEK1_CHILD.colouring.body}
+        </p>
+
+        <p className="mt-2 font-body text-[11px] leading-5 text-[#6d655c]">
+          {WEEK1_CHILD.colouring.thenWhat}
+        </p>
+      </div>
+    ) : (
+      <div className="min-h-0 flex-1 px-5 py-4">
+        {WORKSHEET_LABELS[track].map((item) => (
+          <div
+            key={item.label}
+            className="mb-4 last:mb-0"
+          >
+            <p className="font-body text-[8px] font-bold uppercase tracking-[0.24em] text-primary">
+              {item.label}
+            </p>
+
+            <p
+              className="mt-1 text-sm italic text-[#766a5e]"
+              style={{
+                fontFamily: "var(--font-serif)",
+              }}
+            >
+              {item.prompt}
+            </p>
+
+            <div className="mt-2 space-y-2">
+              <div className="border-b border-[#cdd7de]" />
+              <div className="border-b border-[#cdd7de]" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
 
     <div className="flex items-center justify-between border-t border-[#d7e0e6] px-5 py-3">
       <span className="font-body text-[7px] uppercase tracking-[0.2em] text-[#9aa6ae]">
