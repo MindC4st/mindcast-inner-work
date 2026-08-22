@@ -38,6 +38,9 @@ export const T = {
   // Primary Mindcast blue
   signalBlue: "#3D8DB7",
 
+  // Mist — inactive signal-bar segments (MC-BRD-001 §2)
+  mist: "#C5E3F3",
+
   // Pale background used for subtle supporting areas
   accent: "#F8F5EF",
 
@@ -96,5 +99,5 @@ export const T = {
 
   // ─── Sending ───────────────────────────────────────────────────────────
 
-  from: "M🎙️N D C A S T <hello@mindcast.co.nz>",
+  from: "Mindcast <hello@mindcast.co.nz>",
 } as const;

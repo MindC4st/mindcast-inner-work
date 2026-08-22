@@ -8,6 +8,7 @@ import {
   FONT_CORMORANT_ITALIC,
 } from "@/lib/worksheetFonts";
 import { NAVY_WORDMARK_PNG } from "@/lib/brandAssets";
+import { SIGNAL_BAR } from "@/lib/signalBar";
 
 export type WorksheetSession = {
   week_number: number;
@@ -55,6 +56,7 @@ const SIGNAL_BLUE: [number, number, number] = [0x35, 0x85, 0xaf];
 const SIGNAL_DEEP: [number, number, number] = [0x2b, 0x70, 0x91];
 const RULE: [number, number, number] = [0xc4, 0xd4, 0xdc];
 const MUTED: [number, number, number] = [0x5c, 0x6b, 0x77];
+const MIST: [number, number, number] = [0xc5, 0xe3, 0xf3];
 
 const PAGE_W = 595.28;
 const LEFT = 50;
@@ -173,30 +175,23 @@ function drawOutlineBox(doc: jsPDF, x: number, y: number, width: number, height:
   doc.roundedRect(x, y, width, height, radius, radius, "S");
 }
 
-/** Transparent signal mark inspired by the supplied wave-to-microphone icon. */
+/** The canonical signal bar (MC-BRD-001 §4): 18 vertical segments, the first
+ *  seven Signal Blue rising, the tail flat Mist. Drawn as vector rects at
+ *  worksheet scale (14–16px tall, full content width) — the web component's
+ *  CSS can't survive the PDF renderer, but the geometry comes from the same
+ *  parsed spec. Replaces the retired wave-to-microphone icon: the mic already
+ *  lives inside the wordmark's "i", and one signature device is the rule. */
 function drawSignalMark(doc: jsPDF, x: number, y: number) {
-  doc.setFillColor(...SIGNAL_BLUE);
-  doc.circle(x + 4, y, 3.5, "F");
-  for (let i = 0; i < 9; i++) {
-    doc.setDrawColor(...(i < 6 ? SIGNAL_BLUE : RULE));
-    doc.setLineWidth(Math.max(0.65, 1.45 - i * 0.08));
-    const xx = x + 14 + i * 5.1;
-    const half = 8 - i * 0.55;
-    doc.line(xx, y - half, xx + 2.5, y + half);
-  }
-  doc.setFillColor(...RULE);
-  for (let i = 0; i < 5; i++) doc.circle(x + 61 + i * 4.2, y + (i % 2 ? 2 : -1), 0.85, "F");
-  const mx = x + 88;
-  doc.setDrawColor(...SIGNAL_BLUE);
-  doc.setLineWidth(1.05);
-  doc.roundedRect(mx, y - 7, 7, 12, 3.5, 3.5, "S");
-  doc.line(mx - 2, y, mx - 2, y + 1.5);
-  doc.line(mx - 2, y + 1.5, mx + 1, y + 5.5);
-  doc.line(mx + 1, y + 5.5, mx + 6, y + 5.5);
-  doc.line(mx + 6, y + 5.5, mx + 9, y + 1.5);
-  doc.line(mx + 9, y + 1.5, mx + 9, y);
-  doc.line(mx + 3.5, y + 5.5, mx + 3.5, y + 10);
-  doc.line(mx, y + 10, mx + 7, y + 10);
+  const { segmentCount, blueCount, heights, gapPx } = SIGNAL_BAR;
+  const barHeight = 15;
+  const segmentWidth = (CONTENT_W - gapPx * (segmentCount - 1)) / segmentCount;
+  const maxHeight = Math.max(...heights);
+  const baseline = y + 7;
+  heights.forEach((height, index) => {
+    const h = (height / maxHeight) * barHeight;
+    doc.setFillColor(...(index < blueCount ? SIGNAL_BLUE : MIST));
+    doc.rect(x + index * (segmentWidth + gapPx), baseline - h, segmentWidth, h, "F");
+  });
 }
 
 function drawHeader(doc: jsPDF, session: WorksheetSession) {
