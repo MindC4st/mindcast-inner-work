@@ -23,6 +23,7 @@ import { downloadWorksheetPdf } from "@/lib/generateWorksheetPdf";
 import { resolveColouringUrl } from "@/lib/colouringUrl";
 import SlideTimer from "@/components/session-runner/SlideTimer";
 import { enqueue, flush, type Room } from "@/lib/rollOffline";
+import { splitKidsGame } from "@/lib/kidsGame";
 
 // Data-driven deck: a session is an ordered list of slide "kinds", so the order
 // can change (and the video can flex position) without touching the renderer.
@@ -32,13 +33,15 @@ import { enqueue, flush, type Room } from "@/lib/rollOffline";
 // Check In → Return to Your Intention → Inner Wisdom → In Today's World →
 // [Video (Evidence)] → [Coloring Activity (Child only)] → Go Deeper →
 // Reflect & Share → Together (Activity) → Guided Reflection → This Week's Practice
-// v4 deck — 8 projected slides (9 for Child, which adds colouring).
+// v4 deck — 8 projected slides for Adult/Teen. Child has 9: it adds the
+// safeguarded colouring activity and replaces the affirmation close with the
+// active group game from the Notion lesson.
 // `wisdomworld` merges Inner Wisdom with In Today's World; `deeper` merges Go
 // Deeper with the Together activity. The retired kinds are kept so any stored
 // per-week override still type-checks, but nothing maps to them any more.
 type SlideKind =
   | "title" | "intention" | "wisdomworld" | "video" | "coloring"
-  | "deeper" | "reflect" | "practice" | "affirmation"
+  | "deeper" | "reflect" | "practice" | "affirmation" | "closing_game"
   // retired from projection in v4:
   | "wisdom" | "metaphor" | "core" | "activity" | "guided" | "commitment";
 
@@ -52,6 +55,7 @@ const SLIDE_TITLE: Record<SlideKind, string> = {
   reflect: "Reflect & Share",
   practice: "Before You Leave",
   affirmation: "Closing Affirmation",
+  closing_game: "The Closing Game / Activity",
   // retired
   wisdom: "Inner Wisdom", metaphor: "In Today's World", core: "Go Deeper",
   activity: "Together", guided: "Guided Reflection",
@@ -71,6 +75,7 @@ const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
   reflection: "reflect",
   intention: "practice",    // 90s write + weekly practice table
   affirmation: "affirmation",
+  closing_game: "closing_game",
   notes: null,              // facilitator notes live in the drawer, not projected
   // Retired in v4; deactivated in the DB but mapped to null so an old row
   // can never reintroduce a slide the deck no longer has.
@@ -80,12 +85,12 @@ const SLIDE_KEY_TO_KIND: Record<string, SlideKind | null> = {
 };
 
 const buildDeck = (audience?: string): SlideKind[] => {
-  // Child keeps the full lesson journey and inserts an approved colouring
-  // activity before Go Deeper, matching the nine-page child workbook.
+  // Child keeps the full lesson journey, inserts an approved colouring
+  // activity before Go Deeper, and closes with its physical group game.
   if (audience === "Child") {
     return [
       "title", "intention", "wisdomworld", "video",
-      "coloring", "deeper", "reflect", "practice", "affirmation",
+      "coloring", "deeper", "reflect", "practice", "closing_game",
     ];
   }
   return [
@@ -118,6 +123,7 @@ type Session = {
   closing_quote: string;
   closing_quote_attribution: string;
   private_write_prompt: string;
+  intention_prompt: string;
   todays_theme: string;
   ancient_wisdom_video_url: string;
   ancient_wisdom_captions_url: string;
@@ -219,6 +225,7 @@ const buildSession = (live: Tables<"mindcast_live_sessions"> | null, cur: Tables
     closing_quote: (live as unknown as { closing_quote?: string } | null)?.closing_quote || "",
     closing_quote_attribution: (live as unknown as { closing_quote_attribution?: string } | null)?.closing_quote_attribution || "",
     private_write_prompt: (live as unknown as { private_write_prompt?: string } | null)?.private_write_prompt || "",
+    intention_prompt: live?.intention_prompt || "",
     todays_theme: (live as unknown as { todays_theme?: string } | null)?.todays_theme || "",
     ancient_wisdom_video_url: (live as unknown as { ancient_wisdom_video_url?: string } | null)?.ancient_wisdom_video_url || "",
     ancient_wisdom_captions_url: (live as unknown as { ancient_wisdom_captions_url?: string } | null)?.ancient_wisdom_captions_url || "",
@@ -448,22 +455,22 @@ const FacilitatorView = () => {
     if (audience === "Child") return;
     const promptType =
       currentKind === "reflect" ? "journaling"
-      : currentKind === "commitment" ? "intention"
+      : currentKind === "practice" ? "intention"
       : currentKind === "intention" ? "intention_review"
-      : currentKind === "activity" ? "activity"
+      : currentKind === "deeper" ? "activity"
       : "idle";
     const promptText =
       currentKind === "reflect" ? session.journaling_prompt
-      : currentKind === "commitment" ? "What is the one specific thing you will do this week?"
-      : currentKind === "activity" ? (session.experiential_exercise || "")
+      : currentKind === "practice" ? (session.intention_prompt || "What is the one specific thing you will do this week?")
+      : currentKind === "deeper" ? (session.experiential_exercise || "")
       : "";
+    const activityOptions = (session.activity_options || "")
+      .split(/\r?\n/).map((o: string) => o.trim()).filter(Boolean);
     const payload = {
       week, audience, slide, promptType, promptText, title: session.theme_title,
       // The live widget config, so each member's phone shows the right input.
-      activityType: currentKind === "activity" ? (session.activity_type || "reflection") : null,
-      activityOptions: currentKind === "activity"
-        ? (session.activity_options || "").split(/\r?\n/).map((o: string) => o.trim()).filter(Boolean)
-        : [],
+      activityType: currentKind === "deeper" ? (session.activity_type || "reflection") : null,
+      activityOptions: currentKind === "deeper" ? activityOptions : [],
     };
 
     const ch = supabase.channel(`live:${code}`, { config: { broadcast: { self: false } } });
@@ -480,6 +487,8 @@ const FacilitatorView = () => {
       prompt_type: promptType,
       prompt_text: promptText,
       title: session.theme_title,
+      activity_type: currentKind === "deeper" ? (session.activity_type || "reflection") : null,
+      activity_options: currentKind === "deeper" ? activityOptions : [],
       is_live: true,
       updated_by: user?.id ?? null,
       updated_at: new Date().toISOString(),
@@ -820,6 +829,37 @@ const FacilitatorView = () => {
         )}
       </div>
 
+      {/* Calm, clickable progress navigation. It gives the room a sense of
+          movement without adding another animated object to the slide. */}
+      <nav aria-label="Lesson progress" className="px-6 pt-2 z-30">
+        <ol className="flex items-center gap-1.5">
+          {deck.map((kind, index) => {
+            const complete = index < slide;
+            const active = index === slide;
+            return (
+              <li key={`${kind}-${index}`} className="flex-1">
+                <button
+                  type="button"
+                  onClick={() => setSlide(index)}
+                  aria-current={active ? "step" : undefined}
+                  aria-label={`Go to slide ${index + 1}: ${SLIDE_TITLE[kind]}`}
+                  title={`${index + 1}. ${SLIDE_TITLE[kind]}`}
+                  className={`block h-2 w-full rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[hsl(var(--blue-light))]/60 focus:ring-offset-2 focus:ring-offset-[hsl(var(--navy))] ${
+                    active
+                      ? "bg-[hsl(var(--bronze))]"
+                      : complete
+                      ? "bg-[hsl(var(--blue))]"
+                      : "bg-[hsl(var(--ivory))]/15 hover:bg-[hsl(var(--ivory))]/25"
+                  }`}
+                >
+                  <span className="sr-only">{SLIDE_TITLE[kind]}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
       {/* Bottom controls */}
       <div className="flex items-center justify-between px-6 py-3 border-t border-[hsl(var(--ivory))]/10 z-30">
         <div className="flex items-center gap-2">
@@ -868,8 +908,8 @@ const FacilitatorView = () => {
               <button type="button" onClick={() => setNotesOpen(false)} aria-label="Close facilitator notes" className="flex h-10 w-10 items-center justify-center rounded-lg text-[hsl(var(--ivory))]/40 hover:bg-[hsl(var(--ivory))]/5 hover:text-[hsl(var(--ivory))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30"><X size={18} /></button>
             </div>
             <p className="text-[hsl(var(--ivory))]/80 text-sm font-body leading-relaxed whitespace-pre-wrap">{session.facilitator_notes || "No notes for this session."}</p>
-            {/* Child — the group game lives in the facilitator view only. The
-                children are moving, not reading; nothing about it is projected. */}
+            {/* Child — a pre-session quick reference. The same content becomes
+                the final projected slide while the facilitator runs the game. */}
             {audience === "Child" && (session.kids_game || session.kids_game_equipment || session.kids_game_under5) && (
               <div className="mt-6 pt-6 border-t border-[hsl(var(--ivory))]/10">
                 <p className="text-[hsl(var(--bronze))] text-[10px] tracking-widest uppercase mb-2 font-body">Group game — closing</p>
@@ -984,6 +1024,7 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
           responses={deeperResponses}
           week={session.week_number}
           audience={session.audience}
+          sessionCode={code}
         />
       );
     }
@@ -1027,7 +1068,7 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
       } else if (type === "phrase") {
         inner = <PhraseWallSlide text={session.experiential_exercise} responses={activityResponses} />;
       } else {
-        inner = <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} />;
+        inner = <ExerciseSlide text={session.experiential_exercise} week={session.week_number} audience={session.audience} sessionCode={code} />;
       }
       // The whole-room exercise opens with a 90-second, projected, unskippable
       // private write so the quiet half of the room writes their own answer.
@@ -1132,6 +1173,13 @@ const SlideRenderer = ({ kind, session, responses = [], joinUrl, code, onSession
           <p className="text-[hsl(var(--ivory))]/60 font-body text-lg">{session.closing_quote_attribution}</p>
         )}
       </div>
+    );
+    case "closing_game": return (
+      <ClosingGameSlide
+        game={session.kids_game}
+        equipment={session.kids_game_equipment}
+        under5={session.kids_game_under5}
+      />
     );
     // Video — supporting evidence / how-to / personal story (position flexes).
     // Presentation-only: URL / transcript / question generation live in the
@@ -1490,6 +1538,111 @@ const TalkAboutPictureSlide = () => (
 );
 
 /**
+ * The child close is active and physical. The game name, how-to, equipment and
+ * younger-child adaptation remain visible while the facilitator runs it, with
+ * one calm countdown instead of another attention-grabbing animation.
+ */
+const ClosingGameSlide = ({ game, equipment, under5 }: {
+  game: string;
+  equipment: string;
+  under5: string;
+}) => {
+  const parts = splitKidsGame(game);
+  const [minutes, setMinutes] = useState(8);
+  const [remaining, setRemaining] = useState(8 * 60);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    if (!running) return;
+    const timer = window.setInterval(() => {
+      setRemaining((value) => Math.max(0, value - 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [running]);
+  useEffect(() => {
+    if (remaining === 0) setRunning(false);
+  }, [remaining]);
+
+  const chooseMinutes = (value: number) => {
+    setMinutes(value);
+    setRemaining(value * 60);
+    setRunning(false);
+  };
+  const reset = () => {
+    setRemaining(minutes * 60);
+    setRunning(false);
+  };
+  const mm = Math.floor(remaining / 60);
+  const ss = String(remaining % 60).padStart(2, "0");
+  const progress = Math.max(0, Math.min(100, (remaining / (minutes * 60)) * 100));
+
+  return (
+    <div className="w-full max-w-6xl max-h-[72vh] overflow-y-auto pr-2">
+      <div className="text-center mb-7">
+        <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-3">The Closing Game / Activity</p>
+        <h2 className="font-display text-4xl md:text-6xl tracking-wide text-[hsl(var(--ivory))] leading-none">
+          {parts.title.toUpperCase()}
+        </h2>
+      </div>
+
+      <div className="grid md:grid-cols-[1.45fr_0.75fr] gap-6 items-stretch">
+        <section className="rounded-xl border border-[hsl(var(--ivory))]/15 bg-[hsl(var(--ivory))]/[0.04] p-6 md:p-8">
+          <p className="text-[hsl(var(--blue-light))] text-[10px] tracking-[0.35em] font-body uppercase mb-3">How to play</p>
+          <p className="max-h-[30vh] overflow-y-auto pr-2 whitespace-pre-wrap font-body text-base md:text-lg leading-relaxed text-[hsl(var(--ivory))]/90">
+            {parts.instructions}
+          </p>
+        </section>
+
+        <div className="space-y-4">
+          <section className="rounded-xl border border-[hsl(var(--bronze))]/30 bg-[hsl(var(--bronze))]/[0.06] p-5">
+            <p className="text-[hsl(var(--bronze))] text-[10px] tracking-[0.35em] font-body uppercase mb-2">What you need</p>
+            <p className="font-body text-sm md:text-base leading-relaxed text-[hsl(var(--ivory))]/85">
+              {equipment || "No special equipment."}
+            </p>
+          </section>
+
+          {under5 && (
+            <section className="rounded-xl border border-[hsl(var(--ivory))]/10 bg-black/10 p-5">
+              <p className="text-[hsl(var(--ivory))]/45 text-[10px] tracking-[0.35em] font-body uppercase mb-2">For younger children</p>
+              <p className="font-body text-xs md:text-sm leading-relaxed text-[hsl(var(--ivory))]/70">{under5}</p>
+            </section>
+          )}
+
+          <section className="rounded-xl border border-[hsl(var(--ivory))]/15 p-5" aria-label="Game timer">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-[0.35em] font-body uppercase mb-1">Game timer</p>
+                <p role="timer" aria-live="off" className="font-display text-5xl tracking-wider tabular-nums text-[hsl(var(--ivory))]">
+                  {mm}:{ss}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setRunning((value) => !value)} aria-label={running ? "Pause game timer" : "Start game timer"} className="grid h-11 w-11 place-items-center rounded-full bg-[hsl(var(--blue))] text-white focus:outline-none focus:ring-2 focus:ring-[hsl(var(--blue-light))]">
+                  {running ? <Pause size={16} /> : <Play size={16} />}
+                </button>
+                <button type="button" onClick={reset} aria-label="Reset game timer" className="grid h-11 w-11 place-items-center rounded-full bg-[hsl(var(--ivory))]/10 text-[hsl(var(--ivory))]/75 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/40">
+                  <RotateCcw size={15} />
+                </button>
+              </div>
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[hsl(var(--ivory))]/10">
+              <div className="h-full rounded-full bg-[hsl(var(--bronze))] transition-[width] duration-1000 ease-linear" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="mt-3 flex gap-2">
+              {[5, 8, 10].map((value) => (
+                <button type="button" key={value} onClick={() => chooseMinutes(value)} aria-pressed={minutes === value} className={`min-h-9 flex-1 rounded-lg text-[10px] font-body tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ivory))]/30 ${minutes === value ? "bg-[hsl(var(--ivory))]/15 text-[hsl(var(--ivory))]" : "bg-[hsl(var(--ivory))]/5 text-[hsl(var(--ivory))]/45"}`}>
+                  {value} min
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * Picture Book — the child Slide 4. Read live from a purchased copy by default.
  * A read-aloud video is shown only when it is the SAME book and its source has
  * been rights-checked; otherwise the facilitator reads aloud. The "Ask the
@@ -1750,12 +1903,13 @@ const WisdomWorldSlide = ({
  * question.
  */
 const DeeperSlide = ({
-  coreConcept, question, exercise, activityType, options, responses, week, audience,
+  coreConcept, question, exercise, activityType, options, responses, week, audience, sessionCode,
 }: {
   coreConcept: string; question: string; exercise: string; activityType: string;
-  options: string[]; responses: Response[]; week: number; audience: string;
+  options: string[]; responses: Response[]; week: number; audience: string; sessionCode: string;
 }) => {
   const paras = (coreConcept || "").split(/\n+/).filter(Boolean);
+  const isChild = audience === "Child";
   return (
     <div className="w-full max-w-6xl">
       <p className="text-[hsl(var(--blue-light))] text-xs tracking-[0.5em] font-body uppercase mb-6">Go Deeper</p>
@@ -1775,12 +1929,14 @@ const DeeperSlide = ({
       ) : null}
 
       <div className="border-t border-[hsl(var(--ivory))]/10 pt-8">
-        {isCanvasSurface(activityType) ? (
+        {isChild ? (
+          <ExerciseSlide text={exercise} week={week} audience={audience} sessionCode={sessionCode} />
+        ) : isCanvasSurface(activityType) ? (
           <>
             {exercise ? (
               <p className="font-body text-base text-[hsl(var(--ivory))]/70 mb-4 leading-relaxed">{exercise}</p>
             ) : null}
-            <CanvasSurface activityType={activityType} week={week} audience={audience} />
+            <CanvasSurface activityType={activityType} week={week} audience={audience} sessionCode={sessionCode} />
           </>
         ) : activityType === "wordcloud" ? (
           <WordCloudSlide text={exercise} responses={responses} />
@@ -1797,7 +1953,7 @@ const DeeperSlide = ({
         ) : activityType === "phrase" ? (
           <PhraseWallSlide text={exercise} responses={responses} />
         ) : (
-          <ExerciseSlide text={exercise} week={week} audience={audience} />
+          <ExerciseSlide text={exercise} week={week} audience={audience} sessionCode={sessionCode} />
         )}
       </div>
     </div>
@@ -1985,12 +2141,12 @@ const ReturnToIntentionSlide = ({
   );
 };
 
-const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; audience: string }) => {
+const ExerciseSlide = ({ text, week, audience, sessionCode }: { text: string; week: number; audience: string; sessionCode: string }) => {
   const [duration, setDuration] = useState(5);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
   // The whiteboard is a separate view of this slide — opens on demand and
-  // keeps its drawing per (week, audience) via tldraw persistenceKey.
+  // keeps its drawing under this live session code via tldraw persistenceKey.
   const [whiteboardOpen, setWhiteboardOpen] = useState(false);
   // While the whiteboard is open we also collapse the instruction text into
   // a small floating card so the facilitator can still reference it.
@@ -2045,7 +2201,7 @@ const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; a
               Loading whiteboard…
             </div>
           }>
-            <ExerciseWhiteboard week={week} audience={audience} />
+            <ExerciseWhiteboard week={week} audience={audience} sessionCode={sessionCode} />
           </Suspense>
 
           {/* Floating instructions card — collapsible reference */}
@@ -2085,6 +2241,9 @@ const ExerciseSlide = ({ text, week, audience }: { text: string; week: number; a
           >
             <PenLine size={13} /> Open whiteboard
           </button>
+          <p className="mt-2 text-[10px] font-body text-[hsl(var(--ivory))]/40">
+            This board is saved to session {sessionCode} and remains visible in member lesson history.
+          </p>
         </div>
         <div className="border border-[hsl(var(--ivory))]/15 rounded-sm p-6 text-center min-w-[180px]">
           <p className="text-[hsl(var(--ivory))]/40 text-[10px] tracking-widest font-body uppercase mb-3">Timer</p>

@@ -15,12 +15,12 @@ Verified: `npm run build` ✓ (28s, 4310 modules) · `npm test` ✓ (275/275) ·
 7. **Env validated with zod at boot**, renders the error into `#root` if invalid instead of a blank screen. (`env.ts:25–43`)
 8. **275 tests pass**, covering the tricky bits: worksheet PDF layout (162), welcome wall safeguarding (33), check-in dedupe (3), lesson-flow v4 (7).
 9. **NFC abstraction handles 3 platforms** (capacitor / webnfc / unsupported) with a dynamic `@vite-ignore` import so the web build never resolves the native plugin. (`nfc.ts:45–46`)
-10. **`LegacyRedirect` carries the query string** — `/auth?redirect=/live/ABC` keeps its redirect through the move to `/portal/login`. (`App.tsx:104–110`)
+10. **`/auth` is the canonical sign-in entry** — protected pages retain their intended destination, while old `/portal/login` links preserve query/hash state as they forward to `/auth`.
 
 ## What I dislike
 
 1. **`as never` type-escape hatches** on staff-training tables and two admin RPCs (`AdminInsights.tsx:41`, `AdminProgress.tsx:34`; across `TrainingHome/ModuleRunner/TrainingTeam/TrainingPolicies/TrainingDocuments`). These suppress type-checking — a column rename breaks at runtime instead of compile time. Leftover from before types were regenerated; the tables/RPCs are now in `types.ts`, so the casts should go.
-2. **Orphaned `Auth.tsx`** (189 lines) — a complete sign-in page that no route renders (`/auth` redirects to `/portal/login`) and no file imports. Dead code that will rot and confuse. Safe to delete.
+2. **Auth routing is consolidated** — the current member login now lives in `Auth.tsx`; the duplicate portal-login page has been removed.
 3. **5 lint errors (`any`)** — 1 in `Onboarding.tsx:105` (user-facing), 4 in `scripts/seed-stripe-products.ts`.
 4. **15 `exhaustive-deps` warnings**, several in `FacilitatorView` — real stale-closure risks, not style nits.
 5. **`FacilitatorView` is 2194 lines** — a god component. `components/session-runner/` contains only `SlideTimer.tsx`; the real deck orchestration is jammed into one page file. Hard to maintain and test.
@@ -55,7 +55,7 @@ Verified: `npm run build` ✓ (28s, 4310 modules) · `npm test` ✓ (275/275) ·
 - [ ] Confirm `mindcast_live_sessions` Row in `types.ts` includes the practice columns
 
 ### Code hygiene
-- [ ] Delete `src/pages/Auth.tsx` (orphaned, no route/imports)
+- [x] Consolidate sign-in on `src/pages/Auth.tsx` and retain `/portal/login` as a compatibility redirect
 - [ ] Fix `Onboarding.tsx:105` `any` (user-facing)
 - [ ] Fix `scripts/seed-stripe-products.ts` ×4 `any`
 - [ ] Resolve `exhaustive-deps` warnings in `FacilitatorView.tsx:333,366,494`
@@ -67,7 +67,7 @@ Verified: `npm run build` ✓ (28s, 4310 modules) · `npm test` ✓ (275/275) ·
 
 ### Runtime / navigation smoke test
 - [ ] **Public:** `/`, `/about`, `/membership`, `/try`, `/shop`, `/terms`, `/privacy`, `/refund`, `/safeguarding`, `/display`
-- [ ] **Auth:** `/portal/login` (email + Google OAuth), `/reset-password`, `/onboarding` (age gate, under-13 block, teen guardian consent)
+- [ ] **Auth:** `/auth` (email + Google OAuth), legacy `/portal/login` redirect, `/reset-password`, `/onboarding` (age gate, under-13 block, teen guardian consent)
 - [ ] **Member portal:** `/portal/dashboard`, `/weeks`, `/week/:n`, `/group`, `/insights`, `/downloads`, `/settings`, `/progress`, `/checkin`, `/kids`, `/family`, `/pass`, `/billing`, `/orders`
 - [ ] **Staff:** `/admin` (all console tabs), `/admin/framework`, `/admin/kiosk`, `/admin/scan`, `/admin/handbook`, `/admin/staff-training/*`, `/facilitate/roll/:room`
 - [ ] **Live:** `/mindcast-live/library`, `/lesson/:n`, `/facilitate/:n`, `/edit/:n`, `/coursebook`, `/live/:code`, `/b/:token`

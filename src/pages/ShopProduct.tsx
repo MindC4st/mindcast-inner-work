@@ -342,7 +342,7 @@ const ShopProduct = () => {
                       Bracelets belong to MINDCAST members. Sign in to buy yours.
                     </p>
                     <Link
-                      to="/portal/login"
+                      to="/auth"
                       className="inline-flex items-center justify-center bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] px-6 py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90"
                     >
                       Sign in

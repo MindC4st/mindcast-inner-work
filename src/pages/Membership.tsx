@@ -112,7 +112,7 @@ const ConcessionButton = () => {
   if (!user) {
     return (
       <Link
-        to="/portal/login?next=/membership"
+        to="/auth?redirect=%2Fmembership"
         className="inline-flex min-h-[50px] w-full items-center justify-center border border-primary bg-white px-5 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
       >
         Sign in to request

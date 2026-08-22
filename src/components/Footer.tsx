@@ -12,7 +12,7 @@ const LINKS = {
     { to: "/about", label: "About" },
     { to: "/curriculum", label: "Curriculum" },
     { to: "/membership", label: "Membership" },
-    { to: "/portal/login", label: "Member Sign In" },
+    { to: "/auth", label: "Member Sign In" },
   ],
   legal: [
     { to: "/privacy", label: "Privacy Policy" },

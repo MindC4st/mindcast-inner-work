@@ -24,7 +24,8 @@ const LIVE_SLIDES: LessonSlide[] = [
   { id: "7a", slide_key: "exercise", position: 7, beat: "name", title: "Experiential Exercise", component_key: "Exercise", is_active: false, default_duration_seconds: 900, applies_to_tracks: ["Adult", "Teen", "Child"] },
   { id: "7", slide_key: "reflection", position: 7, beat: "name", title: "Reflect & Share", component_key: "Reflection", is_active: true, default_duration_seconds: 480, applies_to_tracks: ["Adult", "Teen", "Child"] },
   { id: "8", slide_key: "intention", position: 8, beat: "do", title: "Before You Leave", component_key: "Intention", is_active: true, default_duration_seconds: 420, applies_to_tracks: ["Adult", "Teen", "Child"] },
-  { id: "9", slide_key: "affirmation", position: 9, beat: "do", title: "Closing Affirmation", component_key: "Affirmation", is_active: true, default_duration_seconds: 60, applies_to_tracks: ["Adult", "Teen", "Child"] },
+  { id: "9", slide_key: "affirmation", position: 9, beat: "do", title: "Closing Affirmation", component_key: "Affirmation", is_active: true, default_duration_seconds: 60, applies_to_tracks: ["Adult", "Teen"] },
+  { id: "9c", slide_key: "closing_game", position: 9, beat: "do", title: "The Closing Game / Activity", component_key: "ClosingGame", is_active: true, default_duration_seconds: 600, applies_to_tracks: ["Child"] },
   { id: "99", slide_key: "notes", position: 99, beat: "do", title: "Facilitator Notes", component_key: "FacilitatorNotes", is_active: true, default_duration_seconds: 60, applies_to_tracks: ["Adult", "Teen", "Child"] },
 ];
 
@@ -42,6 +43,7 @@ describe("session framework derives from lesson_slides data", () => {
     expect(child).toHaveLength(9);
     expect(child.map((s) => s.slide_key)).toContain("coloring");
     expect(child.map((s) => s.slide_key)).toContain("deeper");
+    expect(child[child.length - 1].slide_key).toBe("closing_game");
   });
 
   it("18. Facilitator Notes is excluded from the projected count", () => {

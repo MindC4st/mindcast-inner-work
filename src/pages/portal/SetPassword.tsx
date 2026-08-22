@@ -18,7 +18,7 @@ const SetPassword = () => {
 
   useEffect(() => {
     if (!authLoading && !session) {
-      navigate("/portal/login", { replace: true });
+      navigate("/auth", { replace: true });
     }
   }, [authLoading, session, navigate]);
 

@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import DevPageMenu from "@/components/DevPageMenu";
+import { authPathFor } from "@/lib/authRoutes";
 
 // Route-level code splitting: every page loads on demand so first paint only
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
@@ -30,7 +31,7 @@ const Curriculum = lazy(() => import("./pages/Curriculum"));
 const ComingSoon = lazy(() => import("./pages/ComingSoon"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const PortalLogin = lazy(() => import("./pages/portal/PortalLogin"));
+const Auth = lazy(() => import("./pages/Auth"));
 const SetPassword = lazy(() => import("./pages/portal/SetPassword"));
 const PortalDashboard = lazy(() => import("./pages/portal/PortalDashboard"));
 const PortalWeek = lazy(() => import("./pages/portal/PortalWeek"));
@@ -83,10 +84,15 @@ const PageLoader = () => (
   </div>
 );
 
+const SignInRedirect = () => {
+  const { pathname, search, hash } = useLocation();
+  return <Navigate to={authPathFor(`${pathname}${search}${hash}`)} replace />;
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, loading } = useAuth();
   if (loading) return <PageLoader />;
-  if (!session) return <Navigate to="/portal/login" replace />;
+  if (!session) return <SignInRedirect />;
   return <>{children}</>;
 };
 
@@ -94,7 +100,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isStaff, loading } = useAuth();
   if (loading) return <PageLoader />;
-  if (!session) return <Navigate to="/portal/login" replace />;
+  if (!session) return <SignInRedirect />;
   if (!isStaff) return <Navigate to="/portal/dashboard" replace />;
   return <>{children}</>;
 };
@@ -103,24 +109,23 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminOnlyRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isAdmin, loading } = useAuth();
   if (loading) return <PageLoader />;
-  if (!session) return <Navigate to="/portal/login" replace />;
+  if (!session) return <SignInRedirect />;
   if (!isAdmin) return <Navigate to="/portal/dashboard" replace />;
   return <>{children}</>;
 };
 
 // A permanent redirect for a retired path. Unlike <Navigate to="/path">, this
-// carries the query string over — /auth?redirect=/live/ABC has to keep its
-// redirect through the move to the portal sign-in.
+// preserves query and hash state through the move to the current route.
 const LegacyRedirect = ({ to }: { to: string }) => {
-  const { search } = useLocation();
-  return <Navigate to={`${to}${search}`} replace />;
+  const { search, hash } = useLocation();
+  return <Navigate to={`${to}${search}${hash}`} replace />;
 };
 
 const AppRoutes = () => (
   <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/auth" element={<LegacyRedirect to="/portal/login" />} />
+      <Route path="/auth" element={<Auth />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/try" element={<TryASession />} />
 
@@ -154,7 +159,7 @@ const AppRoutes = () => (
       <Route path="/admin/staff-training/team/:userId" element={<AdminOnlyRoute><StaffTrainingTeamMember /></AdminOnlyRoute>} />
 
       {/* Portal (life-group companion) */}
-      <Route path="/portal/login" element={<PortalLogin />} />
+      <Route path="/portal/login" element={<LegacyRedirect to="/auth" />} />
       <Route path="/portal/set-password" element={<SetPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
@@ -286,7 +291,7 @@ const TITLE_MAP: [string, string][] = [
   ["/membership", "Membership · Mindcast"],
   ["/about", "About · Mindcast"],
   ["/curriculum", "Curriculum · Mindcast"],
-  ["/auth", "Sign In · Mindcast"],
+  ["/auth", "Member Login · Mindcast"],
   ["/terms", "Terms of Use · Mindcast"],
   ["/privacy", "Privacy Policy · Mindcast"],
   ["/refund", "Refund Policy · Mindcast"],

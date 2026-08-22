@@ -57,7 +57,7 @@ describe("worksheet template - live sequence parity", () => {
     ]);
     expect(worksheetPageKeysForTrack("Teen")).toHaveLength(8);
     expect(worksheetPageKeysForTrack("Child")).toEqual([
-      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "affirmation",
+      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "closing_game",
     ]);
   });
 
@@ -142,11 +142,15 @@ describe("worksheet text layer and page order", () => {
       kids_picture_book_question: "Which colour feels most like today?",
       kids_colouring_prompt: "Colour the feelings you can notice.",
       kids_game: "Match a colour to a feeling, then choose a safe action.",
+      kids_game_equipment: "Colour cards and a clear space to move.",
+      kids_game_under5: "Use two colours and let children copy the facilitator.",
     };
     const pages = await extractPages(child);
     expect(pages).toHaveLength(9);
     expect(flat(pages[4].text)).toContain(flat("COLOURING ACTIVITY"));
     expect(flat(pages[5].text)).toContain(flat("GO DEEPER + TOGETHER"));
+    expect(flat(pages[8].text)).toContain(flat("THE CLOSING GAME / ACTIVITY"));
+    expect(flat(pages[8].text)).toContain(flat("WHAT YOU NEED"));
     expect(flat(pages[8].text)).toContain(flat("9 / 9"));
   });
 

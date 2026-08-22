@@ -168,6 +168,7 @@ export const PUBLIC_PAGES: PageSeo[] = [
  * door credential in a search result.
  */
 export const PRIVATE_PREFIXES = [
+  "/auth",
   "/portal",
   "/admin",
   "/mindcast-live",
@@ -221,6 +222,7 @@ export const BANNED_CLAIMS: RegExp[] = [
  * to find the one with their check-in on it. Longest matching prefix wins.
  */
 export const PRIVATE_TITLES: [string, string][] = [
+  ["/auth", "Member Login · Mindcast"],
   ["/portal/dashboard", "Dashboard · Mindcast Portal"],
   ["/portal/weeks", "Weekly Sessions · Mindcast Portal"],
   ["/portal/week", "Week · Mindcast Portal"],
@@ -235,7 +237,6 @@ export const PRIVATE_TITLES: [string, string][] = [
   ["/portal/family", "Family & Safety · Mindcast Portal"],
   ["/portal/billing", "Billing · Mindcast Portal"],
   ["/portal/pass", "Door Pass · Mindcast Portal"],
-  ["/portal/login", "Member Login · Mindcast"],
   ["/mindcast-live/library", "Coursebook Library · Mindcast"],
   ["/mindcast-live/lesson", "Lesson · Mindcast"],
   ["/mindcast-live/facilitate", "Facilitate · Mindcast"],

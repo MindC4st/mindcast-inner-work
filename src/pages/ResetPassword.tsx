@@ -50,7 +50,7 @@ const ResetPassword = () => {
       toast({ title: "Password not updated", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Password updated", description: "You can now sign in with your new password." });
-      navigate("/portal/login");
+      navigate("/auth");
     }
   };
 
@@ -81,7 +81,7 @@ const ResetPassword = () => {
                 It may have expired or already been used. Return to sign in and request a fresh link.
               </p>
               <Link
-                to="/portal/login"
+                to="/auth"
                 className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg font-body text-sm font-semibold text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 Return to sign in <ArrowRight className="h-4 w-4" aria-hidden="true" />

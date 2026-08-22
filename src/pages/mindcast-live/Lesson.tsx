@@ -255,7 +255,7 @@ const persistResponse = async ({ user, week, audience, promptType, value }: {
     display_name: "Member",
     is_public: false,
     show_name: false,
-  }, { onConflict: "user_id,week_number,audience_type,prompt_type" });
+  }, { onConflict: "user_id,session_code,audience_type,prompt_type" });
 };
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (

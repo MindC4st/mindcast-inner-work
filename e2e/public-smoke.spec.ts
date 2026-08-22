@@ -44,10 +44,15 @@ test("trial pass form renders", async ({ page }) => {
 });
 
 test("member login renders", async ({ page }) => {
-  await page.goto("/portal/login");
-  await expect(page.getByRole("heading", { name: /MEMBER PORTAL/i })).toBeVisible();
+  await page.goto("/auth");
+  await expect(page.getByRole("heading", { name: /WELCOME BACK/i })).toBeVisible();
   await expect(page.getByLabel(/email/i)).toBeVisible();
-  await expect(page.getByLabel(/password/i)).toBeVisible();
+  await expect(page.locator("#login-password")).toBeVisible();
+});
+
+test("legacy member login links keep their return journey", async ({ page }) => {
+  await page.goto("/portal/login?redirect=%2Flive%2FDEMO01");
+  await expect(page).toHaveURL(/\/auth\?redirect=%2Flive%2FDEMO01$/i);
 });
 
 test("legal pages render", async ({ page }) => {

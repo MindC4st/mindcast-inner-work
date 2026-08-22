@@ -41,7 +41,7 @@ const Navbar = () => {
 
         <div className="hidden lg:flex items-center gap-4">
           <Link
-            to="/portal/login"
+            to="/auth"
             className="text-xs font-body font-extrabold tracking-widest text-primary border border-primary/30 hover:border-primary transition-colors py-2 px-6"
           >
             MEMBER LOGIN
@@ -83,7 +83,7 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="flex gap-3 mt-4">
-            <Link to="/portal/login" className="text-xs font-body font-extrabold tracking-widest text-primary border border-primary/30 py-2 px-6" onClick={() => setMobileOpen(false)}>
+            <Link to="/auth" className="text-xs font-body font-extrabold tracking-widest text-primary border border-primary/30 py-2 px-6" onClick={() => setMobileOpen(false)}>
               MEMBER LOGIN
             </Link>
             <Link to="/membership" className="text-xs font-body font-extrabold tracking-widest bg-primary text-primary-foreground py-2 px-6" onClick={() => setMobileOpen(false)}>

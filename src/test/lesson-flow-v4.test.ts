@@ -18,6 +18,8 @@ const childMigration = readFileSync(
 // Restores the nine-slide child sequence (colouring before Go Deeper).
 const parityMigration = readFileSync(
   resolve(root, "supabase/migrations/20260829120000_child_nine_slide_workbook_parity.sql"), "utf8");
+const childCloseMigration = readFileSync(
+  resolve(root, "supabase/migrations/20260830120000_live_interaction_history_and_child_close.sql"), "utf8");
 const view = readFileSync(
   resolve(root, "src/pages/mindcast-live/FacilitatorView.tsx"), "utf8");
 
@@ -32,7 +34,17 @@ const slidesFromMigration = () => {
 
 /** Apply later `UPDATE ... applies_to_tracks` statements (child variants). */
 const applyTrackUpdates = (slides: { key: string; position: number; tracks: string[] }[]) => {
-  for (const source of [childMigration, parityMigration]) {
+  const closingGame = childCloseMigration.match(
+    /\('closing_game',\s*(\d+),\s*'do',[^)]*'\{([^}]*)\}'\)/,
+  );
+  if (closingGame) {
+    slides.push({
+      key: "closing_game",
+      position: Number(closingGame[1]),
+      tracks: closingGame[2].split(",").map(t => t.trim()),
+    });
+  }
+  for (const source of [childMigration, parityMigration, childCloseMigration]) {
     for (const [, tracks, key] of source.matchAll(
       /SET\s+applies_to_tracks\s*=\s*'\{([^}]*)\}'[\s\S]*?WHERE\s+slide_key\s*=\s*'([a-z_]+)'/g)) {
       const slide = slides.find(s => s.key === key);
@@ -47,7 +59,7 @@ const kindMap = () => {
   const block = view.slice(
     view.indexOf("const SLIDE_KEY_TO_KIND"), view.indexOf("const buildDeck"));
   const out: Record<string, string | null> = {};
-  for (const [, key, val] of block.matchAll(/^\s*([a-z_]+):\s*(null|"[a-z]+")/gm)) {
+  for (const [, key, val] of block.matchAll(/^\s*([a-z_]+):\s*(null|"[a-z_]+")/gm)) {
     out[key] = val === "null" ? null : val.replace(/"/g, "");
   }
   return out;
@@ -74,13 +86,13 @@ describe("lesson flow v4", () => {
     }
   });
 
-  it("Child runs nine positions with colouring before Go Deeper", () => {
+  it("Child runs nine positions and closes with the group game", () => {
     const projected = slides
       .filter(s => s.tracks.includes("Child") && map[s.key] !== null)
       .sort((a, b) => a.position - b.position)
       .map(s => s.key);
     expect(projected).toEqual([
-      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "affirmation",
+      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "closing_game",
     ]);
   });
 

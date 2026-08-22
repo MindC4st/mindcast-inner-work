@@ -16,7 +16,7 @@ const Label = ({ children }: { children: string }) => (
 
 const Quote = ({ children }: { children: string }) => (
   <p
-    className="text-lg italic leading-[1.55] text-[#304c63] sm:text-xl"
+    className="text-lg italic leading-[1.55] text-[#75614c] sm:text-xl"
     style={{ fontFamily: "var(--font-serif)" }}
   >
     {children}
@@ -27,7 +27,7 @@ const Quote = ({ children }: { children: string }) => (
 const Copy = ({ children }: { children: string }) => (
   <div className="space-y-3">
     {children.split(/\n+/).filter(Boolean).map((line, i) => (
-      <p key={i} className="font-body text-sm leading-6 text-[#4a5a6a]">
+      <p key={i} className="font-body text-sm leading-6 text-[#655d54]">
         {line}
       </p>
     ))}
@@ -51,14 +51,14 @@ const LessonOnePreview = ({ track }: { track: Track }) => {
   const lesson = LESSON_ONE_PREVIEW[track];
 
   return (
-    <div className="rounded-2xl border border-[#ddd4c7] bg-[#fdfbf7] p-6 sm:p-9">
+    <div className="rounded-2xl border border-[#dfd1bc] bg-[#fffaf2] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] sm:p-9">
       {/* The lesson's own title block */}
       <p className="font-body text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
         Week 1 · {lesson.blockTheme}
       </p>
 
-      <h4 className="mt-3 font-display text-4xl leading-[0.95] tracking-tight text-[#102438] sm:text-5xl">
-        {lesson.title.toUpperCase()}
+      <h4 className="mt-3 font-serif text-4xl font-medium leading-[0.98] tracking-[-0.025em] text-[#4e463c] sm:text-5xl">
+        {lesson.title}
       </h4>
 
       {lesson.weeklyTheme ? (
@@ -69,7 +69,7 @@ const LessonOnePreview = ({ track }: { track: Track }) => {
 
       {lesson.territory ? (
         <p
-          className="mt-5 max-w-[62ch] text-lg italic leading-[1.55] text-[#304c63]"
+          className="mt-5 max-w-[62ch] text-lg italic leading-[1.55] text-[#75614c]"
           style={{ fontFamily: "var(--font-serif)" }}
         >
           {lesson.territory}

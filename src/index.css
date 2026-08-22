@@ -385,6 +385,63 @@
     color: hsl(var(--foreground));
   }
 
+  /* ── Curriculum binder material system ──────────────────────────────────
+     The public explorer echoes the physical ivory linen binder: diffused
+     room light, a padded woven cover, champagne hardware and warm paper. */
+  .curriculum-room {
+    background:
+      radial-gradient(80% 75% at 50% 42%, rgb(255 252 245 / 0.94) 0%, transparent 68%),
+      linear-gradient(145deg, #f8f3ea 0%, #eee6d9 100%);
+  }
+
+  .curriculum-binder-cover {
+    isolation: isolate;
+    background-color: #f0e9dd;
+    background-image:
+      radial-gradient(circle at 18% 8%, rgb(255 255 255 / 0.78), transparent 32%),
+      radial-gradient(circle at 83% 92%, rgb(184 151 95 / 0.09), transparent 38%),
+      repeating-linear-gradient(0deg, rgb(112 91 60 / 0.055) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgb(112 91 60 / 0.04) 0 1px, transparent 1px 3px);
+    border-color: #d8cbb7;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      inset 0 -1px 0 rgb(145 117 76 / 0.16),
+      0 28px 65px -38px rgb(87 65 36 / 0.5),
+      0 12px 28px -22px rgb(87 65 36 / 0.35);
+  }
+
+  .curriculum-binder-cover::before {
+    position: absolute;
+    z-index: -1;
+    inset: 8px;
+    border: 1px solid rgb(255 255 255 / 0.58);
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgb(139 107 63 / 0.08);
+    content: "";
+    pointer-events: none;
+  }
+
+  .curriculum-paper {
+    background-color: #fffaf2;
+    background-image:
+      radial-gradient(circle at 30% 0%, rgb(255 255 255 / 0.9), transparent 45%),
+      linear-gradient(rgb(145 116 73 / 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(145 116 73 / 0.018) 1px, transparent 1px);
+    background-size: 100% 100%, 4px 4px, 4px 4px;
+    border-color: #e3d8c8;
+    box-shadow:
+      0 20px 46px -30px rgb(79 58 31 / 0.46),
+      0 3px 10px rgb(79 58 31 / 0.08),
+      inset 0 1px 0 rgb(255 255 255 / 0.96);
+  }
+
+  .curriculum-gold-emboss {
+    background: linear-gradient(105deg, #8d7144 0%, #d8c092 42%, #a88752 70%, #ead9b7 100%);
+    filter:
+      drop-shadow(0 1px 0 rgb(255 255 255 / 0.82))
+      drop-shadow(0 -1px 0 rgb(111 81 41 / 0.34));
+  }
+
   @keyframes glow-pulse {
     0%, 100% { box-shadow: 0 0 0 0 hsl(var(--glow) / 0.35); }
     50% { box-shadow: 0 0 24px 4px hsl(var(--glow) / 0.2); }

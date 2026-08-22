@@ -129,6 +129,8 @@ const LiveJoin = () => {
             promptType: data.prompt_type as LiveState["promptType"],
             promptText: data.prompt_text,
             title: data.title,
+            activityType: data.activity_type,
+            activityOptions: data.activity_options || [],
           });
         } else if (data && data.is_live === false) {
           setEnded(true);
@@ -347,7 +349,7 @@ const LiveJoin = () => {
           </p>
 
           <Link
-            to={`/portal/login?redirect=${encodeURIComponent(redirectPath)}`}
+            to={`/auth?redirect=${encodeURIComponent(redirectPath)}`}
             className="w-full min-h-12 flex items-center justify-center gap-2 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] text-white font-body text-sm font-semibold py-3 rounded-xl transition-colors focus:outline-none focus:ring-4 focus:ring-primary/20"
           >
             <LogIn size={14} /> Sign in to join
@@ -454,7 +456,7 @@ const LiveJoin = () => {
                   This prompt is for members to answer in their coursebook. You can sit with it in the room — or sign in to share.
                 </p>
                 <Link
-                  to={`/portal/login?redirect=${encodeURIComponent(`/live/${sessionCode}`)}`}
+                  to={`/auth?redirect=${encodeURIComponent(`/live/${sessionCode}`)}`}
                   className="text-[hsl(var(--blue))] font-body text-xs tracking-widest uppercase border-b border-[hsl(var(--blue))]/40 hover:border-[hsl(var(--blue))]"
                 >
                   Sign in to share
@@ -648,7 +650,7 @@ const LiveJoin = () => {
               </button>
 
               <p className="text-center text-[hsl(var(--navy-mid))]/50 text-[10px] mt-3 font-body">
-                Your answer is saved to your coursebook and may appear in the session history for other members to read.
+                Your answer is saved to this session and your coursebook, and may appear in lesson history for other members to read.
               </p>
               <p className="text-center text-[hsl(var(--navy-mid))]/40 text-[10px] mt-1 font-body">
                 By submitting, you agree to your answer being read by members at a later date.

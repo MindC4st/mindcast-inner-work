@@ -8,6 +8,7 @@ import {
   FONT_CORMORANT_ITALIC,
 } from "@/lib/worksheetFonts";
 import { NAVY_WORDMARK_PNG } from "@/lib/brandAssets";
+import { splitKidsGame } from "@/lib/kidsGame";
 
 export type WorksheetSession = {
   week_number: number;
@@ -60,14 +61,15 @@ export type WorksheetPageKey =
   | "deeper"
   | "reflection"
   | "intention"
-  | "affirmation";
+  | "affirmation"
+  | "closing_game";
 
 const STANDARD_PAGE_KEYS: readonly WorksheetPageKey[] = [
   "welcome", "voices", "ancient", "video", "deeper", "reflection", "intention", "affirmation",
 ];
 
 const CHILD_PAGE_KEYS: readonly WorksheetPageKey[] = [
-  "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "affirmation",
+  "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "closing_game",
 ];
 
 export const worksheetPageKeysForTrack = (audience: string): readonly WorksheetPageKey[] =>
@@ -83,6 +85,7 @@ const PAGE_META: Record<WorksheetPageKey, { title: string; tab: string; beat: st
   reflection: { title: "Reflect & Share", tab: "REFLECT", beat: "Name it" },
   intention: { title: "Before You Leave", tab: "PRACTICE", beat: "Do it" },
   affirmation: { title: "Closing Affirmation", tab: "CLOSE", beat: "Do it" },
+  closing_game: { title: "The Closing Game / Activity", tab: "GAME", beat: "Do it" },
 };
 
 // MC-BRD-001 print palette. Large surfaces use pale tints so the workbook
@@ -479,7 +482,7 @@ function drawDeeper(ctx: Ctx, key: WorksheetPageKey, page: number) {
   sectionLabel(doc, "Together", y);
   y += 16;
   y += drawFitText(doc, question, LEFT, y, CONTENT_W, 45, { maxSize: 13, minSize: 9, font: "CormorantItalic" }) + 7;
-  const activity = firstOf(isChild ? session.kids_game : undefined, session.experiential_exercise, "Try the activity together, then notice what changed.");
+  const activity = firstOf(session.experiential_exercise, "Try the activity together, then notice what changed.");
   drawPanel(doc, LEFT, y, CONTENT_W, 112, PALE_BLUE_2);
   drawFitText(doc, excerpt(activity, 900), LEFT + 15, y + 21, CONTENT_W - 30, 82, { maxSize: 8.7, minSize: 6.9 });
   y += 130;
@@ -563,6 +566,52 @@ function drawAffirmation(ctx: Ctx, key: WorksheetPageKey, page: number) {
   checks.forEach((value, index) => drawCheckbox(doc, LEFT + index * colW, y, value, colW - 5, 7.5));
 }
 
+function drawClosingGame(ctx: Ctx, key: WorksheetPageKey, page: number) {
+  const { doc, session } = ctx;
+  let y = drawPageShell(ctx, key, page);
+  const game = splitKidsGame(session.kids_game);
+
+  sectionLabel(doc, "The closing game / activity", y);
+  y += 18;
+  drawPanel(doc, LEFT, y, CONTENT_W, 84, PALE_BLUE_2);
+  drawFitText(doc, game.title, LEFT + 18, y + 27, CONTENT_W - 36, 42, {
+    maxSize: 18,
+    minSize: 11,
+    font: "BebasNeue",
+    align: "center",
+  });
+  y += 104;
+
+  sectionLabel(doc, "How to play", y);
+  y += 16;
+  const instructionsHeight = session.kids_game_under5 ? 230 : 300;
+  drawPanel(doc, LEFT, y, CONTENT_W, instructionsHeight);
+  drawFitText(doc, excerpt(game.instructions, 1500), LEFT + 16, y + 23, CONTENT_W - 32, instructionsHeight - 40, {
+    maxSize: 10,
+    minSize: 7,
+  });
+  y += instructionsHeight + 20;
+
+  sectionLabel(doc, "What you need", y);
+  y += 15;
+  drawPanel(doc, LEFT, y, CONTENT_W, 78, PALE_BLUE_2);
+  drawFitText(doc, firstOf(session.kids_game_equipment, "No special equipment."), LEFT + 16, y + 22, CONTENT_W - 32, 45, {
+    maxSize: 9.4,
+    minSize: 7.2,
+    font: "MontserratSemiBold",
+  });
+  y += 98;
+
+  if (session.kids_game_under5) {
+    sectionLabel(doc, "For younger children", y);
+    y += 15;
+    drawFitText(doc, excerpt(session.kids_game_under5, 700), LEFT, y, CONTENT_W, Math.max(70, CONTENT_BOTTOM - y), {
+      maxSize: 9,
+      minSize: 6.9,
+    });
+  }
+}
+
 function drawWorksheetPage(ctx: Ctx, key: WorksheetPageKey, page: number) {
   switch (key) {
     case "welcome": return drawWelcome(ctx, key, page);
@@ -574,6 +623,7 @@ function drawWorksheetPage(ctx: Ctx, key: WorksheetPageKey, page: number) {
     case "reflection": return drawReflection(ctx, key, page);
     case "intention": return drawPractice(ctx, key, page);
     case "affirmation": return drawAffirmation(ctx, key, page);
+    case "closing_game": return drawClosingGame(ctx, key, page);
   }
 }
 

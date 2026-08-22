@@ -1711,6 +1711,8 @@ export type Database = {
       }
       live_session_state: {
         Row: {
+          activity_options: string[]
+          activity_type: string | null
           audience: string | null
           closed_at: string | null
           current_slide: number
@@ -1725,6 +1727,8 @@ export type Database = {
           week_number: number | null
         }
         Insert: {
+          activity_options?: string[]
+          activity_type?: string | null
           audience?: string | null
           closed_at?: string | null
           current_slide?: number
@@ -1739,6 +1743,8 @@ export type Database = {
           week_number?: number | null
         }
         Update: {
+          activity_options?: string[]
+          activity_type?: string | null
           audience?: string | null
           closed_at?: string | null
           current_slide?: number
@@ -4758,7 +4764,8 @@ export type Database = {
         Row: {
           audience_type: string
           id: string
-          session_code: string | null
+          session_code: string
+          slide_key: string
           snapshot: Json
           updated_at: string
           week_number: number
@@ -4766,7 +4773,8 @@ export type Database = {
         Insert: {
           audience_type: string
           id?: string
-          session_code?: string | null
+          session_code: string
+          slide_key?: string
           snapshot: Json
           updated_at?: string
           week_number: number
@@ -4774,7 +4782,8 @@ export type Database = {
         Update: {
           audience_type?: string
           id?: string
-          session_code?: string | null
+          session_code?: string
+          slide_key?: string
           snapshot?: Json
           updated_at?: string
           week_number?: number

@@ -21,7 +21,7 @@ const GROUPS: Group[] = [
     ["/portal/dashboard", "Dashboard"], ["/portal/weeks", "Weeks"], ["/portal/week/1", "Week (1)"],
     ["/portal/group", "Group"], ["/portal/insights", "Insights"], ["/portal/downloads", "Downloads"],
     ["/portal/settings", "Settings"], ["/portal/progress", "Progress"], ["/portal/billing", "Billing"],
-    ["/portal/admin", "Portal admin"], ["/portal/login", "Login"],
+    ["/portal/admin", "Portal admin"],
   ]},
   { label: "Sunday Live", links: [
     ["/live", "Live (coming soon)"], ["/live/DEMO01", "Live join (DEMO01)"],

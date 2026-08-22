@@ -50,7 +50,7 @@ const NAV_ITEMS = [
   {
     label: "SIGN IN",
     mobileLabel: "Sign in",
-    to: "/portal/login",
+    to: "/auth",
     icon: LogIn,
   },
 ] as const;

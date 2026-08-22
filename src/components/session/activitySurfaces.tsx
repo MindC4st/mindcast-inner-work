@@ -29,6 +29,7 @@ const ExerciseWhiteboard = lazy(() => import("@/components/whiteboard/ExerciseWh
 export type CanvasSurfaceProps = {
   week: number;
   audience: string;
+  sessionCode: string;
 };
 
 /**
@@ -54,7 +55,7 @@ export const isCanvasSurface = (activityType: string) =>
  * an explicit height it collapses to nothing.
  */
 export const CanvasSurface = ({
-  activityType, week, audience,
+  activityType, week, audience, sessionCode,
 }: { activityType: string } & CanvasSurfaceProps) => {
   const Surface = CANVAS_SURFACES[activityType];
   if (!Surface) return null;
@@ -69,7 +70,7 @@ export const CanvasSurface = ({
           </div>
         }
       >
-        <Surface week={week} audience={audience} />
+        <Surface week={week} audience={audience} sessionCode={sessionCode} />
       </Suspense>
     </div>
   );

@@ -151,6 +151,7 @@ describe("the terms this site is trying to be found for", () => {
 
 describe("member and staff surfaces are not indexable", () => {
   it("recognises the private prefixes", () => {
+    expect(isPrivatePath("/auth")).toBe(true);
     expect(isPrivatePath("/portal/dashboard")).toBe(true);
     expect(isPrivatePath("/admin")).toBe(true);
     expect(isPrivatePath("/b/abc123")).toBe(true);

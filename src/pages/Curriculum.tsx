@@ -25,6 +25,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Ripple from "@/components/brand/Ripple";
 import LessonOnePreview from "@/components/curriculum/LessonOnePreview";
+import logoWordmark from "@/assets/logo-blue-wordmark.png";
 import {
   useCurriculumWeeks,
   type CurriculumWeek,
@@ -181,9 +182,31 @@ const Eyebrow = ({
 }: {
   children: ReactNode;
 }) => (
-  <p className="font-body text-[9px] font-bold uppercase tracking-[0.32em] text-primary sm:text-[10px]">
+  <p className="font-body text-[9px] font-bold uppercase tracking-[0.32em] text-[#987747] sm:text-[10px]">
     {children}
   </p>
+);
+
+const EmbossedWordmark = ({
+  className = "h-4 w-32",
+}: {
+  className?: string;
+}) => (
+  <span
+    role="img"
+    aria-label="Mindcast"
+    className={`curriculum-gold-emboss block ${className}`}
+    style={{
+      WebkitMaskImage: `url(${logoWordmark})`,
+      maskImage: `url(${logoWordmark})`,
+      WebkitMaskPosition: "center",
+      maskPosition: "center",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      WebkitMaskSize: "contain",
+      maskSize: "contain",
+    }}
+  />
 );
 
 const PageHeading = ({
@@ -196,7 +219,7 @@ const PageHeading = ({
   <div>
     <Eyebrow>{eyebrow}</Eyebrow>
 
-    <h2 className="mt-2 font-display text-[clamp(2rem,4vw,4.15rem)] leading-[0.88] tracking-tight text-[#102438]">
+    <h2 className="mt-2 max-w-[18ch] font-serif text-[clamp(2.2rem,4vw,4.35rem)] font-medium leading-[0.92] tracking-[-0.025em] text-[#4e463c]">
       {children}
     </h2>
   </div>
@@ -229,8 +252,8 @@ const SegmentedControl = <T extends string>({
         onClick={() => onChange(option.value)}
         className={`min-h-9 rounded-full px-3 font-body text-[9px] font-bold uppercase tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-4 sm:text-[10px] ${
           value === option.value
-            ? "bg-white text-[#102438] shadow-sm"
-            : "text-[#617182] hover:text-[#102438]"
+            ? "bg-[#fffaf2] text-[#4e463c] shadow-sm"
+            : "text-[#776d61] hover:text-[#4e463c]"
         }`}
       >
         {option.label}
@@ -241,7 +264,7 @@ const SegmentedControl = <T extends string>({
 
 const BinderRings = () => (
   <div
-    className="relative hidden h-full border-r border-[#cfc5b5] lg:block"
+    className="relative hidden h-full border-r border-[#cdbda5] lg:block"
     aria-hidden="true"
   >
     <div className="absolute inset-y-0 right-0 w-px bg-white/70" />
@@ -249,14 +272,14 @@ const BinderRings = () => (
     {[20, 50, 80].map((top) => (
       <div
         key={top}
-        className="absolute right-[-18px] h-11 w-11 -translate-y-1/2 rounded-full border border-[#8b8175] shadow-[0_3px_7px_rgba(16,36,56,0.22)]"
+        className="absolute right-[-18px] h-11 w-11 -translate-y-1/2 rounded-full border border-[#9b825a] shadow-[0_4px_9px_rgba(92,67,31,0.2)]"
         style={{
           top: `${top}%`,
           background:
-            "linear-gradient(135deg,#6d665f 0%,#f7f3ec 26%,#8e857b 48%,#fdfbf7 70%,#756d65 100%)",
+            "linear-gradient(135deg,#7c6848 0%,#f8ecd4 24%,#b39665 47%,#fff9eb 70%,#8a724c 100%)",
         }}
       >
-        <span className="absolute inset-[7px] rounded-full bg-[#eee8dc] shadow-inner" />
+        <span className="absolute inset-[7px] rounded-full bg-[#efe4d3] shadow-[inset_0_2px_4px_rgba(96,70,35,0.28),0_1px_0_rgba(255,255,255,0.85)]" />
       </div>
     ))}
   </div>
@@ -290,16 +313,16 @@ const BinderTabs = ({
           onClick={() => onChange(item.key)}
           className={`group relative min-h-0 flex-1 rounded-r-2xl border px-4 py-2 text-left transition-[transform,background-color,border-color,box-shadow] focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             active
-              ? "-translate-x-3 border-[#d6cbbb] bg-white shadow-[6px_8px_18px_rgba(16,36,56,0.12)]"
-              : "border-[#d8cfbf] bg-[#e9e2d6] hover:-translate-x-1 hover:bg-[#f1ece3]"
+              ? "-translate-x-3 border-[#d9c8ad] bg-[#fffaf2] shadow-[7px_9px_20px_rgba(92,67,31,0.11)]"
+              : "border-[#ddcfba] bg-[#ebe2d3] hover:-translate-x-1 hover:bg-[#f4ecdf]"
           }`}
         >
           <span className="flex items-start justify-between gap-2">
             <span
               className={`font-display text-lg leading-none ${
                 active
-                  ? "text-primary"
-                  : "text-[#102438]/25"
+                  ? "text-[#9a7846]"
+                  : "text-[#5a5044]/25"
               }`}
             >
               {item.number}
@@ -310,13 +333,13 @@ const BinderTabs = ({
               strokeWidth={1.7}
               className={
                 active
-                  ? "text-primary"
-                  : "text-[#102438]/25"
+                  ? "text-[#9a7846]"
+                  : "text-[#5a5044]/25"
               }
             />
           </span>
 
-          <span className="mt-1 block font-body text-[9px] font-bold uppercase tracking-[0.14em] text-[#18364d] xl:text-[10px]">
+          <span className="mt-1 block font-body text-[9px] font-bold uppercase tracking-[0.14em] text-[#5c5144] xl:text-[10px]">
             {item.label}
           </span>
         </button>
@@ -335,7 +358,7 @@ const MobileTabs = ({
   <div
     role="tablist"
     aria-label="Life Binder sections"
-    className="flex gap-1 overflow-x-auto border-b border-[#ded5c7] bg-[#eee8dc] p-2 lg:hidden"
+    className="flex gap-1 overflow-x-auto border-b border-[#ddcfbb] bg-[#eee5d7] p-2 lg:hidden"
   >
     {TABS.map((item) => {
       const active = item.key === tab;
@@ -351,8 +374,8 @@ const MobileTabs = ({
           onClick={() => onChange(item.key)}
           className={`flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-3 font-body text-[9px] font-bold uppercase tracking-[0.12em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             active
-              ? "bg-white text-primary shadow-sm"
-              : "text-[#516577]"
+              ? "bg-[#fffaf2] text-[#947142] shadow-sm"
+              : "text-[#6d6255]"
           }`}
         >
           <Icon size={14} strokeWidth={1.7} />
@@ -379,29 +402,27 @@ const PaperPage = ({
       id="binder-page"
       role="tabpanel"
       aria-labelledby={`binder-tab-${tab}`}
-      className="relative h-full min-h-0 overflow-hidden rounded-r-[22px] border border-[#dcd4c7] bg-[#fffdf9] shadow-[0_18px_45px_rgba(16,36,56,0.13)]"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(53,133,175,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(53,133,175,0.025) 1px,transparent 1px)",
-        backgroundSize: "4px 4px",
-      }}
+      className="curriculum-paper relative h-full min-h-0 overflow-hidden rounded-r-[22px] border"
     >
       <div className="flex h-full min-h-0 flex-col">
-        <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#e7dfd3] px-4 sm:px-6">
+        <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#eadfce] px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <span className="font-display text-lg text-primary">
+            <span className="font-display text-lg text-[#9a7846]">
               {tabMeta.number}
             </span>
 
-            <span className="font-body text-[9px] font-bold uppercase tracking-[0.22em] text-[#102438]">
+            <span className="font-body text-[9px] font-bold uppercase tracking-[0.22em] text-[#51483e]">
               {tabMeta.label}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden font-body text-[8px] font-bold uppercase tracking-[0.28em] text-[#8a96a0] sm:block">
-              MINDCAST · The Life Binder
-            </span>
+            <div className="hidden items-center gap-3 sm:flex">
+              <EmbossedWordmark className="h-3 w-[112px]" />
+              <span className="font-body text-[7px] font-semibold uppercase tracking-[0.24em] text-[#9b8b76]">
+                The Life Binder
+              </span>
+            </div>
 
             <Ripple size={17} />
           </div>
@@ -428,16 +449,20 @@ const NotesPage = ({
 }) => (
   <div className="grid min-h-full items-center gap-8 xl:grid-cols-[1.08fr_0.92fr] xl:gap-12">
     <div>
-      <Eyebrow>Interactive curriculum explorer</Eyebrow>
+      <EmbossedWordmark className="h-6 w-[190px] sm:h-7 sm:w-[220px]" />
 
-      <h1 className="mt-4 max-w-[760px] font-display text-[clamp(3.15rem,7vw,6.8rem)] leading-[0.82] tracking-[-0.025em] text-[#102438]">
-        THE MINDCAST
+      <div className="mt-6">
+        <Eyebrow>Interactive curriculum explorer</Eyebrow>
+      </div>
+
+      <h1 className="mt-4 max-w-[760px] font-serif text-[clamp(3.1rem,5vw,5.25rem)] font-medium leading-[0.88] tracking-[-0.035em] text-[#4d453b]">
+        The Mindcast
         <br />
-        CURRICULUM.
+        Curriculum.
       </h1>
 
       <p
-        className="mt-5 max-w-2xl text-[clamp(1.2rem,2vw,1.75rem)] italic leading-snug text-[#304c63]"
+        className="mt-5 max-w-2xl text-[clamp(1.2rem,2vw,1.75rem)] italic leading-snug text-[#75614c]"
         style={{
           fontFamily: "var(--font-serif)",
         }}
@@ -445,7 +470,7 @@ const NotesPage = ({
         {CURRICULUM_SUBHEADLINE}
       </p>
 
-      <p className="mt-5 max-w-2xl font-body text-sm leading-6 text-[#617182] sm:text-base sm:leading-7">
+      <p className="mt-5 max-w-2xl font-body text-sm leading-6 text-[#6d655c] sm:text-base sm:leading-7">
         {CURRICULUM_OVERVIEW}
       </p>
 
@@ -453,7 +478,7 @@ const NotesPage = ({
         <button
           type="button"
           onClick={onOpenPhases}
-          className="inline-flex min-h-12 items-center justify-center gap-2 bg-primary px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#8b6d40] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-[#fffaf1] shadow-[0_8px_18px_-12px_rgba(88,62,27,0.65)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-[#765a34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
           Open phase one
           <ArrowRight size={15} />
@@ -462,19 +487,19 @@ const NotesPage = ({
         <button
           type="button"
           onClick={onOpenWorksheets}
-          className="inline-flex min-h-12 items-center justify-center gap-2 border border-primary/30 bg-white px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#b69a70] bg-[#fffaf2] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-[#765b36] transition-colors hover:border-[#8b6d40] hover:bg-[#f8efe1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
           See a worksheet
         </button>
       </div>
     </div>
 
-    <div className="rounded-2xl border border-[#ded5c7] bg-[#f3eee5]/75 p-5 sm:p-6">
+    <div className="rounded-2xl border border-[#dfd0ba] bg-[linear-gradient(145deg,rgba(250,245,236,0.92),rgba(239,229,213,0.72))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] sm:p-6">
       <div className="flex items-end justify-between gap-5 border-b border-[#d9cfbf] pb-4">
         <div>
           <Eyebrow>The shape of the year</Eyebrow>
 
-          <p className="mt-2 font-display text-3xl leading-none tracking-wide text-[#102438] sm:text-4xl">
+          <p className="mt-2 font-serif text-3xl font-semibold leading-none tracking-[-0.02em] text-[#4e463c] sm:text-4xl">
             4 × 13 WEEKS
           </p>
         </div>
@@ -494,8 +519,8 @@ const NotesPage = ({
               0{block.number}
             </span>
 
-            <span className="font-display text-xl tracking-[0.08em] text-[#102438] sm:text-2xl">
-              {block.name.toUpperCase()}
+            <span className="font-serif text-xl font-semibold text-[#4e463c] sm:text-2xl">
+              {block.name}
             </span>
 
             <span className="font-body text-[8px] font-bold uppercase tracking-[0.18em] text-[#71808e]">
@@ -505,7 +530,7 @@ const NotesPage = ({
         ))}
       </ol>
 
-      <p className="mt-4 font-body text-xs leading-5 text-[#617182]">
+      <p className="mt-4 font-body text-xs leading-5 text-[#6d655c]">
         Adults, teens and children explore the same weekly
         idea through three age-appropriate experiences.
       </p>
@@ -591,7 +616,7 @@ const PhasesPage = ({
     <div className="flex min-h-full flex-col">
       <div className="flex flex-col justify-between gap-5 border-b border-[#e4dccf] pb-5 xl:flex-row xl:items-end">
         <PageHeading eyebrow="Four phases · fifty-two weeks">
-          EXPLORE THE YEAR.
+          Explore the year.
         </PageHeading>
 
         <SegmentedControl
@@ -648,7 +673,7 @@ const PhasesPage = ({
               className={`min-h-12 rounded-lg border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 active
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-[#dcd3c5] bg-[#f4efe7] text-[#102438] hover:border-primary/50"
+                  : "border-[#dfd1bc] bg-[#f5ede1] text-[#4e463c] hover:border-[#b69a70]"
               }`}
             >
               <span className="block font-body text-[8px] font-bold uppercase tracking-[0.18em] opacity-65">
@@ -672,8 +697,8 @@ const PhasesPage = ({
                 {phase.weeks[0]}–{phase.weeks[1]}
               </Eyebrow>
 
-              <h3 className="mt-3 font-display text-4xl leading-none tracking-tight text-[#102438] sm:text-5xl">
-                {phase.name.toUpperCase()}
+              <h3 className="mt-3 font-serif text-4xl font-medium leading-none tracking-[-0.025em] text-[#4e463c] sm:text-5xl">
+                {phase.name}
               </h3>
             </div>
 
@@ -683,7 +708,7 @@ const PhasesPage = ({
           </div>
 
           <p
-            className="mt-5 text-xl italic leading-snug text-[#304c63] sm:text-2xl"
+            className="mt-5 text-xl italic leading-snug text-[#75614c] sm:text-2xl"
             style={{
               fontFamily: "var(--font-serif)",
             }}
@@ -691,7 +716,7 @@ const PhasesPage = ({
             {phaseCopy.focus}
           </p>
 
-          <p className="mt-3 font-body text-sm leading-6 text-[#617182]">
+          <p className="mt-3 font-body text-sm leading-6 text-[#6d655c]">
             {phaseCopy.description}
           </p>
 
@@ -700,7 +725,7 @@ const PhasesPage = ({
               Selected week · {TRACK_COPY[track].title}
             </Eyebrow>
 
-            <p className="mt-2 font-display text-2xl leading-tight tracking-wide text-[#102438]">
+            <p className="mt-2 font-serif text-2xl font-semibold leading-tight text-[#4e463c]">
               {selectedWeek
                 ? titleFor(selectedWeek)
                 : `Week ${selectedWeekNumber}`}
@@ -709,7 +734,7 @@ const PhasesPage = ({
             {selectedWeek?.weekly_theme &&
             selectedWeek.weekly_theme !==
               titleFor(selectedWeek) ? (
-              <p className="mt-2 font-body text-xs leading-5 text-[#617182]">
+              <p className="mt-2 font-body text-xs leading-5 text-[#6d655c]">
                 Shared idea: {selectedWeek.weekly_theme}
               </p>
             ) : null}
@@ -765,7 +790,7 @@ const PhasesPage = ({
                       }
                       className={`grid w-full grid-cols-[38px_1fr_auto] items-center gap-3 border-b border-[#eee8de] px-4 py-3 text-left transition-colors last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:px-5 ${
                         active
-                          ? "bg-[#edf5f8]"
+                          ? "bg-[#f7efe2]"
                           : "hover:bg-[#faf7f1]"
                       }`}
                     >
@@ -773,7 +798,7 @@ const PhasesPage = ({
                         className={`font-display text-lg ${
                           active
                             ? "text-primary"
-                            : "text-[#102438]/30"
+                            : "text-[#4e463c]/30"
                         }`}
                       >
                         {String(
@@ -782,7 +807,7 @@ const PhasesPage = ({
                       </span>
 
                       <span>
-                        <span className="block font-body text-xs font-semibold leading-5 text-[#102438] sm:text-sm">
+                        <span className="block font-body text-xs font-semibold leading-5 text-[#4e463c] sm:text-sm">
                           {titleFor(week)}
                         </span>
 
@@ -806,7 +831,7 @@ const PhasesPage = ({
                         className={
                           active
                             ? "text-primary"
-                            : "text-[#102438]/20"
+                            : "text-[#4e463c]/20"
                         }
                       />
                     </button>
@@ -898,14 +923,14 @@ const WorksheetPreview = ({
   track: Track;
   theme: string;
 }) => (
-  <div className="mx-auto flex h-full max-h-[520px] w-full max-w-[410px] flex-col overflow-hidden rounded-sm border border-[#d7cec0] bg-white shadow-[0_16px_35px_rgba(16,36,56,0.15)]">
-    <div className="flex items-start justify-between border-b-2 border-[#102438] px-5 py-4">
+  <div className="mx-auto flex h-full max-h-[520px] w-full max-w-[410px] flex-col overflow-hidden rounded-sm border border-[#ddcfbb] bg-[#fffaf2] shadow-[0_18px_38px_rgba(92,67,31,0.13)]">
+    <div className="flex items-start justify-between border-b border-[#b99e73] px-5 py-4">
       <div>
         <p className="font-body text-[8px] font-bold uppercase tracking-[0.26em] text-primary">
           Week 01 · {track}
         </p>
 
-        <h3 className="mt-2 font-display text-2xl leading-none tracking-wide text-[#102438]">
+        <h3 className="mt-2 font-serif text-2xl font-semibold leading-none text-[#4e463c]">
           {theme.toUpperCase()}
         </h3>
       </div>
@@ -924,7 +949,7 @@ const WorksheetPreview = ({
           </p>
 
           <p
-            className="mt-1 text-sm italic text-[#5f7180]"
+            className="mt-1 text-sm italic text-[#766a5e]"
             style={{
               fontFamily: "var(--font-serif)",
             }}
@@ -964,12 +989,12 @@ const WorksheetsPage = ({
     <div className="grid min-h-full gap-7 xl:grid-cols-[0.85fr_1.15fr] xl:items-center xl:gap-10">
       <div>
         <PageHeading eyebrow="One clear sheet at a time">
-          TAKE THE WEEK
+          Take the week
           <br />
-          HOME WITH YOU.
+          home with you.
         </PageHeading>
 
-        <p className="mt-4 max-w-xl font-body text-sm leading-6 text-[#617182] sm:text-base sm:leading-7">
+        <p className="mt-4 max-w-xl font-body text-sm leading-6 text-[#6d655c] sm:text-base sm:leading-7">
           The worksheet mirrors the live session, then
           gives the week somewhere to land. No stacked
           previews and no worksheets hidden inside the
@@ -1001,7 +1026,7 @@ const WorksheetsPage = ({
                   {step.day}
                 </p>
 
-                <p className="mt-1 font-body text-[10px] font-semibold leading-4 text-[#102438]">
+                <p className="mt-1 font-body text-[10px] font-semibold leading-4 text-[#4e463c]">
                   {step.title}
                 </p>
 
@@ -1023,7 +1048,7 @@ const WorksheetsPage = ({
             Included for visitors
           </p>
 
-          <p className="mt-2 font-body text-xs leading-5 text-[#617182] sm:text-sm">
+          <p className="mt-2 font-body text-xs leading-5 text-[#6d655c] sm:text-sm">
             Every visitor receives the worksheet for the
             session they attend. Adult members can also
             save their responses to a private digital journal;
@@ -1075,12 +1100,12 @@ const ReflectionPage = () => (
   <div className="flex min-h-full flex-col">
     <div className="grid gap-5 border-b border-[#e4dccf] pb-5 xl:grid-cols-[1fr_0.9fr] xl:items-end">
       <PageHeading eyebrow="One idea · three experiences">
-        A SHARED LANGUAGE,
+        A shared language,
         <br />
-        NOT A SHARED SCRIPT.
+        not a shared script.
       </PageHeading>
 
-      <p className="font-body text-sm leading-6 text-[#617182] xl:pb-1">
+      <p className="font-body text-sm leading-6 text-[#6d655c] xl:pb-1">
         Adults, teens and children explore the same weekly
         theme in separate, age-appropriate rooms. The
         connection happens afterwards—in the language a
@@ -1095,7 +1120,7 @@ const ReflectionPage = () => (
           className="rounded-2xl border border-[#ddd4c7] bg-white p-4 shadow-sm sm:p-5"
         >
           <div className="flex items-start justify-between">
-            <span className="font-display text-2xl tracking-[0.12em] text-[#102438]">
+            <span className="font-display text-2xl tracking-[0.12em] text-[#4e463c]">
               {track.label.toUpperCase()}
             </span>
 
@@ -1104,7 +1129,7 @@ const ReflectionPage = () => (
             </span>
           </div>
 
-          <p className="mt-3 font-body text-xs leading-5 text-[#617182] sm:text-sm sm:leading-6">
+          <p className="mt-3 font-body text-xs leading-5 text-[#6d655c] sm:text-sm sm:leading-6">
             {TRACK_COPY[track.key].body}
           </p>
         </article>
@@ -1112,18 +1137,18 @@ const ReflectionPage = () => (
     </div>
 
     <div className="mt-5 grid min-h-0 flex-1 gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-      <section className="rounded-2xl border border-primary/25 bg-[#edf5f8] p-5 sm:p-6">
+      <section className="rounded-2xl border border-[#d9c4a3] bg-[#f7efe2] p-5 sm:p-6">
         <div className="flex items-center gap-3">
           <Ripple size={24} />
 
           <Eyebrow>Shared language at home</Eyebrow>
         </div>
 
-        <p className="mt-4 font-display text-2xl leading-tight tracking-[0.1em] text-[#102438] sm:text-3xl">
+        <p className="mt-4 font-serif text-2xl font-semibold leading-tight text-[#4e463c] sm:text-3xl">
           {SHARED_LANGUAGE_TAGLINE}
         </p>
 
-        <p className="mt-3 max-w-2xl font-body text-xs leading-5 text-[#617182] sm:text-sm sm:leading-6">
+        <p className="mt-3 max-w-2xl font-body text-xs leading-5 text-[#6d655c] sm:text-sm sm:leading-6">
           {SHARED_LANGUAGE_COPY}
         </p>
 
@@ -1133,7 +1158,7 @@ const ReflectionPage = () => (
               key={item}
               className="flex items-center gap-3"
             >
-              <span className="font-display text-xl tracking-[0.12em] text-[#102438] sm:text-2xl">
+              <span className="font-display text-xl tracking-[0.12em] text-[#4e463c] sm:text-2xl">
                 {item}
               </span>
 
@@ -1151,11 +1176,11 @@ const ReflectionPage = () => (
       <section className="rounded-2xl border border-[#ddd4c7] bg-[#f4efe7]/80 p-5 sm:p-6">
         <Eyebrow>A year that remembers</Eyebrow>
 
-        <p className="mt-3 font-display text-2xl leading-tight tracking-wide text-[#102438] sm:text-3xl">
+        <p className="mt-3 font-serif text-2xl font-semibold leading-tight text-[#4e463c] sm:text-3xl">
           WE COME BACK BEFORE WE MOVE ON.
         </p>
 
-        <p className="mt-3 font-body text-xs leading-5 text-[#617182] sm:text-sm sm:leading-6">
+        <p className="mt-3 font-body text-xs leading-5 text-[#6d655c] sm:text-sm sm:leading-6">
           Each Sunday begins by returning to the previous
           intention. There is no failure state here—only
           a growing record of what you noticed.
@@ -1279,9 +1304,9 @@ const ShopPage = () => {
     <div className="flex min-h-full flex-col">
       <div className="flex flex-col justify-between gap-5 border-b border-[#e4dccf] pb-5 sm:flex-row sm:items-end">
         <PageHeading eyebrow="Pulled directly from the MINDCAST shop">
-          TOOLS FOR
+          Tools for
           <br />
-          INTENTIONAL LIVING.
+          intentional living.
         </PageHeading>
 
         <Link
@@ -1336,8 +1361,8 @@ const ShopPage = () => {
 
                 <div className="flex flex-1 flex-col p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-display text-xl leading-tight tracking-[0.06em] text-[#102438] sm:text-2xl">
-                      {product.name.toUpperCase()}
+                    <h3 className="font-serif text-xl font-semibold leading-tight text-[#4e463c] sm:text-2xl">
+                      {product.name}
                     </h3>
 
                     <span className="shrink-0 font-display text-xl text-primary">
@@ -1349,7 +1374,7 @@ const ShopPage = () => {
                   </div>
 
                   {product.description ? (
-                    <p className="mt-3 line-clamp-3 font-body text-xs leading-5 text-[#617182] sm:text-sm">
+                    <p className="mt-3 line-clamp-3 font-body text-xs leading-5 text-[#6d655c] sm:text-sm">
                       {product.description}
                     </p>
                   ) : null}
@@ -1371,7 +1396,7 @@ const ShopPage = () => {
                 strokeWidth={1.4}
               />
 
-              <p className="mt-4 font-display text-2xl tracking-wide text-[#102438]">
+              <p className="mt-4 font-serif text-2xl font-semibold text-[#4e463c]">
                 {error
                   ? "THE SHOP COULDN'T LOAD HERE."
                   : "PRODUCTS ARE BEING ADDED."}
@@ -1428,22 +1453,15 @@ const Curriculum = () => {
   };
 
   return (
-    <div className="h-[100svh] overflow-hidden bg-[#f7f2ea]">
+    <div className="curriculum-room h-[100svh] overflow-hidden">
       <Navbar />
 
       <main className="h-full px-2 pb-2 pt-[72px] sm:px-4 sm:pb-4 lg:px-6">
         <section
           aria-label="Interactive MINDCAST Life Binder"
-          className="relative mx-auto h-full max-h-[880px] w-full max-w-[1240px] overflow-hidden rounded-[24px] border border-[#cfc4b2] shadow-[0_24px_70px_rgba(16,36,56,0.16)] sm:rounded-[30px]"
-          style={{
-            backgroundColor: "#eee8dc",
-            backgroundImage:
-              "radial-gradient(rgba(84,72,55,0.12) 0.55px,transparent 0.55px),linear-gradient(115deg,rgba(255,255,255,0.58),rgba(229,219,203,0.42))",
-            backgroundSize:
-              "3px 3px,100% 100%",
-          }}
+          className="curriculum-binder-cover relative mx-auto h-full max-h-[880px] w-full max-w-[1240px] overflow-hidden rounded-[24px] border sm:rounded-[30px]"
         >
-          <div className="absolute inset-y-0 left-[52px] hidden w-px bg-[#c5baa9] shadow-[1px_0_rgba(255,255,255,0.8)] lg:block" />
+          <div className="absolute inset-y-0 left-[52px] hidden w-px bg-[#cdbb9f] shadow-[1px_0_rgba(255,255,255,0.82)] lg:block" />
 
           <MobileTabs
             tab={tab}

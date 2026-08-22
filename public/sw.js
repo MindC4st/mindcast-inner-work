@@ -28,6 +28,7 @@ function isNetworkOnly(url) {
     url.pathname.startsWith("/functions/") ||
     url.pathname.startsWith("/rest/") ||
     url.pathname.startsWith("/realtime/") ||
+    url.pathname === "/auth" ||
     url.pathname.startsWith("/auth/")
   );
 }

@@ -180,7 +180,7 @@ const PortalBilling = () => {
   };
 
   const startCheckout = async (plan: Plan) => {
-    if (!user) { navigate("/portal/login"); return; }
+    if (!user) { navigate("/auth?redirect=%2Fportal%2Fbilling"); return; }
     if (busy) return; // one checkout at a time — double-tap guard
     if (totalSeats < 1) { setCheckoutError("Select at least one membership."); return; }
 

@@ -32,7 +32,7 @@ const PortalLayout = ({ children, wide = false }: { children: ReactNode; wide?: 
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/portal/login");
+    navigate("/auth");
   };
 
   const isActive = (to: string) => location.pathname.startsWith(to);

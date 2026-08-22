@@ -250,28 +250,48 @@ const SessionRecord = ({ weekNum, track }: { weekNum: number; track: string }) =
   const [responses, setResponses] = useState<{ id: string; display_name: string; response_text: string }[]>([]);
   const [whiteboard, setWhiteboard] = useState<unknown | null>(null);
   const [boardOpen, setBoardOpen] = useState(false);
+  const [recordedAt, setRecordedAt] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const [{ data: resp }, { data: wb }] = await Promise.all([
-        db.from("session_responses")
-          .select("id, display_name, response_text")
-          .eq("week_number", weekNum)
-          .eq("audience_type", track)
-          .eq("is_public", true)
-          .eq("hidden", false)
-          .eq("moderation_status", "approved")
-          .order("created_at"),
-        db.from("whiteboard_snapshots")
-          .select("snapshot")
-          .eq("week_number", weekNum)
-          .eq("audience_type", track)
-          .maybeSingle(),
-      ]);
+      // A week may be facilitated more than once. Resolve one concrete room
+      // first, then keep its responses and board together as one history item.
+      const { data: latest } = await db.from("live_session_state")
+        .select("session_code, opened_at, updated_at")
+        .eq("week_number", weekNum)
+        .eq("audience", track)
+        .order("opened_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const responseQuery = db.from("session_responses")
+        .select("id, display_name, response_text")
+        .eq("week_number", weekNum)
+        .eq("audience_type", track)
+        .eq("is_public", true)
+        .eq("hidden", false)
+        .eq("moderation_status", "approved")
+        .order("created_at");
+      const boardQuery = db.from("whiteboard_snapshots")
+        .select("snapshot")
+        .eq("week_number", weekNum)
+        .eq("audience_type", track)
+        .eq("slide_key", "deeper");
+
+      const [{ data: resp }, { data: wb }] = latest?.session_code
+        ? await Promise.all([
+            responseQuery.eq("session_code", latest.session_code),
+            boardQuery.eq("session_code", latest.session_code).maybeSingle(),
+          ])
+        : await Promise.all([
+            responseQuery,
+            boardQuery.order("updated_at", { ascending: false }).limit(1).maybeSingle(),
+          ]);
       if (!active) return;
       setResponses(resp ?? []);
       setWhiteboard(wb?.snapshot ?? null);
+      setRecordedAt(latest?.opened_at || latest?.updated_at || null);
     })();
     return () => { active = false; };
   }, [weekNum, track]);
@@ -281,7 +301,9 @@ const SessionRecord = ({ weekNum, track }: { weekNum: number; track: string }) =
   return (
     <section className="mb-10 portal-card p-5 md:p-6">
       <h2 className="portal-heading text-lg text-foreground mb-1 flex items-center gap-2"><Users size={16} /> Shared in the session</h2>
-      <p className="text-xs text-muted-foreground font-body mb-4">Reflections that were shown on the screen this week.</p>
+      <p className="text-xs text-muted-foreground font-body mb-4">
+        Reflections and facilitator input saved with this room{recordedAt ? ` · ${new Date(recordedAt).toLocaleDateString()}` : ""}.
+      </p>
       {responses.length === 0 ? (
         <p className="text-sm text-muted-foreground font-body font-light">No shared reflections were displayed this week.</p>
       ) : (
