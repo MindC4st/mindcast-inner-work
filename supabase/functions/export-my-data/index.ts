@@ -67,6 +67,15 @@ serve(async (req) => {
       .from("guardian_consents").select("*").eq("subject_profile_id", profileId);
     data.guardian_consents = consents ?? [];
 
+    const { data: youthConsentsAsSubject } = await supa
+      .from("youth_participation_consents").select("*").eq("subject_profile_id", profileId);
+    const { data: youthConsentsAsGuardian } = await supa
+      .from("youth_participation_consents").select("*").eq("guardian_profile_id", profileId);
+    data.youth_participation_consents = [
+      ...(youthConsentsAsSubject ?? []),
+      ...(youthConsentsAsGuardian ?? []),
+    ];
+
     const { data: collectors } = await supa
       .from("authorised_collectors").select("*").eq("added_by", profileId);
     data.authorised_collectors_added = collectors ?? [];

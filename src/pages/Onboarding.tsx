@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -76,9 +76,7 @@ const Onboarding = () => {
   const [displayName, setDisplayName] = useState("");
   const [dobInput, setDobInput] = useState("");
   const [dobTouched, setDobTouched] = useState(false);
-  const [guardianName, setGuardianName] = useState("");
-  const [guardianContact, setGuardianContact] = useState("");
-  const [guardianAgrees, setGuardianAgrees] = useState(false);
+  const [guardianConsentRecorded, setGuardianConsentRecorded] = useState<boolean | null>(null);
   const [optIn, setOptIn] = useState<boolean | null>(null);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
@@ -91,57 +89,54 @@ const Onboarding = () => {
   const totalSteps = isTeen ? 4 : 3;
   const currentStep = Math.min(step, totalSteps);
 
+  useEffect(() => {
+    if (!isTeen || !user) {
+      setGuardianConsentRecorded(null);
+      return;
+    }
+    let active = true;
+    void (async () => {
+      let profileId = profile?.id as string | undefined;
+      if (!profileId) {
+        const { data } = await supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle();
+        profileId = data?.id;
+      }
+      if (!profileId) {
+        if (active) setGuardianConsentRecorded(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("guardian_consents")
+        .select("id")
+        .eq("subject_profile_id", profileId)
+        .eq("consent_type", "teen_membership")
+        .is("revoked_at", null)
+        .limit(1)
+        .maybeSingle();
+      if (active) setGuardianConsentRecorded(Boolean(data));
+    })();
+    return () => { active = false; };
+  }, [isTeen, profile?.id, user]);
+
   const finish = async () => {
     if (!user || !parsedDob || isChild) return;
-    if (isTeen && (!guardianName.trim() || !guardianContact.trim() || !guardianAgrees)) return;
+    if (isTeen && guardianConsentRecorded !== true) {
+      toast({
+        title: "Guardian approval is required",
+        description: "A parent or legal guardian must invite you through their Family & Safety setup.",
+        variant: "destructive",
+      });
+      return;
+    }
     setSaving(true);
     try {
-      // Consent is written first. A partial save can never mark a teen's
-      // onboarding complete without the required active consent record.
-      if (isTeen) {
-        let profileId = profile?.id as string | undefined;
-        if (!profileId) {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("id")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (error) throw error;
-          profileId = data?.id;
-        }
-        if (!profileId) throw new Error("Profile not found");
-
-        const { data: existingConsent, error: consentReadError } = await supabase
-          .from("guardian_consents")
-          .select("id")
-          .eq("subject_profile_id", profileId)
-          .eq("consent_type", "teen_membership")
-          .is("revoked_at", null)
-          .limit(1)
-          .maybeSingle();
-        if (consentReadError) throw consentReadError;
-
-        if (!existingConsent) {
-          const contact = guardianContact.trim();
-          const { error: consentWriteError } = await supabase.from("guardian_consents").insert({
-            subject_profile_id: profileId,
-            consent_type: "teen_membership",
-            guardian_name: guardianName.trim(),
-            guardian_email: contact.includes("@") ? contact : null,
-            guardian_phone: contact.includes("@") ? null : contact,
-            recorded_by: user.id,
-          });
-          if (consentWriteError) throw consentWriteError;
-        }
-      }
-
       const { data: updatedProfile, error: profileError } = await supabase
         .from("profiles")
         .update({
           display_name: displayName || undefined,
           age_group: isTeen ? "teen" : "adult",
           date_of_birth: parsedDob.iso,
-          opt_in_public_goals: optIn ?? false,
+          opt_in_public_goals: isTeen ? false : (optIn ?? false),
           onboarding_complete: true,
         })
         .eq("user_id", user.id)
@@ -379,7 +374,7 @@ const Onboarding = () => {
                 className="w-full"
                 onSubmit={(event) => {
                   event.preventDefault();
-                  if (guardianName.trim() && guardianContact.trim() && guardianAgrees) setStep(4);
+                  if (guardianConsentRecorded) setStep(4);
                 }}
               >
                 <button
@@ -397,58 +392,24 @@ const Onboarding = () => {
                   One thing first.
                 </h2>
                 <p className="mt-4 max-w-xl font-body text-sm leading-7 text-muted-foreground">
-                  Because you’re under 18, we record that a parent or guardian knows you’re joining
-                  and agrees. We may contact them to confirm. Your journal stays private.
+                  Because you’re under 18, a parent or legal guardian must create or approve your
+                  account from their Family &amp; Safety setup. You cannot record that consent on their behalf.
                 </p>
 
-                <div className="mt-8 grid max-w-xl gap-5 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="guardian-name" className="font-body text-sm font-semibold text-foreground">
-                      Parent or guardian’s name
-                    </label>
-                    <input
-                      id="guardian-name"
-                      type="text"
-                      value={guardianName}
-                      onChange={(event) => setGuardianName(event.target.value)}
-                      autoComplete="name"
-                      required
-                      className={fieldClass}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="guardian-contact" className="font-body text-sm font-semibold text-foreground">
-                      Their email or phone
-                    </label>
-                    <input
-                      id="guardian-contact"
-                      type="text"
-                      value={guardianContact}
-                      onChange={(event) => setGuardianContact(event.target.value)}
-                      autoComplete="email"
-                      required
-                      className={fieldClass}
-                    />
-                  </div>
+                <div className={`mt-8 max-w-xl rounded-2xl border p-5 ${guardianConsentRecorded ? "border-primary/20 bg-primary/[0.05]" : "border-foreground/10 bg-white"}`}>
+                  <p className="font-body text-sm font-semibold text-foreground">
+                    {guardianConsentRecorded === null ? "Checking guardian approval…" : guardianConsentRecorded ? "Guardian approval recorded" : "Guardian approval not found"}
+                  </p>
+                  <p className="mt-2 font-body text-xs leading-5 text-muted-foreground">
+                    {guardianConsentRecorded
+                      ? "You can continue. Your teen account provides read-only lesson history, worksheet downloads and NFC check-in where your guardian has consented."
+                      : "Ask your parent or legal guardian to sign in, open Family & Safety, and add your teen account. The annual participation form is completed there too."}
+                  </p>
                 </div>
-
-                <label className="mt-7 flex max-w-xl cursor-pointer items-start gap-3 rounded-xl border border-foreground/10 bg-white p-4 shadow-sm transition hover:border-primary/30">
-                  <input
-                    type="checkbox"
-                    checked={guardianAgrees}
-                    onChange={(event) => setGuardianAgrees(event.target.checked)}
-                    required
-                    className="mt-0.5 h-5 w-5 shrink-0 accent-primary"
-                  />
-                  <span className="font-body text-sm leading-6 text-muted-foreground">
-                    My parent or guardian knows I’m creating this account and agrees to me taking
-                    part in Mindcast teen sessions.
-                  </span>
-                </label>
 
                 <button
                   type="submit"
-                  disabled={!guardianName.trim() || !guardianContact.trim() || !guardianAgrees}
+                  disabled={guardianConsentRecorded !== true}
                   className="mt-10 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-body text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                 >
                   Continue <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -467,13 +428,15 @@ const Onboarding = () => {
                 </button>
                 <p className="portal-label mb-3">Your privacy</p>
                 <h2 className="max-w-xl font-serif text-4xl leading-tight text-foreground sm:text-5xl">
-                  Would you like to share your weekly progress?
+                  {isTeen ? "Your teen account is read-only." : "Would you like to share your weekly progress?"}
                 </h2>
                 <p className="mt-4 max-w-xl font-body text-sm leading-7 text-muted-foreground">
-                  This is completely optional. You can change your choice any time in settings.
+                  {isTeen
+                    ? "You can use your login to see teen session history, download teen worksheets and use an NFC bracelet for check-in where your guardian has consented. Teen and child work is paper-based, so there is no digital journal and no submission tools."
+                    : "This is completely optional. You can change your choice any time in settings."}
                 </p>
 
-                <fieldset className="mt-8 grid max-w-xl gap-3">
+                {!isTeen && <fieldset className="mt-8 grid max-w-xl gap-3">
                   <legend className="sr-only">Weekly progress sharing preference</legend>
                   {[
                     { value: true, title: "Yes, I’m happy to share", detail: "My group can celebrate how my weekly goal went." },
@@ -506,12 +469,18 @@ const Onboarding = () => {
                       </button>
                     );
                   })}
-                </fieldset>
+                </fieldset>}
+
+                {isTeen && (
+                  <div className="mt-8 max-w-xl rounded-2xl border border-primary/15 bg-primary/[0.05] p-5 font-body text-sm leading-7 text-muted-foreground">
+                    Your reflections stay on your printed worksheet. They are not uploaded to Mindcast and cannot be read by facilitators or admins through the app.
+                  </div>
+                )}
 
                 <button
                   type="button"
                   onClick={finish}
-                  disabled={optIn === null || saving || !user}
+                  disabled={(!isTeen && optIn === null) || saving || !user}
                   className="mt-10 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-body text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                 >
                   {saving ? "Setting up your space…" : "Enter my member space"}

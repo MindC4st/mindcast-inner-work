@@ -223,7 +223,7 @@ serve(async (req: Request) => {
     }
 
     const generatedImageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
-    let imageBytes = generatedImageBytes;
+    let imageBytes: Uint8Array = generatedImageBytes;
     try {
       imageBytes = cropWhiteMargins(generatedImageBytes).bytes;
     } catch (error) {

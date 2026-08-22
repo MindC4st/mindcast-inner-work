@@ -38,8 +38,8 @@ export type Entitlement =
 export const PURCHASE_OPTIONS: Record<string, PurchaseOption> = {
   adult_membership_weekly: { lookupKey: "adult_membership_weekly", label: "Adult membership — $19/week", priceNzd: 19 },
   young_person_place_weekly: { lookupKey: "young_person_place_weekly", label: "Young person place — $9/week (with an adult membership)", priceNzd: 9 },
-  visitor_card_adult_10: { lookupKey: "visitor_card_adult_10", label: "Adult visitor card — 10 trips $240 ($24/session)", priceNzd: 240, perSessionNzd: 24 },
-  visitor_card_youth_10: { lookupKey: "visitor_card_youth_10", label: "Under-18 visitor card — 10 trips $120 ($12/session)", priceNzd: 120, perSessionNzd: 12 },
+  visitor_card_adult_10: { lookupKey: "visitor_card_adult_10", label: "Adult Concession Pass — 10 sessions $240 ($24/session)", priceNzd: 240, perSessionNzd: 24 },
+  visitor_card_youth_10: { lookupKey: "visitor_card_youth_10", label: "Under-18 Concession Pass — 10 sessions $120 ($12/session)", priceNzd: 120, perSessionNzd: 12 },
   one_off_adult: { lookupKey: "one_off_adult", label: "Adult one-off session — $30", priceNzd: 30 },
   one_off_youth: { lookupKey: "one_off_youth", label: "Under-18 one-off session — $15", priceNzd: 15 },
 };

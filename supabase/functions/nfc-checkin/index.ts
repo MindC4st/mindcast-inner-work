@@ -118,6 +118,39 @@ serve(async (req) => {
     if (pErr) throw pErr;
     if (!profile) return json({ error: "Unknown bracelet" }, 404);
 
+    // Teen and child participation fails closed until a guardian has completed
+    // the current annual form in /portal/family. The bracelet choice is
+    // separate and explicit: a young person may attend without an NFC bracelet,
+    // but this NFC endpoint cannot be used unless that use was consented to.
+    const ageGroup = String((profile as any).age_group || "").toLowerCase();
+    if (action === "checkin" && ["teen", "child", "little_ones"].includes(ageGroup)) {
+      const programmeYear = Number(new Intl.DateTimeFormat("en-NZ", {
+        timeZone: "Pacific/Auckland",
+        year: "numeric",
+      }).format(new Date()));
+      const { data: consent, error: consentError } = await supa
+        .from("youth_participation_consents")
+        .select("attendance_consent, operational_data_consent, nfc_bracelet_consent, expires_at, revoked_at")
+        .eq("subject_profile_id", profile.id)
+        .eq("programme_year", programmeYear)
+        .is("revoked_at", null)
+        .gt("expires_at", new Date().toISOString())
+        .maybeSingle();
+      if (consentError) throw consentError;
+      if (!consent?.attendance_consent || !consent?.operational_data_consent) {
+        return json({
+          error: "A parent or guardian must complete the annual participation form before check-in.",
+          code: "youth_consent_required",
+        }, 403);
+      }
+      if (!consent.nfc_bracelet_consent) {
+        return json({
+          error: "NFC bracelet consent is not recorded. Please see a facilitator for check-in.",
+          code: "youth_nfc_consent_required",
+        }, 403);
+      }
+    }
+
     const mode = ((profile as any).live_display_mode as DisplayMode) || "first_initial";
     const displayName = computeDisplayName(profile, mode);
     // Always the member's first name + last initial — the tap page greets the

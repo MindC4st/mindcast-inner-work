@@ -1,16 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, UserPlus, X, Monitor, DoorOpen, GraduationCap } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import PortalLayout from "@/components/portal/PortalLayout";
+import YouthConsentForm, { type YouthConsentRow } from "@/components/portal/YouthConsentForm";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { currentProgrammeYear, isYouthConsentCurrent } from "@/lib/youthConsent";
 
 // /portal/family — the guardian's control room for everything safeguarding:
 //   - authorised collectors per child (the ONLY people a child can leave with)
 //   - welcome-wall display consent per child/teen (revocable, honoured next scan)
 //   - teen self-sign-out permission per teen
 //   - your own wall opt-out
+//   - annual participation, emergency, NFC and promotional-photo consent
 //
 // All four are fail-closed in the database; this page is how a guardian opens
 // them deliberately.
@@ -31,15 +35,19 @@ type Collector = {
 
 const PortalFamily = () => {
   const { user, profile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const completingSetup = searchParams.get("setup") === "consent";
   const [children, setChildren] = useState<Child[]>([]);
   const [collectors, setCollectors] = useState<Record<string, Collector[]>>({});
   const [wallConsent, setWallConsent] = useState<Record<string, boolean>>({});
   const [selfSignout, setSelfSignout] = useState<Record<string, boolean>>({});
+  const [participationConsent, setParticipationConsent] = useState<Record<string, YouthConsentRow>>({});
   const [ownWallOptOut, setOwnWallOptOut] = useState(false);
   const [loading, setLoading] = useState(true);
   const [newCollector, setNewCollector] = useState<Record<string, { name: string; phone: string }>>({});
   const [teenEmail, setTeenEmail] = useState("");
   const [teenName, setTeenName] = useState("");
+  const [teenInviteAgrees, setTeenInviteAgrees] = useState(false);
   const [inviting, setInviting] = useState(false);
 
   const myProfileId = (profile?.id as string | undefined) ?? null;
@@ -59,9 +67,10 @@ const PortalFamily = () => {
     if (kids.length > 0) {
       const ids = kids.map((k) => k.profile_id);
 
-      const [collRes, consentRes] = await Promise.all([
+      const [collRes, consentRes, participationRes] = await Promise.all([
         supabase.from("authorised_collectors").select("id, child_profile_id, name, phone, created_at, revoked_at").in("child_profile_id", ids),
         supabase.from("guardian_consents").select("subject_profile_id, consent_type, revoked_at").in("subject_profile_id", ids).eq("consent_type", "wall_display"),
+        supabase.from("youth_participation_consents").select("*").in("subject_profile_id", ids).eq("programme_year", currentProgrammeYear()),
       ]);
 
       const byChild: Record<string, Collector[]> = {};
@@ -77,6 +86,10 @@ const PortalFamily = () => {
       });
       setWallConsent(consent);
 
+      const participation: Record<string, YouthConsentRow> = {};
+      (participationRes.data ?? []).forEach((row) => { participation[row.subject_profile_id] = row; });
+      setParticipationConsent(participation);
+
       const sso: Record<string, boolean> = {};
       (kidsRows ?? []).forEach((m) => { sso[m.profile_id] = Boolean(m.teen_self_signout); });
       setSelfSignout(sso);
@@ -84,6 +97,7 @@ const PortalFamily = () => {
       setCollectors({});
       setWallConsent({});
       setSelfSignout({});
+      setParticipationConsent({});
     }
 
     // My own wall preference.
@@ -180,10 +194,10 @@ const PortalFamily = () => {
 
   const inviteTeen = async () => {
     const email = teenEmail.trim();
-    if (!email || inviting) return;
+    if (!email || !teenInviteAgrees || inviting) return;
     setInviting(true);
     const { error } = await supabase.functions.invoke("invite-teen", {
-      body: { email, first_name: teenName.trim() || null },
+      body: { email, first_name: teenName.trim() || null, guardian_account_consent: teenInviteAgrees },
     });
     setInviting(false);
     if (error) {
@@ -193,6 +207,8 @@ const PortalFamily = () => {
     toast({ title: "Invite sent", description: `${email} will get a magic link to set up their account.` });
     setTeenEmail("");
     setTeenName("");
+    setTeenInviteAgrees(false);
+    void load();
   };
 
   /* ── render ── */
@@ -216,10 +232,19 @@ const PortalFamily = () => {
       </p>
       <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-2">YOUR FAMILY AT MINDCAST</h1>
       <p className="text-sm text-muted-foreground mb-8 font-body max-w-2xl leading-relaxed">
-        Who your children can leave with, whether their names appear on the room's welcome wall,
-        and whether a teen may sign themselves out. Everything here can be changed at any time —
-        changes take effect from the next check-in.
+        Complete each young person's annual participation form, emergency and photography choices,
+        then manage collection, welcome-wall and teen sign-out settings. A current form is required
+        before a child or teen can check in.
       </p>
+
+      {completingSetup && (
+        <div className="mb-6 rounded-sm border border-primary/20 bg-primary/[0.05] p-4">
+          <p className="font-body text-sm font-semibold text-foreground">Payment complete — finish your family's safety setup</p>
+          <p className="mt-1 font-body text-xs leading-5 text-muted-foreground">
+            Complete one annual form for each child or teen below. If their names have not appeared yet, wait a moment and refresh; Stripe may have returned before the household webhook finished linking everyone.
+          </p>
+        </div>
+      )}
 
       {loading ? (
         <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
@@ -247,7 +272,8 @@ const PortalFamily = () => {
                 <p className="text-sm font-body font-semibold text-foreground">Add a teen (13–17)</p>
                 <p className="text-xs text-muted-foreground font-body mt-1">
                   Enter their email and we'll send a magic link so they can set up their own account —
-                  a read-only dashboard with their weekly lessons.
+                  a read-only dashboard for teen session history, worksheets and NFC check-in. Teen
+                  accounts do not include a digital journal or submission tools.
                 </p>
               </div>
             </div>
@@ -267,12 +293,18 @@ const PortalFamily = () => {
               />
               <button
                 onClick={() => void inviteTeen()}
-                disabled={!teenEmail.trim() || inviting}
+                disabled={!teenEmail.trim() || !teenInviteAgrees || inviting}
                 className="inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground px-4 py-2.5 text-[11px] tracking-widest uppercase font-body disabled:opacity-40"
               >
                 <UserPlus size={13} /> {inviting ? "Sending…" : "Invite teen"}
               </button>
             </div>
+            <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-sm border border-border bg-background/60 p-3">
+              <input type="checkbox" checked={teenInviteAgrees} onChange={(e) => setTeenInviteAgrees(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-primary" />
+              <span className="font-body text-xs leading-5 text-muted-foreground">
+                I am this teen's parent or legal guardian and consent to them having a read-only Mindcast teen account. I will complete their annual participation form below before they attend.
+              </span>
+            </label>
           </motion.div>
 
           {children.length === 0 && (
@@ -287,6 +319,8 @@ const PortalFamily = () => {
           {children.map((child, i) => {
             const active = (collectors[child.profile_id] ?? []).filter((c) => !c.revoked_at);
             const isTeen = child.role_in_household === "teen";
+            const annualConsent = participationConsent[child.profile_id] ?? null;
+            const consentCurrent = isYouthConsentCurrent(annualConsent);
             return (
               <motion.div
                 key={child.profile_id}
@@ -303,6 +337,9 @@ const PortalFamily = () => {
                     </span>
                   </h2>
                   <div className="flex items-center gap-3">
+                    <span className={`rounded-full px-2.5 py-1 text-[9px] font-body font-semibold uppercase tracking-widest ${consentCurrent ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
+                      {consentCurrent ? "Consent current" : "Consent required"}
+                    </span>
                     <span className="text-xs font-body text-muted-foreground">Name on welcome wall</span>
                     <Toggle
                       on={Boolean(wallConsent[child.profile_id])}
@@ -332,8 +369,16 @@ const PortalFamily = () => {
                   </div>
                 )}
 
+                <YouthConsentForm
+                  youth={child}
+                  guardianProfileId={myProfileId || ""}
+                  guardianName={profile?.name || profile?.display_name || ""}
+                  consent={annualConsent}
+                  onSaved={() => void load()}
+                />
+
                 {/* Authorised collectors */}
-                <p className="text-[10px] font-body tracking-[0.25em] uppercase text-foreground/50 mb-3">
+                <p className="mt-6 text-[10px] font-body tracking-[0.25em] uppercase text-foreground/50 mb-3">
                   Authorised collectors — the only people {child.display_name} can leave with
                 </p>
                 {active.length === 0 ? (

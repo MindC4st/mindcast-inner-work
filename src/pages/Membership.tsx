@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
+  Loader2,
   Repeat2,
   ScanLine,
   ShieldCheck,
@@ -19,7 +20,12 @@ import Navbar from "@/components/Navbar";
 import Ripple from "@/components/brand/Ripple";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { PRICING, formatWeekly } from "@/lib/membershipPricing";
+import {
+  FAMILY_DISCOUNT_PERCENT,
+  PRICING,
+  formatWeekly,
+  type AccessPassLookupKey,
+} from "@/lib/membershipPricing";
 import familyWorkbooks from "@/assets/home-family-workbooks.jpg";
 import lifeGroup from "@/assets/home-life-group.jpg";
 import threeWorkbooks from "@/assets/home-three-workbooks.jpg";
@@ -85,48 +91,46 @@ const SecondaryLink = ({ to, children }: { to: string; children: ReactNode }) =>
 );
 
 /* -------------------------------------------------------------------------- */
-/* Concession request                                                         */
+/* Prepaid access checkout                                                    */
 /* -------------------------------------------------------------------------- */
 
-const ConcessionButton = () => {
+const AccessCheckoutButton = ({
+  lookupKey,
+  label = "Buy online",
+}: {
+  lookupKey: AccessPassLookupKey;
+  label?: string;
+}) => {
   const { user } = useAuth();
-  const [state, setState] = useState<"idle" | "busy" | "done" | "already" | "error">("idle");
+  const [state, setState] = useState<"idle" | "busy" | "error">("idle");
 
-  const request = async () => {
+  const checkout = async () => {
     if (!user) return;
-
     setState("busy");
-
-    const { error } = await supabase
-      .from("concession_requests")
-      .insert({
-        user_id: user.id,
-        status: "requested",
+    try {
+      const { data, error } = await supabase.functions.invoke("create-access-pass-checkout", {
+        body: { lookup_key: lookupKey },
       });
-
-    if (!error) setState("done");
-    else if (error.code === "23505") setState("already");
-    else setState("error");
+      if (error) throw error;
+      if (data?.url) {
+        window.location.assign(data.url);
+        return;
+      }
+      throw new Error(data?.error || "Checkout did not return a URL");
+    } catch (error) {
+      console.error("create-access-pass-checkout failed:", error);
+      setState("error");
+    }
   };
 
   if (!user) {
     return (
       <Link
-        to="/auth?redirect=%2Fmembership"
+        to="/auth?redirect=%2Fmembership%23flexible-access"
         className="inline-flex min-h-[50px] w-full items-center justify-center border border-primary bg-white px-5 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
       >
-        Sign in to request
+        Sign in to buy
       </Link>
-    );
-  }
-
-  if (state === "done" || state === "already") {
-    return (
-      <p role="status" className="min-h-[50px] border border-primary/30 bg-primary/5 px-4 py-3 text-center font-body text-xs leading-5 text-primary">
-        {state === "done"
-          ? "Done. We’ll set it up and let you know—nothing more to explain."
-          : "Your request is already with us."}
-      </p>
     );
   }
 
@@ -134,16 +138,16 @@ const ConcessionButton = () => {
     <div>
       <button
         type="button"
-        onClick={request}
+        onClick={() => void checkout()}
         disabled={state === "busy"}
-        className="inline-flex min-h-[50px] w-full items-center justify-center border border-primary bg-white px-5 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 border border-primary bg-white px-4 font-body text-[9px] font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
-        {state === "busy" ? "Requesting…" : "Request a concession place"}
+        {state === "busy" ? <><Loader2 size={14} className="animate-spin" /> Opening checkout…</> : label}
       </button>
 
       {state === "error" ? (
         <p role="alert" className="mt-2 font-body text-xs leading-5 text-destructive">
-          That did not go through. Try again, or mention it at the door.
+          Checkout did not open. Please try again or contact MINDCAST.
         </p>
       ) : null}
     </div>
@@ -292,8 +296,8 @@ const EntryPaths = () => (
           CHOOSE THE DOOR THAT FITS.
         </h2>
         <p className="mt-5 max-w-2xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
-          Try the room first, join the weekly practice, or request a concession place. No pathway
-          is hidden, and nobody needs to explain why they chose it.
+          Try the room first, join the weekly practice, or buy a prepaid Concession Pass. Every
+          price and access boundary is visible before you choose.
         </p>
       </Reveal>
 
@@ -337,18 +341,18 @@ const EntryPaths = () => (
         <Reveal delay={0.12}>
           <EntryCard
             number="03"
-            eyebrow="No explanation asked"
-            title="CONCESSION PLACE"
-            price="REQUEST"
-            priceNote="one step"
-            body="If the standard pathway does not work for you, request a concession place. There is no application essay and no requirement to justify your circumstances."
+            eyebrow="Keep it flexible"
+            title="CONCESSION PASS"
+            price="FROM $120"
+            priceNote="10 sessions"
+            body="Prepay ten visits without starting a weekly membership. Choose an adult or under-18 pass and use the visits as they suit your household."
             bullets={[
-              "One private request",
-              "No financial story required",
-              "The same room and member experience",
+              `Adult pass ${formatWeekly(PRICING.visitorCardAdult10)}`,
+              `Under-18 pass ${formatWeekly(PRICING.visitorCardYouth10)}`,
+              "Printed worksheet included each visit",
             ]}
           >
-            <ConcessionButton />
+            <SecondaryLink to="#flexible-access">Choose a pass</SecondaryLink>
           </EntryCard>
         </Reveal>
       </div>
@@ -488,8 +492,8 @@ const HouseholdSection = () => (
           </div>
 
           <p className="mt-5 border-t border-border pt-4 font-body text-xs leading-5 text-muted-foreground">
-            A family discount is applied automatically at checkout when a household includes two
-            or more adults and at least one teen or child.
+            Stripe automatically applies {FAMILY_DISCOUNT_PERCENT}% off when the household includes
+            at least two adults and two young people: two teens, two children, or one of each.
           </p>
         </Reveal>
 
@@ -518,33 +522,48 @@ const HouseholdSection = () => (
 
 const FLEXIBLE_ACCESS = [
   {
-    name: "ADULT VISITOR CARD",
+    name: "ADULT CONCESSION PASS",
     price: `$${PRICING.visitorCardAdult10}`,
     per: "10 sessions",
     note: "$24 per visit",
+    lookupKey: "visitor_card_adult_10",
+    cta: "Buy adult pass",
   },
   {
-    name: "UNDER-18 VISITOR CARD",
+    name: "UNDER-18 CONCESSION PASS",
     price: `$${PRICING.visitorCardYouth10}`,
     per: "10 sessions",
     note: "$12 per visit",
+    lookupKey: "visitor_card_youth_10",
+    cta: "Buy under-18 pass",
   },
   {
     name: "ADULT ONE-OFF",
     price: `$${PRICING.oneOffAdult}`,
     per: "one session",
     note: "Worksheet included",
+    lookupKey: "one_off_adult",
+    cta: "Buy adult session",
   },
   {
     name: "UNDER-18 ONE-OFF",
     price: `$${PRICING.oneOffYouth}`,
     per: "one session",
     note: "Adult-led attendance",
+    lookupKey: "one_off_youth",
+    cta: "Buy under-18 session",
   },
-];
+] satisfies Array<{
+  name: string;
+  price: string;
+  per: string;
+  note: string;
+  lookupKey: AccessPassLookupKey;
+  cta: string;
+}>;
 
 const FlexibleAccess = () => (
-  <section className="section-cream border-y border-border py-20 sm:py-24">
+  <section id="flexible-access" className="scroll-mt-24 section-cream border-y border-border py-20 sm:py-24">
     <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
       <Reveal className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
         <div>
@@ -554,15 +573,15 @@ const FlexibleAccess = () => (
           </h2>
         </div>
         <p className="max-w-2xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
-          Visitor cards and one-off places keep the room accessible without app, journal or Life
-          Group access. Every visit still includes the week’s printed worksheet.
+          Concession Passes and one-off places keep the room accessible without app, journal or
+          Life Group access. Every visit still includes the week’s printed worksheet.
         </p>
       </Reveal>
 
       <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {FLEXIBLE_ACCESS.map((option, index) => (
           <Reveal key={option.name} delay={index * 0.04}>
-            <article className="h-full rounded-xl border border-border bg-white p-5">
+            <article className="flex h-full flex-col rounded-xl border border-border bg-white p-5">
               <p className="font-body text-[9px] font-bold uppercase tracking-[0.2em] text-primary">
                 {option.name}
               </p>
@@ -571,6 +590,9 @@ const FlexibleAccess = () => (
               <p className="mt-5 border-t border-border pt-4 font-body text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/55">
                 {option.note}
               </p>
+              <div className="mt-auto pt-5">
+                <AccessCheckoutButton lookupKey={option.lookupKey} label={option.cta} />
+              </div>
             </article>
           </Reveal>
         ))}
@@ -578,17 +600,18 @@ const FlexibleAccess = () => (
 
       <Reveal delay={0.12} className="mt-7 flex flex-col items-start justify-between gap-5 rounded-xl border border-primary/20 bg-primary/5 p-5 sm:flex-row sm:items-center">
         <div>
-          <p className="font-display text-2xl tracking-wide text-foreground">ARRANGE FLEXIBLE ACCESS</p>
+          <p className="font-display text-2xl tracking-wide text-foreground">BUY SECURELY ONLINE</p>
           <p className="mt-1 font-body text-xs leading-5 text-muted-foreground">
-            The dedicated online checkout for visitor cards and one-off places is still being connected.
+            Choose a pass above and confirm the published price in Stripe Checkout. Purchases are
+            saved to the household automatically after payment.
           </p>
         </div>
-        <SecondaryLink to="/contact">Contact MINDCAST</SecondaryLink>
+        <SecondaryLink to="/contact">Ask a question</SecondaryLink>
       </Reveal>
 
       <p className="mt-6 text-center font-body text-xs leading-5 text-muted-foreground">
         Prefer to follow the year on paper? The day’s worksheet is {formatWeekly(PRICING.worksheet)}
-        at the door or online. No account required.
+        {" "}at the door or online. No account required.
       </p>
     </div>
   </section>
@@ -684,7 +707,8 @@ const Inclusions = () => (
             <h3 className="mt-4 font-display text-3xl tracking-wide">NO LOCK-IN OR PRESSURE.</h3>
             <p className="mt-3 font-body text-sm leading-6 text-white/65">
               Choose monthly or annual billing and see the exact household total before paying.
-              Rolling memberships can be managed through the member portal.
+              Rolling memberships can be managed or cancelled through the member portal. Choose
+              “Cancel membership”, then confirm in Stripe.
             </p>
           </article>
         </Reveal>
@@ -711,12 +735,12 @@ const QUESTIONS = [
   {
     question: "How does household billing work?",
     answer:
-      "The member portal lets you choose the number of adults, teens and children joining. It shows the exact household price before Stripe checkout, with eligible family discounts applied automatically. You can cancel any time from the billing portal — leaving is two clicks.",
+      `The member portal lets you choose the number of adults, teens and children joining. Stripe applies ${FAMILY_DISCOUNT_PERCENT}% off automatically for two or more adults plus two young people in any mix. You can cancel any time: choose “Cancel membership”, then confirm in Stripe.`,
   },
   {
-    question: "What does the concession request ask me to provide?",
+    question: "What is a Concession Pass?",
     answer:
-      "Nothing beyond the request itself. There is no written explanation field and no requirement to describe your financial circumstances.",
+      `It is a prepaid ten-session option rather than a weekly membership: ${formatWeekly(PRICING.visitorCardAdult10)} for an adult or ${formatWeekly(PRICING.visitorCardYouth10)} for an under-18. It includes the printed worksheet for each visit but not the app, journal or Life Group.`,
   },
 ];
 

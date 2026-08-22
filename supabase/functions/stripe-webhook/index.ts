@@ -24,6 +24,8 @@ import {
   orderEvent,
   sendCommerceEmail,
 } from "./commerce-email.ts";
+import { getAccessPassOption } from "../_shared/accessPass.ts";
+import { isFamilyDiscountEligible } from "../_shared/familyDiscount.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2025-08-27.basil",
@@ -96,7 +98,7 @@ async function parseBundle(sub: Stripe.Subscription): Promise<{
     adults: ad,
     teens: te,
     children: ch,
-    familyDiscount: ad >= 2 && (te >= 1 || ch >= 1),
+    familyDiscount: isFamilyDiscountEligible({ adults: ad, teens: te, children: ch }),
     plan,
   };
 }
@@ -612,6 +614,79 @@ async function syncSubscription(
         );
       }
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// PREPAID ACCESS — session credits are minted only from a paid Stripe event.
+// stripe_payment_intent_id is unique, so webhook retries cannot mint a second
+// Concession Pass or one-off credit.
+// ---------------------------------------------------------------------------
+
+async function processAccessPassCheckout(
+  session: Stripe.Checkout.Session,
+) {
+  const meta = (session.metadata ?? {}) as Record<string, string>;
+  const option = getAccessPassOption(meta.lookup_key);
+  if (!option || meta.kind !== "access_pass") {
+    throw new Error("Invalid access-pass metadata");
+  }
+  if (
+    meta.credit_kind !== option.kind ||
+    meta.track !== option.track ||
+    Number(meta.trips) !== option.trips
+  ) {
+    throw new Error(`Access-pass metadata mismatch for ${option.lookupKey}`);
+  }
+
+  const householdId = meta.household_id || "";
+  const paymentIntentId = typeof session.payment_intent === "string"
+    ? session.payment_intent
+    : session.payment_intent?.id;
+  if (!householdId || !paymentIntentId) {
+    throw new Error("Access-pass checkout is missing household or payment intent");
+  }
+
+  const { error } = await admin
+    .from("session_credits")
+    .upsert({
+      household_id: householdId,
+      kind: option.kind,
+      track: option.track,
+      trips_total: option.trips,
+      trips_used: 0,
+      stripe_payment_intent_id: paymentIntentId,
+    }, {
+      onConflict: "stripe_payment_intent_id",
+      ignoreDuplicates: true,
+    });
+  if (error) {
+    throw new Error(`Access-pass credit mint failed: ${error.message}`);
+  }
+}
+
+/** Void remaining trips after a fully refunded pass/one-off payment. */
+async function revokeRefundedAccessPass(
+  charge: Stripe.Charge,
+) {
+  if (!charge.refunded) return;
+  const paymentIntentId = typeof charge.payment_intent === "string"
+    ? charge.payment_intent
+    : charge.payment_intent?.id;
+  if (!paymentIntentId) return;
+
+  const { data: credits, error: readError } = await admin
+    .from("session_credits")
+    .select("id, trips_total")
+    .eq("stripe_payment_intent_id", paymentIntentId);
+  if (readError) throw new Error(`Access-pass refund lookup failed: ${readError.message}`);
+
+  for (const credit of credits ?? []) {
+    const { error: updateError } = await admin
+      .from("session_credits")
+      .update({ trips_used: credit.trips_total })
+      .eq("id", credit.id);
+    if (updateError) throw new Error(`Access-pass refund update failed: ${updateError.message}`);
   }
 }
 
@@ -2075,7 +2150,11 @@ async function finalizeFoundingBracelets(
         await admin
           .from("household_members")
           .upsert(
-            { household_id: householdId, profile_id: payerProfileId, role_in_household: "adult" },
+            {
+              household_id: householdId,
+              profile_id: payerProfileId,
+              role_in_household: members.some((member) => member.tier === "teen" || member.tier === "child") ? "guardian" : "adult",
+            },
             { onConflict: "household_id,profile_id" },
           )
           .catch(() => {});
@@ -2224,7 +2303,11 @@ async function processHouseholdOnboarding(
     await admin
       .from("household_members")
       .upsert(
-        { household_id: householdId, profile_id: payerProfileId, role_in_household: "adult" },
+        {
+          household_id: householdId,
+          profile_id: payerProfileId,
+          role_in_household: members.some((member) => member.tier === "teen" || member.tier === "child") ? "guardian" : "adult",
+        },
         { onConflict: "household_id,profile_id" },
       )
       .catch(() => {});
@@ -2982,6 +3065,16 @@ serve(async (req) => {
           s.mode === "payment" &&
           (
             s.metadata as any
+          )?.kind === "access_pass" &&
+          s.payment_status === "paid"
+        ) {
+          await processAccessPassCheckout(
+            s,
+          );
+        } else if (
+          s.mode === "payment" &&
+          (
+            s.metadata as any
           )?.kind === "shop"
         ) {
           await recordShopOrder(
@@ -2989,6 +3082,14 @@ serve(async (req) => {
           );
         }
 
+        break;
+      }
+
+      case "checkout.session.async_payment_succeeded": {
+        const s = event.data.object as Stripe.Checkout.Session;
+        if ((s.metadata as any)?.kind === "access_pass") {
+          await processAccessPassCheckout(s);
+        }
         break;
       }
 
@@ -3013,6 +3114,10 @@ serve(async (req) => {
       }
 
       case "charge.refunded": {
+        await revokeRefundedAccessPass(
+          event.data.object as Stripe.Charge,
+        );
+
         await reconcileRefund(
           event.data
             .object as Stripe.Charge,

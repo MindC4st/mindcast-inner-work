@@ -69,7 +69,7 @@ export const CATALOGUE: ProductDef[] = [
   },
   {
     lookup: "visitor_card_adult_10",
-    name: "Adult Visitor Card — 10 trips",
+    name: "Adult Concession Pass — 10 sessions",
     description: "Ten adult sessions. $24 a session. Worksheet included. One per person per phase.",
     unit_amount: 24000,
     metadata: {
@@ -80,7 +80,7 @@ export const CATALOGUE: ProductDef[] = [
   },
   {
     lookup: "visitor_card_youth_10",
-    name: "Under-18 Visitor Card — 10 trips",
+    name: "Under-18 Concession Pass — 10 sessions",
     description: "Ten under-18 sessions. $12 a session. Worksheet included. One per person per phase.",
     unit_amount: 12000,
     metadata: {

@@ -92,9 +92,10 @@ export default function TermsPage() {
 
       <h2>9. Your content &amp; privacy</h2>
       <p>
-        Your workbook entries and reflections are private and remain your own. We will never
-        sell your personal information or reflections, and we do not use member reflections to
-        train third-party AI models. Where you choose to share something on a community screen,
+        Adult digital journal entries and reflections are private and remain their author's own.
+        Teen and child tracks use printed worksheets and do not have digital journals. We will
+        never sell personal information or reflections, and we do not use member reflections to
+        train third-party AI models. Where an adult member chooses to share something on a community screen,
         you grant Mindcast a limited licence to display it solely in that context — you can
         share anonymously and withdraw at any time.
       </p>

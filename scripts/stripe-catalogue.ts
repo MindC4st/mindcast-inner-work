@@ -73,7 +73,7 @@ export const CATALOGUE: CatalogueEntry[] = [
   },
   {
     lookupKey: "visitor_card_adult_10",
-    productName: "Adult Visitor Card — 10 trips",
+    productName: "Adult Concession Pass — 10 sessions",
     amount: 24000,
     billing: "one_time",
     metadata: {
@@ -87,7 +87,7 @@ export const CATALOGUE: CatalogueEntry[] = [
   },
   {
     lookupKey: "visitor_card_youth_10",
-    productName: "Under-18 Visitor Card — 10 trips",
+    productName: "Under-18 Concession Pass — 10 sessions",
     amount: 12000,
     billing: "one_time",
     metadata: {

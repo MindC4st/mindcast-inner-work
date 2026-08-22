@@ -5,6 +5,7 @@ import {
   perSession,
   type CatalogueEntry,
 } from "../../scripts/stripe-catalogue";
+import { ACCESS_PASS_OPTIONS } from "../../supabase/functions/_shared/accessPass";
 
 // The four assertions the brief requires to fail the seed run, tested by
 // breaking the catalogue on purpose. An assertion nobody has watched fail is
@@ -32,6 +33,16 @@ const failsWith = (catalogue: CatalogueEntry[], fragment: string) => {
 };
 
 describe("stripe catalogue — the shipped one", () => {
+  it("matches the server-owned access-pass checkout contract", () => {
+    for (const option of Object.values(ACCESS_PASS_OPTIONS)) {
+      const catalogueEntry = CATALOGUE.find((entry) => entry.lookupKey === option.lookupKey);
+      expect(catalogueEntry?.amount).toBe(option.amountCents);
+      expect(catalogueEntry?.metadata.kind).toBe(option.kind);
+      expect(catalogueEntry?.metadata.track).toBe(option.track);
+      expect(Number(catalogueEntry?.metadata.trips)).toBe(option.trips);
+    }
+  });
+
   it("passes every assertion", () => {
     expect(assertCatalogue()).toEqual([]);
   });

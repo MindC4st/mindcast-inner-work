@@ -95,7 +95,7 @@ export const PUBLIC_PAGES: PageSeo[] = [
     path: "/membership",
     title: "Membership & Prices | Mindcast Taupō",
     description:
-      "Every price in one place, a free first session, and a concession rate you can request without explaining yourself. No contracts and no countdowns.",
+      "Every price in one place, a free first session, prepaid Concession Passes, and automatic family discounts. No contracts and no countdowns.",
     ogTitle: "Membership — every price, stated plainly",
     changefreq: "monthly",
     priority: 0.8,

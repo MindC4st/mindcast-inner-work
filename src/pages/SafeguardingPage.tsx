@@ -2,7 +2,7 @@ import { LegalPage } from "@/components/legal/LegalPage";
 
 export default function SafeguardingPage() {
   return (
-    <LegalPage title="Child Safety & Safeguarding Policy" lastUpdated="April 2026">
+    <LegalPage title="Child Safety & Safeguarding Policy" lastUpdated="August 2026">
       <p>
         Mindcast operates a parallel children's and teens' programme alongside our adult
         sessions. The safety and wellbeing of every child and young person in our community
@@ -10,7 +10,7 @@ export default function SafeguardingPage() {
         and staff who work with or alongside children and young people.
       </p>
       <p>
-        This policy is guided by the New Zealand <strong>Vulnerable Children Act 2014</strong>,
+        This policy is guided by the New Zealand <strong>Children's Act 2014</strong>,
         the <strong>Oranga Tamariki Act 1989</strong>, the <strong>Privacy Act 2020</strong>,
         and the <strong>United Nations Convention on the Rights of the Child</strong>.
       </p>
@@ -24,7 +24,7 @@ export default function SafeguardingPage() {
         <li>New Zealand Police vet (criminal history check)</li>
         <li>Identity verification</li>
         <li>Reference checks</li>
-        <li>Any additional checks required under the Vulnerable Children Act 2014</li>
+        <li>Any additional checks required under the Children's Act 2014</li>
       </ul>
       <p>
         Safety checks must be renewed every three years. Records of safety checks are
@@ -44,31 +44,35 @@ export default function SafeguardingPage() {
       </p>
 
       <h2>3. Parental consent</h2>
-      <p>Before a child under 16 participates in the Mindcast programme, we require:</p>
+      <p>Before any child or teen under 18 participates in the Mindcast programme, we require:</p>
       <ul>
         <li>
-          Written consent from a parent or legal guardian — covering attendance, photography,
-          data collection, and NFC bracelet use (if applicable)
+          Annual written consent from a parent or legal guardian, recorded in the household's
+          online Family &amp; Safety form
         </li>
         <li>Emergency contact details</li>
         <li>Any medical or behavioural information relevant to the child's safe participation</li>
         <li>
-          Annual re-consent — consent forms are renewed at the start of each year's programme
+          Separate choices for essential operational data, promotional photography and filming,
+          welcome-wall display, and NFC bracelet use where applicable
         </li>
       </ul>
       <p>
-        Consent forms are available at the venue or by emailing
-        <a href="mailto:hello@mindcast.co.nz"> hello@mindcast.co.nz</a>.
-        A child whose parent or guardian has not completed a consent form will not participate
-        in the children's programme.
+        The form is completed and updated in <strong>Member Portal → Family &amp; Safety</strong>; it
+        does not need to be emailed to Mindcast. Consent is renewed at the start of every programme
+        year and may be changed or withdrawn there. A child or teen without a current participation
+        form cannot check in or participate in their youth programme.
       </p>
 
       <h2>4. Photography and filming</h2>
       <ul>
-        <li>No photos or video of children are taken without prior written consent from their parent or guardian</li>
-        <li>Consent is specific — it covers Mindcast session use only, not social media or marketing, unless separately agreed</li>
+        <li>Mindcast may take photographs or video for its website, social media, email and printed promotional material only where the parent or guardian has expressly selected that promotional use</li>
+        <li>Guardians may say no to promotional photography without affecting the young person's right to participate</li>
+        <li>A current no-photo register is provided to the authorised staff reviewing or capturing images</li>
+        <li>If a no-photo child appears incidentally, Mindcast will exclude the image or crop, blur or cover the child before any promotional use</li>
+        <li>When photography is declined, the guardian uploads a current reference photo. It is private safeguarding data used only to identify who must be kept out of promotional images; it is never itself used promotionally</li>
         <li>The attendance welcome wall display does not show children's names unless parental consent for digital display has been given</li>
-        <li>Facilitators and attendees are asked not to photograph children in the programme space</li>
+        <li>Facilitators, families and attendees may not independently photograph or film children in the programme space; only the authorised Mindcast image process may be used</li>
       </ul>
 
       <h2>5. Appropriate conduct with children and young people</h2>
@@ -85,11 +89,12 @@ export default function SafeguardingPage() {
 
       <h2>6. Digital safety</h2>
       <ul>
-        <li>Teen-track members using the Mindcast platform have private workbook entries by default</li>
-        <li>Young people must be 13 or older to create their own Mindcast account; every 13–17 year old requires recorded parent or guardian consent</li>
+        <li>Teen members have their own email and read-only login for teen session history, teen worksheet downloads and NFC bracelet check-in where consented</li>
+        <li>Teen accounts do not include a digital journal, digital workbook entries or interactive submission tools</li>
+        <li>Young people must be 13 or older to hold their own Mindcast account; every 13–17 year old requires recorded parent or guardian consent</li>
         <li>Children under 13 join through a parent or guardian's household and do not hold their own account</li>
-        <li>Digital submissions (success stories, word cloud) from under-18s are subject to the same content moderation as adult submissions</li>
-        <li>We do not store children's workbook entries digitally without parental consent — the children's programme (ages 4–11) is paper-based only</li>
+        <li>Teen and child worksheets are paper-based only and are not stored as digital journal entries</li>
+        <li>Because under-18 accounts do not submit success stories, word clouds or journal responses, the adult interactive-submission flow does not apply to them</li>
       </ul>
 
       <h2>7. Recognising abuse and neglect</h2>

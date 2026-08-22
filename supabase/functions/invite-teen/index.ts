@@ -45,12 +45,15 @@ serve(async (req) => {
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return json({ error: `A valid ${role} email address is required` }, 400);
     }
+    if (role === "teen" && body?.guardian_account_consent !== true) {
+      return json({ error: "Parent or legal guardian account consent is required" }, 400);
+    }
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
     // The caller must be an active/trialing member (guardian).
     const { data: caller } = await admin
-      .from("profiles").select("id, name, membership_status")
+      .from("profiles").select("id, name, display_name, email, membership_status")
       .eq("user_id", userRes.user.id).maybeSingle();
     if (!caller) return json({ error: "Profile not found" }, 404);
     if (!["active", "trialing"].includes(caller.membership_status ?? "")) {
@@ -64,6 +67,15 @@ serve(async (req) => {
       .eq("profile_id", caller.id).maybeSingle();
     if (existingMember?.household_id) {
       householdId = existingMember.household_id;
+      if (role === "teen") {
+        // Inviting a young person makes the payer the household guardian for
+        // every guardian-scoped consent and safety control.
+        await admin.from("household_members")
+          .update({ role_in_household: "guardian" })
+          .eq("profile_id", caller.id)
+          .eq("household_id", householdId)
+          .eq("role_in_household", "adult");
+      }
     } else {
       const { data: hh, error: hhErr } = await admin
         .from("households")
@@ -72,7 +84,7 @@ serve(async (req) => {
       if (hhErr) return json({ error: `Household create failed: ${hhErr.message}` }, 500);
       householdId = hh.id;
       await admin.from("household_members").insert({
-        household_id: householdId, profile_id: caller.id, role_in_household: "adult",
+        household_id: householdId, profile_id: caller.id, role_in_household: role === "teen" ? "guardian" : "adult",
       });
     }
 
@@ -112,6 +124,30 @@ serve(async (req) => {
       { onConflict: "household_id,profile_id" },
     );
 
+    // The guardian explicitly confirms this in the Family & Safety invite
+    // form. Record the authority for the teen's read-only account separately
+    // from the fuller annual participation form.
+    if (role === "teen") {
+      const { data: existingConsent } = await admin
+        .from("guardian_consents")
+        .select("id")
+        .eq("subject_profile_id", memberProfile.id)
+        .eq("consent_type", "teen_membership")
+        .is("revoked_at", null)
+        .limit(1)
+        .maybeSingle();
+      if (!existingConsent) {
+        const { error: consentError } = await admin.from("guardian_consents").insert({
+          subject_profile_id: memberProfile.id,
+          consent_type: "teen_membership",
+          guardian_name: caller.name || caller.display_name || "Guardian",
+          guardian_email: caller.email || userRes.user.email || null,
+          recorded_by: userRes.user.id,
+        });
+        if (consentError) return json({ error: `Guardian consent could not be recorded: ${consentError.message}` }, 500);
+      }
+    }
+
     // A checkout-captured invitation for this email is now fulfilled.
     await admin
       .from("household_invitations")
@@ -121,7 +157,7 @@ serve(async (req) => {
       .eq("status", "pending")
       .catch(() => {});
 
-    return json({ ok: true, email, household_id: householdId });
+    return json({ ok: true, email, household_id: householdId, profile_id: memberProfile.id });
   } catch (e) {
     return json({ error: String(e) }, 500);
   }

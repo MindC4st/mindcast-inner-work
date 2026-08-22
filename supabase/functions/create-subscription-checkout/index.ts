@@ -8,8 +8,8 @@
 //     paid_bracelets: [email, ...] }  // $15 one-time bracelet add-ons
 //
 // The function builds one Checkout session with separate recurring line items
-// per tier, conditionally applies the FAMILY15 coupon when the cart contains
-// 2+ adults + at least 1 teen OR child, and records the bundle composition in
+// per tier, conditionally applies the 10% family coupon when the cart contains
+// 2+ adults + at least 2 young people in any teen/child mix, and records the bundle composition in
 // subscription metadata. Paid bracelets are ONE-TIME line items on the same
 // subscription checkout — Stripe charges them once at purchase and they never
 // recur on renewal.
@@ -21,7 +21,7 @@
 //   STRIPE_PRICE_ADULT_MONTHLY, STRIPE_PRICE_ADULT_ANNUAL
 //   STRIPE_PRICE_TEEN_MONTHLY,  STRIPE_PRICE_TEEN_ANNUAL
 //   STRIPE_PRICE_CHILD_MONTHLY, STRIPE_PRICE_CHILD_ANNUAL
-//   STRIPE_FAMILY_COUPON_ID     (e.g. "FAMILY15")
+//   STRIPE_FAMILY_COUPON_ID     (must be a valid 10%-forever coupon)
 //   STRIPE_SECRET_KEY
 //   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON_KEY
 //
@@ -33,6 +33,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import {
+  FAMILY_DISCOUNT_PERCENT,
+  isFamilyDiscountEligible,
+} from "../_shared/familyDiscount.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -189,11 +193,59 @@ serve(async (req) => {
       line_items.push({ price: pid, quantity: t.qty });
     }
 
-    // Conditional family discount: 2+ adults AND (≥1 teen OR ≥1 child)
-    const familyDiscount = adults >= 2 && (teens >= 1 || children >= 1);
-    const discountCoupon = familyDiscount
-      ? (Deno.env.get("STRIPE_FAMILY_COUPON_ID") || null)
-      : null;
+    // Family-of-four discount: 2+ adults plus 2+ young people in any mix.
+    // Stripe is checked before a customer or Checkout Session is created so a
+    // missing/stale coupon can never silently charge an eligible family full price.
+    const familyDiscount = isFamilyDiscountEligible({ adults, teens, children });
+    let discountCoupon: string | null = null;
+
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
+
+    if (familyDiscount) {
+      discountCoupon = Deno.env.get("STRIPE_FAMILY_COUPON_ID") || null;
+      if (!discountCoupon) {
+        console.error("create-subscription-checkout: STRIPE_FAMILY_COUPON_ID is missing");
+        return json({
+          error: "We couldn't apply the family discount right now. Please try again soon or contact hello@mindcast.co.nz.",
+          code: "family_discount_not_configured",
+        }, 503);
+      }
+
+      try {
+        const coupon: any = await stripe.coupons.retrieve(discountCoupon);
+        const membershipProductIds = await Promise.all(
+          line_items.map(async (item) => {
+            const price = await stripe.prices.retrieve(String(item.price));
+            return typeof price.product === "string" ? price.product : price.product.id;
+          }),
+        );
+        const couponProducts = Array.isArray(coupon.applies_to?.products)
+          ? coupon.applies_to.products as string[]
+          : [];
+        const validCoupon =
+          !coupon.deleted &&
+          coupon.valid !== false &&
+          coupon.percent_off === FAMILY_DISCOUNT_PERCENT &&
+          coupon.duration === "forever" &&
+          couponProducts.length > 0 &&
+          membershipProductIds.every((productId) => couponProducts.includes(productId));
+        if (!validCoupon) {
+          console.error("create-subscription-checkout: family coupon must be 10%, forever, and restricted to all membership products");
+          return json({
+            error: "We couldn't apply the family discount right now. Please try again soon or contact hello@mindcast.co.nz.",
+            code: "family_discount_misconfigured",
+          }, 503);
+        }
+      } catch (error: any) {
+        console.error("create-subscription-checkout: family coupon lookup failed:", error?.message ?? error);
+        return json({
+          error: "We couldn't apply the family discount right now. Please try again soon or contact hello@mindcast.co.nz.",
+          code: "family_discount_unavailable",
+        }, 503);
+      }
+    }
 
     const { data: household } = await admin
       .from("household_members")
@@ -201,10 +253,6 @@ serve(async (req) => {
       .eq("profile_id", profile?.id ?? "")
       .limit(1)
       .maybeSingle();
-
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
 
     let customerId = profile?.stripe_customer_id || undefined;
     if (!customerId) {
@@ -286,13 +334,18 @@ serve(async (req) => {
       teens: String(teens),
       children: String(children),
       family_discount: familyDiscount ? "true" : "false",
+      family_discount_percent: familyDiscount ? String(FAMILY_DISCOUNT_PERCENT) : "0",
     };
 
     const sessionParams: any = {
       customer: customerId,
       line_items,
       mode: "subscription",
-      success_url: `${origin}/portal/billing?membership=success`,
+      // Family & Safety is the second half of household setup. Stripe never
+      // receives emergency, medical or child-photo consent data.
+      success_url: teens + children > 0
+        ? `${origin}/portal/family?membership=success&setup=consent`
+        : `${origin}/portal/billing?membership=success`,
       cancel_url: `${origin}/portal/billing?canceled=true`,
       subscription_data: { metadata: bundleMeta },
       metadata: bundleMeta,
@@ -379,6 +432,7 @@ serve(async (req) => {
     return json({
       url: session.url,
       family_discount_applied: familyDiscount,
+      family_discount_percent: familyDiscount ? FAMILY_DISCOUNT_PERCENT : 0,
       founding: { reserved, unavailable, selected, paid: paidBraceletEmails },
     });
   } catch (e: any) {

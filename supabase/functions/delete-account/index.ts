@@ -78,6 +78,22 @@ serve(async (req) => {
     } catch { /* billing cancel is best-effort; deletion continues */ }
 
     // 2. Delete personal data (best-effort per table).
+    // Remove private youth identification images before their consent rows
+    // cascade away. This covers both a guardian deleting their account and a
+    // teen deleting their own subject account.
+    if (profileId) {
+      const { data: consentRows } = await admin
+        .from("youth_participation_consents")
+        .select("photo_reference_path")
+        .or(`guardian_profile_id.eq.${profileId},subject_profile_id.eq.${profileId}`);
+      const paths = (consentRows ?? [])
+        .map((row: { photo_reference_path?: string | null }) => row.photo_reference_path)
+        .filter((path: string | null | undefined): path is string => Boolean(path));
+      if (paths.length > 0) {
+        await admin.storage.from("youth-photo-references").remove(paths).catch(() => {});
+      }
+    }
+
     for (const [table, kind] of OWNED) {
       const col = kind === "profile" ? "profile_id" : kind === "member" ? "member_id" : "user_id";
       const val = kind === "profile" ? profileId : user.id;

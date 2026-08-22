@@ -1,5 +1,7 @@
 // create-billing-portal — opens the Stripe customer billing portal so a member
-// can manage their own membership (update card, cancel, view invoices).
+// can manage their own membership (update card, cancel, view invoices). A
+// `flow: "cancel"` request deep-links to Stripe's hosted cancellation confirm,
+// making the public two-click promise deterministic.
 //
 // Authenticated (verify_jwt = true). We look up the caller's stripe_customer_id
 // from their profile and return a portal session URL.
@@ -55,6 +57,9 @@ serve(async (req) => {
     const { data: userRes, error: userErr } = await anon.auth.getUser();
     if (userErr || !userRes?.user) return json({ error: "Not authenticated" }, 401);
 
+    const body = await req.json().catch(() => ({}));
+    const requestedFlow = body?.flow === "cancel" ? "cancel" : "manage";
+
     const admin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -72,13 +77,46 @@ serve(async (req) => {
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
-    const portal = await stripe.billingPortal.sessions.create({
+    const origin = safeOrigin(req.headers.get("origin"));
+    const params: Stripe.BillingPortal.SessionCreateParams = {
       customer: profile.stripe_customer_id,
-      return_url: `${safeOrigin(req.headers.get("origin"))}/portal/settings`,
-    });
+      return_url: `${origin}/portal/billing`,
+    };
+
+    if (requestedFlow === "cancel") {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: profile.stripe_customer_id,
+        status: "all",
+        limit: 100,
+      });
+      const cancellable = subscriptions.data.filter((subscription) =>
+        !["canceled", "incomplete_expired"].includes(subscription.status)
+      );
+      if (cancellable.length === 0) {
+        return json({ error: "No active membership was found to cancel." }, 404);
+      }
+      if (cancellable.length > 1) {
+        return json({
+          error: "More than one billing plan is active. Open Manage billing to choose the right plan.",
+          code: "multiple_subscriptions",
+        }, 409);
+      }
+
+      params.flow_data = {
+        type: "subscription_cancel",
+        subscription_cancel: { subscription: cancellable[0].id },
+        after_completion: {
+          type: "redirect",
+          redirect: { return_url: `${origin}/portal/billing?membership=cancelled` },
+        },
+      };
+    }
+
+    const portal = await stripe.billingPortal.sessions.create(params);
 
     return json({ url: portal.url });
   } catch (e: any) {
-    return json({ error: e?.message ?? String(e) }, 500);
+    console.error("create-billing-portal:", e?.message ?? e);
+    return json({ error: "We couldn't open billing. Please try again." }, 500);
   }
 });

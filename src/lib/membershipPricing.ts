@@ -9,16 +9,27 @@
 //
 // All amounts are NZD per week, GST inclusive (NZ consumer pricing).
 
+import { ACCESS_PASS_OPTIONS } from "../../supabase/functions/_shared/accessPass";
+
+export type { AccessPassLookupKey } from "../../supabase/functions/_shared/accessPass";
+
+export {
+  FAMILY_DISCOUNT_MIN_ADULTS,
+  FAMILY_DISCOUNT_MIN_YOUNG_PEOPLE,
+  FAMILY_DISCOUNT_PERCENT,
+  applyFamilyDiscount,
+  isFamilyDiscountEligible,
+} from "../../supabase/functions/_shared/familyDiscount";
+
 export const PRICING = {
   currency: "NZD",
   gstNote: "All prices in New Zealand dollars, GST inclusive.",
   adult: 19,
   youngPersonPlace: 9,
-  visitorCardAdult10: 240,
-  visitorCardYouth10: 120,
-  oneOffAdult: 30,
-  oneOffYouth: 15,
-  concession: 19,
+  visitorCardAdult10: ACCESS_PASS_OPTIONS.visitor_card_adult_10.amountCents / 100,
+  visitorCardYouth10: ACCESS_PASS_OPTIONS.visitor_card_youth_10.amountCents / 100,
+  oneOffAdult: ACCESS_PASS_OPTIONS.one_off_adult.amountCents / 100,
+  oneOffYouth: ACCESS_PASS_OPTIONS.one_off_youth.amountCents / 100,
   worksheet: 5,
 } as const;
 

@@ -4760,6 +4760,93 @@ export type Database = {
         }
         Relationships: []
       }
+      youth_participation_consents: {
+        Row: {
+          attendance_consent: boolean
+          consented_at: string
+          created_at: string
+          emergency_contact_name: string
+          emergency_contact_phone: string
+          emergency_contact_relationship: string
+          expires_at: string
+          guardian_name: string
+          guardian_profile_id: string
+          guardian_relationship: string
+          id: string
+          nfc_bracelet_consent: boolean
+          operational_data_consent: boolean
+          photo_reference_path: string | null
+          privacy_notice_version: string
+          programme_year: number
+          promotional_photo_consent: boolean
+          revoked_at: string | null
+          safe_participation_notes: string
+          subject_profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          attendance_consent?: boolean
+          consented_at?: string
+          created_at?: string
+          emergency_contact_name: string
+          emergency_contact_phone: string
+          emergency_contact_relationship: string
+          expires_at: string
+          guardian_name: string
+          guardian_profile_id: string
+          guardian_relationship: string
+          id?: string
+          nfc_bracelet_consent?: boolean
+          operational_data_consent?: boolean
+          photo_reference_path?: string | null
+          privacy_notice_version?: string
+          programme_year: number
+          promotional_photo_consent?: boolean
+          revoked_at?: string | null
+          safe_participation_notes?: string
+          subject_profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          attendance_consent?: boolean
+          consented_at?: string
+          created_at?: string
+          emergency_contact_name?: string
+          emergency_contact_phone?: string
+          emergency_contact_relationship?: string
+          expires_at?: string
+          guardian_name?: string
+          guardian_profile_id?: string
+          guardian_relationship?: string
+          id?: string
+          nfc_bracelet_consent?: boolean
+          operational_data_consent?: boolean
+          photo_reference_path?: string | null
+          privacy_notice_version?: string
+          programme_year?: number
+          promotional_photo_consent?: boolean
+          revoked_at?: string | null
+          safe_participation_notes?: string
+          subject_profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youth_participation_consents_guardian_profile_id_fkey"
+            columns: ["guardian_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "youth_participation_consents_subject_profile_id_fkey"
+            columns: ["subject_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whiteboard_snapshots: {
         Row: {
           audience_type: string
