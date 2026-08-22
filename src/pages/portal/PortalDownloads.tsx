@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { downloadWorksheetPdf, WorksheetSession } from "@/lib/generateWorksheetPdf";
 import { resolveColouringUrl } from "@/lib/colouringUrl";
 import { toast } from "@/hooks/use-toast";
-import jsPDF from "jspdf";
 import { db } from "@/lib/db";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -156,53 +155,58 @@ const PortalDownloads = () => {
     downloadWorksheetPdf(session);
   };
 
-  // Download coloring page as a lightweight A4 landscape PDF.
+  // Download colouring page PDF.
   //
-  // The stored value is a PNG path in the PRIVATE `colouring` bucket (legacy
-  // rows may still hold an absolute public URL). Resolve it to a short-lived
-  // signed URL first — only staff or an active member with the kids add-on can
-  // mint one — then render that PNG into the PDF.
-  const handleDownloadColoring = async (stored: string, weekNumber: number) => {
+  // The branded A4 PDF (MINDCAST logo, session date, title, "Your Name" line,
+  // footer) is generated server-side by the generate-coloring-page edge
+  // function and stored as `coloring_pdf_url` in the private `colouring`
+  // bucket. We resolve the stored path to a short-lived signed URL and open
+  // it — never build a bare client-side PDF from the PNG.
+  const handleDownloadColoringPdf = async (pdfPath: string) => {
     try {
-      const imageUrl = await resolveColouringUrl(stored);
-      if (!imageUrl) {
+      const url = await resolveColouringUrl(pdfPath);
+      if (!url) {
         toast({
           title: "Couldn't open colouring page",
           description: "It may not be available for your membership yet.",
         });
         return;
       }
-      const res = await fetch(imageUrl);
-      if (!res.ok) throw new Error("Failed to load image");
-      const blob = await res.blob();
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-        const W = doc.internal.pageSize.getWidth();
-        const H = doc.internal.pageSize.getHeight();
-        const margin = 6;
-        doc.addImage(dataUrl, "PNG", margin, margin, W - margin * 2, H - margin * 2);
-        doc.save(`mindcast-coloring-week-${String(weekNumber).padStart(2, "0")}.pdf`);
-      };
-      reader.readAsDataURL(blob);
+      window.open(url, "_blank", "noopener");
     } catch (e) {
-      toast({ title: "Download failed", description: (e as Error)?.message ?? "Could not generate PDF", variant: "destructive" });
+      toast({ title: "Download failed", description: (e as Error)?.message ?? "Could not open PDF", variant: "destructive" });
+    }
+  };
+
+  // Preview the colouring page image (PNG) in a new tab.
+  const handlePreviewColoring = async (pngPath: string) => {
+    try {
+      const url = await resolveColouringUrl(pngPath);
+      if (!url) {
+        toast({ title: "Couldn't open colouring page" });
+        return;
+      }
+      window.open(url, "_blank", "noopener");
+    } catch {
+      toast({ title: "Couldn't open colouring page" });
     }
   };
 
   // Is a given week unlocked for this audience?
   const weekIsUnlocked = (week: number) => isAdmin || isUnlocked(week);
 
-  // The stored colouring-page value for a week, or null if there isn't one.
+  // The stored colouring-page values for a week, or null if there aren't any.
   //
-  // There is deliberately NO constructed fallback here. The old fallback built a
-  // public `worksheets` bucket URL, which handed out paid kids content to anyone
-  // who could guess the path — a paywall bypass. Colouring pages now live in the
-  // private `colouring` bucket and are only reachable through a signed URL, so a
-  // week with nothing stored simply has nothing to offer.
-  const coloringUrlFor = (week: number): string | null =>
-    items.find(i => i.week_number === week)?.coloring_page_url ?? null;
+  // There is deliberately NO constructed fallback here. Colouring pages live
+  // in the private `colouring` bucket and are only reachable through a signed
+  // URL, so a week with nothing stored simply has nothing to offer.
+  const coloringUrlsFor = (week: number): { png: string | null; pdf: string | null } => {
+    const item = items.find(i => i.week_number === week);
+    return {
+      png: item?.coloring_page_url ?? null,
+      pdf: item?.coloring_pdf_url ?? null,
+    };
+  };
 
   // Date string for when a week unlocks
   const formatUnlockDate = (week: number) => {
@@ -291,7 +295,7 @@ const PortalDownloads = () => {
                   {sorted.map((item) => {
                     const unlocked = weekIsUnlocked(item.week_number);
                     const opensOn = formatUnlockDate(item.week_number);
-                    const coloringImageUrl = audience === "Child" ? coloringUrlFor(item.week_number) : null;
+                    const coloringUrls = audience === "Child" ? coloringUrlsFor(item.week_number) : { png: null, pdf: null };
 
                     return (
                       <motion.div
@@ -375,20 +379,39 @@ const PortalDownloads = () => {
                             </button>
 
                             {/* Coloring page (Child only) */}
-                            {audience === "Child" && coloringImageUrl && (
-                              <button
-                                onClick={() => unlocked && handleDownloadColoring(coloringImageUrl, item.week_number)}
-                                disabled={!unlocked}
-                                className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
-                                  unlocked
-                                    ? "border border-primary/30 text-primary hover:bg-primary/[0.06]"
-                                    : "border border-foreground/[0.06] text-muted-foreground/30 cursor-not-allowed"
-                                }`}
-                                title={unlocked ? "Download colouring page (PDF)" : "Locked until session"}
-                              >
-                                <Palette size={12} strokeWidth={1.5} />
-                                Colouring PDF
-                              </button>
+                            {audience === "Child" && (coloringUrls.pdf || coloringUrls.png) && (
+                              <>
+                                {coloringUrls.pdf && (
+                                  <button
+                                    onClick={() => unlocked && handleDownloadColoringPdf(coloringUrls.pdf!)}
+                                    disabled={!unlocked}
+                                    className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
+                                      unlocked
+                                        ? "border border-primary/30 text-primary hover:bg-primary/[0.06]"
+                                        : "border border-foreground/[0.06] text-muted-foreground/30 cursor-not-allowed"
+                                    }`}
+                                    title={unlocked ? "Download branded colouring page (A4 PDF)" : "Locked until session"}
+                                  >
+                                    <Palette size={12} strokeWidth={1.5} />
+                                    Colouring PDF
+                                  </button>
+                                )}
+                                {coloringUrls.png && !coloringUrls.pdf && (
+                                  <button
+                                    onClick={() => unlocked && handlePreviewColoring(coloringUrls.png!)}
+                                    disabled={!unlocked}
+                                    className={`inline-flex items-center gap-1.5 px-4 py-2 text-[10px] font-body tracking-widest uppercase rounded-sm transition-colors ${
+                                      unlocked
+                                        ? "border border-primary/30 text-primary hover:bg-primary/[0.06]"
+                                        : "border border-foreground/[0.06] text-muted-foreground/30 cursor-not-allowed"
+                                    }`}
+                                    title={unlocked ? "Preview colouring page (PNG)" : "Locked until session"}
+                                  >
+                                    <Palette size={12} strokeWidth={1.5} />
+                                    Colouring page
+                                  </button>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
