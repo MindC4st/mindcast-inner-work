@@ -23,8 +23,10 @@ import {
 
 import Navbar from "@/components/Navbar";
 import Ripple from "@/components/brand/Ripple";
+import WeekOnePreview from "@/components/curriculum/WeekOnePreview";
 import {
   useCurriculumWeeks,
+  type CurriculumWeek,
   type Track,
 } from "@/hooks/useCurriculumWeeks";
 import { db } from "@/lib/db";
@@ -538,6 +540,19 @@ const PhasesPage = ({
 
   const phaseCopy = PHASE_COPY[phase.number];
 
+  // Lesson title for the active track. The Notion-pulled titles live in the
+  // per-track columns (adult/teen/kids); weekly_theme — when a week has one —
+  // is the shared idea underneath, shown as the second line.
+  const titleFor = (week: CurriculumWeek): string =>
+    week.track_titles?.[track] ||
+    week.weekly_theme ||
+    week.title ||
+    `Week ${week.week_number}`;
+
+  const weekOneTheme =
+    weeks.find((week) => week.week_number === 1)?.weekly_theme ||
+    WEEK1_THEME;
+
   const phaseWeeks = useMemo(
     () =>
       weeks.filter(
@@ -653,17 +668,21 @@ const PhasesPage = ({
 
             <p className="mt-2 font-display text-2xl leading-tight tracking-wide text-[#102438]">
               {selectedWeek
-                ? selectedWeek.weekly_theme ||
-                  selectedWeek.title ||
-                  `Week ${selectedWeekNumber}`
+                ? titleFor(selectedWeek)
                 : `Week ${selectedWeekNumber}`}
             </p>
 
-            {selectedWeek?.title &&
-            selectedWeek.title !==
-              selectedWeek.weekly_theme ? (
+            {selectedWeek?.weekly_theme &&
+            selectedWeek.weekly_theme !==
+              titleFor(selectedWeek) ? (
               <p className="mt-2 font-body text-xs leading-5 text-[#617182]">
-                {selectedWeek.title}
+                Shared idea: {selectedWeek.weekly_theme}
+              </p>
+            ) : null}
+
+            {selectedWeekNumber === 1 ? (
+              <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+                Lesson preview open below
               </p>
             ) : null}
           </div>
@@ -736,16 +755,20 @@ const PhasesPage = ({
 
                       <span>
                         <span className="block font-body text-xs font-semibold leading-5 text-[#102438] sm:text-sm">
-                          {week.weekly_theme ||
-                            week.title ||
-                            `Week ${week.week_number}`}
+                          {titleFor(week)}
                         </span>
 
-                        {week.title &&
-                        week.title !==
-                          week.weekly_theme ? (
+                        {week.weekly_theme &&
+                        week.weekly_theme !==
+                          titleFor(week) ? (
                           <span className="mt-0.5 block font-body text-[10px] leading-4 text-[#71808e]">
-                            {week.title}
+                            Shared idea: {week.weekly_theme}
+                          </span>
+                        ) : null}
+
+                        {week.week_number === 1 ? (
+                          <span className="mt-0.5 block font-body text-[9px] font-bold uppercase tracking-[0.16em] text-primary">
+                            Open the lesson preview
                           </span>
                         ) : null}
                       </span>
@@ -764,6 +787,18 @@ const PhasesPage = ({
           </div>
         </section>
       </div>
+
+      {/* Week 1 opens into the full lesson preview — the same idea set three
+          ways, exactly as the slides run it. */}
+      {selectedWeekNumber === 1 ? (
+        <div className="mt-6 border-t border-[#e4dccf] pt-8">
+          <WeekOnePreview
+            key={track}
+            weekOneTheme={weekOneTheme}
+            initialTrack={track}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };

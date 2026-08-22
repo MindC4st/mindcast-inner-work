@@ -331,8 +331,15 @@ const SHEETS: Record<TrackKey, () => JSX.Element> = {
   child: ChildSheet,
 };
 
-const WeekOnePreview = ({ weekOneTheme }: { weekOneTheme: string }) => {
-  const [track, setTrack] = useState<TrackKey>("adult");
+const WeekOnePreview = ({
+  weekOneTheme,
+  initialTrack = "adult",
+}: {
+  weekOneTheme: string;
+  /** Which sheet is open first — the binder passes the lens being browsed. */
+  initialTrack?: TrackKey;
+}) => {
+  const [track, setTrack] = useState<TrackKey>(initialTrack);
   const reduce = useReducedMotion();
   const Sheet = SHEETS[track];
 
