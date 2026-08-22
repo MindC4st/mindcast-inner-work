@@ -10,8 +10,8 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { authPathFor } from "@/lib/authRoutes";
 
 // Route-level code splitting: every page loads on demand so first paint only
-// ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
-// jspdf) stay inside the chunks of the pages that use them.
+// ships the shell (React, router, auth). Heavy deps (framer-motion, recharts,
+// tldraw, jspdf) stay inside the chunks of the pages that use them.
 const Home = lazy(() => import("./pages/Home"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Apply = lazy(() => import("./pages/Apply"));

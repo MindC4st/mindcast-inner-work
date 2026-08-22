@@ -34,12 +34,6 @@ export default {
         bronze: "hsl(var(--bronze))",
         "blue-light": "hsl(var(--blue-light))",
         electric: "hsl(var(--electric))",
-        surface: {
-          0: "hsl(var(--surface-0))",
-          1: "hsl(var(--surface-1))",
-          2: "hsl(var(--surface-2))",
-        },
-        glow: "hsl(var(--glow))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -85,7 +79,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        cinematic: "var(--shadow-cinematic)",
+        page: "var(--shadow-page)",
+        lift: "var(--shadow-lift)",
       },
       keyframes: {
         "accordion-down": {
@@ -105,9 +100,6 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         reveal: "reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
-        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
-        shimmer: "shimmer 2.5s linear infinite",
-        marquee: "marquee-x 55s linear infinite",
       },
     },
   },

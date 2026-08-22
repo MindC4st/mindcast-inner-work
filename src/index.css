@@ -60,10 +60,46 @@
     --white: 0 0% 100%;
     --ivory: 30 100% 98%;
     --warm-border: 214 32% 91%;
-    /* Bronze retired — alias to brand blue so any legacy references stay on-brand. */
+    /* Bronze retired — alias to brand blue so any legacy references stay on-brand.
+       ~100 live consumers on staff/live surfaces (Kiosk, FacilitatorView, LiveJoin,
+       Lesson, WelcomeWall) render Signal Blue through this alias. Mechanical
+       rename to --blue is welcome; deleting the alias without it is not. */
     --bronze: 200 50% 45%;
     --cream: 30 100% 98%;
     --electric: 200 50% 38%;
+
+    /* ── Embossed ivory (the Life Binder material, as tokens) ─────────────
+       Tonal ivory-on-ivory: luxury from material and restraint, not metal.
+       USAGE RULE — not optional. Emboss is low contrast by nature. Use it
+       only for:
+         · display type 32px+ that repeats information available elsewhere
+         · watermark wordmarks
+         · rules and panel edges
+       NEVER body text, labels, form fields, buttons, tabs-as-navigation or
+       any content carrying information available nowhere else. If a
+       sentence exists only in emboss, someone cannot read it.
+       Raw colour values (not HSL triplets): these feed text-shadow and
+       box-shadow, which need alpha. Test changes against the binder photo,
+       not a swatch in isolation. */
+    --emboss-face: #e8decb;
+    --emboss-hi: rgba(255, 255, 255, 0.92);
+    --emboss-lo: rgba(150, 132, 104, 0.28);
+
+    /* ── Paper & linen material (promoted from the Curriculum binder) ─────
+       The binder is the site's material language: warm paper on ivory, one
+       soft warm shadow instead of hard borders, depth from material rather
+       than darkness. Raw values, matched to the binder photo set. */
+    --paper: #fffaf2;
+    --paper-edge: #e3d8c8;
+    --linen: #f0e9dd;
+    --linen-edge: #d8cbb7;
+    --ivory-deep: #efe7d8;
+    --shadow-page:
+      0 1px 2px rgba(79, 58, 31, 0.05),
+      0 18px 40px -28px rgba(79, 58, 31, 0.4);
+    --shadow-lift:
+      0 3px 8px rgba(79, 58, 31, 0.08),
+      0 26px 52px -30px rgba(79, 58, 31, 0.45);
 
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Montserrat', sans-serif;
@@ -77,21 +113,6 @@
     --sidebar-accent-foreground: 210 56% 14%;
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 200 50% 38%;
-
-    /* ── Cinematic dark scale (homepage marketing canvas ONLY — every other
-       member-facing and admin surface stays ivory-first). Brand blue remains
-       the single accent; --glow is its lighter gradient step. */
-    --surface-0: 217 55% 5%;    /* deep navy #0a1120 — base canvas */
-    --surface-1: 216 56% 13%;   /* #0f1e35 — elevated band */
-    --surface-2: 214 45% 20%;   /* highest elevation */
-    --glow: 199 55% 58%;        /* lighter step of #3585af for glow/gradients */
-    --gradient-hero: radial-gradient(120% 80% at 50% 0%,
-                       hsl(200 50% 45% / 0.22) 0%,
-                       hsl(217 55% 5% / 0) 55%);
-    --shadow-cinematic: 0 24px 80px -24px hsl(217 55% 3% / 0.9),
-                        0 4px 24px -8px hsl(200 50% 45% / 0.15);
-    --ring-glow: 0 0 0 2px hsl(var(--surface-0)), 0 0 0 4px hsl(var(--blue)),
-                 0 0 18px 2px hsl(var(--glow) / 0.45);
   }
 }
 
@@ -104,9 +125,10 @@
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* GSAP entrance offsets (x: ±60) on below-the-fold sections otherwise
-       widen the page and cause horizontal scroll on mobile. `clip` avoids
-       creating a scroll container, so position:sticky keeps working. */
+    /* Motion entrance offsets (framer-motion x/y transforms) on
+       below-the-fold sections otherwise widen the page and cause horizontal
+       scroll on mobile. `clip` avoids creating a scroll container, so
+       position:sticky keeps working. */
     overflow-x: clip;
   }
 
@@ -127,9 +149,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    /* Global heading colour: the brand's lighter blue. Deliberately dark or
-       light surfaces override this with explicit text-* classes. */
-    color: hsl(var(--primary));
+    /* Global heading colour: Ink Navy. Signal Blue is the accent and earns
+       attention by being rare (MC-BRD-001 usage ratio 70/22/6/2) — headings
+       opt IN to blue with an explicit text-primary, never by default. */
+    color: hsl(var(--foreground));
   }
 }
 
@@ -276,49 +299,96 @@
     100% { transform: scale(1.25); opacity: 0; }
   }
 
-  /* ── Cinematic dark primitives (homepage canvas) ───────────────────────── */
-
-  .surface-dark {
-    background: hsl(var(--surface-0));
-    color: hsl(var(--cream));
+  /* ── Paper & linen primitives ────────────────────────────────────────────
+     Shared material classes consuming the --paper/--linen tokens. Pages
+     compose these instead of hand-rolling warm hexes. */
+  .paper-card {
+    background-color: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 14px;
+    box-shadow: var(--shadow-page), inset 0 1px 0 rgb(255 255 255 / 0.9);
   }
-  .surface-dark-1 {
-    background: hsl(var(--surface-1));
-    color: hsl(var(--cream));
+  .paper-card-hover {
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .paper-card-hover:hover {
+    box-shadow: var(--shadow-lift), inset 0 1px 0 rgb(255 255 255 / 0.9);
+    transform: translateY(-2px);
+  }
+  .linen-panel {
+    background-color: var(--linen);
+    /* Fine crosshatch reads as linen at a glance, disappears up close. */
+    background-image:
+      repeating-linear-gradient(0deg, rgb(112 91 60 / 0.05) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgb(112 91 60 / 0.04) 0 1px, transparent 1px 3px);
+    border: 1px solid var(--linen-edge);
+  }
+  /* Hairline Signal Blue rule — the accent as a drawn line, not a fill. */
+  .rule-blue {
+    height: 2px;
+    border: 0;
+    background: hsl(var(--blue));
   }
 
-  /* Elevated glass panel: blur + hairline border at ~10% white. */
-  .glass-panel {
-    background: hsl(0 0% 100% / 0.05);
-    border: 1px solid hsl(0 0% 100% / 0.1);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: var(--shadow-cinematic);
+  /* ── Embossed ivory system ───────────────────────────────────────────────
+     Consumes the --emboss-* tokens; the usage rule lives with them in :root.
+     Web-only: text-shadow/box-shadow do not survive the PDF renderer —
+     print surfaces (generateWorksheetPdf) draw their own vector treatment. */
+
+  /* Raised display type. Display 32px+ / decorative only — see token rule. */
+  .emboss {
+    color: var(--emboss-face);
+    text-shadow:
+      0 1px 0 var(--emboss-hi),
+      0 -1px 1px var(--emboss-lo);
   }
 
-  /* Soft blue radial glow behind a focal point. Parent needs position. */
-  .glow-behind::before {
+  /* Recessed panel — a pressed area of the cover, e.g. rules, panel edges. */
+  .deboss {
+    background: hsl(var(--ivory));
+    box-shadow:
+      inset 0 1px 2px var(--emboss-lo),
+      inset 0 -1px 0 var(--emboss-hi);
+  }
+
+  /* ── Scrim for text over imagery ─────────────────────────────────────────
+     Sits between image and text, never over the text: image z-0, scrim ::after
+     z-1, text gets `relative z-index: 2` in markup. Direction follows the
+     text. Verify 4.5:1 against the LIGHTEST pixel the text actually crosses,
+     not the average; ivory text only. If a photo needs more than this, it is
+     the wrong photo. Never dim an image with opacity instead. */
+  .hero-scrim::after {
     content: '';
     position: absolute;
-    inset: -20%;
-    pointer-events: none;
-    background: radial-gradient(50% 50% at 50% 50%, hsl(var(--glow) / 0.18) 0%, transparent 70%);
-    z-index: 0;
-  }
-  .glow-behind > * {
-    position: relative;
+    inset: 0;
     z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      hsl(var(--navy) / 0.78) 0%,
+      hsl(var(--navy) / 0.55) 42%,
+      hsl(var(--navy) / 0.1) 78%,
+      hsl(var(--navy) / 0) 100%
+    );
   }
-
-  .gradient-hero {
-    background-image: var(--gradient-hero);
+  .hero-scrim-right::after {
+    background: linear-gradient(
+      to left,
+      hsl(var(--navy) / 0.78) 0%,
+      hsl(var(--navy) / 0.55) 42%,
+      hsl(var(--navy) / 0.1) 78%,
+      hsl(var(--navy) / 0) 100%
+    );
   }
-
-  /* Glow-step focus for dark surfaces (light surfaces keep the global ring). */
-  .surface-dark :focus-visible,
-  .surface-dark-1 :focus-visible {
-    outline: none;
-    box-shadow: var(--ring-glow);
+  /* Centred text over a full-bleed image (the current Home hero). */
+  .hero-scrim-bottom::after {
+    background: linear-gradient(
+      to top,
+      hsl(var(--navy) / 0.78) 0%,
+      hsl(var(--navy) / 0.5) 45%,
+      hsl(var(--navy) / 0.18) 75%,
+      hsl(var(--navy) / 0.08) 100%
+    );
   }
 
   /* ── Life Binder (the /curriculum explorer) ──────────────────────────────
@@ -336,13 +406,14 @@
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.08);
   }
 
-  /* Debossed wordmark: type the colour of a shadow pressed into the cover,
-     lifted by a light edge below and a dark edge above. */
+  /* Debossed wordmark: the .emboss treatment plus binder letter-spacing.
+     Kept as its own class for the tracking; colour and shadow come from the
+     shared --emboss-* tokens so there is one emboss source, not two. */
   .binder-emboss {
-    color: hsl(35 18% 82%);
+    color: var(--emboss-face);
     text-shadow:
-      0 1px 0 hsl(0 0% 100% / 0.9),
-      0 -1px 1px hsl(35 25% 55% / 0.4);
+      0 1px 0 var(--emboss-hi),
+      0 -1px 1px var(--emboss-lo);
     letter-spacing: 0.42em;
   }
 
@@ -438,35 +509,24 @@
       inset 0 1px 0 rgb(255 255 255 / 0.96);
   }
 
-  .curriculum-gold-emboss {
-    /* Pale champagne-ivory, like the foil pressed into the physical linen
-       cover. The definition comes from the raised light edge and shallow
-       recessed shadow rather than a saturated gold fill. */
+  .curriculum-emboss {
+    /* Tonal ivory foil pressed into the physical linen cover. Warm, never
+       metallic: the darkest stops sit in the --emboss-face range, and all
+       definition comes from the raised light edge and shallow recessed
+       shadow, not a gold fill. Subject to the emboss usage rule in :root. */
     background: linear-gradient(
       108deg,
-      #bfae90 0%,
-      #ded0b7 22%,
+      #d3c7ac 0%,
+      #e8decb 22%,
       #fffaf0 43%,
-      #cbb99b 62%,
-      #eee2cf 82%,
-      #b9a684 100%
+      #d9cdb2 62%,
+      #f2ecdd 82%,
+      #cfc3a8 100%
     );
     filter:
-      drop-shadow(0 1px 0 rgb(255 255 255 / 0.98))
-      drop-shadow(0 -1px 0 rgb(111 91 65 / 0.32))
-      drop-shadow(0 2px 2px rgb(93 70 40 / 0.11));
+      drop-shadow(0 1px 0 var(--emboss-hi))
+      drop-shadow(0 -1px 0 rgba(150, 132, 104, 0.34))
+      drop-shadow(0 2px 2px rgba(150, 132, 104, 0.14));
   }
 
-  @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--glow) / 0.35); }
-    50% { box-shadow: 0 0 24px 4px hsl(var(--glow) / 0.2); }
-  }
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  @keyframes marquee-x {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
 }
