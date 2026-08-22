@@ -120,6 +120,20 @@ const LegacyRedirect = ({ to }: { to: string }) => {
   return <Navigate to={`${to}${search}${hash}`} replace />;
 };
 
+// Teen logins are intentionally read-only and limited to session history,
+// worksheet downloads, account settings and their door pass. Guardian,
+// billing, progress, insight and group-work routes remain adult-only even if a
+// teen enters one of their URLs directly.
+const AdultPortalRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session, profile, isStaff, loading } = useAuth();
+  if (loading) return <PageLoader />;
+  if (!session) return <SignInRedirect />;
+  if (!isStaff && profile?.age_group?.toLowerCase() === "teen") {
+    return <Navigate to="/portal/dashboard" replace />;
+  }
+  return <>{children}</>;
+};
+
 const AppRoutes = () => (
   <Suspense fallback={<PageLoader />}>
     <Routes>
@@ -165,19 +179,19 @@ const AppRoutes = () => (
       <Route path="/portal/dashboard" element={<ProtectedRoute><PortalDashboard /></ProtectedRoute>} />
       <Route path="/portal/week/:weekNumber" element={<ProtectedRoute><PortalWeek /></ProtectedRoute>} />
       <Route path="/portal/weeks" element={<ProtectedRoute><PortalWeeks /></ProtectedRoute>} />
-      <Route path="/portal/group" element={<ProtectedRoute><PortalGroup /></ProtectedRoute>} />
-      <Route path="/portal/insights" element={<ProtectedRoute><PortalInsights /></ProtectedRoute>} />
+      <Route path="/portal/group" element={<AdultPortalRoute><PortalGroup /></AdultPortalRoute>} />
+      <Route path="/portal/insights" element={<AdultPortalRoute><PortalInsights /></AdultPortalRoute>} />
       <Route path="/portal/downloads" element={<ProtectedRoute><PortalDownloads /></ProtectedRoute>} />
       <Route path="/portal/settings" element={<ProtectedRoute><PortalSettings /></ProtectedRoute>} />
-      <Route path="/portal/progress" element={<ProtectedRoute><PortalProgress /></ProtectedRoute>} />
-      <Route path="/portal/checkin" element={<ProtectedRoute><PortalCheckIn /></ProtectedRoute>} />
-      <Route path="/portal/kids" element={<ProtectedRoute><PortalKids /></ProtectedRoute>} />
-      <Route path="/portal/teens" element={<ProtectedRoute><PortalTeens /></ProtectedRoute>} />
-      <Route path="/portal/family" element={<ProtectedRoute><PortalFamily /></ProtectedRoute>} />
+      <Route path="/portal/progress" element={<AdultPortalRoute><PortalProgress /></AdultPortalRoute>} />
+      <Route path="/portal/checkin" element={<AdultPortalRoute><PortalCheckIn /></AdultPortalRoute>} />
+      <Route path="/portal/kids" element={<AdultPortalRoute><PortalKids /></AdultPortalRoute>} />
+      <Route path="/portal/teens" element={<AdultPortalRoute><PortalTeens /></AdultPortalRoute>} />
+      <Route path="/portal/family" element={<AdultPortalRoute><PortalFamily /></AdultPortalRoute>} />
       <Route path="/portal/pass" element={<ProtectedRoute><PortalPass /></ProtectedRoute>} />
       <Route path="/portal/admin" element={<Navigate to="/admin" replace />} />
-      <Route path="/portal/billing" element={<ProtectedRoute><PortalBilling /></ProtectedRoute>} />
-      <Route path="/portal/orders" element={<ProtectedRoute><PortalOrders /></ProtectedRoute>} />
+      <Route path="/portal/billing" element={<AdultPortalRoute><PortalBilling /></AdultPortalRoute>} />
+      <Route path="/portal/orders" element={<AdultPortalRoute><PortalOrders /></AdultPortalRoute>} />
       {/* Public catalogue — browsing and guest checkout need no account. */}
       <Route path="/shop" element={<Shop />} />
       <Route path="/shop/:slug" element={<ShopProduct />} />

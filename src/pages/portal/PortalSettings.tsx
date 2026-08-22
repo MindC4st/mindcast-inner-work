@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useWebPush } from "@/hooks/useWebPush";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import { Bell, BellOff, Mail, AlertTriangle, Loader2, Download } from "lucide-react";
 
 type DisplayMode = "full" | "first_initial" | "anonymous";
@@ -18,6 +19,8 @@ const previewFor = (first: string, last: string, mode: DisplayMode): string => {
 
 const PortalSettings = () => {
   const { user, profile, signOut } = useAuth();
+  const { track } = useEntitlement();
+  const isTeen = track === "Teen";
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -172,8 +175,9 @@ const PortalSettings = () => {
           </button>
         </div>
 
-        {/* ===== LIVE SESSION DISPLAY ===== */}
-        <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg mt-6">
+        {/* Teen accounts are deliberately read-only: they cannot submit to the
+            live screen, so only adult accounts receive display-name controls. */}
+        {!isTeen && <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg mt-6">
           <div>
             <h2 className="portal-heading text-xl text-foreground mb-1">Live session display</h2>
             <p className="text-xs text-muted-foreground font-body font-light leading-relaxed">
@@ -242,15 +246,16 @@ const PortalSettings = () => {
           >
             {saving ? "SAVING..." : "SAVE CHANGES"}
           </button>
-        </div>
+        </div>}
 
         {/* ===== PRACTICE REMINDERS ===== */}
         <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg mt-6">
           <div>
             <h2 className="portal-heading text-xl text-foreground mb-1">Practice reminders</h2>
             <p className="text-xs text-muted-foreground font-body font-light leading-relaxed">
-              We send your weekly practice prompts on Monday and Wednesday evenings, plus a gentle
-              Sunday morning nudge before the live session. Two channels — pick whichever feels right.
+              {isTeen
+                ? "Choose whether to receive reminders about upcoming sessions and newly available paper worksheets."
+                : "We send your weekly practice prompts on Monday and Wednesday evenings, plus a gentle Sunday morning nudge before the live session. Two channels — pick whichever feels right."}
             </p>
           </div>
 
@@ -338,8 +343,9 @@ const PortalSettings = () => {
               <Download size={16} /> Your data
             </h2>
             <p className="text-sm text-muted-foreground font-body font-light mb-4 max-w-md">
-              Download everything Mindcast holds about you — profile, journal, reflections,
-              attendance and preferences — as a single JSON file.
+              {isTeen
+                ? "Download everything Mindcast holds about your teen account — profile, attendance and preferences — as a single JSON file. Teen accounts have no digital journal or submission history."
+                : "Download everything Mindcast holds about you — profile, journal, reflections, attendance and preferences — as a single JSON file."}
             </p>
             <button
               onClick={handleExport}
@@ -356,8 +362,9 @@ const PortalSettings = () => {
               <AlertTriangle size={16} /> Delete account
             </h2>
             <p className="text-sm text-muted-foreground font-body font-light mb-4 max-w-md">
-              Permanently deletes your account, your private journal, and your data,
-              and ends any membership. This cannot be undone.
+              {isTeen
+                ? "Permanently deletes your teen login and account data. This cannot be undone."
+                : "Permanently deletes your account, your private journal, and your data, and ends any membership. This cannot be undone."}
             </p>
             {!confirmDelete ? (
               <button

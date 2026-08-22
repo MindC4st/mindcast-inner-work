@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         <li><strong>Youth participation and safety information</strong> — annual guardian consent, emergency contacts, relevant medical, accessibility or behavioural information, and NFC permission where applicable</li>
         <li><strong>No-photo reference image</strong> — when a guardian declines promotional photography, a private current image helps authorised staff keep that child out of promotional images or mask them during image review</li>
         <li><strong>Attendance / check-ins</strong> — to run sessions and (optionally) show your name on the welcome wall</li>
-        <li><strong>On-screen submissions</strong> — live participation, moderated and opt-in; can be anonymous</li>
+        <li><strong>Adult on-screen submissions</strong> — live participation, moderated and opt-in; can be anonymous</li>
         <li><strong>Membership status and tier</strong> — to provide the right access</li>
         <li><strong>NFC bracelet ID</strong> — if you use one, to link your bracelet to your check-in</li>
         <li><strong>Payment details</strong> — handled by Stripe; we do not store card numbers</li>

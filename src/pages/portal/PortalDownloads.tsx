@@ -74,6 +74,7 @@ const PortalDownloads = () => {
 
   const isAdmin = role === "admin" || role === "facilitator" || profile?.is_admin === true || adminFallback;
   const canDownload = isAdmin || isMember;
+  const visibleAudiences = !isAdmin && track === "Teen" ? (["Teen"] as const) : AUDIENCES;
 
   // A teen account should land on Teen worksheets, not an empty Adult tab.
   // Adult guardians may still switch tracks; the server RPC decides which
@@ -245,14 +246,16 @@ const PortalDownloads = () => {
           {isAdmin
             ? "Admin view — all content is unlocked. Worksheets and colouring pages are available for every week."
             : canDownload
-              ? "One-page worksheets unlock at 9:30am on each session day. Print at home or keep using your digital journal."
+              ? track === "Teen"
+                ? "One-page teen worksheets unlock at 9:30am on each session day. Download them to print and complete on paper."
+                : "One-page worksheets unlock at 9:30am on each session day. Print at home or keep using your digital journal."
               : "Weekly worksheet downloads are included with an active membership."}
         </p>
       </div>
 
       {/* Audience filter tabs */}
       <div className="flex gap-1 mb-8 border-b border-foreground/10 pb-1">
-        {AUDIENCES.map((a) => (
+        {visibleAudiences.map((a) => (
           <button
             key={a}
             onClick={() => setAudience(a)}

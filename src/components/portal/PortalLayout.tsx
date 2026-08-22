@@ -23,12 +23,20 @@ const BOTTOM_TAB_ITEMS = [
   { label: "Profile", to: "/portal/settings", icon: User },
 ];
 
+const TEEN_BOTTOM_TAB_ITEMS = [
+  { label: "Home", to: "/portal/dashboard", icon: LayoutDashboard },
+  { label: "Sessions", to: "/portal/weeks", icon: BookOpen },
+  { label: "Downloads", to: "/portal/downloads", icon: Download },
+  { label: "Profile", to: "/portal/settings", icon: User },
+];
+
 const PortalLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
   const { profile, signOut, isStaff, role } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const isTeen = profile?.age_group?.toLowerCase() === "teen";
 
   const handleSignOut = async () => {
     await signOut();
@@ -66,7 +74,10 @@ const PortalLayout = ({ children, wide = false }: { children: ReactNode; wide?: 
       </div>
 
       <nav className="flex-1 px-4" aria-label="Member portal">
-        {NAV_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
+        {NAV_ITEMS.filter((item) => {
+          if (isTeen) return ["Dashboard", "Sessions", "Profile", "Door pass"].includes(item.label);
+          return !(isStaff && item.label === "Progress");
+        }).map((item) => {
           const active = isActive(item.to);
           return (
             <Link
@@ -102,18 +113,20 @@ const PortalLayout = ({ children, wide = false }: { children: ReactNode; wide?: 
           Downloads
         </Link>
 
-        <Link
-          to="/portal/group"
-          onClick={() => setSidebarOpen(false)}
-          className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
-            isActive("/portal/group")
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
-          }`}
-        >
-          <Users size={15} strokeWidth={1.5} />
-          Group View
-        </Link>
+        {!isTeen && (
+          <Link
+            to="/portal/group"
+            onClick={() => setSidebarOpen(false)}
+            className={`flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
+              isActive("/portal/group")
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground/70 hover:text-foreground hover:bg-foreground/[0.04]"
+            }`}
+          >
+            <Users size={15} strokeWidth={1.5} />
+            Group View
+          </Link>
+        )}
 
         {isStaff && (
           <Link
@@ -242,7 +255,9 @@ const PortalLayout = ({ children, wide = false }: { children: ReactNode; wide?: 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom" aria-label="Portal tabs">
         <div className="flex items-stretch">
-          {BOTTOM_TAB_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
+          {(isTeen ? TEEN_BOTTOM_TAB_ITEMS : BOTTOM_TAB_ITEMS)
+            .filter((item) => !(isStaff && item.label === "Progress"))
+            .map((item) => {
             const active = isActive(item.to);
             return (
               <Link

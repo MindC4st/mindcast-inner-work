@@ -136,7 +136,9 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
           <LockedPanel
             icon={<Lock size={22} />}
             title="Members only"
-            body="Become a Mindcast member to unlock the video, reflections and your private journal for this week."
+            body={track === "Teen"
+              ? "An active teen place unlocks this lesson history and its paper worksheet download. Teen accounts do not include a digital journal."
+              : "Become a Mindcast member to unlock the video, reflections and your private journal for this week."}
             cta
           />
         ) : !unlocked ? (
