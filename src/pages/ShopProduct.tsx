@@ -230,7 +230,16 @@ const ShopProduct = () => {
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
       <SiteHeader />
 
-      <main className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 pt-28 lg:pt-32 pb-24">
+      {/* Linen masthead strip — same woven panel and hairline edge as /shop. */}
+      <div className="linen-panel border-x-0 border-t-0 px-5 pb-4 pt-24 sm:px-8 lg:px-12 lg:pt-28">
+        <div className="mx-auto max-w-6xl">
+          <p className="font-body text-[10px] font-bold uppercase tracking-[0.24em] text-primary">
+            Mindcast shop
+          </p>
+        </div>
+      </div>
+
+      <main className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 pt-8 pb-24">
         <div className="flex items-center justify-between mb-8">
           <Link to="/shop" className="inline-flex min-h-10 items-center gap-2 rounded-lg font-body text-sm font-semibold text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] focus:outline-none focus:ring-2 focus:ring-primary/30">
             <ArrowLeft size={14} /> Back to shop

@@ -154,7 +154,7 @@ const Shop = () => {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.4) }}
-                  className="group flex overflow-hidden rounded-2xl border border-foreground/[0.08] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/5"
+                  className="paper-card paper-card-hover group flex overflow-hidden rounded-2xl"
                 >
                   <Link to={`/shop/${product.slug}`} className="flex w-full flex-col rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/20" aria-label={`View ${product.name}`}>
                     <div className="aspect-[4/3] overflow-hidden bg-foreground/[0.04]">

@@ -1,4 +1,4 @@
-import {
+﻿import {
   useEffect,
   useMemo,
   useState,
@@ -221,7 +221,7 @@ const PageHeading = ({
   <div>
     <Eyebrow>{eyebrow}</Eyebrow>
 
-    <h2 className="mt-2 max-w-[18ch] font-serif text-[clamp(2.2rem,4vw,4.35rem)] font-medium leading-[0.92] tracking-[-0.025em] text-[#4e463c]">
+    <h2 className="mt-2 max-w-[18ch] font-serif text-[clamp(2.2rem,4vw,4.35rem)] font-medium leading-[0.92] tracking-[-0.025em] text-[var(--paper-ink)]">
       {children}
     </h2>
   </div>
@@ -254,8 +254,8 @@ const SegmentedControl = <T extends string>({
         onClick={() => onChange(option.value)}
         className={`min-h-9 rounded-full px-3 font-body text-[9px] font-bold uppercase tracking-[0.16em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:px-4 sm:text-[10px] ${
           value === option.value
-            ? "bg-[#fffaf2] text-[#4e463c] shadow-sm"
-            : "text-[#776d61] hover:text-[#4e463c]"
+            ? "bg-[var(--paper)] text-[var(--paper-ink)] shadow-sm"
+            : "text-[#776d61] hover:text-[var(--paper-ink)]"
         }`}
       >
         {option.label}
@@ -356,7 +356,7 @@ const BinderTabs = ({
           onKeyDown={(event) => moveTabFocus(event, tab, onChange, "binder-tab-")}
           className={`group relative min-h-0 flex-1 rounded-r-2xl border px-4 py-2 text-left transition-[transform,background-color,border-color,box-shadow] focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             active
-              ? "-translate-x-3 border-[#d9c8ad] bg-[#fffaf2] shadow-[7px_9px_20px_rgba(92,67,31,0.11)]"
+              ? "-translate-x-3 border-[#d9c8ad] bg-[var(--paper)] shadow-[7px_9px_20px_rgba(92,67,31,0.11)]"
               : "border-[#ddcfba] bg-[#ebe2d3] hover:-translate-x-1 hover:bg-[#f4ecdf]"
           }`}
         >
@@ -420,7 +420,7 @@ const MobileTabs = ({
           onKeyDown={(event) => moveTabFocus(event, tab, onChange, "binder-tab-m-")}
           className={`flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-3 font-body text-[9px] font-bold uppercase tracking-[0.12em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             active
-              ? "bg-[#fffaf2] text-primary shadow-sm"
+              ? "bg-[var(--paper)] text-primary shadow-sm"
               : "text-[#6d6255]"
           }`}
         >
@@ -516,7 +516,7 @@ const NotesPage = ({
         {CURRICULUM_SUBHEADLINE}
       </p>
 
-      <p className="mt-5 max-w-2xl font-body text-sm leading-6 text-[#6d655c] sm:text-base sm:leading-7">
+      <p className="mt-5 max-w-2xl font-body text-sm leading-6 text-[var(--paper-ink-muted)] sm:text-base sm:leading-7">
         {CURRICULUM_OVERVIEW}
       </p>
 
@@ -533,7 +533,7 @@ const NotesPage = ({
         <button
           type="button"
           onClick={onOpenWorksheets}
-          className="inline-flex min-h-12 items-center justify-center gap-2 border border-primary/40 bg-[#fffaf2] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:border-primary hover:bg-[#f8efe1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          className="inline-flex min-h-12 items-center justify-center gap-2 border border-primary/40 bg-[var(--paper)] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:border-primary hover:bg-[#f8efe1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
           See a worksheet
         </button>
@@ -545,7 +545,7 @@ const NotesPage = ({
         <div>
           <Eyebrow>The shape of the year</Eyebrow>
 
-          <p className="mt-2 font-serif text-3xl font-semibold leading-none tracking-[-0.02em] text-[#4e463c] sm:text-4xl">
+          <p className="mt-2 font-serif text-3xl font-semibold leading-none tracking-[-0.02em] text-[var(--paper-ink)] sm:text-4xl">
             4 × 13 WEEKS
           </p>
         </div>
@@ -565,7 +565,7 @@ const NotesPage = ({
               0{block.number}
             </span>
 
-            <span className="font-serif text-xl font-semibold text-[#4e463c] sm:text-2xl">
+            <span className="font-serif text-xl font-semibold text-[var(--paper-ink)] sm:text-2xl">
               {block.name}
             </span>
 
@@ -576,7 +576,7 @@ const NotesPage = ({
         ))}
       </ol>
 
-      <p className="mt-4 font-body text-xs leading-5 text-[#6d655c]">
+      <p className="mt-4 font-body text-xs leading-5 text-[var(--paper-ink-muted)]">
         Adults, teens and children explore the same weekly
         idea through three age-appropriate experiences.
       </p>
@@ -719,7 +719,7 @@ const PhasesPage = ({
               className={`min-h-12 rounded-lg border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 active
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-[#dfd1bc] bg-[#f5ede1] text-[#4e463c] hover:border-primary/50"
+                  : "border-[#dfd1bc] bg-[#f5ede1] text-[var(--paper-ink)] hover:border-primary/50"
               }`}
             >
               <span className="block font-body text-[8px] font-bold uppercase tracking-[0.18em] opacity-65">
@@ -743,7 +743,7 @@ const PhasesPage = ({
                 {phase.weeks[0]}–{phase.weeks[1]}
               </Eyebrow>
 
-              <h3 className="mt-3 font-serif text-4xl font-medium leading-none tracking-[-0.025em] text-[#4e463c] sm:text-5xl">
+              <h3 className="mt-3 font-serif text-4xl font-medium leading-none tracking-[-0.025em] text-[var(--paper-ink)] sm:text-5xl">
                 {phase.name}
               </h3>
             </div>
@@ -762,7 +762,7 @@ const PhasesPage = ({
             {phaseCopy.focus}
           </p>
 
-          <p className="mt-3 font-body text-sm leading-6 text-[#6d655c]">
+          <p className="mt-3 font-body text-sm leading-6 text-[var(--paper-ink-muted)]">
             {phaseCopy.description}
           </p>
 
@@ -771,7 +771,7 @@ const PhasesPage = ({
               Selected week · {TRACK_COPY[track].title}
             </Eyebrow>
 
-            <p className="mt-2 font-serif text-2xl font-semibold leading-tight text-[#4e463c]">
+            <p className="mt-2 font-serif text-2xl font-semibold leading-tight text-[var(--paper-ink)]">
               {selectedWeek
                 ? titleFor(selectedWeek)
                 : `Week ${selectedWeekNumber}`}
@@ -780,7 +780,7 @@ const PhasesPage = ({
             {selectedWeek?.weekly_theme &&
             selectedWeek.weekly_theme !==
               titleFor(selectedWeek) ? (
-              <p className="mt-2 font-body text-xs leading-5 text-[#6d655c]">
+              <p className="mt-2 font-body text-xs leading-5 text-[var(--paper-ink-muted)]">
                 Shared idea: {selectedWeek.weekly_theme}
               </p>
             ) : null}
@@ -844,7 +844,7 @@ const PhasesPage = ({
                         className={`font-display text-lg ${
                           active
                             ? "text-primary"
-                            : "text-[#4e463c]/30"
+                            : "text-[var(--paper-ink)]/30"
                         }`}
                       >
                         {String(
@@ -853,7 +853,7 @@ const PhasesPage = ({
                       </span>
 
                       <span>
-                        <span className="block font-body text-xs font-semibold leading-5 text-[#4e463c] sm:text-sm">
+                        <span className="block font-body text-xs font-semibold leading-5 text-[var(--paper-ink)] sm:text-sm">
                           {titleFor(week)}
                         </span>
 
@@ -877,7 +877,7 @@ const PhasesPage = ({
                         className={
                           active
                             ? "text-primary"
-                            : "text-[#4e463c]/20"
+                            : "text-[var(--paper-ink)]/20"
                         }
                       />
                     </button>
@@ -951,11 +951,11 @@ const WORKSHEET_LABELS: Record<
 const ColouringLighthouse = () => (
   <svg
     viewBox="0 0 240 170"
-    className="mx-auto h-auto w-full max-w-[300px]"
+    className="mx-auto h-auto w-full max-w-[300px] text-[var(--paper-ink)]"
     role="img"
     aria-label="Colouring outline of a lighthouse shining through wind and waves"
     fill="none"
-    stroke="#4e463c"
+    stroke="currentColor"
     strokeWidth="1.6"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -991,14 +991,14 @@ const WorksheetPreview = ({
   track: Track;
   theme: string;
 }) => (
-  <div className="mx-auto flex h-full max-h-[520px] w-full max-w-[410px] flex-col overflow-hidden rounded-sm border border-[#ddcfbb] bg-[#fffaf2] shadow-[0_18px_38px_rgba(92,67,31,0.13)]">
+  <div className="mx-auto flex h-full max-h-[520px] w-full max-w-[410px] flex-col overflow-hidden rounded-sm border border-[#ddcfbb] bg-[var(--paper)] shadow-[0_18px_38px_rgba(92,67,31,0.13)]">
     <div className="flex items-start justify-between border-b border-[#d8cbb7] px-5 py-4">
       <div>
         <p className="font-body text-[8px] font-bold uppercase tracking-[0.26em] text-primary">
           Week 01 · {track}
         </p>
 
-        <h3 className="mt-2 font-serif text-2xl font-semibold leading-none text-[#4e463c]">
+        <h3 className="mt-2 font-serif text-2xl font-semibold leading-none text-[var(--paper-ink)]">
           {theme.toUpperCase()}
         </h3>
       </div>
@@ -1025,11 +1025,11 @@ const WorksheetPreview = ({
           <ColouringLighthouse />
         </div>
 
-        <p className="mt-3 font-body text-[11px] leading-5 text-[#6d655c]">
+        <p className="mt-3 font-body text-[11px] leading-5 text-[var(--paper-ink-muted)]">
           {WEEK1_CHILD.colouring.body}
         </p>
 
-        <p className="mt-2 font-body text-[11px] leading-5 text-[#6d655c]">
+        <p className="mt-2 font-body text-[11px] leading-5 text-[var(--paper-ink-muted)]">
           {WEEK1_CHILD.colouring.thenWhat}
         </p>
       </div>
@@ -1091,7 +1091,7 @@ const WorksheetsPage = ({
           home with you.
         </PageHeading>
 
-        <p className="mt-4 max-w-xl font-body text-sm leading-6 text-[#6d655c] sm:text-base sm:leading-7">
+        <p className="mt-4 max-w-xl font-body text-sm leading-6 text-[var(--paper-ink-muted)] sm:text-base sm:leading-7">
           The worksheet mirrors the live session, then
           gives the week somewhere to land. No stacked
           previews and no worksheets hidden inside the
@@ -1123,7 +1123,7 @@ const WorksheetsPage = ({
                   {step.day}
                 </p>
 
-                <p className="mt-1 font-body text-[10px] font-semibold leading-4 text-[#4e463c]">
+                <p className="mt-1 font-body text-[10px] font-semibold leading-4 text-[var(--paper-ink)]">
                   {step.title}
                 </p>
 
@@ -1145,7 +1145,7 @@ const WorksheetsPage = ({
             Included for visitors
           </p>
 
-          <p className="mt-2 font-body text-xs leading-5 text-[#6d655c] sm:text-sm">
+          <p className="mt-2 font-body text-xs leading-5 text-[var(--paper-ink-muted)] sm:text-sm">
             Every visitor receives the worksheet for the
             session they attend. Adult members can also
             save their responses to a private digital journal;
@@ -1202,7 +1202,7 @@ const ReflectionPage = () => (
         not a shared script.
       </PageHeading>
 
-      <p className="font-body text-sm leading-6 text-[#6d655c] xl:pb-1">
+      <p className="font-body text-sm leading-6 text-[var(--paper-ink-muted)] xl:pb-1">
         Adults, teens and children explore the same weekly
         theme in separate, age-appropriate rooms. The
         connection happens afterwards—in the language a
@@ -1217,7 +1217,7 @@ const ReflectionPage = () => (
           className="rounded-2xl border border-[#ddd4c7] bg-white p-4 shadow-sm sm:p-5"
         >
           <div className="flex items-start justify-between">
-            <span className="font-display text-2xl tracking-[0.12em] text-[#4e463c]">
+            <span className="font-display text-2xl tracking-[0.12em] text-[var(--paper-ink)]">
               {track.label.toUpperCase()}
             </span>
 
@@ -1226,7 +1226,7 @@ const ReflectionPage = () => (
             </span>
           </div>
 
-          <p className="mt-3 font-body text-xs leading-5 text-[#6d655c] sm:text-sm sm:leading-6">
+          <p className="mt-3 font-body text-xs leading-5 text-[var(--paper-ink-muted)] sm:text-sm sm:leading-6">
             {TRACK_COPY[track.key].body}
           </p>
         </article>
@@ -1241,11 +1241,11 @@ const ReflectionPage = () => (
           <Eyebrow>Shared language at home</Eyebrow>
         </div>
 
-        <p className="mt-4 font-serif text-2xl font-semibold leading-tight text-[#4e463c] sm:text-3xl">
+        <p className="mt-4 font-serif text-2xl font-semibold leading-tight text-[var(--paper-ink)] sm:text-3xl">
           {SHARED_LANGUAGE_TAGLINE}
         </p>
 
-        <p className="mt-3 max-w-2xl font-body text-xs leading-5 text-[#6d655c] sm:text-sm sm:leading-6">
+        <p className="mt-3 max-w-2xl font-body text-xs leading-5 text-[var(--paper-ink-muted)] sm:text-sm sm:leading-6">
           {SHARED_LANGUAGE_COPY}
         </p>
 
@@ -1255,7 +1255,7 @@ const ReflectionPage = () => (
               key={item}
               className="flex items-center gap-3"
             >
-              <span className="font-display text-xl tracking-[0.12em] text-[#4e463c] sm:text-2xl">
+              <span className="font-display text-xl tracking-[0.12em] text-[var(--paper-ink)] sm:text-2xl">
                 {item}
               </span>
 
@@ -1273,11 +1273,11 @@ const ReflectionPage = () => (
       <section className="rounded-2xl border border-[#ddd4c7] bg-[#f4efe7]/80 p-5 sm:p-6">
         <Eyebrow>A year that remembers</Eyebrow>
 
-        <p className="mt-3 font-serif text-2xl font-semibold leading-tight text-[#4e463c] sm:text-3xl">
+        <p className="mt-3 font-serif text-2xl font-semibold leading-tight text-[var(--paper-ink)] sm:text-3xl">
           WE COME BACK BEFORE WE MOVE ON.
         </p>
 
-        <p className="mt-3 font-body text-xs leading-5 text-[#6d655c] sm:text-sm sm:leading-6">
+        <p className="mt-3 font-body text-xs leading-5 text-[var(--paper-ink-muted)] sm:text-sm sm:leading-6">
           Each Sunday begins by returning to the previous
           intention. There is no failure state here—only
           a growing record of what you noticed.
@@ -1458,7 +1458,7 @@ const ShopPage = () => {
 
                 <div className="flex flex-1 flex-col p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-serif text-xl font-semibold leading-tight text-[#4e463c] sm:text-2xl">
+                    <h3 className="font-serif text-xl font-semibold leading-tight text-[var(--paper-ink)] sm:text-2xl">
                       {product.name}
                     </h3>
 
@@ -1471,7 +1471,7 @@ const ShopPage = () => {
                   </div>
 
                   {product.description ? (
-                    <p className="mt-3 line-clamp-3 font-body text-xs leading-5 text-[#6d655c] sm:text-sm">
+                    <p className="mt-3 line-clamp-3 font-body text-xs leading-5 text-[var(--paper-ink-muted)] sm:text-sm">
                       {product.description}
                     </p>
                   ) : null}
@@ -1493,7 +1493,7 @@ const ShopPage = () => {
                 strokeWidth={1.4}
               />
 
-              <p className="mt-4 font-serif text-2xl font-semibold text-[#4e463c]">
+              <p className="mt-4 font-serif text-2xl font-semibold text-[var(--paper-ink)]">
                 {error
                   ? "THE SHOP COULDN'T LOAD HERE."
                   : "PRODUCTS ARE BEING ADDED."}

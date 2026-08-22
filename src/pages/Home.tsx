@@ -104,10 +104,12 @@ const HeroSection = () => {
       ref={sectionRef}
       className="relative min-h-[100svh] w-full overflow-hidden bg-[hsl(var(--ivory))]"
     >
-      {/* Full-bleed background image (scales and fades to ivory on scroll). */}
+      {/* Full-bleed background image (scales and fades to ivory on scroll).
+          The scrim keeps the card's edges and the photo's lower third calm
+          regardless of image content. */}
       <motion.div
         aria-hidden="true"
-        className="absolute inset-0"
+        className="hero-scrim-bottom hero-scrim absolute inset-0"
         style={reduceMotion ? { opacity: 1 } : { opacity: imageOpacity }}
       >
         <motion.img

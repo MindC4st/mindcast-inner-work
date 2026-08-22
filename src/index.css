@@ -94,6 +94,10 @@
     --linen: #f0e9dd;
     --linen-edge: #d8cbb7;
     --ivory-deep: #efe7d8;
+    /* Warm ink for type sitting on paper/linen surfaces — the binder's own
+       ink, distinct from the cool Ink Navy used on plain ivory. */
+    --paper-ink: #4e463c;
+    --paper-ink-muted: #6d655c;
     --shadow-page:
       0 1px 2px rgba(79, 58, 31, 0.05),
       0 18px 40px -28px rgba(79, 58, 31, 0.4);
@@ -496,7 +500,7 @@
   }
 
   .curriculum-paper {
-    background-color: #fffaf2;
+    background-color: var(--paper);
     background-image:
       radial-gradient(circle at 30% 0%, rgb(255 255 255 / 0.9), transparent 45%),
       linear-gradient(rgb(145 116 73 / 0.022) 1px, transparent 1px),

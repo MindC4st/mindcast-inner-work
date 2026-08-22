@@ -26,7 +26,7 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
     <div className="min-h-screen bg-ivory">
       <SiteHeader />
       <main>
-        <header className="border-b border-foreground/[0.07] bg-white px-5 pb-12 pt-28 sm:px-8 sm:pb-16 lg:px-12 lg:pt-32">
+        <header className="linen-panel border-x-0 border-t-0 px-5 pb-12 pt-28 sm:px-8 sm:pb-16 lg:px-12 lg:pt-32">
           <div className="mx-auto max-w-6xl">
             <Link
               to="/"
@@ -35,7 +35,7 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to Mindcast
             </Link>
             <p className="portal-label mb-3">{eyebrow}</p>
-            <h1 className="max-w-4xl break-words font-serif text-4xl leading-tight text-primary sm:text-5xl lg:text-6xl">{title}</h1>
+            <h1 className="max-w-4xl break-words font-serif text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl">{title}</h1>
             <p className="mt-5 flex items-center gap-2 font-body text-xs text-muted-foreground">
               <Clock3 className="h-3.5 w-3.5" aria-hidden="true" /> Last updated {lastUpdated}
             </p>
@@ -68,7 +68,7 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
           </aside>
 
           <article
-            className="min-w-0 rounded-3xl border border-foreground/[0.07] bg-white p-6 shadow-sm sm:p-9 lg:p-12"
+            className="paper-card min-w-0 rounded-3xl p-6 sm:p-9 lg:p-12"
           >
             <div className="prose prose-base max-w-3xl break-words
               prose-headings:scroll-mt-28 prose-headings:text-foreground prose-headings:font-serif prose-headings:font-semibold prose-headings:break-words

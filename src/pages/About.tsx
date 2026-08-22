@@ -130,7 +130,7 @@ const AboutHero = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="section-cream flex min-h-[72svh] items-center border-b border-border pt-16 lg:pt-[72px]">
+    <section className="linen-panel flex min-h-[72svh] items-center border-x-0 border-t-0 pt-16 lg:pt-[72px]">
       <div className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 28 }}
@@ -414,11 +414,11 @@ const AiDisclosure = () => (
       src="/videos/podcast_tv.mp4"
       className="absolute inset-0 h-full w-full object-cover opacity-[0.14]"
     />
-    <div className="absolute inset-0 bg-[#FDFBF7]/70" aria-hidden="true" />
+    <div className="absolute inset-0 bg-[var(--paper)] opacity-70" aria-hidden="true" />
 
     <div className="relative z-10 mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
       <Reveal>
-        <div className="rounded-3xl border border-border bg-[#FDFBF7]/95 p-7 shadow-[0_18px_55px_rgba(16,36,56,0.10)] backdrop-blur-sm sm:p-10 lg:p-14">
+        <div className="paper-card rounded-3xl p-7 sm:p-10 lg:p-14">
           <h2 className="text-center font-display text-3xl leading-[1.05] tracking-tight text-primary sm:text-4xl md:text-5xl">
             WE USE AI. HERE&apos;S WHY WE&apos;RE PROUD OF THAT.
           </h2>

@@ -162,7 +162,7 @@ const MembershipHero = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="section-cream overflow-hidden border-b border-border pt-16">
+    <section className="linen-panel overflow-hidden border-x-0 border-t-0 pt-16">
       <div className="mx-auto grid min-h-[calc(100svh-64px)] max-w-7xl items-center gap-10 px-5 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1.03fr_0.97fr] lg:gap-16 lg:px-8 lg:py-20">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}
@@ -257,7 +257,7 @@ const EntryCard = ({
   bullets,
   children,
 }: EntryCardProps) => (
-  <article className="flex h-full flex-col rounded-2xl border border-border bg-white p-6 shadow-[0_14px_40px_rgba(16,36,56,0.06)] sm:p-7">
+  <article className="paper-card paper-card-hover flex h-full flex-col rounded-2xl p-6 sm:p-7">
     <div className="flex items-start justify-between gap-5">
       <Eyebrow>{eyebrow}</Eyebrow>
       <span className="font-display text-3xl leading-none text-primary/20">{number}</span>
@@ -466,7 +466,7 @@ const HouseholdSection = () => (
           </p>
         </Reveal>
 
-        <Reveal delay={0.08} className="mt-7 rounded-2xl border border-border bg-[#f7f2ea] p-5 sm:p-6">
+        <Reveal delay={0.08} className="linen-panel mt-7 rounded-2xl p-5 sm:p-6">
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <Eyebrow>Adult place</Eyebrow>

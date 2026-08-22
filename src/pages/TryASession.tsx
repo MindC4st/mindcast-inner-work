@@ -134,7 +134,7 @@ const Success = ({ email, minors }: { email: string; minors: number }) => (
   <div className="min-h-screen bg-[hsl(var(--ivory))]">
     <SiteHeader />
     <main className="px-5 pb-20 pt-32 sm:px-6 sm:pt-36">
-      <div className="mx-auto max-w-2xl overflow-hidden rounded-[2rem] border border-[hsl(var(--warm-border))] bg-white shadow-[0_24px_80px_rgba(16,36,56,0.08)]">
+      <div className="paper-card mx-auto max-w-2xl overflow-hidden rounded-[2rem]">
         <div className="linen-panel relative overflow-hidden border-x-0 border-t-0 px-7 py-12 text-center sm:px-14 sm:py-16">
           <Ripple className="absolute -right-12 -top-12 h-52 w-52 text-primary/10" />
           <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
@@ -355,8 +355,8 @@ const TryASession = () => {
       <SiteHeader />
 
       <main className="pb-24 pt-16">
-        <section className="relative overflow-hidden border-b border-[hsl(var(--warm-border))]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,hsl(var(--mist)/0.45),transparent_34%)]" />
+        <section className="linen-panel relative overflow-hidden border-x-0 border-t-0">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_15%,hsl(var(--mist)/0.35),transparent_34%)]" />
           <div className="relative mx-auto grid max-w-7xl lg:grid-cols-[0.9fr_1.1fr]">
             <div className="flex flex-col justify-center px-6 py-16 sm:px-10 sm:py-20 lg:px-14 lg:py-24 xl:px-20">
               <p className={`${eyebrowClass} mb-5`}>One session. No pressure.</p>
