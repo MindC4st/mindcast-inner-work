@@ -2,7 +2,7 @@
 // Discounts are validated server-side at checkout; the code travels with the
 // request and the reduced total is what Stripe charges.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, Minus, Plus, ShoppingBag, Tag, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +38,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
   const [discountCode, setDiscountCode] = useState("");
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState("");
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const subtotal = useMemo(
     () => entries.reduce((sum, e) => sum + e.unitPrice * e.line.quantity, 0),
@@ -45,6 +46,23 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
   );
   const allShipped = entries.length > 0 && entries.every((e) => e.product.fulfilment === "ship");
   const shipping = allShipped ? shippingForSubtotal(subtotal) : 0;
+
+  useEffect(() => {
+    if (!open) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+      previousFocus?.focus();
+    };
+  }, [open, onClose]);
 
   const checkout = async () => {
     setCheckingOut(true);
@@ -65,15 +83,19 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-[hsl(var(--navy))]/40 z-40"
             onClick={onClose}
+            aria-hidden="true"
           />
           <motion.div
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.25 }}
             className="fixed top-0 right-0 h-full w-full max-w-md bg-[hsl(var(--ivory))] z-50 flex flex-col shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cart-title"
           >
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[hsl(var(--navy))]/10">
-              <h2 className="font-display text-xl tracking-wider text-[hsl(var(--navy))]">YOUR CART</h2>
-              <button onClick={onClose} className="text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]" aria-label="Close cart">
+            <div className="flex items-center justify-between px-5 sm:px-6 py-5 border-b border-[hsl(var(--navy))]/10">
+              <h2 id="cart-title" className="font-serif text-2xl text-[hsl(var(--navy))]">Your cart</h2>
+              <button ref={closeButtonRef} type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-lg text-[hsl(var(--navy-mid))] transition hover:bg-[hsl(var(--navy))]/5 hover:text-[hsl(var(--navy))] focus:outline-none focus:ring-2 focus:ring-primary/30" aria-label="Close cart">
                 <X size={18} />
               </button>
             </div>
@@ -111,24 +133,27 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center border border-[hsl(var(--navy))]/15 rounded-sm">
                               <button
+                                type="button"
                                 onClick={() => setQuantity(e.line.slug, e.line.quantity - 1, e.line.variant_id, e.line.recipient)}
-                                className="p-1.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]"
-                                aria-label="Decrease quantity"
+                                className="flex h-9 w-9 items-center justify-center text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                aria-label={`Decrease ${e.product.name} quantity`}
                               >
                                 <Minus size={12} />
                               </button>
                               <span className="w-7 text-center text-xs font-body text-[hsl(var(--navy))]">{e.line.quantity}</span>
                               <button
+                                type="button"
                                 onClick={() => setQuantity(e.line.slug, e.line.quantity + 1, e.line.variant_id, e.line.recipient)}
-                                className="p-1.5 text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]"
-                                aria-label="Increase quantity"
+                                className="flex h-9 w-9 items-center justify-center text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                aria-label={`Increase ${e.product.name} quantity`}
                               >
                                 <Plus size={12} />
                               </button>
                             </div>
                             <button
+                              type="button"
                               onClick={() => setQuantity(e.line.slug, 0, e.line.variant_id, e.line.recipient)}
-                              className="text-[10px] font-body uppercase tracking-widest text-[hsl(var(--navy-mid))]/70 hover:text-red-700"
+                              className="min-h-9 rounded px-1 text-[10px] font-body uppercase tracking-widest text-[hsl(var(--navy-mid))]/70 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-primary/30"
                             >
                               Remove
                             </button>
@@ -139,10 +164,11 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                   })}
 
                   <div className="border border-[hsl(var(--navy))]/10 bg-white rounded-sm p-3">
-                    <label className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] flex items-center gap-1.5 mb-2">
+                    <label htmlFor="cart-discount-code" className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] flex items-center gap-1.5 mb-2">
                       <Tag size={11} /> Discount code
                     </label>
                     <input
+                      id="cart-discount-code"
                       value={discountCode}
                       onChange={(ev) => setDiscountCode(ev.target.value.toUpperCase())}
                       placeholder="Optional"
@@ -173,6 +199,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                   NZD, GST included. {allShipped ? describeShipping(subtotal) + "." : "Collect at the counter."}
                 </p>
                 <button
+                  type="button"
                   onClick={checkout}
                   disabled={checkingOut}
                   className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3.5 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
@@ -183,7 +210,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                 <p className="text-[10px] font-body text-[hsl(var(--navy-mid))]/60 text-center mt-2">
                   No account needed — guests can check out with card, Apple Pay or Google Pay.
                 </p>
-                {error && <p className="text-sm text-red-700 font-body mt-3">{error}</p>}
+                {error && <p className="text-sm text-red-700 font-body mt-3" role="alert">{error}</p>}
               </div>
             )}
           </motion.div>

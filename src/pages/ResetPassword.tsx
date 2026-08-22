@@ -1,114 +1,132 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, CircleAlert, Loader2, LockKeyhole } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import logoLight from "@/assets/logo-blue-wordmark.png";
+import AuthShell, { authPrimaryButtonClass } from "@/components/auth/AuthShell";
+import PasswordField from "@/components/auth/PasswordField";
+
+type RecoveryStatus = "checking" | "ready" | "invalid";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<RecoveryStatus>("checking");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // The recovery token can arrive as a hash on any page; AuthContext then
-    // routes here, so by mount the session may already exist with the hash
-    // consumed. Accept any of: hash token, live recovery event, or an
-    // already-established recovery session.
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setReady(true);
-      return;
-    }
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
-    });
+    // Recovery may arrive in the hash, as a PASSWORD_RECOVERY event, or as a
+    // session already established by AuthContext after it consumed the hash.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setReady(true);
-      }
+      if (event === "PASSWORD_RECOVERY") setStatus("ready");
     });
+
+    if (window.location.hash.includes("type=recovery")) {
+      setStatus("ready");
+    } else {
+      supabase.auth.getSession().then(({ data }) => {
+        setStatus(data.session ? "ready" : "invalid");
+      });
+    }
+
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (password !== confirmPassword) {
-      toast({ title: "Passwords don't match", variant: "destructive" });
+      toast({ title: "Passwords don't match", description: "Please check both entries and try again.", variant: "destructive" });
       return;
     }
     if (password.length < 6) {
-      toast({ title: "Password too short", description: "Must be at least 6 characters.", variant: "destructive" });
+      toast({ title: "Password too short", description: "Use at least 6 characters.", variant: "destructive" });
       return;
     }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Password not updated", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Password updated", description: "You can now sign in with your new password." });
       navigate("/portal/login");
     }
   };
 
-  if (!ready) {
-    return (
-      <section className="bg-background min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <img src={logoLight} alt="Mindcast" className="h-10 mx-auto mb-6" />
-          <p className="text-muted-foreground text-sm font-body">Verifying your reset link…</p>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="bg-background min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-sm px-8">
-        <div className="text-center mb-10">
-          <img src={logoLight} alt="Mindcast" className="h-10 mx-auto mb-6" />
-          <h1 className="font-display text-lg tracking-[0.3em] text-foreground/90">SET NEW PASSWORD</h1>
+    <AuthShell
+      eyebrow="Account recovery"
+      title="Choose a new password."
+      description="Create a password you don’t use elsewhere. Once it’s saved, you can return to your member space."
+      asideTitle="A simple way back into your Mindcast space."
+      asideCopy="Reset links are temporary and can only be used to update the account they were sent to."
+    >
+      {status === "checking" && (
+        <div className="flex min-h-40 items-center justify-center rounded-2xl border border-foreground/[0.08] bg-white" role="status">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+          <span className="ml-3 font-body text-sm text-muted-foreground">Verifying your reset link…</span>
         </div>
+      )}
 
+      {status === "invalid" && (
+        <div className="rounded-2xl border border-destructive/15 bg-destructive/[0.04] p-5 sm:p-6" role="alert">
+          <div className="flex items-start gap-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <CircleAlert className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="font-body text-sm font-semibold text-foreground">This reset link is no longer active</h2>
+              <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">
+                It may have expired or already been used. Return to sign in and request a fresh link.
+              </p>
+              <Link
+                to="/portal/login"
+                className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg font-body text-sm font-semibold text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                Return to sign in <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {status === "ready" && (
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">NEW PASSWORD</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
-              placeholder="••••••••"
-            />
+          <div className="mb-7 flex items-start gap-4 rounded-2xl border border-primary/15 bg-primary/[0.05] p-4 sm:p-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <LockKeyhole className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <p className="pt-1 font-body text-xs leading-6 text-muted-foreground">
+              Use at least 6 characters. A longer, unique passphrase gives your account better protection.
+            </p>
           </div>
-          <div>
-            <label className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">CONFIRM PASSWORD</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full bg-transparent border-b border-border text-foreground px-0 py-3 text-sm font-body font-light placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none transition-colors"
-              placeholder="••••••••"
-            />
-          </div>
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-primary-foreground py-4 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
-            >
-              {loading ? "UPDATING..." : "UPDATE PASSWORD"}
-            </button>
-          </div>
+          <PasswordField
+            id="recovery-password"
+            label="New password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="new-password"
+            minLength={6}
+            disabled={loading}
+          />
+          <PasswordField
+            id="recovery-password-confirm"
+            label="Confirm new password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            autoComplete="new-password"
+            minLength={6}
+            disabled={loading}
+          />
+          <button type="submit" disabled={loading} className={`${authPrimaryButtonClass} mt-2`}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            {loading ? "Updating password…" : "Update password"}
+            {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+          </button>
         </form>
-      </div>
-    </section>
+      )}
+    </AuthShell>
   );
 };
 

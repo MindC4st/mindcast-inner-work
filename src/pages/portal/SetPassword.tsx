@@ -1,13 +1,14 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, LockKeyhole } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import AuthShell, { authPrimaryButtonClass } from "@/components/auth/AuthShell";
+import PasswordField from "@/components/auth/PasswordField";
 
-// /portal/set-password — a newly invited user (teen) lands here after the
-// magic link. They choose a password, then we take them straight to the portal.
-
+// A newly invited member lands here after their magic link. The invite session
+// must be active before Supabase will accept the new password.
 const SetPassword = () => {
   const navigate = useNavigate();
   const { session, loading: authLoading } = useAuth();
@@ -15,16 +16,14 @@ const SetPassword = () => {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // updateUser requires an active session. If a user lands here without one
-  // (e.g. the invite link wasn't followed), send them to sign-in.
   useEffect(() => {
     if (!authLoading && !session) {
       navigate("/portal/login", { replace: true });
     }
   }, [authLoading, session, navigate]);
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
     if (password !== confirm) {
       toast({ title: "Passwords don't match", description: "Please re-enter your password.", variant: "destructive" });
       return;
@@ -43,63 +42,57 @@ const SetPassword = () => {
     navigate("/portal/dashboard", { replace: true });
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center">
-        <Loader2 size={20} className="animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center px-6">
-      <div className="w-full max-w-md">
-        <div className="portal-card p-8 md:p-10">
-          <div className="w-12 h-12 rounded-full bg-primary/10 grid place-items-center mx-auto mb-5 text-primary">
-            <Lock size={20} />
-          </div>
-          <h1 className="font-display text-2xl md:text-3xl tracking-wider text-foreground text-center mb-2">SET UP YOUR MINDCAST ACCOUNT</h1>
-          <p className="text-sm text-muted-foreground font-body text-center mb-8 leading-relaxed">
-            Choose a password for your account. Once you're finished, we'll take you straight to your Mindcast portal.
-          </p>
-
-          <form onSubmit={submit} className="space-y-4">
-            <div>
-              <label htmlFor="password" className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">NEW PASSWORD</label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent border border-border rounded-sm px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm" className="text-[10px] tracking-[0.2em] text-muted-foreground/70 font-body block mb-2">CONFIRM PASSWORD</label>
-              <input
-                id="confirm"
-                type="password"
-                autoComplete="new-password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                className="w-full bg-transparent border border-border rounded-sm px-4 py-3 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={busy}
-              className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {busy ? <Loader2 size={14} className="animate-spin" /> : null}
-              {busy ? "SETTING…" : "SET MY PASSWORD →"}
-            </button>
-          </form>
+    <AuthShell
+      eyebrow="Account invitation"
+      title="Create your password."
+      description="Choose a password for your new Mindcast account. We’ll take you straight to your member space when it’s ready."
+      asideTitle="A private space for your own Mindcast journey."
+      asideCopy="Your invitation connects this account to the right membership and session track."
+    >
+      {authLoading ? (
+        <div className="flex min-h-40 items-center justify-center rounded-2xl border border-foreground/[0.08] bg-white" role="status">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+          <span className="ml-3 font-body text-sm text-muted-foreground">Checking your invitation…</span>
         </div>
-      </div>
-    </div>
+      ) : (
+        <form onSubmit={submit} className="space-y-5">
+          <div className="mb-7 flex items-start gap-4 rounded-2xl border border-primary/15 bg-primary/[0.05] p-4 sm:p-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <LockKeyhole className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <p className="pt-1 font-body text-xs leading-6 text-muted-foreground">
+              Use at least 8 characters. A longer, unique passphrase is easiest to remember and safest for your account.
+            </p>
+          </div>
+
+          <PasswordField
+            id="new-password"
+            label="New password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="new-password"
+            minLength={8}
+            disabled={busy}
+          />
+          <PasswordField
+            id="confirm-password"
+            label="Confirm password"
+            value={confirm}
+            onChange={setConfirm}
+            autoComplete="new-password"
+            minLength={8}
+            disabled={busy}
+          />
+
+          <button type="submit" disabled={busy || !session} className={`${authPrimaryButtonClass} mt-2`}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            {busy ? "Creating your account…" : "Set password"}
+            {!busy && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+          </button>
+        </form>
+      )}
+    </AuthShell>
   );
 };
 

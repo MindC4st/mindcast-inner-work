@@ -37,7 +37,7 @@ const PortalDashboard = () => {
   const track = trackForAgeGroup(profile?.age_group);
   const isTeen = track === "Teen";
   const { hasKids, hasTeens } = useHouseholdFlags();
-  const firstName = (profile?.name || "").split(" ")[0] || "there";
+  const firstName = (profile?.display_name || profile?.name || "").split(" ")[0] || "there";
   const view: "admin" | "facilitator" | "member" = isAdmin ? "admin" : isStaff ? "facilitator" : "member";
 
   const [liveCode, setLiveCode] = useState<string | null>(null);
@@ -124,9 +124,9 @@ const tiles = useMemo<Tile[]>(() => {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}
         className="mb-8 flex items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">{roleLabel}</p>
-          <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground">
-            WELCOME, {firstName.toUpperCase()}
+          <p className="portal-label text-primary mb-2">{roleLabel}</p>
+          <h1 className="font-serif text-4xl md:text-5xl leading-tight text-foreground">
+            Welcome, {firstName}.
           </h1>
           {view === "member" && weekNo && (
             <p className="text-sm text-muted-foreground mt-2 font-body">You're on Week {weekNo} of your journey.</p>
@@ -139,7 +139,7 @@ const tiles = useMemo<Tile[]>(() => {
           )}
         </div>
         <Link to="/portal/settings" aria-label="Profile & settings"
-          className="shrink-0 w-10 h-10 grid place-items-center rounded-full border border-foreground/10 text-foreground/50 hover:text-foreground hover:border-foreground/30 transition-colors">
+          className="shrink-0 w-11 h-11 grid place-items-center rounded-full border border-foreground/10 bg-card text-foreground/50 hover:text-foreground hover:border-foreground/30 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30">
           <Settings size={17} strokeWidth={1.5} />
         </Link>
       </motion.div>
@@ -152,8 +152,8 @@ const tiles = useMemo<Tile[]>(() => {
             <span className="w-2 h-2 rounded-full bg-primary-foreground animate-pulse" /> Live now
           </span>
           <span className="text-sm font-body flex-1 min-w-0">Your session is running.</span>
-          <Link to="/portal/checkin" className="text-[11px] font-body tracking-widest uppercase bg-primary-foreground/15 hover:bg-primary-foreground/25 rounded px-3 py-1.5 transition-colors">Check in</Link>
-          <button onClick={() => navigate(`/live/${liveCode}`)} className="text-[11px] font-body tracking-widest uppercase bg-primary-foreground text-primary rounded px-3 py-1.5">Join →</button>
+          <Link to="/portal/checkin" className="inline-flex min-h-10 items-center text-[11px] font-body tracking-widest uppercase bg-primary-foreground/15 hover:bg-primary-foreground/25 rounded-lg px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-foreground/50">Check in</Link>
+          <button type="button" onClick={() => navigate(`/live/${liveCode}`)} className="inline-flex min-h-10 items-center text-[11px] font-body tracking-widest uppercase bg-primary-foreground text-primary rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50">Join →</button>
         </motion.div>
       )}
 
@@ -167,17 +167,18 @@ const tiles = useMemo<Tile[]>(() => {
       {/* Member-only: join-code entry */}
       {view === "member" && joinOpen && (
         <motion.form onSubmit={submitCode} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-          className="mb-6 border border-primary/25 bg-primary/5 rounded-lg p-4 flex items-center gap-3">
+          className="mb-6 border border-primary/25 bg-primary/5 rounded-xl p-4 flex flex-wrap sm:flex-nowrap items-center gap-3">
           <KeyRound size={16} className="text-primary shrink-0" />
-          <input autoFocus value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter join code"
-            className="flex-1 min-w-0 bg-transparent outline-none text-foreground font-body tracking-[0.3em] uppercase placeholder:tracking-normal placeholder:normal-case placeholder:text-muted-foreground/50" />
-          <button type="submit" className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-[11px] font-body tracking-widest uppercase">Join</button>
-          <button type="button" onClick={() => setJoinOpen(false)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
+          <label htmlFor="dashboard-join-code" className="sr-only">Session join code</label>
+          <input id="dashboard-join-code" autoFocus value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter join code" autoComplete="off"
+            className="flex-1 min-w-[160px] bg-transparent py-2 outline-none text-foreground font-body tracking-[0.3em] uppercase placeholder:tracking-normal placeholder:normal-case placeholder:text-muted-foreground/50" />
+          <button type="submit" className="min-h-10 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-[11px] font-body tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-primary/30">Join</button>
+          <button type="button" onClick={() => setJoinOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" aria-label="Close join code form"><X size={16} /></button>
         </motion.form>
       )}
 
       {/* Tile grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {tiles.map((t, i) => {
           const inner = (
             <motion.div
@@ -196,16 +197,16 @@ const tiles = useMemo<Tile[]>(() => {
               <div className={`w-11 h-11 rounded-lg grid place-items-center mb-4 transition-colors ${t.accent ? "bg-primary/15 text-primary" : "bg-foreground/[0.06] text-foreground/60 group-hover:text-foreground"}`}>
                 <t.icon size={20} strokeWidth={1.5} />
               </div>
-              <h2 className="font-display text-base md:text-lg tracking-wide text-foreground leading-tight mb-1">{t.title}</h2>
+              <h2 className="font-body text-base font-semibold text-foreground leading-tight mb-1">{t.title}</h2>
               <p className="text-[11px] md:text-xs text-muted-foreground font-body leading-snug pr-4">{t.subtitle}</p>
               <ArrowRight size={15} strokeWidth={1.5}
                 className="absolute bottom-5 right-5 text-foreground/20 group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </motion.div>
           );
           return t.to ? (
-            <Link key={t.key} to={t.to} className="block h-full">{inner}</Link>
+            <Link key={t.key} to={t.to} className="block h-full rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/15">{inner}</Link>
           ) : (
-            <button key={t.key} onClick={t.onClick} className="block h-full text-left">{inner}</button>
+            <button type="button" key={t.key} onClick={t.onClick} className="block h-full w-full rounded-xl text-left focus:outline-none focus:ring-4 focus:ring-primary/15">{inner}</button>
           );
         })}
       </div>

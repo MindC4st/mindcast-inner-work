@@ -205,8 +205,8 @@ const ShopProduct = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center">
-        <p className="text-xs font-body uppercase tracking-widest text-[hsl(var(--navy-mid))]/60 animate-pulse">Loading…</p>
+      <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center" role="status">
+        <p className="text-sm font-body text-[hsl(var(--navy-mid))]/60 animate-pulse">Loading product…</p>
       </div>
     );
   }
@@ -214,10 +214,14 @@ const ShopProduct = () => {
   if (!product) {
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))]">
-        <div className="max-w-3xl mx-auto px-6 pt-24 text-center">
-          <p className="font-display text-2xl tracking-wider text-[hsl(var(--navy))] mb-3">PRODUCT NOT FOUND</p>
-          <Link to="/shop" className="text-primary text-xs tracking-widest uppercase font-body border-b border-primary/40">Back to the shop</Link>
-        </div>
+        <Navbar />
+        <main className="max-w-3xl mx-auto px-6 py-32 text-center">
+          <p className="portal-label mb-3">Mindcast shop</p>
+          <h1 className="font-serif text-4xl text-[hsl(var(--navy))] mb-4">We couldn’t find that product.</h1>
+          <p className="mb-6 font-body text-sm text-muted-foreground">It may have moved or is no longer available.</p>
+          <Link to="/shop" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-5 font-body text-sm font-semibold text-cream"><ArrowLeft size={14} /> Back to the shop</Link>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -226,14 +230,14 @@ const ShopProduct = () => {
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 pt-24 pb-24">
+      <main className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 pt-28 lg:pt-32 pb-24">
         <div className="flex items-center justify-between mb-8">
-          <Link to="/shop" className="flex items-center gap-2 text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-            <ArrowLeft size={12} /> Shop
+          <Link to="/shop" className="inline-flex min-h-10 items-center gap-2 rounded-lg font-body text-sm font-semibold text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))] focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <ArrowLeft size={14} /> Back to shop
           </Link>
           <button
             onClick={() => setCartOpen(true)}
-            className="relative flex items-center gap-2 text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy))] hover:opacity-70"
+            className="relative inline-flex min-h-10 items-center gap-2 rounded-lg px-2 font-body text-sm font-semibold text-[hsl(var(--navy))] hover:bg-navy/5 focus:outline-none focus:ring-2 focus:ring-primary/30"
             aria-label={`Cart, ${cart.count} items`}
           >
             <ShoppingBag size={16} strokeWidth={1.6} />
@@ -246,7 +250,7 @@ const ShopProduct = () => {
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className="grid gap-10 md:grid-cols-2 lg:gap-16">
           {/* Gallery */}
           <div>
             {gallery.length > 0 && (
@@ -254,16 +258,18 @@ const ShopProduct = () => {
                 <img
                   src={gallery[Math.min(activeImg, gallery.length - 1)]}
                   alt={product.image_alt || product.name}
-                  className="w-full aspect-[4/3] object-cover rounded-sm mb-3"
+                  className="w-full aspect-[4/3] object-cover rounded-2xl mb-3 bg-foreground/[0.04]"
                 />
                 {gallery.length > 1 && (
                   <div className="flex gap-2">
                     {gallery.map((u, i) => (
                       <button
+                        type="button"
                         key={u}
                         onClick={() => setActiveImg(i)}
-                        className={`w-16 h-16 rounded-sm overflow-hidden border-2 ${i === activeImg ? "border-primary" : "border-transparent"}`}
-                        aria-label={`Image ${i + 1}`}
+                        className={`w-16 h-16 rounded-xl overflow-hidden border-2 focus:outline-none focus:ring-2 focus:ring-primary/30 ${i === activeImg ? "border-primary" : "border-transparent"}`}
+                        aria-label={`Show product image ${i + 1}`}
+                        aria-pressed={i === activeImg}
                       >
                         <img src={u} alt="" className="w-full h-full object-cover" loading="lazy" />
                       </button>
@@ -276,8 +282,8 @@ const ShopProduct = () => {
 
           {/* Details */}
           <div className="flex flex-col">
-            <h1 className="font-display text-3xl tracking-wider text-[hsl(var(--navy))] leading-tight mb-1">
-              {product.name.toUpperCase()}
+            <h1 className="font-serif text-4xl lg:text-5xl text-[hsl(var(--navy))] leading-tight mb-2">
+              {product.name}
             </h1>
             {product.tagline && (
               <p className="text-sm font-body text-[hsl(var(--navy-mid))] italic mb-3">{product.tagline}</p>
@@ -298,14 +304,17 @@ const ShopProduct = () => {
 
             {/* Variant selector */}
             {hasOptions && (
-              <div className="mb-5">
-                <p className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-2">Colour</p>
-                <div className="flex flex-wrap gap-2">
+              <fieldset className="mb-5">
+                <legend className="text-xs font-body font-semibold text-[hsl(var(--navy-mid))] mb-2">Choose a colour</legend>
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Product colour">
                   {product.variants.map((v) => (
                     <button
+                      type="button"
                       key={v.id}
                       onClick={() => setVariantId(v.id)}
-                      className={`flex items-center gap-2 px-2 py-1.5 text-xs font-body rounded-sm border transition-colors ${
+                      role="radio"
+                      aria-checked={variantId === v.id}
+                      className={`flex min-h-11 items-center gap-2 px-3 py-2 text-xs font-body rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
                         variantId === v.id
                           ? "bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] border-[hsl(var(--navy))]"
                           : "bg-white text-[hsl(var(--navy))] border-[hsl(var(--navy))]/20 hover:border-[hsl(var(--navy))]/50"
@@ -320,7 +329,7 @@ const ShopProduct = () => {
                     </button>
                   ))}
                 </div>
-              </div>
+              </fieldset>
             )}
 
             {/* Membership gate (members-only products) */}
@@ -360,11 +369,13 @@ const ShopProduct = () => {
             {membersOnly && gate.allowed && isBracelet && (
               <div className="border border-[hsl(var(--navy))]/15 bg-white rounded-sm p-5 mb-5">
                 <p className="text-[10px] font-body tracking-widest uppercase text-[hsl(var(--navy-mid))] mb-3">Who is this bracelet for?</p>
-                <div className="grid gap-2 mb-4">
+                <div className="grid gap-2 mb-4" role="radiogroup" aria-label="Bracelet recipient">
                   <button
                     type="button"
                     onClick={() => { setRecipientMode("self"); setGateError(null); }}
-                    className={`border rounded-sm px-4 py-2.5 text-left text-sm font-body transition-colors ${
+                    role="radio"
+                    aria-checked={recipientMode === "self"}
+                    className={`border rounded-xl px-4 py-3 text-left text-sm font-body transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
                       recipientMode === "self" ? "border-primary bg-primary/5 text-[hsl(var(--navy))]" : "border-[hsl(var(--navy))]/15 text-[hsl(var(--navy-mid))] hover:border-[hsl(var(--navy))]/40"
                     }`}
                   >
@@ -373,7 +384,9 @@ const ShopProduct = () => {
                   <button
                     type="button"
                     onClick={() => { setRecipientMode("member"); setGateError(null); }}
-                    className={`border rounded-sm px-4 py-2.5 text-left text-sm font-body transition-colors ${
+                    role="radio"
+                    aria-checked={recipientMode === "member"}
+                    className={`border rounded-xl px-4 py-3 text-left text-sm font-body transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
                       recipientMode === "member" ? "border-primary bg-primary/5 text-[hsl(var(--navy))]" : "border-[hsl(var(--navy))]/15 text-[hsl(var(--navy-mid))] hover:border-[hsl(var(--navy))]/40"
                     }`}
                   >
@@ -383,19 +396,25 @@ const ShopProduct = () => {
 
                 {recipientMode === "member" && (
                   <div className="grid gap-2 mb-4">
+                    <label htmlFor="bracelet-member-name" className="sr-only">Household member first name</label>
                     <input
+                      id="bracelet-member-name"
                       type="text"
                       value={memberName}
                       onChange={(e) => setMemberName(e.target.value)}
                       placeholder="Their first name"
-                      className="border border-[hsl(var(--navy))]/15 rounded-sm px-3 py-2 text-sm font-body bg-[hsl(var(--ivory))] focus:outline-none focus:border-primary"
+                      autoComplete="name"
+                      className="border border-[hsl(var(--navy))]/15 rounded-xl px-4 py-3 text-sm font-body bg-[hsl(var(--ivory))] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                     />
+                    <label htmlFor="bracelet-member-email" className="sr-only">Household member Mindcast account email</label>
                     <input
+                      id="bracelet-member-email"
                       type="email"
                       value={memberEmail}
                       onChange={(e) => setMemberEmail(e.target.value)}
                       placeholder="Their MINDCAST account email"
-                      className="border border-[hsl(var(--navy))]/15 rounded-sm px-3 py-2 text-sm font-body bg-[hsl(var(--ivory))] focus:outline-none focus:border-primary"
+                      autoComplete="email"
+                      className="border border-[hsl(var(--navy))]/15 rounded-xl px-4 py-3 text-sm font-body bg-[hsl(var(--ivory))] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                     />
                     <p className="text-[11px] font-body text-[hsl(var(--navy-mid))]/70">
                       They need their own MINDCAST login. Children without logins can't receive bracelets yet.
@@ -514,7 +533,7 @@ const ShopProduct = () => {
           MINDCAST products are optional. Everything required for your weekly
           session is provided as part of your participation.
         </p>
-      </div>
+      </main>
 
       <CartDrawer
         open={cartOpen}

@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, BookOpen, Brain, Download, Settings, LogOut, Menu, X, TrendingUp, Users, User, CreditCard, Clapperboard, GraduationCap, Ticket, ShieldCheck } from "lucide-react";
@@ -23,11 +23,12 @@ const BOTTOM_TAB_ITEMS = [
   { label: "Profile", to: "/portal/settings", icon: User },
 ];
 
-const PortalLayout = ({ children }: { children: ReactNode }) => {
+const PortalLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
   const { profile, signOut, isStaff, role } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,6 +36,21 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
   };
 
   const isActive = (to: string) => location.pathname.startsWith(to);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [sidebarOpen]);
 
   const SidebarContent = () => (
     <>
@@ -49,7 +65,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
         <div className="border-t border-border" />
       </div>
 
-      <nav className="flex-1 px-4">
+      <nav className="flex-1 px-4" aria-label="Member portal">
         {NAV_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
           const active = isActive(item.to);
           return (
@@ -57,6 +73,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
               key={item.to}
               to={item.to}
               onClick={() => setSidebarOpen(false)}
+              aria-current={active ? "page" : undefined}
               className={`relative flex items-center gap-3 px-4 py-3 mb-0.5 rounded-md text-[11px] tracking-[0.15em] font-body transition-all duration-200 ${
                 active
                   ? "bg-primary/10 text-primary"
@@ -162,54 +179,68 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="min-h-screen flex portal-bg">
+      <a href="#portal-content" className="sr-only z-[100] rounded bg-card px-4 py-3 text-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+        Skip to portal content
+      </a>
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Close navigation"
           className="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Desktop sidebar */}
-      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-card text-foreground border-r border-border flex-col transition-transform duration-300 hidden lg:flex">
+      <aside className="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-card text-foreground border-r border-border flex-col transition-transform duration-300 hidden lg:flex" aria-label="Portal sidebar">
         <SidebarContent />
       </aside>
 
       {/* Mobile sidebar drawer */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-card text-foreground border-r border-border flex flex-col transition-transform duration-300 lg:hidden ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <button
-          onClick={() => setSidebarOpen(false)}
-          className="absolute top-5 right-5 text-muted-foreground hover:text-foreground transition-colors"
+      {sidebarOpen && (
+        <aside
+          className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-border bg-card text-foreground shadow-2xl lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Portal navigation"
         >
-          <X size={18} strokeWidth={1.5} />
-        </button>
-        <SidebarContent />
-      </aside>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            aria-label="Close navigation"
+          >
+            <X size={18} strokeWidth={1.5} />
+          </button>
+          <SidebarContent />
+        </aside>
+      )}
 
       {/* Main content */}
-      <main className="flex-1 min-h-screen pb-20 lg:pb-0">
+      <main id="portal-content" className="flex-1 min-h-screen min-w-0 pb-20 lg:pb-0">
         {/* Mobile header */}
         <div className="lg:hidden flex items-center justify-between px-5 py-4 bg-card/95 backdrop-blur-md text-foreground border-b border-border sticky top-0 z-30">
           <Link to="/"><img src={logoBlue} alt="Mindcast" className="h-6" /></Link>
           <button
+            type="button"
             onClick={() => setSidebarOpen(true)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+            aria-label="Open portal navigation"
+            aria-expanded={sidebarOpen}
           >
             <Menu size={20} strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="p-4 md:p-10 lg:p-14 max-w-4xl mx-auto">
+        <div className={`p-4 md:p-10 lg:p-14 mx-auto ${wide ? "max-w-7xl" : "max-w-4xl"}`}>
           {children}
         </div>
       </main>
 
       {/* Mobile bottom tab bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom" aria-label="Portal tabs">
         <div className="flex items-stretch">
           {BOTTOM_TAB_ITEMS.filter((item) => !(isStaff && item.label === "Progress")).map((item) => {
             const active = isActive(item.to);
@@ -217,6 +248,7 @@ const PortalLayout = ({ children }: { children: ReactNode }) => {
               <Link
                 key={item.to}
                 to={item.to}
+                aria-current={active ? "page" : undefined}
                 className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors ${
                   active ? "text-primary" : "text-muted-foreground/50"
                 }`}

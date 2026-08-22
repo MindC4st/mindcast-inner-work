@@ -85,8 +85,9 @@ export default function SafeguardingPage() {
 
       <h2>6. Digital safety</h2>
       <ul>
-        <li>Teens (12–24) using the Mindcast platform have private workbook entries by default</li>
-        <li>Teens must be 13 or older to create a Mindcast account; 13–15 year olds require parental consent</li>
+        <li>Teen-track members using the Mindcast platform have private workbook entries by default</li>
+        <li>Young people must be 13 or older to create their own Mindcast account; every 13–17 year old requires recorded parent or guardian consent</li>
+        <li>Children under 13 join through a parent or guardian's household and do not hold their own account</li>
         <li>Digital submissions (success stories, word cloud) from under-18s are subject to the same content moderation as adult submissions</li>
         <li>We do not store children's workbook entries digitally without parental consent — the children's programme (ages 4–11) is paper-based only</li>
       </ul>
@@ -122,7 +123,7 @@ export default function SafeguardingPage() {
       </p>
       <ul>
         <li>Speak to the lead facilitator, or if your concern involves the lead facilitator, contact us directly</li>
-        <li>Email: <a href="mailto:hello@mindcast.co.nz">hello@mindcast.co.nz</a></li>
+        <li>Email: <a href="mailto:safeguarding@mindcast.co.nz">safeguarding@mindcast.co.nz</a></li>
         <li>All concerns are treated confidentially, investigated promptly, and taken seriously</li>
       </ul>
       <p>

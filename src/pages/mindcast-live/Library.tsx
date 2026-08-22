@@ -1,156 +1,170 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Lock, Unlock, Play, Presentation, Film, Pencil, BookOpen } from "lucide-react";
+import { BookOpen, Check, Film, Loader2, Lock, Pencil, Play, Presentation, Unlock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import PortalLayout from "@/components/portal/PortalLayout";
 
 type Row = { week_number: number; theme_title: string; phase_name: string; session_title: string };
 
 const Library = () => {
-  const { user, role, isStaff } = useAuth();
-  const isFacilitator = isStaff;
+  const { user, isStaff } = useAuth();
   const [weeks, setWeeks] = useState<Row[]>([]);
   const [unlocked, setUnlocked] = useState<Set<number>>(new Set());
   const [completed, setCompleted] = useState<Set<number>>(new Set());
+  const [loading, setLoading] = useState(true);
   const [bulkRunning, setBulkRunning] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: sessions }, { data: unl }, { data: comp }] = await Promise.all([
+      const [{ data: sessions }, { data: unlockedRows }, { data: completionRows }] = await Promise.all([
         db.from("mindcast_live_sessions_public").select("week_number, theme_title, phase_name, session_title").eq("audience", "Adult").order("week_number"),
         isStaff ? Promise.resolve({ data: [] }) : db.from("unlocked_lessons").select("week_number").eq("user_id", user.id),
         db.from("lesson_completions").select("week_number").eq("user_id", user.id),
       ]);
       const map = new Map<number, Row>();
-      (sessions || []).forEach((s: Row) => map.set(s.week_number, s));
-      const all: Row[] = [];
-      for (let i = 1; i <= 52; i++) {
-        all.push(map.get(i) || { week_number: i, theme_title: "", phase_name: "", session_title: "" });
-      }
-      setWeeks(all);
-      // Staff bypass — all 52 weeks unlocked
-      if (isStaff) {
-        setUnlocked(new Set(Array.from({ length: 52 }, (_, i) => i + 1)));
-      } else {
-        setUnlocked(new Set((unl || []).map(u => u.week_number)));
-      }
-      setCompleted(new Set((comp || []).map(c => c.week_number)));
+      (sessions || []).forEach((session: Row) => map.set(session.week_number, session));
+      setWeeks(Array.from({ length: 52 }, (_, index) => map.get(index + 1) || {
+        week_number: index + 1,
+        theme_title: "",
+        phase_name: "",
+        session_title: "",
+      }));
+      setUnlocked(isStaff
+        ? new Set(Array.from({ length: 52 }, (_, index) => index + 1))
+        : new Set((unlockedRows || []).map((row) => row.week_number)));
+      setCompleted(new Set((completionRows || []).map((row) => row.week_number)));
+      setLoading(false);
     })();
   }, [user, isStaff]);
-
-  const unlockedCount = unlocked.size;
-  const completedCount = completed.size;
 
   const handleBulkGenerate = async () => {
     setBulkRunning(true);
     try {
       const { data, error } = await supabase.functions.invoke("bulk-generate-videos", { body: {} });
       if (error) throw error;
-      const d = data;
       toast({
-        title: `Queued ${d.queued_this_run} renders`,
-        description: `${d.already_done} already done · ${d.already_processing} already in flight · ${d.remaining_after_this_run} left. Re-click after a few minutes to continue.`,
+        title: `Queued ${data.queued_this_run} renders`,
+        description: `${data.already_done} already done · ${data.already_processing} already in flight · ${data.remaining_after_this_run} left.`,
       });
-    } catch (e) {
-      toast({ title: "Bulk generate failed", description: (e as Error).message });
+    } catch (caught) {
+      toast({ title: "Bulk generate failed", description: (caught as Error).message, variant: "destructive" });
     } finally {
       setBulkRunning(false);
     }
   };
 
+  const completedCount = completed.size;
+  const unlockedCount = unlocked.size;
+
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))] px-6 py-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-start justify-between mb-10 flex-wrap gap-4">
-          <div>
-            <p className="text-[hsl(var(--bronze))] text-xs tracking-[0.5em] font-body uppercase mb-2">Mindcast LIVE</p>
-            <h1 className="font-display text-6xl text-[hsl(var(--navy))] tracking-wider">LESSON LIBRARY</h1>
-            <p className="text-[hsl(var(--navy-mid))] font-body text-sm mt-2">
-              {completedCount} of 52 completed · {unlockedCount} unlocked
+    <PortalLayout wide>
+      <section aria-labelledby="lesson-library-title">
+        <div className="mb-9 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="portal-label mb-3">Mindcast Live</p>
+            <h1 id="lesson-library-title" className="font-serif text-4xl leading-tight text-foreground sm:text-5xl">Your 52-week coursebook</h1>
+            <p className="mt-4 font-body text-sm leading-7 text-muted-foreground">
+              Revisit unlocked lessons, continue your own coursebook, or prepare the room if you’re facilitating.
             </p>
           </div>
-          <div className="flex-1 max-w-md hidden md:block">
-            <div className="h-2 rounded-full bg-[hsl(var(--warm-border))] overflow-hidden mt-12">
-              <div className="h-full bg-[hsl(var(--blue))] transition-all" style={{ width: `${(completedCount / 52) * 100}%` }} />
+
+          {isStaff && (
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/mindcast-live/coursebook"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-foreground/10 bg-card px-4 font-body text-xs font-semibold text-foreground transition hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <BookOpen className="h-4 w-4" aria-hidden="true" /> Print coursebook
+              </Link>
+              <button
+                type="button"
+                onClick={handleBulkGenerate}
+                disabled={bulkRunning}
+                title="Queue renders for lessons with a film script and no video"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-4 font-body text-xs font-semibold text-cream transition hover:bg-navy-mid focus:outline-none focus:ring-4 focus:ring-navy/15 disabled:opacity-40"
+              >
+                {bulkRunning ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Film className="h-4 w-4" aria-hidden="true" />}
+                {bulkRunning ? "Queueing videos…" : "Generate missing videos"}
+              </button>
             </div>
-          </div>
-          {isFacilitator && (
-            <button
-              onClick={handleBulkGenerate}
-              disabled={bulkRunning}
-              title="Queue Shotstack renders for every lesson that has a film script and no MP4 yet"
-              className="self-start flex items-center gap-2 px-4 py-2 bg-[hsl(var(--navy))] hover:bg-[hsl(var(--navy-mid))] disabled:opacity-40 text-white text-[11px] font-body tracking-widest uppercase rounded-sm"
-            >
-              <Film size={13} />{bulkRunning ? "Queueing…" : "Generate all videos"}
-            </button>
-          )}
-          {isFacilitator && (
-            <Link to="/mindcast-live/coursebook"
-              title="Printable coursebook — includes each week's workbook activity"
-              className="self-start flex items-center gap-2 px-4 py-2 border border-[hsl(var(--navy))]/25 hover:border-[hsl(var(--navy))]/60 text-[hsl(var(--navy))] text-[11px] font-body tracking-widest uppercase rounded-sm">
-              <BookOpen size={13} />Print coursebook
-            </Link>
           )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {weeks.map(w => {
-            const isUnlocked = unlocked.has(w.week_number);
-            const isCompleted = completed.has(w.week_number);
-            const hasContent = !!w.theme_title;
-            return (
-              <div key={w.week_number}
-                className={`relative border rounded-sm p-5 transition-all ${
-                  isUnlocked
-                    ? "bg-white border-[hsl(var(--warm-border))] hover:border-[hsl(var(--blue))] hover:shadow-lg"
-                    : "bg-[hsl(var(--warm-border))]/30 border-[hsl(var(--warm-border))]"
-                } ${!hasContent ? "opacity-50" : ""}`}>
-                <div className="flex items-start justify-between mb-3">
-                  <span className="font-display text-3xl text-[hsl(var(--blue))] tracking-wider">W{String(w.week_number).padStart(2, "0")}</span>
-                  {isUnlocked ? <Unlock size={14} className="text-[hsl(var(--blue))]" /> : <Lock size={14} className="text-[hsl(var(--navy-mid))]/40" />}
-                </div>
-                <p className="text-[hsl(var(--bronze))] text-[10px] tracking-widest font-body uppercase mb-1">{w.phase_name || "Coming soon"}</p>
-                <h3 className={`font-display text-xl tracking-wide mb-1 ${isUnlocked ? "text-[hsl(var(--navy))]" : "text-[hsl(var(--navy-mid))]/50"}`}>
-                  {w.theme_title || "TBA"}
-                </h3>
-                <p className={`font-body text-xs italic mb-4 min-h-[2rem] ${isUnlocked ? "text-[hsl(var(--navy-mid))]" : "text-[hsl(var(--navy-mid))]/40"}`}>
-                  {w.session_title}
-                </p>
-                {isCompleted && (
-                  <p className="text-[10px] text-[hsl(var(--blue))] font-body tracking-widest uppercase mb-2">✓ Completed</p>
-                )}
-                <div className="flex flex-col gap-2">
-                  {isUnlocked && hasContent && (
-                    <Link to={`/mindcast-live/lesson/${w.week_number}`}
-                      className="flex items-center justify-center gap-1.5 bg-[hsl(var(--blue))] hover:bg-[hsl(var(--navy))] text-white text-[11px] font-body tracking-widest uppercase py-2 rounded-sm transition-colors">
-                      <Play size={11} />Watch
-                    </Link>
-                  )}
-                  {!isUnlocked && hasContent && (
-                    <p className="text-center text-[10px] text-[hsl(var(--navy-mid))]/50 font-body tracking-widest uppercase py-2">Available after live session</p>
-                  )}
-                  {isFacilitator && hasContent && (
-                    <Link to={`/mindcast-live/facilitate/${w.week_number}`}
-                      className="flex items-center justify-center gap-1.5 bg-[hsl(var(--navy))] hover:bg-[hsl(var(--navy-mid))] text-white text-[11px] font-body tracking-widest uppercase py-2 rounded-sm transition-colors">
-                      <Presentation size={11} />Facilitate
-                    </Link>
-                  )}
-                  {isFacilitator && (
-                    <Link to={`/mindcast-live/edit/${w.week_number}`}
-                      className="flex items-center justify-center gap-1.5 border border-[hsl(var(--navy))]/20 hover:border-[hsl(var(--navy))]/50 text-[hsl(var(--navy))] text-[11px] font-body tracking-widest uppercase py-2 rounded-sm transition-colors">
-                      <Pencil size={11} />Edit lesson
-                    </Link>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="mb-8 rounded-2xl border border-foreground/[0.07] bg-card p-5 shadow-sm sm:flex sm:items-center sm:gap-6">
+          <div className="flex items-baseline gap-2">
+            <span className="font-serif text-3xl text-foreground">{completedCount}</span>
+            <span className="font-body text-xs text-muted-foreground">of 52 completed</span>
+          </div>
+          <div className="mt-4 flex-1 sm:mt-0">
+            <div
+              className="h-2 overflow-hidden rounded-full bg-foreground/[0.07]"
+              role="progressbar"
+              aria-label="Coursebook completion"
+              aria-valuemin={0}
+              aria-valuemax={52}
+              aria-valuenow={completedCount}
+            >
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(completedCount / 52) * 100}%` }} />
+            </div>
+            <p className="mt-2 font-body text-[11px] text-muted-foreground">{unlockedCount} weeks currently unlocked</p>
+          </div>
         </div>
-      </div>
-    </div>
+
+        {loading ? (
+          <div className="flex min-h-64 items-center justify-center" role="status">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+            <span className="ml-3 font-body text-sm text-muted-foreground">Loading your coursebook…</span>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {weeks.map((week) => {
+              const isUnlocked = unlocked.has(week.week_number);
+              const isCompleted = completed.has(week.week_number);
+              const hasContent = Boolean(week.theme_title);
+              return (
+                <article
+                  key={week.week_number}
+                  className={`relative flex min-h-[270px] flex-col rounded-2xl border p-5 transition ${
+                    isUnlocked ? "border-foreground/[0.08] bg-card shadow-sm hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg" : "border-foreground/[0.06] bg-foreground/[0.025]"
+                  } ${!hasContent ? "opacity-60" : ""}`}
+                >
+                  <div className="mb-4 flex items-start justify-between">
+                    <span className="font-body text-xs font-semibold uppercase tracking-[0.16em] text-primary">Week {String(week.week_number).padStart(2, "0")}</span>
+                    {isCompleted ? <Check className="h-4 w-4 text-primary" aria-label="Completed" /> : isUnlocked ? <Unlock className="h-4 w-4 text-primary/60" aria-label="Unlocked" /> : <Lock className="h-4 w-4 text-muted-foreground/40" aria-label="Locked" />}
+                  </div>
+                  <p className="portal-label mb-2">{week.phase_name || "Coming soon"}</p>
+                  <h2 className={`font-serif text-2xl leading-tight ${isUnlocked ? "text-foreground" : "text-muted-foreground"}`}>{week.theme_title || "To be announced"}</h2>
+                  <p className="mt-2 flex-1 font-body text-xs italic leading-5 text-muted-foreground">{week.session_title}</p>
+
+                  <div className="mt-5 grid gap-2">
+                    {isUnlocked && hasContent && (
+                      <Link to={`/mindcast-live/lesson/${week.week_number}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-3 font-body text-xs font-semibold text-primary-foreground focus:outline-none focus:ring-4 focus:ring-primary/20">
+                        <Play className="h-3.5 w-3.5" aria-hidden="true" /> Open lesson
+                      </Link>
+                    )}
+                    {!isUnlocked && hasContent && <p className="py-2 text-center font-body text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Available after the live session</p>}
+                    {isStaff && hasContent && (
+                      <Link to={`/mindcast-live/facilitate/${week.week_number}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-navy px-3 font-body text-xs font-semibold text-cream focus:outline-none focus:ring-4 focus:ring-navy/15">
+                        <Presentation className="h-3.5 w-3.5" aria-hidden="true" /> Facilitate
+                      </Link>
+                    )}
+                    {isStaff && (
+                      <Link to={`/mindcast-live/edit/${week.week_number}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-foreground/10 px-3 font-body text-xs font-semibold text-foreground hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/30">
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" /> Edit lesson
+                      </Link>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </PortalLayout>
   );
 };
 

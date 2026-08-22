@@ -1,15 +1,10 @@
-// /shop — the physical range. Browsing and buying both work without an
-// account: guests check out through Stripe and look their order up later by
-// order number + email. Members' orders attach to their profile.
-//
-// Copy rules: no must-have, no complete-your-journey, no member-essential,
-// no limited, no get-the-full-system, no scarcity. Useful first, optional
-// always. Prices in NZD, GST included.
+// /shop — public browsing and checkout. Products are always framed as useful,
+// optional tools; all prices are NZD with GST included.
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, ShoppingBag, Truck } from "lucide-react";
+import { ArrowRight, PackageSearch, ShoppingBag, Truck } from "lucide-react";
 import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/shop";
 import { SHOP_COMING_SOON } from "@/lib/commerce";
@@ -19,10 +14,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const Shop = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const cart = useCart();
-
   const [products, setProducts] = useState<CartProduct[]>([]);
   const [taglines, setTaglines] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -39,153 +32,171 @@ const Shop = () => {
       .then(({ data }) => {
         if (!active) return;
         const rows = (data ?? []) as unknown as (CartProduct & { tagline: string | null })[];
-        setProducts(rows.map(({ tagline, ...p }) => p));
-        setTaglines(Object.fromEntries(rows.filter((r) => r.tagline).map((r) => [r.slug, r.tagline as string])));
+        setProducts(rows.map(({ tagline, ...product }) => product));
+        setTaglines(Object.fromEntries(rows.filter((row) => row.tagline).map((row) => [row.slug, row.tagline as string])));
         setLoading(false);
       });
     return () => { active = false; };
   }, []);
 
-  // Variant info for the cart drawer (names + price overrides).
+  // Load variant names and price overrides for accurate cart totals.
   useEffect(() => {
     if (products.length === 0) return;
     let active = true;
     db.from("shop_product_variants")
       .select("id, product_id, name, price_override_cents")
-      .in("product_id", products.map((p) => p.id))
+      .in("product_id", products.map((product) => product.id))
       .eq("is_active", true)
       .order("sort_order")
       .then(({ data }) => {
         if (!active) return;
         const byProduct = new Map<string, { id: string; name: string; price_override_cents: number | null }[]>();
-        for (const v of (data ?? []) as { id: string; product_id: string; name: string; price_override_cents: number | null }[]) {
-          byProduct.set(v.product_id, [...(byProduct.get(v.product_id) ?? []), v]);
+        for (const variant of (data ?? []) as { id: string; product_id: string; name: string; price_override_cents: number | null }[]) {
+          byProduct.set(variant.product_id, [...(byProduct.get(variant.product_id) ?? []), variant]);
         }
-        setProducts((prev) => prev.map((p) => ({ ...p, variants: byProduct.get(p.id) ?? [] })));
+        setProducts((current) => current.map((product) => ({ ...product, variants: byProduct.get(product.id) ?? [] })));
       });
     return () => { active = false; };
   }, [products.length > 0]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const entries = resolveEntries(cart.lines as never, products);
 
-  const onCheckout = async (discountCode: string) => {
-    await startCheckout(entries, discountCode);
-  };
-
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))]">
+    <div className="min-h-screen bg-ivory">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 pt-24 pb-24">
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-5">
-            <Link to="/orders/lookup" className="text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-              Find an order
-            </Link>
-            <Link to="/portal/orders" className="text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-              My orders
-            </Link>
-          </div>
-          <button
-            onClick={() => setCartOpen(true)}
-            className="relative flex items-center gap-2 text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy))] hover:opacity-70"
-            aria-label={`Cart, ${cart.count} items`}
-          >
-            <ShoppingBag size={16} strokeWidth={1.6} />
-            Cart
-            {cart.count > 0 && (
-              <span className="flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-semibold">
-                {cart.count}
-              </span>
-            )}
-          </button>
-        </div>
+      <main>
+        <section className="relative overflow-hidden border-b border-foreground/[0.07] bg-navy px-5 pb-16 pt-28 text-cream sm:px-8 sm:pb-20 lg:px-12 lg:pt-32">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-80"
+            aria-hidden="true"
+            style={{
+              background:
+                "radial-gradient(circle at 85% 0%, hsl(var(--blue) / .45), transparent 35%), radial-gradient(circle at 5% 100%, hsl(var(--primary) / .25), transparent 40%)",
+            }}
+          />
+          <div className="relative mx-auto max-w-6xl">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="mb-4 font-body text-xs font-semibold uppercase tracking-[0.24em] text-blue-light/75">Mindcast shop</p>
+                <h1 className="font-serif text-5xl leading-[0.98] sm:text-6xl lg:text-7xl">Tools to take the practice with you.</h1>
+                <p className="mt-6 max-w-xl font-body text-sm leading-7 text-cream/65 sm:text-base">
+                  Workbooks, cards and practical objects for people who want them. Everything required in a weekly Mindcast session is already provided.
+                </p>
+              </div>
 
-        <p className="text-[10px] font-body tracking-[0.35em] uppercase text-primary mb-2">Shop</p>
-        <h1 className="font-display text-4xl md:text-5xl tracking-wider text-[hsl(var(--navy))] mb-3">THE PHYSICAL RANGE</h1>
-        <p className="text-[hsl(var(--navy-mid))] text-sm font-body leading-relaxed mb-2 max-w-lg">
-          Practical tools for people who want them. MINDCAST products are
-          optional — everything required for your weekly session is provided
-          as part of your participation.
-        </p>
-        <p className="text-[hsl(var(--navy-mid))]/80 text-xs font-body flex items-center gap-2 mb-10">
-          <Truck size={13} strokeWidth={1.6} />
-          Prices in NZD, GST included · $8 shipping nationwide, free on orders over $120
-        </p>
-
-        {SHOP_COMING_SOON && (
-          <div className="border border-primary/30 bg-primary/5 rounded-sm p-4 mb-8">
-            <p className="text-sm font-body text-[hsl(var(--navy))] leading-relaxed">
-              <span className="font-display tracking-widest text-primary mr-2">COMING SOON</span>
-              You can browse the range now — ordering opens shortly.
-            </p>
-          </div>
-        )}
-
-        {cancelled && (
-          <div className="border border-[hsl(var(--navy))]/15 bg-white rounded-sm p-4 mb-8">
-            <p className="text-sm font-body text-[hsl(var(--navy-mid))]">Checkout cancelled — nothing was charged.</p>
-          </div>
-        )}
-
-        {loading ? (
-          <p className="text-xs font-body uppercase tracking-widest text-[hsl(var(--navy-mid))]/60">Loading…</p>
-        ) : products.length === 0 ? (
-          <div className="border border-[hsl(var(--navy))]/10 bg-white rounded-sm p-10 text-center">
-            <ShoppingBag className="mx-auto mb-4 text-[hsl(var(--navy))]/20" size={30} strokeWidth={1.4} />
-            <p className="font-display text-xl tracking-wider text-[hsl(var(--navy))] mb-1">NOTHING HERE YET</p>
-            <p className="text-sm font-body text-[hsl(var(--navy-mid))]">Products will appear here as we add them.</p>
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: Math.min(i * 0.04, 0.4) }}
-                className="border border-[hsl(var(--navy))]/10 bg-white rounded-sm overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow"
-              >
-                <Link to={`/shop/${p.slug}`} aria-label={`View ${p.name}`}>
-                  {p.image_url && (
-                    <img src={p.image_url} alt={p.name} className="w-full aspect-[4/3] object-cover" loading="lazy" />
-                  )}
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/orders/lookup"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-cream/15 bg-cream/[0.06] px-5 font-body text-sm font-semibold text-cream transition hover:border-cream/30 hover:bg-cream/10 focus:outline-none focus:ring-2 focus:ring-cream/50"
+                >
+                  <PackageSearch className="h-4 w-4" aria-hidden="true" /> Find an order
                 </Link>
-                <div className="p-5 flex flex-col flex-1">
-                  <div className="flex items-start justify-between gap-3 mb-1">
-                    <h2 className="font-display text-lg tracking-wider text-[hsl(var(--navy))] leading-tight">
-                      {p.name.toUpperCase()}
-                    </h2>
-                    <span className="font-display text-lg text-[hsl(var(--navy))] shrink-0">
-                      {formatMoney(p.price_cents, p.currency)}
+                <button
+                  type="button"
+                  onClick={() => setCartOpen(true)}
+                  className="relative inline-flex min-h-12 items-center gap-2 rounded-xl bg-cream px-5 font-body text-sm font-semibold text-navy transition hover:bg-cream/90 focus:outline-none focus:ring-4 focus:ring-cream/20"
+                  aria-label={`Open cart, ${cart.count} ${cart.count === 1 ? "item" : "items"}`}
+                >
+                  <ShoppingBag className="h-4 w-4" aria-hidden="true" /> Cart
+                  {cart.count > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                      {cart.count}
                     </span>
-                  </div>
-                  {taglines[p.slug] && (
-                    <p className="text-sm font-body text-[hsl(var(--navy-mid))] leading-relaxed flex-1 mb-4">
-                      {taglines[p.slug]}
-                    </p>
                   )}
-                  <button
-                    onClick={() => navigate(`/shop/${p.slug}`)}
-                    className="mt-auto w-full flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity"
-                  >
-                    <ArrowRight size={13} /> View product
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-cream/10 pt-5 font-body text-xs leading-5 text-cream/50">
+              <span className="flex items-center gap-2"><Truck className="h-4 w-4" aria-hidden="true" /> New Zealand-wide delivery</span>
+              <span>NZD · GST included</span>
+              <span>$8 shipping · free over $120</span>
+              <Link to="/portal/orders" className="underline decoration-cream/25 underline-offset-4 hover:text-cream">Member orders</Link>
+            </div>
           </div>
-        )}
-      </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-20" aria-labelledby="shop-range-heading">
+          <div className="mb-9 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="portal-label mb-2">The physical range</p>
+              <h2 id="shop-range-heading" className="font-serif text-4xl text-foreground">Browse the collection</h2>
+            </div>
+            <p className="max-w-sm font-body text-xs leading-6 text-muted-foreground">Choose only what feels useful. There is no required kit or complete set.</p>
+          </div>
+
+          {SHOP_COMING_SOON && (
+            <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/[0.05] p-5 font-body text-sm leading-6 text-foreground">
+              <span className="mr-2 font-semibold text-primary">Ordering opens shortly.</span>
+              You’re welcome to browse the range now.
+            </div>
+          )}
+
+          {cancelled && (
+            <div className="mb-8 rounded-2xl border border-foreground/10 bg-white p-5 font-body text-sm text-muted-foreground" role="status">
+              Checkout was cancelled. Nothing was charged and your cart is still here.
+            </div>
+          )}
+
+          {loading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading products" aria-busy="true">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="overflow-hidden rounded-2xl border border-foreground/[0.07] bg-white">
+                  <div className="aspect-[4/3] animate-pulse bg-foreground/[0.06]" />
+                  <div className="space-y-3 p-6"><div className="h-5 w-2/3 animate-pulse rounded bg-foreground/[0.07]" /><div className="h-4 w-full animate-pulse rounded bg-foreground/[0.05]" /></div>
+                </div>
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <div className="rounded-2xl border border-foreground/[0.08] bg-white p-10 text-center sm:p-14">
+              <ShoppingBag className="mx-auto mb-4 h-8 w-8 text-foreground/20" aria-hidden="true" />
+              <h3 className="font-serif text-2xl text-foreground">The shelves are being prepared.</h3>
+              <p className="mt-2 font-body text-sm text-muted-foreground">Products will appear here as they’re ready.</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((product, index) => (
+                <motion.article
+                  key={product.id}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.4) }}
+                  className="group flex overflow-hidden rounded-2xl border border-foreground/[0.08] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-navy/5"
+                >
+                  <Link to={`/shop/${product.slug}`} className="flex w-full flex-col rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/20" aria-label={`View ${product.name}`}>
+                    <div className="aspect-[4/3] overflow-hidden bg-foreground/[0.04]">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" loading="lazy" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center"><ShoppingBag className="h-8 w-8 text-foreground/15" aria-hidden="true" /></div>
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <h3 className="font-body text-base font-semibold leading-6 text-foreground">{product.name}</h3>
+                        <span className="shrink-0 font-body text-sm font-semibold text-foreground">{formatMoney(product.price_cents, product.currency)}</span>
+                      </div>
+                      {taglines[product.slug] && <p className="mt-3 flex-1 font-body text-sm leading-6 text-muted-foreground">{taglines[product.slug]}</p>}
+                      <span className="mt-6 inline-flex items-center gap-2 font-body text-sm font-semibold text-primary">
+                        View product <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                      </span>
+                    </div>
+                  </Link>
+                </motion.article>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
 
       <CartDrawer
         open={cartOpen}
         onClose={() => setCartOpen(false)}
         entries={entries}
         setQuantity={cart.setQuantity}
-        onCheckout={onCheckout}
+        onCheckout={(discountCode) => startCheckout(entries, discountCode)}
       />
-
       <Footer />
     </div>
   );

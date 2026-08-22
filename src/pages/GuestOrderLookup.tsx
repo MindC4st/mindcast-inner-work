@@ -1,16 +1,14 @@
-// /orders/lookup — secure guest order lookup.
-//
-// Guest buyers have no account, so they find their order with the order
-// number + the email they checked out with. The lookup runs through
-// shop-admin's guest_lookup action, which never reveals whether an order
-// exists unless the email matches — order numbers alone are not a key.
+// Secure guest order lookup. The edge function only returns an order when the
+// supplied checkout email matches; an order number alone reveals nothing.
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Search, Truck } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Search, ShieldCheck, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/shop";
 import { FULFILMENT_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "@/lib/commerce";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 type LookupOrder = {
   order_number: string;
@@ -32,128 +30,173 @@ const GuestOrderLookup = () => {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<LookupOrder | null>(null);
 
-  const lookup = async () => {
+  const lookup = async (event: React.FormEvent) => {
+    event.preventDefault();
     setBusy(true);
     setError("");
     setOrder(null);
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke("shop-admin", {
+      const { data, error: functionError } = await supabase.functions.invoke("shop-admin", {
         body: { action: "guest_lookup", order_number: orderNumber.trim(), email: email.trim() },
       });
-      if (fnErr) {
-        let detail = fnErr.message;
+      if (functionError) {
+        let detail = functionError.message;
         try {
-          const ctx = (fnErr as { context?: { body?: unknown } }).context;
-          if (ctx?.body) {
-            const text = typeof ctx.body === "string" ? ctx.body : await new Response(ctx.body as ReadableStream).text();
+          const context = (functionError as { context?: { body?: unknown } }).context;
+          if (context?.body) {
+            const text = typeof context.body === "string" ? context.body : await new Response(context.body as ReadableStream).text();
             const parsed = JSON.parse(text);
             if (parsed?.error) detail = parsed.error;
           }
-        } catch { /* keep generic */ }
+        } catch { /* keep the safe generic response */ }
         throw new Error(detail);
       }
       if (data?.error) throw new Error(data.error);
       setOrder(data?.order ?? null);
-    } catch (e: unknown) {
-      setError(e instanceof Error && e.message ? e.message : "Something went wrong");
+    } catch (caught: unknown) {
+      setError(caught instanceof Error && caught.message ? caught.message : "We couldn't find that order just now.");
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <nav className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-[hsl(var(--navy))]/[0.08]">
-        <Link to="/" className="font-display text-lg font-bold tracking-[0.2em] text-[hsl(var(--navy))]">MINDCAST</Link>
-        <Link to="/shop" className="flex items-center gap-2 text-[10px] tracking-[0.15em] font-body uppercase text-[hsl(var(--navy-mid))] hover:text-[hsl(var(--navy))]">
-          <ArrowLeft size={12} /> Shop
-        </Link>
-      </nav>
-
-      <div className="max-w-md mx-auto px-6 pt-12 pb-20">
-        <p className="text-[10px] font-body tracking-[0.35em] uppercase text-primary mb-2">Shop</p>
-        <h1 className="font-display text-3xl tracking-wider text-[hsl(var(--navy))] mb-3">FIND AN ORDER</h1>
-        <p className="text-[hsl(var(--navy-mid))] text-sm font-body leading-relaxed mb-8">
-          Enter your order number and the email you used at checkout.
-        </p>
-
-        <div className="space-y-3 mb-4">
-          <input
-            value={orderNumber}
-            onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
-            placeholder="Order number — e.g. MC-100001"
-            className="w-full px-4 py-3 text-sm bg-white border border-[hsl(var(--navy))]/15 rounded-sm focus:outline-none focus:border-primary"
-          />
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="Email address"
-            className="w-full px-4 py-3 text-sm bg-white border border-[hsl(var(--navy))]/15 rounded-sm focus:outline-none focus:border-primary"
-          />
-          <button
-            onClick={lookup}
-            disabled={busy || !orderNumber.trim() || !email.trim()}
-            className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3.5 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40"
+    <div className="min-h-screen bg-ivory">
+      <Navbar />
+      <main className="px-5 pb-20 pt-28 sm:px-8 lg:px-12 lg:pt-32">
+        <div className="mx-auto max-w-5xl">
+          <Link
+            to="/shop"
+            className="mb-8 inline-flex min-h-10 items-center gap-2 rounded-lg font-body text-sm font-semibold text-muted-foreground transition hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
-            {busy ? <Loader2 size={13} className="animate-spin" /> : <Search size={13} />}
-            {busy ? "Looking…" : "Find order"}
-          </button>
-          {error && <p className="text-sm text-red-700 font-body">{error}</p>}
-        </div>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to shop
+          </Link>
 
-        {order && (
-          <div className="border border-[hsl(var(--navy))]/10 bg-white rounded-sm p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="font-display text-xl tracking-wider text-[hsl(var(--navy))]">{order.order_number}</p>
-                <p className="text-[11px] font-body text-[hsl(var(--navy-mid))]">
-                  {new Date(order.created_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric" })}
-                </p>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(420px,1.2fr)] lg:gap-16">
+            <section>
+              <p className="portal-label mb-3">Guest orders</p>
+              <h1 className="font-serif text-5xl leading-tight text-foreground sm:text-6xl">Find your order.</h1>
+              <p className="mt-5 max-w-lg font-body text-sm leading-7 text-muted-foreground">
+                Use the order number from your confirmation email and the same email address you entered at checkout.
+              </p>
+
+              <form onSubmit={lookup} className="mt-9 space-y-5">
+                <div>
+                  <label htmlFor="order-number" className="font-body text-sm font-semibold text-foreground">Order number</label>
+                  <input
+                    id="order-number"
+                    value={orderNumber}
+                    onChange={(event) => setOrderNumber(event.target.value.toUpperCase())}
+                    placeholder="e.g. MC-100001"
+                    autoComplete="off"
+                    required
+                    className="mt-2 w-full rounded-xl border border-foreground/10 bg-white px-4 py-3.5 font-body text-base uppercase text-foreground shadow-sm outline-none transition placeholder:normal-case placeholder:text-muted-foreground/45 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="order-email" className="font-body text-sm font-semibold text-foreground">Checkout email</label>
+                  <input
+                    id="order-email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    type="email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    required
+                    className="mt-2 w-full rounded-xl border border-foreground/10 bg-white px-4 py-3.5 font-body text-base text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/45 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={busy || !orderNumber.trim() || !email.trim()}
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-navy px-6 py-3 font-body text-sm font-semibold text-cream shadow-sm transition hover:bg-navy-mid focus:outline-none focus:ring-4 focus:ring-navy/15 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
+                >
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
+                  {busy ? "Looking for your order…" : "Find order"}
+                </button>
+                {error && <p className="rounded-xl border border-destructive/15 bg-destructive/[0.04] p-4 font-body text-sm leading-6 text-destructive" role="alert">{error}</p>}
+              </form>
+
+              <div className="mt-9 flex items-start gap-3 border-t border-foreground/[0.07] pt-6">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <p className="font-body text-xs leading-5 text-muted-foreground">For privacy, the order number and checkout email must both match.</p>
               </div>
-              <span className="font-display text-xl text-[hsl(var(--navy))]">{formatMoney(order.amount_total_cents, order.currency)}</span>
-            </div>
+            </section>
 
-            <div className="flex gap-2 mb-4">
-              <span className="text-[10px] font-body tracking-widest uppercase px-2 py-0.5 rounded-sm border border-[hsl(var(--navy))]/20 text-[hsl(var(--navy-mid))]">
-                {PAYMENT_STATUS_LABEL[order.payment_status] || order.payment_status}
-              </span>
-              <span className="text-[10px] font-body tracking-widest uppercase px-2 py-0.5 rounded-sm border border-[hsl(var(--navy))]/20 text-[hsl(var(--navy-mid))]">
-                {FULFILMENT_STATUS_LABEL[order.fulfilment_status] || order.fulfilment_status}
-              </span>
-            </div>
+            <section aria-live="polite" aria-label="Order result">
+              {!order && !busy && (
+                <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-dashed border-foreground/10 bg-white/45 p-10 text-center">
+                  <div>
+                    <Search className="mx-auto h-8 w-8 text-foreground/15" aria-hidden="true" />
+                    <p className="mt-4 font-body text-sm leading-6 text-muted-foreground">Your order details will appear here.</p>
+                  </div>
+                </div>
+              )}
 
-            <ul className="text-sm font-body text-[hsl(var(--navy-mid))] space-y-1 mb-4">
-              {order.items.map((it, i) => (
-                <li key={i} className="flex justify-between gap-3">
-                  <span>{it.product_name}{it.quantity > 1 ? ` ×${it.quantity}` : ""}</span>
-                  <span>{formatMoney(it.line_total_cents, order.currency)}</span>
-                </li>
-              ))}
-            </ul>
+              {busy && (
+                <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-foreground/[0.07] bg-white" role="status">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
+                  <span className="ml-3 font-body text-sm text-muted-foreground">Checking securely…</span>
+                </div>
+              )}
 
-            {order.tracking_number && (
-              <div className="border-t border-[hsl(var(--navy))]/10 pt-4 text-sm font-body text-[hsl(var(--navy-mid))]">
-                <p className="flex items-center gap-2 mb-1">
-                  <Truck size={14} strokeWidth={1.6} />
-                  Shipped{order.shipped_at ? ` ${new Date(order.shipped_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long" })}` : ""}
-                </p>
-                <p>
-                  Tracking: <span className="font-semibold text-[hsl(var(--navy))]">{order.tracking_number}</span>
-                  {order.tracking_url && (
-                    <>
-                      {" · "}
-                      <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                        Track package
-                      </a>
-                    </>
-                  )}
-                </p>
-              </div>
-            )}
+              {order && (
+                <article className="overflow-hidden rounded-3xl border border-foreground/[0.08] bg-white shadow-xl shadow-navy/[0.05]">
+                  <div className="border-b border-foreground/[0.07] bg-navy p-6 text-cream sm:p-8">
+                    <p className="font-body text-xs font-semibold uppercase tracking-[0.18em] text-blue-light/70">Order found</p>
+                    <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+                      <div>
+                        <h2 className="font-serif text-3xl">{order.order_number}</h2>
+                        <p className="mt-1 font-body text-xs text-cream/55">
+                          {new Date(order.created_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric" })}
+                        </p>
+                      </div>
+                      <p className="font-body text-lg font-semibold">{formatMoney(order.amount_total_cents, order.currency)}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-6 sm:p-8">
+                    <div className="mb-6 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-primary/20 bg-primary/[0.06] px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[0.13em] text-primary">
+                        {PAYMENT_STATUS_LABEL[order.payment_status] || order.payment_status}
+                      </span>
+                      <span className="rounded-full border border-foreground/10 bg-foreground/[0.03] px-3 py-1.5 font-body text-[10px] font-semibold uppercase tracking-[0.13em] text-muted-foreground">
+                        {FULFILMENT_STATUS_LABEL[order.fulfilment_status] || order.fulfilment_status}
+                      </span>
+                    </div>
+
+                    <h3 className="portal-label mb-3">Items</h3>
+                    <ul className="divide-y divide-foreground/[0.07] border-y border-foreground/[0.07]">
+                      {order.items.map((item, index) => (
+                        <li key={index} className="flex justify-between gap-4 py-3 font-body text-sm text-muted-foreground">
+                          <span>{item.product_name}{item.quantity > 1 ? ` × ${item.quantity}` : ""}</span>
+                          <span className="font-semibold text-foreground">{formatMoney(item.line_total_cents, order.currency)}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {order.tracking_number && (
+                      <div className="mt-6 rounded-2xl border border-primary/15 bg-primary/[0.05] p-5 font-body text-sm text-muted-foreground">
+                        <p className="flex items-center gap-2 font-semibold text-foreground">
+                          <Truck className="h-4 w-4 text-primary" aria-hidden="true" />
+                          Shipped{order.shipped_at ? ` ${new Date(order.shipped_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long" })}` : ""}
+                        </p>
+                        <p className="mt-2">Tracking: <span className="font-semibold text-foreground">{order.tracking_number}</span></p>
+                        {order.tracking_url && (
+                          <a href={order.tracking_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-10 items-center gap-2 font-semibold text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary">
+                            Track package <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </article>
+              )}
+            </section>
           </div>
-        )}
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 };
