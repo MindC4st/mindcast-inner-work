@@ -6,10 +6,7 @@ import {
   ArrowDown,
   ArrowRight,
   ChevronDown,
-  NotebookPen,
   Quote,
-  Repeat2,
-  UsersRound,
 } from "lucide-react";
 
 import AmbientVideo from "@/components/AmbientVideo";
@@ -20,79 +17,42 @@ import Navbar from "@/components/Navbar";
 /* Content                                                                     */
 /* -------------------------------------------------------------------------- */
 
-const missionPillars = [
-  {
-    title: "THE ROOM",
-    eyebrow: "Community",
-    icon: UsersRound,
-    body: "A real group of people who return each week, reflect alongside one another, and make showing up feel normal.",
-  },
-  {
-    title: "THE RHYTHM",
-    eyebrow: "Practice",
-    icon: Repeat2,
-    body: "One theme, better questions, one practical intention, and a reason to come back to it before the week disappears.",
-  },
-  {
-    title: "THE TOOLS",
-    eyebrow: "Into real life",
-    icon: NotebookPen,
-    body: "A live coursebook, private reflection, weekly check-ins, and Life Groups that carry the practice beyond Sunday.",
-  },
-] as const;
-
 const foundations = [
   {
     number: "01",
     lens: "WHY WE EXIST",
     title: "SPACE OVER INFORMATION",
     belief:
-      "Most people don’t need more information. They need space to slow down, notice what is actually shaping them, and practise making more intentional choices.",
+      "I believe most people don’t need more information—they need space to slow down, notice what is actually shaping them, and practise making more intentional choices.",
     standard:
-      "Life is noisy, fast, and full of competing demands. MINDCAST creates a regular place to come back to yourself, reflect without pressure, and take one small thing into the week that might genuinely help.",
+      "Life is noisy, fast, and full of competing demands. Mindcast exists to create a regular place where people can come back to themselves, reflect without pressure, and take one small thing into the week that might genuinely help.",
   },
   {
     number: "02",
     lens: "WHAT WE DO",
     title: "THE PRACTICE OF SHOWING UP",
     belief:
-      "Each week we explore one theme, ask better questions, make space for reflection, and turn that reflection into one practical intention.",
+      "The content matters, but the real product is the practice of coming back each week and doing it alongside other people.",
     standard:
-      "The content matters, but the real product is the practice of coming back each week and doing it alongside other people. The rhythm is simple: Notice It. Name It. Do It.",
+      "I’m building Mindcast—a weekly personal-development and community experience. Each week we explore one theme, ask better questions, make space for reflection, and turn that reflection into one practical intention.",
   },
   {
     number: "03",
     lens: "WHO IT’S FOR",
     title: "REAL PEOPLE, NO PREACHING",
     belief:
-      "MINDCAST is for ordinary people trying to live well in a noisy world—parents, teenagers, young people, and busy adults.",
+      "For ordinary people trying to live well in a very noisy world.",
     standard:
-      "You will not be preached at, diagnosed, fixed, or told who you should become. This is a place to think, connect, and practise becoming more yourself, together.",
+      "Parents, teenagers, young people, busy adults—people who want to be more intentional without being preached at, diagnosed, fixed, or told who they should become.",
   },
   {
     number: "04",
-    lens: "WHAT CONNECTS US",
-    title: "SHARED LANGUAGE AT HOME",
-    belief: "Real behavioural change starts with a shared language at home.",
-    standard:
-      "Adults, teens, and children explore the same weekly theme in age-appropriate spaces. That gives households a natural way to reflect and grow together without expecting everyone to have the same experience.",
-  },
-  {
-    number: "05",
-    lens: "HOW WE HOLD THE ROOM",
-    title: "SAFE BY DESIGN",
+    lens: "OUR BOUNDARIES",
+    title: "THE ROLE OF FACILITATOR",
     belief:
-      "Safety is not added after the programme is built. It shapes how every session works.",
+      "I am not a teacher, a guru, or a prophet. I didn’t invent the wisdom we draw from.",
     standard:
-      "Clear boundaries, privacy, moderated interactions, age-appropriate participation, and trained facilitators protect the experience. MINDCAST is personal development and community—not therapy or medical care—and we stay inside that boundary.",
-  },
-  {
-    number: "06",
-    lens: "HOW WE EARN TRUST",
-    title: "HONEST & UNPRESSURED",
-    belief: "No magic. No guru. No promise that one exercise works for everyone.",
-    standard:
-      "We use research where it helps, distinguish evidence from teaching tools, and stay open about what we do not know. There is no forced disclosure, artificial urgency, guilt, or pressure to perform a particular kind of growth.",
+      "My job is simple: I built the room, I create the structure, and I set the table. What happens at that table belongs entirely to the people who sit at it. I am simply the first participant.",
   },
 ] as const;
 
@@ -241,15 +201,15 @@ const StorySection = () => (
             className="aspect-[4/5] h-full w-full object-cover"
           />
 
-          <div className="absolute inset-x-4 bottom-4 rounded-xl border border-white/20 bg-[#102438]/70 p-4 text-white backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-5">
+          <div className="absolute inset-x-4 bottom-4 rounded-xl border border-white/60 bg-white/85 p-4 shadow-[0_12px_35px_rgba(16,36,56,0.16)] backdrop-blur-[10px] sm:inset-x-5 sm:bottom-5 sm:p-5">
             <Quote
-              className="mb-3 text-white/60"
+              className="mb-3 text-primary/60"
               size={21}
               aria-hidden="true"
             />
 
-            <p className="font-display text-2xl tracking-wide sm:text-3xl">
-              THE STRUCTURE WORKED.
+            <p className="font-display text-2xl tracking-wide text-primary sm:text-3xl">
+              &ldquo;I didn&rsquo;t want to relax.&rdquo;
             </p>
           </div>
         </div>
@@ -300,132 +260,6 @@ const StorySection = () => (
 );
 
 /* -------------------------------------------------------------------------- */
-/* Mission                                                                     */
-/* -------------------------------------------------------------------------- */
-
-const MissionSection = () => (
-  <section className="section-cream border-y border-border py-20 sm:py-24 lg:py-32">
-    <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-      <Reveal>
-        <SectionHeading
-          eyebrow="The mission"
-          title="MAKE INTENTIONAL LIVING A PRACTICE, NOT ANOTHER IDEA."
-          body={
-            <p className="max-w-3xl">
-              We create a regular place where ordinary people can slow down,
-              understand themselves better, and practise making more
-              intentional choices alongside others.
-            </p>
-          }
-        />
-      </Reveal>
-
-      <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-3">
-        {missionPillars.map((pillar, index) => {
-          const Icon = pillar.icon;
-
-          return (
-            <Reveal key={pillar.title} delay={index * 0.08}>
-              <article className="h-full bg-white p-6 sm:p-8 lg:p-9">
-                <div className="flex items-start justify-between gap-5">
-                  <Icon
-                    className="text-primary"
-                    size={28}
-                    strokeWidth={1.7}
-                    aria-hidden="true"
-                  />
-
-                  <span className="font-display text-3xl text-primary/20">
-                    0{index + 1}
-                  </span>
-                </div>
-
-                <p className="mt-10 font-body text-[10px] font-bold uppercase tracking-[0.22em] text-primary/70">
-                  {pillar.eyebrow}
-                </p>
-
-                <h3 className="mt-2 font-display text-4xl tracking-wide text-primary">
-                  {pillar.title}
-                </h3>
-
-                <p className="mt-4 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                  {pillar.body}
-                </p>
-              </article>
-            </Reveal>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-);
-
-/* -------------------------------------------------------------------------- */
-/* Founder                                                                     */
-/* -------------------------------------------------------------------------- */
-
-const FounderSection = () => (
-  <section className="bg-white py-20 sm:py-24 lg:py-32">
-    <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-      <Reveal>
-        <SectionHeading
-          eyebrow="The first participant"
-          title="THE FOUNDER"
-        />
-      </Reveal>
-
-      <div className="mt-12 grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
-        <Reveal>
-          <div className="overflow-hidden rounded-2xl bg-muted shadow-[0_18px_55px_rgba(16,36,56,0.12)]">
-            <AmbientVideo
-              src="/videos/founder_on_couch.mp4"
-              className="aspect-[4/3] h-full w-full object-cover lg:aspect-[5/6]"
-            />
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.1}>
-          <p className="font-body text-[11px] font-bold uppercase tracking-[0.28em] text-primary/70">
-            Founder &amp; Facilitator · Taupō, New Zealand
-          </p>
-
-          <h3 className="mt-3 font-display text-5xl tracking-wide text-primary sm:text-6xl">
-            ASHLEIGH CARLSON
-          </h3>
-
-          <div className="mt-8 space-y-5 font-body text-base leading-7 text-muted-foreground md:text-lg md:leading-8">
-            <p>
-              I am not here as a guru, a prophet, or the source of whatever
-              wisdom surfaces in a MINDCAST session. The ideas, thinkers, and
-              frameworks we draw from already exist in the world.
-            </p>
-
-            <p>
-              My role is to shape and protect the room: choose the theme, write
-              the questions, set the pace, and create enough structure for
-              people to reflect honestly. I facilitate the conversation; I do
-              not tell people what their answers should be.
-            </p>
-
-            <p>
-              I am also the first participant. I built MINDCAST because I
-              wanted a place like this in my own life. I am not standing above
-              the room—I am sitting in it too.
-            </p>
-          </div>
-
-          <blockquote className="mt-9 border-l-2 border-primary pl-6">
-            <p className="font-display text-3xl leading-tight tracking-wide text-primary sm:text-4xl">
-              “I BUILT THE DOOR—THEN LEFT IT OPEN.”
-            </p>
-          </blockquote>
-        </Reveal>
-      </div>
-    </div>
-  </section>
-);
-
-/* -------------------------------------------------------------------------- */
 /* Foundations browser                                                        */
 /* -------------------------------------------------------------------------- */
 
@@ -444,7 +278,7 @@ const FoundationsSection = () => {
             body={
               <p className="max-w-3xl">
                 These are not slogans sitting beside the work. They explain why
-                MINDCAST exists, who it is for, and the standards that shape
+                MINDCAST exists, who it is for, and the boundaries that shape
                 every room we create.
               </p>
             }
@@ -704,8 +538,6 @@ export const AboutContent = ({
   <>
     <AboutHero />
     <StorySection />
-    <MissionSection />
-    <FounderSection />
     <FoundationsSection />
     <AiDisclosure />
     <AboutCta membershipHref={membershipHref} />
