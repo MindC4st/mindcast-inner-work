@@ -19,8 +19,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import QRCode from "npm:qrcode@1.5.4";
 import { ipAllowed, clientIp } from "../_shared/ip-rate-limit.ts";
-import { renderEmail } from "../_shared/email/layout.ts";
-import trialPass from "../_shared/email/templates/trial-pass.ts";
+import { renderTrialPass } from "./email.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -91,7 +90,7 @@ async function deliverPass(opts: {
     });
     const b64 = png.replace(/^data:image\/png;base64,/, "");
 
-    const { subject, html } = renderEmail(trialPass, {
+    const { subject, html } = renderTrialPass({
       first_name: opts.first_name,
       pass_code: spacedToken(opts.token),
       pass_url: passUrl,
