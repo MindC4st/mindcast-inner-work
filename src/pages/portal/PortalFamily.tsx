@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, UserPlus, X, Monitor, DoorOpen, GraduationCap } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { currentProgrammeYear, isYouthConsentCurrent } from "@/lib/youthConsent";
 
-// /portal/family — the guardian's control room for everything safeguarding:
+// /portal/family â€” the guardian's control room for everything safeguarding:
 //   - authorised collectors per child (the ONLY people a child can leave with)
 //   - welcome-wall display consent per child/teen (revocable, honoured next scan)
 //   - teen self-sign-out permission per teen
@@ -55,7 +55,7 @@ const PortalFamily = () => {
   const load = useCallback(async () => {
     if (!myProfileId) return;
 
-    // Children/teens in households where I am a guardian — names resolved
+    // Children/teens in households where I am a guardian â€” names resolved
     // server-side (members can't read other profiles directly).
     const { data: kidsRows } = await supabase.rpc("household_children_for");
     const kids: Child[] = (kidsRows ?? []).map((m) => ({
@@ -114,7 +114,7 @@ const PortalFamily = () => {
 
   useEffect(() => { void load(); }, [load]);
 
-  /* ── actions ── */
+  /* â”€â”€ actions â”€â”€ */
 
   const addCollector = async (child: Child) => {
     const draft = newCollector[child.profile_id];
@@ -155,7 +155,7 @@ const PortalFamily = () => {
         return;
       }
     } else {
-      // Revoke every live consent for this child — honoured from the next scan.
+      // Revoke every live consent for this child â€” honoured from the next scan.
       const { error } = await supabase
         .from("guardian_consents")
         .update({ revoked_at: new Date().toISOString() })
@@ -211,7 +211,7 @@ const PortalFamily = () => {
     void load();
   };
 
-  /* ── render ── */
+  /* â”€â”€ render â”€â”€ */
 
   const Toggle = ({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) => (
     <button
@@ -230,7 +230,7 @@ const PortalFamily = () => {
       <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2 flex items-center gap-1.5">
         <ShieldCheck size={13} /> Family &amp; safety
       </p>
-      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-2">YOUR FAMILY AT MINDCAST</h1>
+      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-2">YOUR FAMILY AT MINDCAST</h1>
       <p className="text-sm text-muted-foreground mb-8 font-body max-w-2xl leading-relaxed">
         Complete each young person's annual participation form, emergency and photography choices,
         then manage collection, welcome-wall and teen sign-out settings. A current form is required
@@ -239,7 +239,7 @@ const PortalFamily = () => {
 
       {completingSetup && (
         <div className="mb-6 rounded-sm border border-primary/20 bg-primary/[0.05] p-4">
-          <p className="font-body text-sm font-semibold text-foreground">Payment complete — finish your family's safety setup</p>
+          <p className="font-body text-sm font-semibold text-foreground">Payment complete â€” finish your family's safety setup</p>
           <p className="mt-1 font-body text-xs leading-5 text-muted-foreground">
             Complete one annual form for each child or teen below. If their names have not appeared yet, wait a moment and refresh; Stripe may have returned before the household webhook finished linking everyone.
           </p>
@@ -247,7 +247,7 @@ const PortalFamily = () => {
       )}
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
+        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loadingâ€¦</p>
       ) : (
         <div className="space-y-6">
           {/* Your own wall preference */}
@@ -264,14 +264,14 @@ const PortalFamily = () => {
             <Toggle on={!ownWallOptOut} onChange={() => void toggleOwnWall()} label="Show my name on the welcome wall" />
           </motion.div>
 
-          {/* Add a teen by email — sends them a magic link to set up their account */}
+          {/* Add a teen by email â€” sends them a magic link to set up their account */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="portal-card p-6">
             <div className="flex items-start gap-3 mb-4">
               <GraduationCap size={18} className="text-primary mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-body font-semibold text-foreground">Add a teen (13–17)</p>
+                <p className="text-sm font-body font-semibold text-foreground">Add a teen (13â€“17)</p>
                 <p className="text-xs text-muted-foreground font-body mt-1">
-                  Enter their email and we'll send a magic link so they can set up their own account —
+                  Enter their email and we'll send a magic link so they can set up their own account â€”
                   a read-only dashboard for teen session history, worksheets and NFC check-in. Teen
                   accounts do not include a digital journal or submission tools.
                 </p>
@@ -296,7 +296,7 @@ const PortalFamily = () => {
                 disabled={!teenEmail.trim() || !teenInviteAgrees || inviting}
                 className="inline-flex items-center justify-center gap-1.5 bg-primary text-primary-foreground px-4 py-2.5 text-[11px] tracking-widest uppercase font-body disabled:opacity-40"
               >
-                <UserPlus size={13} /> {inviting ? "Sending…" : "Invite teen"}
+                <UserPlus size={13} /> {inviting ? "Sendingâ€¦" : "Invite teen"}
               </button>
             </div>
             <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-sm border border-border bg-background/60 p-3">
@@ -330,7 +330,7 @@ const PortalFamily = () => {
                 className="portal-card p-6"
               >
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
-                  <h2 className="font-display text-xl tracking-wider text-foreground">
+                  <h2 className="font-display text-xl tracking-wider text-primary">
                     {child.display_name.toUpperCase()}
                     <span className="ml-3 text-[10px] font-body tracking-[0.2em] uppercase text-primary/70 align-middle">
                       {isTeen ? "Teen" : "Child"}
@@ -379,7 +379,7 @@ const PortalFamily = () => {
 
                 {/* Authorised collectors */}
                 <p className="mt-6 text-[10px] font-body tracking-[0.25em] uppercase text-foreground/50 mb-3">
-                  Authorised collectors — the only people {child.display_name} can leave with
+                  Authorised collectors â€” the only people {child.display_name} can leave with
                 </p>
                 {active.length === 0 ? (
                   <p className="text-xs text-muted-foreground font-body mb-3">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,9 +27,9 @@ const TrainingPolicies = () => {
       <Link to="/admin/staff-training" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
         <ArrowLeft size={12} /> Training
       </Link>
-      <h2 className="font-display text-2xl text-foreground tracking-wider mb-1">Policy acknowledgements</h2>
+      <h2 className="font-display text-2xl text-primary tracking-wider mb-1">Policy acknowledgements</h2>
       <p className="text-muted-foreground text-sm font-body mb-6">
-        An immutable record of which version of each policy you accepted, and when. New versions ask for a fresh acknowledgement — history is never overwritten.
+        An immutable record of which version of each policy you accepted, and when. New versions ask for a fresh acknowledgement â€” history is never overwritten.
       </p>
 
       <div className="space-y-2">
@@ -37,7 +37,7 @@ const TrainingPolicies = () => {
           <div key={i} className="flex items-center gap-4 rounded-lg border border-border bg-card px-4 py-3.5">
             <FileCheck2 size={15} className="text-primary shrink-0" />
             <span className="flex-1 min-w-0">
-              <span className="block text-sm font-body text-foreground">{a.policy_code} · v{a.policy_version}</span>
+              <span className="block text-sm font-body text-foreground">{a.policy_code} Â· v{a.policy_version}</span>
               <span className="block text-[11px] font-body text-muted-foreground truncate">{a.title}</span>
             </span>
             <span className="text-[11px] font-body text-muted-foreground shrink-0">
@@ -47,7 +47,7 @@ const TrainingPolicies = () => {
         ))}
         {acks.length === 0 && (
           <p className="text-muted-foreground text-sm font-body py-12 text-center">
-            No acknowledgements yet — they are recorded as you complete the modules that carry them.
+            No acknowledgements yet â€” they are recorded as you complete the modules that carry them.
           </p>
         )}
       </div>

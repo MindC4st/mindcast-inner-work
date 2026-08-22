@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Brain, Lock } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
@@ -10,7 +10,7 @@ const PortalInsights = () => (
         <Brain size={20} className="text-foreground/30" strokeWidth={1.5} />
       </div>
       <p className="portal-label mb-3">Personal reflection</p>
-      <h1 className="font-serif text-4xl text-foreground mb-4">Your Insights</h1>
+      <h1 className="font-serif text-4xl text-primary mb-4">Your Insights</h1>
       <p className="text-sm text-muted-foreground font-body leading-7 mb-6">
         Your personal AI reflection and domain trends will unlock after you've completed a few sessions.
       </p>

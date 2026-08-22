@@ -226,14 +226,14 @@ describe("the homepage closing block is an exploration CTA", () => {
   });
 
   it("leads with the curriculum exploration CTA", () => {
-    expect(closing).toContain("WHAT DOES A WEEK ACTUALLY LOOK LIKE?");
-    expect(closing).toContain("LOOK INSIDE THE CURRICULUM");
+    expect(closing).toContain("OPEN THE FIRST PAGE.");
+    expect(closing).toContain("EXPLORE THE FULL CURRICULUM");
   });
 
   it("routes to /curriculum as the primary action", () => {
     expect(closing).toMatch(/to="\/curriculum"/);
-    // Membership is offered, but only as a low-key text link, not the button.
-    expect(closing).toContain("View membership options.");
+    // The closing block is a pure exploration CTA — no membership ask at all.
+    expect(closing).not.toContain("View membership options.");
   });
 });
 

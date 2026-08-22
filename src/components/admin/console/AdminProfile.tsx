@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Nfc, ShieldCheck, Save, Loader2 } from "lucide-react";
@@ -13,7 +13,7 @@ type Row = {
 const Field = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-lg border border-border bg-card p-4">
     <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-1">{label}</p>
-    <p className="text-sm font-body text-foreground">{value || "—"}</p>
+    <p className="text-sm font-body text-foreground">{value || "â€”"}</p>
   </div>
 );
 
@@ -51,7 +51,7 @@ const AdminProfile = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="font-display text-2xl text-foreground tracking-wider">Profile</h2>
+        <h2 className="font-display text-2xl text-primary tracking-wider">Profile</h2>
         <p className="text-muted-foreground text-sm font-body mt-1">Your staff account and how you appear on the welcome wall.</p>
       </div>
 

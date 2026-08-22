@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BookOpen, Check, Film, Loader2, Lock, Pencil, Play, Presentation, Unlock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,7 +48,7 @@ const Library = () => {
       if (error) throw error;
       toast({
         title: `Queued ${data.queued_this_run} renders`,
-        description: `${data.already_done} already done · ${data.already_processing} already in flight · ${data.remaining_after_this_run} left.`,
+        description: `${data.already_done} already done Â· ${data.already_processing} already in flight Â· ${data.remaining_after_this_run} left.`,
       });
     } catch (caught) {
       toast({ title: "Bulk generate failed", description: (caught as Error).message, variant: "destructive" });
@@ -66,9 +66,9 @@ const Library = () => {
         <div className="mb-9 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="portal-label mb-3">Mindcast Live</p>
-            <h1 id="lesson-library-title" className="font-serif text-4xl leading-tight text-foreground sm:text-5xl">Your 52-week coursebook</h1>
+            <h1 id="lesson-library-title" className="font-serif text-4xl leading-tight text-primary sm:text-5xl">Your 52-week coursebook</h1>
             <p className="mt-4 font-body text-sm leading-7 text-muted-foreground">
-              Revisit unlocked lessons, continue your own coursebook, or prepare the room if you’re facilitating.
+              Revisit unlocked lessons, continue your own coursebook, or prepare the room if youâ€™re facilitating.
             </p>
           </div>
 
@@ -88,7 +88,7 @@ const Library = () => {
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-4 font-body text-xs font-semibold text-cream transition hover:bg-navy-mid focus:outline-none focus:ring-4 focus:ring-navy/15 disabled:opacity-40"
               >
                 {bulkRunning ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Film className="h-4 w-4" aria-hidden="true" />}
-                {bulkRunning ? "Queueing videos…" : "Generate missing videos"}
+                {bulkRunning ? "Queueing videosâ€¦" : "Generate missing videos"}
               </button>
             </div>
           )}
@@ -117,7 +117,7 @@ const Library = () => {
         {loading ? (
           <div className="flex min-h-64 items-center justify-center" role="status">
             <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
-            <span className="ml-3 font-body text-sm text-muted-foreground">Loading your coursebook…</span>
+            <span className="ml-3 font-body text-sm text-muted-foreground">Loading your coursebookâ€¦</span>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -137,7 +137,7 @@ const Library = () => {
                     {isCompleted ? <Check className="h-4 w-4 text-primary" aria-label="Completed" /> : isUnlocked ? <Unlock className="h-4 w-4 text-primary/60" aria-label="Unlocked" /> : <Lock className="h-4 w-4 text-muted-foreground/40" aria-label="Locked" />}
                   </div>
                   <p className="portal-label mb-2">{week.phase_name || "Coming soon"}</p>
-                  <h2 className={`font-serif text-2xl leading-tight ${isUnlocked ? "text-foreground" : "text-muted-foreground"}`}>{week.theme_title || "To be announced"}</h2>
+                  <h2 className={`font-serif text-2xl leading-tight ${isUnlocked ? "text-primary" : "text-muted-foreground"}`}>{week.theme_title || "To be announced"}</h2>
                   <p className="mt-2 flex-1 font-body text-xs italic leading-5 text-muted-foreground">{week.session_title}</p>
 
                   <div className="mt-5 grid gap-2">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -11,38 +11,38 @@ const ACTIVITY_TYPES = [
 ];
 
 const FIFTY_TWO_WEEK_PLAN: Record<number, { kids_title: string; kids_activity: string; teen_title: string }> = {
-  // Movement 1 — Ground (Know Yourself)
+  // Movement 1 â€” Ground (Know Yourself)
   1: { kids_title: "Who Am I Really?", kids_activity: "Draw your 'inside self' vs 'outside self' side by side", teen_title: "Finding Your True Identity" },
-  2: { kids_title: "My Story", kids_activity: "Story chain craft — retell a family memory together", teen_title: "The Stories We Tell" },
-  3: { kids_title: "Body Feelings", kids_activity: "Body map — colour where you feel different emotions", teen_title: "Listen to Your Body" },
-  4: { kids_title: "My Values", kids_activity: "Values sorting game — 'Is this really me?'", teen_title: "What Do You Actually Value?" },
-  5: { kids_title: "I Am More Than One Thing", kids_activity: "Identity collage — cut and paste from magazines", teen_title: "Identity Is Not Fixed" },
+  2: { kids_title: "My Story", kids_activity: "Story chain craft â€” retell a family memory together", teen_title: "The Stories We Tell" },
+  3: { kids_title: "Body Feelings", kids_activity: "Body map â€” colour where you feel different emotions", teen_title: "Listen to Your Body" },
+  4: { kids_title: "My Values", kids_activity: "Values sorting game â€” 'Is this really me?'", teen_title: "What Do You Actually Value?" },
+  5: { kids_title: "I Am More Than One Thing", kids_activity: "Identity collage â€” cut and paste from magazines", teen_title: "Identity Is Not Fixed" },
   6: { kids_title: "My Superpowers", kids_activity: "Draw your superpower and your shadow side", teen_title: "Strengths and Shadows" },
   7: { kids_title: "What Lights Me Up?", kids_activity: "Draw what gives you energy vs. what drains you", teen_title: "What Actually Gives Life Meaning?" },
-  // Movement 2 — Wound (Heal Yourself)
+  // Movement 2 â€” Wound (Heal Yourself)
   8: { kids_title: "Carrying Heavy Things", kids_activity: "Mindfulness: pass a stone and name what you're carrying", teen_title: "What Are You Carrying?" },
-  9: { kids_title: "Why Do I React Like That?", kids_activity: "Feelings comic strip — draw a reaction chain", teen_title: "Why Do I React Like That?" },
+  9: { kids_title: "Why Do I React Like That?", kids_activity: "Feelings comic strip â€” draw a reaction chain", teen_title: "Why Do I React Like That?" },
   10: { kids_title: "Things Change", kids_activity: "Make a 'letting go' lantern or paper boat", teen_title: "Letting Go" },
-  11: { kids_title: "Oops, I Made a Mistake", kids_activity: "Torn-paper repair craft — tear paper, then fix and decorate it", teen_title: "Shame vs. Guilt" },
+  11: { kids_title: "Oops, I Made a Mistake", kids_activity: "Torn-paper repair craft â€” tear paper, then fix and decorate it", teen_title: "Shame vs. Guilt" },
   12: { kids_title: "I Forgive Myself", kids_activity: "'I forgive myself for...' sentence starters on paper hearts", teen_title: "Forgiving Yourself" },
   13: { kids_title: "The Story I Keep Telling", kids_activity: "Draw the story you keep retelling in your head", teen_title: "Rewriting Old Stories" },
-  14: { kids_title: "Missing Someone", kids_activity: "Memory jar — write/draw what you love and miss, seal inside", teen_title: "Grief and Loss" },
-  // Movement 3 — Tend (Love Yourself)
-  15: { kids_title: "Resting Is Brave", kids_activity: "Rest collage — cut images of what real rest looks like for you", teen_title: "Rest Is Not Laziness" },
+  14: { kids_title: "Missing Someone", kids_activity: "Memory jar â€” write/draw what you love and miss, seal inside", teen_title: "Grief and Loss" },
+  // Movement 3 â€” Tend (Love Yourself)
+  15: { kids_title: "Resting Is Brave", kids_activity: "Rest collage â€” cut images of what real rest looks like for you", teen_title: "Rest Is Not Laziness" },
   16: { kids_title: "My Bully Brain", kids_activity: "Draw your inner critic as a funny cartoon character", teen_title: "The Inner Critic" },
-  17: { kids_title: "What Makes Me Laugh?", kids_activity: "Free play station — pure fun, no instructions", teen_title: "Joy and Play" },
+  17: { kids_title: "What Makes Me Laugh?", kids_activity: "Free play station â€” pure fun, no instructions", teen_title: "Joy and Play" },
   18: { kids_title: "I Can Say No", kids_activity: "Role-play: saying no kindly in different situations", teen_title: "Healthy Boundaries" },
-  19: { kids_title: "Being Kind to Myself", kids_activity: "Self-care bingo — fill in your own squares", teen_title: "Self-Compassion" },
-  20: { kids_title: "My Body Is Amazing", kids_activity: "Body gratitude — strike a pose, then draw what your body can do", teen_title: "Body Positivity" },
-  21: { kids_title: "Food and Feelings", kids_activity: "Sensory feast — taste, smell, texture exploration", teen_title: "Nourishment and Hunger" },
-  // Movement 4 — Open (Connect with Others)
-  22: { kids_title: "Someone Really Knows Me", kids_activity: "Pair share — tell a partner something almost no one else knows", teen_title: "Vulnerability and Being Known" },
-  23: { kids_title: "How Our Family Loves", kids_activity: "Family love languages chart — map how each person gives/receives love", teen_title: "Attachment and Love Styles" },
-  24: { kids_title: "Fighting Fair", kids_activity: "Drama scenario cards — act out healthy conflict resolution", teen_title: "Healthy Conflict" },
+  19: { kids_title: "Being Kind to Myself", kids_activity: "Self-care bingo â€” fill in your own squares", teen_title: "Self-Compassion" },
+  20: { kids_title: "My Body Is Amazing", kids_activity: "Body gratitude â€” strike a pose, then draw what your body can do", teen_title: "Body Positivity" },
+  21: { kids_title: "Food and Feelings", kids_activity: "Sensory feast â€” taste, smell, texture exploration", teen_title: "Nourishment and Hunger" },
+  // Movement 4 â€” Open (Connect with Others)
+  22: { kids_title: "Someone Really Knows Me", kids_activity: "Pair share â€” tell a partner something almost no one else knows", teen_title: "Vulnerability and Being Known" },
+  23: { kids_title: "How Our Family Loves", kids_activity: "Family love languages chart â€” map how each person gives/receives love", teen_title: "Attachment and Love Styles" },
+  24: { kids_title: "Fighting Fair", kids_activity: "Drama scenario cards â€” act out healthy conflict resolution", teen_title: "Healthy Conflict" },
   25: { kids_title: "We All Have Teachers", kids_activity: "Draw your ideal mentor or hero and what they'd say to you", teen_title: "Leadership and Mentorship" },
-  26: { kids_title: "Real Friends", kids_activity: "Sort friendship scenario cards — real friend or not?", teen_title: "True Friendship" },
-  27: { kids_title: "When I Help Too Much", kids_activity: "Helper or fixer? — discuss scenarios: when does helping hurt?", teen_title: "Helping vs. Enabling" },
-  28: { kids_title: "Our Circle", kids_activity: "Gratitude web — pass yarn across the circle, name something you're grateful for", teen_title: "Community and Belonging" },
+  26: { kids_title: "Real Friends", kids_activity: "Sort friendship scenario cards â€” real friend or not?", teen_title: "True Friendship" },
+  27: { kids_title: "When I Help Too Much", kids_activity: "Helper or fixer? â€” discuss scenarios: when does helping hurt?", teen_title: "Helping vs. Enabling" },
+  28: { kids_title: "Our Circle", kids_activity: "Gratitude web â€” pass yarn across the circle, name something you're grateful for", teen_title: "Community and Belonging" },
 };
 
 function extractVideoId(url: string): string | null {
@@ -134,7 +134,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
           >
             {sessions.map((s) => (
               <option key={s.id} value={s.id} className="bg-background">
-                Week {s.session_number} — {s.title}
+                Week {s.session_number} â€” {s.title}
               </option>
             ))}
           </select>
@@ -143,16 +143,16 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
       )}
 
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-8">Kids Session Planning</h1>
+        <h1 className="font-display text-2xl font-bold text-primary mb-8">Kids Session Planning</h1>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Little Ones Panel */}
           <div className="bg-foreground/[0.03] border border-foreground/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-5">
-              <span className="text-2xl">✦</span>
+              <span className="text-2xl">âœ¦</span>
               <div>
-                <h3 className="font-semibold text-foreground font-display">Little Ones</h3>
-                <p className="text-foreground/40 text-xs font-body">Ages 4–11</p>
+                <h3 className="font-semibold text-primary font-display">Little Ones</h3>
+                <p className="text-foreground/40 text-xs font-body">Ages 4â€“11</p>
               </div>
             </div>
 
@@ -173,7 +173,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
             <div className="space-y-4">
               <div>
                 <label className={labelClass}>Story / Film URL (YouTube)</label>
-                <input className={inputClass} type="url" value={littleOnes.video_url || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, video_url: e.target.value }))} placeholder="Paste YouTube URL — Pixar short, storybook..." />
+                <input className={inputClass} type="url" value={littleOnes.video_url || ""} onChange={(e) => setLittleOnes((p) => ({ ...p, video_url: e.target.value }))} placeholder="Paste YouTube URL â€” Pixar short, storybook..." />
                 {littleOnes.video_url && extractVideoId(littleOnes.video_url) && (
                   <div className="mt-2 aspect-video rounded-lg overflow-hidden">
                     <iframe src={`https://www.youtube.com/embed/${extractVideoId(littleOnes.video_url)}`} className="w-full h-full" allowFullScreen />
@@ -212,10 +212,10 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
           {/* Teens Panel */}
           <div className="bg-foreground/[0.03] border border-foreground/10 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-5">
-              <span className="text-2xl">◎</span>
+              <span className="text-2xl">â—Ž</span>
               <div>
-                <h3 className="font-semibold text-foreground font-display">Teens</h3>
-                <p className="text-foreground/40 text-xs font-body">Ages 12–24</p>
+                <h3 className="font-semibold text-primary font-display">Teens</h3>
+                <p className="text-foreground/40 text-xs font-body">Ages 12â€“24</p>
               </div>
             </div>
 
@@ -237,7 +237,7 @@ const AdminKids = ({ embedded = false }: { embedded?: boolean }) => {
                 )}
               </div>
               <button onClick={analyseTeen} disabled={analysingTeen || !teens.video_url} className="flex items-center gap-2 px-4 py-2 bg-foreground/10 text-foreground text-xs font-body rounded-lg hover:bg-foreground/15 disabled:opacity-30 transition-colors">
-                <Sparkles size={14} /> {analysingTeen ? "Analysing..." : "Analyse with AI — teen mode"}
+                <Sparkles size={14} /> {analysingTeen ? "Analysing..." : "Analyse with AI â€” teen mode"}
               </button>
               <div>
                 <label className={labelClass}>This week's theme</label>

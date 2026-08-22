@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import logoLight from "@/assets/logo-blue-wordmark.png";
@@ -72,7 +72,7 @@ const AuthShell = ({
       <div className="mx-auto flex w-full max-w-xl flex-1 items-center py-10 sm:py-14">
         <div className="w-full">
           <p className="portal-label mb-3">{eyebrow}</p>
-          <h1 className="font-serif text-4xl leading-tight text-foreground sm:text-5xl">{title}</h1>
+          <h1 className="font-serif text-4xl leading-tight text-primary sm:text-5xl">{title}</h1>
           <p className="mt-4 max-w-lg font-body text-sm leading-7 text-muted-foreground">{description}</p>
           <div className="mt-9">{children}</div>
         </div>

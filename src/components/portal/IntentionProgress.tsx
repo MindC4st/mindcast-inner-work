@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEntitlement } from "@/hooks/useEntitlement";
@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 // they got, week by week.
 //
 // Deliberately not a score. No average, no total out of 4, no trend line, no
-// streak, and no comparison to other members — a member looking at twenty weeks
+// streak, and no comparison to other members â€” a member looking at twenty weeks
 // of 1s and 2s would have been handed evidence they are failing, in a programme
 // whose whole premise is that noticing IS the win.
 //
@@ -17,7 +17,7 @@ import { Loader2 } from "lucide-react";
 // is true of everyone who keeps turning up, plus where their weeks actually
 // landed. Level 1 is a completed week, not a gap.
 //
-// Private by construction — my_intention_history is SECURITY DEFINER scoped to
+// Private by construction â€” my_intention_history is SECURITY DEFINER scoped to
 // current_profile_id(), so this can only ever return the caller's own rows. A
 // facilitator has no view of this anywhere.
 
@@ -61,8 +61,8 @@ const IntentionProgress = () => {
   if (rows.length === 0) {
     return (
       <div className="portal-card p-6 md:p-8">
-        <span className="portal-label text-foreground/40 block mb-2">NOTICE · NAME · DO</span>
-        <h2 className="heading-display text-lg text-foreground mb-2">Your weekly self-check</h2>
+        <span className="portal-label text-foreground/40 block mb-2">NOTICE Â· NAME Â· DO</span>
+        <h2 className="heading-display text-lg text-primary mb-2">Your weekly self-check</h2>
         <p className="text-sm text-muted-foreground font-body font-light leading-relaxed">
           Each Sunday you'll mark how far you got with the intention you set the week before.
           Once you've done that a few times, the pattern shows up here.
@@ -86,10 +86,10 @@ const IntentionProgress = () => {
 
   return (
     <div className="portal-card p-6 md:p-8">
-      <span className="portal-label text-foreground/40 block mb-2">NOTICE · NAME · DO</span>
-      <h2 className="heading-display text-lg text-foreground mb-1">Your weekly self-check</h2>
+      <span className="portal-label text-foreground/40 block mb-2">NOTICE Â· NAME Â· DO</span>
+      <h2 className="heading-display text-lg text-primary mb-1">Your weekly self-check</h2>
       <p className="text-sm text-muted-foreground font-body font-light mb-6">
-        {rows.length} {rows.length === 1 ? "week" : "weeks"} recorded · most often:{" "}
+        {rows.length} {rows.length === 1 ? "week" : "weeks"} recorded Â· most often:{" "}
         <span className="text-foreground">{mostCommon.label.toLowerCase()}</span>
       </p>
 
@@ -100,7 +100,7 @@ const IntentionProgress = () => {
           const rung = ladderRung(r.intention_outcome);
           return (
             <div key={r.week_number} className="flex-1 min-w-[6px] flex flex-col justify-end h-full"
-              title={`Week ${r.week_number} — ${ladderLabel(r.intention_outcome)}`}>
+              title={`Week ${r.week_number} â€” ${ladderLabel(r.intention_outcome)}`}>
               <div className={`w-full rounded-sm ${RUNG_COLOUR[rung]}`}
                 style={{ height: `${((rung + 1) / 4) * 100}%` }} />
             </div>
@@ -112,7 +112,7 @@ const IntentionProgress = () => {
         <span>Week {rows[rows.length - 1].week_number}</span>
       </div>
 
-      {/* Distribution — where the weeks actually landed. */}
+      {/* Distribution â€” where the weeks actually landed. */}
       <div className="space-y-2.5">
         {LADDER.map((rung, i) => (
           <div key={rung.value} className="flex items-center gap-3">

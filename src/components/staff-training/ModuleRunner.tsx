@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +29,7 @@ const Body = ({ text }: { text: string }) => (
           <ul key={i} className="space-y-1.5">
             {lines.map((l, j) => (
               <li key={j} className="flex gap-2 text-sm font-body text-foreground/80 leading-relaxed">
-                <span className="text-primary mt-0.5">·</span>{l.slice(2)}
+                <span className="text-primary mt-0.5">Â·</span>{l.slice(2)}
               </li>
             ))}
           </ul>
@@ -56,7 +56,7 @@ const ModuleRunner = () => {
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Documents referenced by this module (policy acknowledgements + any
-  // MC-XXX codes cited in lesson copy) — shown as clickable "read" links.
+  // MC-XXX codes cited in lesson copy) â€” shown as clickable "read" links.
   const referencedCodes = useMemo(() => {
     const codes = new Set<string>();
     checkpoints.forEach((c) => { if (c.policy_code) codes.add(c.policy_code); });
@@ -223,10 +223,10 @@ const ModuleRunner = () => {
       </Link>
 
       <p className="text-[10px] font-body tracking-[0.2em] uppercase text-muted-foreground mb-1">
-        Module {String(module.position).padStart(2, "0")} · {GATE_LABEL[module.gate]} ·{" "}
-        {ackOnly ? "Acknowledgement" : `${Math.round((module.pass_mark ?? 0) * 100)}% pass`} · v{module.version}
+        Module {String(module.position).padStart(2, "0")} Â· {GATE_LABEL[module.gate]} Â·{" "}
+        {ackOnly ? "Acknowledgement" : `${Math.round((module.pass_mark ?? 0) * 100)}% pass`} Â· v{module.version}
       </p>
-      <h2 className="font-display text-3xl text-foreground tracking-wider mb-6">{module.title}</h2>
+      <h2 className="font-display text-3xl text-primary tracking-wider mb-6">{module.title}</h2>
 
       {referencedCodes.length > 0 && (
         <div className="mb-6 rounded-lg border border-border bg-card p-4">
@@ -237,7 +237,7 @@ const ModuleRunner = () => {
               return (
                 <button key={code} onClick={() => setDocOpen(code)}
                   className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-xs font-body text-foreground hover:border-primary hover:text-primary transition-colors">
-                  <BookOpen size={13} /> {code} — {doc?.title || "document"}
+                  <BookOpen size={13} /> {code} â€” {doc?.title || "document"}
                 </button>
               );
             })}
@@ -259,7 +259,7 @@ const ModuleRunner = () => {
           <CheckCircle2 size={16} />
           <span>
             Completed {progress?.completed_at ? new Date(progress.completed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric" }) : ""} (v{progress?.module_version})
-            {progress?.expires_at && <> · due again {new Date(progress.expires_at).toLocaleDateString("en-NZ", { month: "long", year: "numeric" })}</>}.
+            {progress?.expires_at && <> Â· due again {new Date(progress.expires_at).toLocaleDateString("en-NZ", { month: "long", year: "numeric" })}</>}.
           </span>
         </div>
       )}
@@ -278,7 +278,7 @@ const ModuleRunner = () => {
           const lCps = checkpoints.filter((c) => c.lesson_id === lesson.id);
           return (
             <section key={lesson.id} className="rounded-lg border border-border bg-card p-5 md:p-6">
-              <h3 className="font-display text-xl text-foreground tracking-wider mb-3">{lesson.title}</h3>
+              <h3 className="font-display text-xl text-primary tracking-wider mb-3">{lesson.title}</h3>
               <Body text={lesson.body} />
               {lCps.length > 0 && (
                 <div className="mt-5 space-y-5">
@@ -305,7 +305,7 @@ const ModuleRunner = () => {
           <p className="text-[11px] font-body text-muted-foreground">
             {evaluation.missingCount === 0
               ? ackOnly ? "Everything is answered." : `Score so far is not shown until you submit.`
-              : `${evaluation.missingCount} checkpoint${evaluation.missingCount > 1 ? "s" : ""} to go — progress saves as you write.`}
+              : `${evaluation.missingCount} checkpoint${evaluation.missingCount > 1 ? "s" : ""} to go â€” progress saves as you write.`}
           </p>
           <button onClick={submit} disabled={submitting || !evaluation.complete}
             className="ml-auto flex items-center gap-2 px-5 py-2.5 rounded-md bg-primary text-primary-foreground text-xs font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
@@ -317,7 +317,7 @@ const ModuleRunner = () => {
 
       {feedback === "passed" && (
         <div className="mt-6 rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-body text-primary flex items-center gap-2">
-          <CheckCircle2 size={15} /> {ackOnly ? "Acknowledged — thank you. It is on record with the version and date." : "Passed — recorded with this module version."}
+          <CheckCircle2 size={15} /> {ackOnly ? "Acknowledged â€” thank you. It is on record with the version and date." : "Passed â€” recorded with this module version."}
         </div>
       )}
       {feedback === "failed" && (
@@ -334,13 +334,13 @@ const ModuleRunner = () => {
           <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setDocOpen(null)}>
             <div className="bg-background border border-border rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-start justify-between gap-4 mb-4">
-                <h3 className="font-display text-xl text-foreground">{doc.code} — {doc.title}</h3>
+                <h3 className="font-display text-xl text-primary">{doc.code} â€” {doc.title}</h3>
                 <button onClick={() => setDocOpen(null)} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
               </div>
               <div className="space-y-2">
                 {doc.body.split("\n").map((line, i) => {
-                  if (/^#+\s/.test(line)) return <h4 key={i} className="font-display text-lg text-foreground mt-4">{line.replace(/^#+\s*/, "")}</h4>;
-                  if (/^-\s/.test(line)) return <p key={i} className="text-sm font-body text-foreground/80 pl-3">· {line.slice(2)}</p>;
+                  if (/^#+\s/.test(line)) return <h4 key={i} className="font-display text-lg text-primary mt-4">{line.replace(/^#+\s*/, "")}</h4>;
+                  if (/^-\s/.test(line)) return <p key={i} className="text-sm font-body text-foreground/80 pl-3">Â· {line.slice(2)}</p>;
                   if (/^>\s?/.test(line)) return <p key={i} className="text-sm font-body italic text-muted-foreground border-l-2 border-primary/30 pl-3">{line.replace(/^>\s?/, "")}</p>;
                   if (line.trim() === "") return null;
                   return <p key={i} className="text-sm font-body text-foreground/80 leading-relaxed">{line}</p>;
@@ -366,7 +366,7 @@ const CheckpointInput = ({ cp, value, result, disabled, onChange }: {
         <span className="block text-[13px] font-body text-foreground mb-2 leading-relaxed">{cp.prompt}</span>
         <textarea value={(value as string) || ""} disabled={disabled} rows={4}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Write your answer — it stays private to you and the compliance view sees only that you completed it."
+          placeholder="Write your answer â€” it stays private to you and the compliance view sees only that you completed it."
           className={`w-full bg-transparent border rounded-md px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary resize-y ${ring || "border-border"}`} />
       </label>
     );

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { DobInput } from "./DobInput";
 import { GenderRadios } from "./GenderRadios";
 import { useApplyForm } from "@/hooks/useApplyForm";
@@ -9,7 +9,7 @@ const QUESTIONS = [
     key: "q1",
     label: "1.",
     text: "If money were no barrier, what would you actually be doing with your life?",
-    hint: "Don't tell us what sounds impressive. Describe what your days would look like — what you'd spend your time doing, and who with.",
+    hint: "Don't tell us what sounds impressive. Describe what your days would look like â€” what you'd spend your time doing, and who with.",
   },
   {
     key: "q2",
@@ -20,7 +20,7 @@ const QUESTIONS = [
   {
     key: "q3",
     label: "3.",
-    text: "Tell us about something you once believed you weren't the kind of person who could do — until you did it.",
+    text: "Tell us about something you once believed you weren't the kind of person who could do â€” until you did it.",
     hint: "",
   },
 ] as const;
@@ -60,11 +60,11 @@ export function ApplyForm({
 
   const ageBand = age !== null && age < 30 ? "under_30" : age !== null && age > 45 ? "over_45" : null;
 
-  // Confirmation replaces the form in place — no navigation, no toast.
+  // Confirmation replaces the form in place â€” no navigation, no toast.
   if (submitted) {
     return (
       <div className="w-full max-w-2xl mx-auto text-center py-16">
-        <h2 className="font-display text-5xl md:text-6xl text-foreground mb-6">
+        <h2 className="font-display text-5xl md:text-6xl text-primary mb-6">
           Thank you.
         </h2>
         <p className="font-serif italic text-2xl text-foreground/85 mb-8">
@@ -91,12 +91,12 @@ export function ApplyForm({
   if (isClosed) {
     return (
       <div className="w-full max-w-2xl mx-auto text-center py-12">
-        <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4">
+        <h2 className="font-display text-3xl md:text-4xl text-primary mb-4">
           Applications for the first pilot group have closed.
         </h2>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
           Nine people have been chosen and the group starts 13 October.
-          Other groups will follow once Mindcast is up and running — leave your email
+          Other groups will follow once Mindcast is up and running â€” leave your email
           and we'll let you know when the next one opens.
         </p>
         <InterestForm onSubmit={onShowInterest} />
@@ -120,10 +120,10 @@ export function ApplyForm({
       {/* Intro text */}
       <div className="space-y-3 text-left">
         <p className="font-medium text-foreground">
-          Ten Tuesday nights, 5.30–7.30pm, from 13 October 2026. 111 Jarden Mile, Taupō.
+          Ten Tuesday nights, 5.30â€“7.30pm, from 13 October 2026. 111 Jarden Mile, TaupÅ.
         </p>
         <p className="text-muted-foreground">
-          Nine places. No cost — what I'm asking for is your commitment and your honesty.
+          Nine places. No cost â€” what I'm asking for is your commitment and your honesty.
         </p>
         <p className="text-muted-foreground">
           This first group is for people aged 30 to 45.
@@ -238,8 +238,8 @@ export function ApplyForm({
           {age !== null && !errors.dob && (
             <p className="text-sm text-muted-foreground" aria-live="polite">
               You'll be {age} on 13 October 2026.
-              {age < 30 && " (under 30 — not eligible for this group)"}
-              {age > 45 && " (over 45 — not eligible for this group)"}
+              {age < 30 && " (under 30 â€” not eligible for this group)"}
+              {age > 45 && " (over 45 â€” not eligible for this group)"}
             </p>
           )}
         </div>
@@ -261,9 +261,9 @@ export function ApplyForm({
 
       {/* Three questions - Cormorant italic */}
       <div className="space-y-8 border-t border-border pt-8">
-        <h3 className="font-display text-2xl text-foreground">Your answers</h3>
+        <h3 className="font-display text-2xl text-primary">Your answers</h3>
         <p className="text-sm text-muted-foreground">
-          These are the poster's promise — the application really doesn't ask for a CV.
+          These are the poster's promise â€” the application really doesn't ask for a CV.
         </p>
 
         {QUESTIONS.map(({ key, label, text, hint }) => (
@@ -348,7 +348,7 @@ export function ApplyForm({
           disabled={isSubmitting}
           className="btn-filled w-full min-h-[56px] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Sending…" : "Submit application"}
+          {isSubmitting ? "Sendingâ€¦" : "Submit application"}
         </button>
       </div>
     </form>
@@ -381,7 +381,7 @@ function InterestForm({ onSubmit }: { onSubmit: (ageBand: "under_30" | "over_45"
         }
       );
       if (res.ok) {
-        setMessage({ type: "success", text: "Thanks — we'll let you know when the next group opens." });
+        setMessage({ type: "success", text: "Thanks â€” we'll let you know when the next group opens." });
         setEmail("");
       } else {
         const data = await res.json();
@@ -415,7 +415,7 @@ function InterestForm({ onSubmit }: { onSubmit: (ageBand: "under_30" | "over_45"
         disabled={submitting}
         className="btn-filled w-full min-h-[56px] disabled:opacity-50"
       >
-        {submitting ? "Sending…" : "Notify me"}
+        {submitting ? "Sendingâ€¦" : "Notify me"}
       </button>
       {message && (
         <p className={`text-sm text-center ${message.type === "success" ? "text-green-700" : "text-red-600"}`}>

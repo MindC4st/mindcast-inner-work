@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import {
   Download, Check, Copy, Facebook, Instagram, Linkedin, Mail, MessageCircle,
   Twitter, CalendarDays, Clapperboard,
@@ -13,31 +13,31 @@ import posterComeBack from "@/assets/marketing/social-come-back.png";
 import posterThoughtful from "@/assets/marketing/social-thoughtful-conversations.png";
 import posterOneCommunity from "@/assets/marketing/social-one-community.png";
 
-/* ── Asset content (Mindcast 52-week membership, Taupō NZ) ────────────── */
+/* â”€â”€ Asset content (Mindcast 52-week membership, TaupÅ NZ) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const FACEBOOK_POST = `Something a bit different today.
 
-I've spent the last year quietly building something called Mindcast — a facilitated 52-week journey for people who want more than another self-development app: real practice, real people, real change.
+I've spent the last year quietly building something called Mindcast â€” a facilitated 52-week journey for people who want more than another self-development app: real practice, real people, real change.
 
 Here's the honest truth: most of us consume incredible content and forget 90% of it by Thursday. Mindcast changes that by turning inner work into a weekly rhythm you actually keep.
 
 Every week you:
-🎬 Gather for a live Sunday session — one theme, on the big screen, together
-📝 Answer that week's reflection in your own private journal
-💬 Go deeper midweek in your Life Group
-🎯 Carry one small practice into your everyday life
+ðŸŽ¬ Gather for a live Sunday session â€” one theme, on the big screen, together
+ðŸ“ Answer that week's reflection in your own private journal
+ðŸ’¬ Go deeper midweek in your Life Group
+ðŸŽ¯ Carry one small practice into your everyday life
 
-It runs across three tracks — adults, teens and children — so the whole family can grow alongside each other.
+It runs across three tracks â€” adults, teens and children â€” so the whole family can grow alongside each other.
 
-Membership is open now here in Taupō. You move through all 52 weeks at your own pace, with a community walking it beside you.
+Membership is open now here in TaupÅ. You move through all 52 weeks at your own pace, with a community walking it beside you.
 
 No experience needed. No guru energy. Just honest humans doing the inner work, together.
 
 Interested? Drop a comment or send me a message.
 
-#Mindcast #InnerWork #Taupō #PersonalGrowth #NewZealand #CommunityFirst #MindcastNZ`;
+#Mindcast #InnerWork #TaupÅ #PersonalGrowth #NewZealand #CommunityFirst #MindcastNZ`;
 
-const INSTAGRAM_CAPTION = `What if you actually remembered — and lived — the things you learn?
+const INSTAGRAM_CAPTION = `What if you actually remembered â€” and lived â€” the things you learn?
 
 Mindcast is a facilitated 52-week journey that turns passive listening into real change. Each week: a live Sunday session, a private reflection, and a midweek Life Group.
 
@@ -45,9 +45,9 @@ Adults, teens and kids each have their own track, so the whole family grows toge
 
 This isn't another app. It's a room full of people who show up for each other.
 
-Link in bio to become a member 🤍
+Link in bio to become a member ðŸ¤
 
-#Mindcast #MindcastNZ #InnerWork #Taupō #PersonalDevelopment #CommunityOverContent #NoticeItNameItDoIt #NewZealand #WeeklyPractice #GroupGrowth #MindfulLiving #NZLife`;
+#Mindcast #MindcastNZ #InnerWork #TaupÅ #PersonalDevelopment #CommunityOverContent #NoticeItNameItDoIt #NewZealand #WeeklyPractice #GroupGrowth #MindfulLiving #NZLife`;
 
 const STORY_SCRIPT = `SLIDE 1:
 You learn something powerful every week.
@@ -63,7 +63,7 @@ Gather. Reflect. Go deeper. Live it.
 A 52-week journey with a real community.
 
 SLIDE 4:
-Live Sunday sessions in Taupō.
+Live Sunday sessions in TaupÅ.
 Adults, teens and kids each have a track.
 
 SLIDE 5:
@@ -74,47 +74,47 @@ doing the work, together.`;
 
 const LINKEDIN_POST = `I've been thinking a lot about why smart, motivated people still struggle to change.
 
-It's not a knowledge problem — we have more access to brilliant ideas than ever. The content is extraordinary.
+It's not a knowledge problem â€” we have more access to brilliant ideas than ever. The content is extraordinary.
 
 The problem is implementation. We learn alone, we forget fast, and we move on without ever sitting with what we heard.
 
 That's why I built Mindcast.
 
-It's a facilitated 52-week journey — part live gathering, part reflection practice, part accountability circle. Every week, a community meets for a live Sunday session on one theme, reflects privately in their own journal, and goes deeper together in a midweek Life Group. Adults, teens and children each have their own parallel track.
+It's a facilitated 52-week journey â€” part live gathering, part reflection practice, part accountability circle. Every week, a community meets for a live Sunday session on one theme, reflects privately in their own journal, and goes deeper together in a midweek Life Group. Adults, teens and children each have their own parallel track.
 
 The methodology is simple: Notice what's happening inside you. Name it out loud. Then do one thing about it. Quietly radical.
 
-Membership is open now here in Taupō, New Zealand — a full 52-week journey with a community walking it beside you.
+Membership is open now here in TaupÅ, New Zealand â€” a full 52-week journey with a community walking it beside you.
 
-No self-help clichés. No guru energy. Just a room full of people committed to doing the inner work — together.
+No self-help clichÃ©s. No guru energy. Just a room full of people committed to doing the inner work â€” together.
 
 If this sounds like something you've been looking for, I'd love to hear from you.
 
-— Ashleigh Carlson, Founder of Mindcast
+â€” Ashleigh Carlson, Founder of Mindcast
 
-#Mindcast #InnerWork #PersonalGrowth #Taupō`;
+#Mindcast #InnerWork #PersonalGrowth #TaupÅ`;
 
 const OUTREACH_DM = `Hey [NAME],
 
 I wanted to reach out personally because I think you'd be a great fit for something I'm building.
 
-It's called Mindcast — a facilitated 52-week journey where a community meets for a live Sunday session, reflects privately through the week, and goes deeper together in a midweek Life Group.
+It's called Mindcast â€” a facilitated 52-week journey where a community meets for a live Sunday session, reflects privately through the week, and goes deeper together in a midweek Life Group.
 
-Membership is open now here in Taupō, with tracks for adults, teens and kids. No pressure at all — just thought of you and wanted to share.
+Membership is open now here in TaupÅ, with tracks for adults, teens and kids. No pressure at all â€” just thought of you and wanted to share.
 
 Happy to tell you more if you're curious. Hope you're well!
 
 Ashleigh`;
 
-const EMAIL_TEMPLATE = `Subject: Something I'm building — thought you might be interested
+const EMAIL_TEMPLATE = `Subject: Something I'm building â€” thought you might be interested
 
 Hi there,
 
 I wanted to share something I've been quietly working on.
 
-Mindcast is a facilitated 52-week journey for people who want more than passive self-development — built around a simple methodology: Notice It. Name It. Do It.
+Mindcast is a facilitated 52-week journey for people who want more than passive self-development â€” built around a simple methodology: Notice It. Name It. Do It.
 
-Membership is open now in Taupō. Here's what each week looks like:
+Membership is open now in TaupÅ. Here's what each week looks like:
 
 - A live Sunday session on one theme, together on the big screen
 - A private reflection you keep in your own journal
@@ -123,7 +123,7 @@ Membership is open now in Taupō. Here's what each week looks like:
 - Parallel tracks for adults, teens and children
 - Access to the Mindcast member portal
 
-This isn't about fixing anyone. It's about creating a space where people can show up, reflect, and grow — at their own pace, with real support.
+This isn't about fixing anyone. It's about creating a space where people can show up, reflect, and grow â€” at their own pace, with real support.
 
 If this resonates, I'd love to have you join. Just reply to this email or visit mindcast.co.nz to learn more.
 
@@ -131,17 +131,17 @@ Warm regards,
 Ashleigh Carlson
 Founder, Mindcast`;
 
-const TWITTER_THREAD = `1/ You learn brilliant ideas every week. You nod along. And then… nothing changes. Sound familiar?
+const TWITTER_THREAD = `1/ You learn brilliant ideas every week. You nod along. And thenâ€¦ nothing changes. Sound familiar?
 
 2/ Mindcast fixes that. A facilitated 52-week journey: a live Sunday session, a private reflection, and a midweek Life Group. Simple. Structured. Powerful.
 
-3/ It runs in Taupō, NZ, with parallel tracks for adults, teens and children — the whole family grows together.
+3/ It runs in TaupÅ, NZ, with parallel tracks for adults, teens and children â€” the whole family grows together.
 
 4/ This is for anyone tired of consuming self-development content without actually developing. No guru energy. No fluff. Just honest humans doing the inner work.
 
 5/ Want in? DM me or head to mindcast.co.nz. Let's do this together.`;
 
-/* ── Copy kit definitions ──────────────────────────────────────────────── */
+/* â”€â”€ Copy kit definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 interface Asset {
   title: string;
@@ -211,7 +211,7 @@ const assets: Asset[] = [
   },
 ];
 
-/* ── Figma poster designs (Campaign 08) ────────────────────────────────── */
+/* â”€â”€ Figma poster designs (Campaign 08) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 interface Poster {
   headline: string;
@@ -225,21 +225,21 @@ const POSTERS: Poster[] = [
   {
     headline: "Sunday is free.",
     subtitle: "Every week. No cost. No catch.",
-    caption: `Sunday is free. Every week. No cost. No catch. Come and see what Mindcast feels like — one theme, on the big screen, together. #Mindcast #MindcastNZ #InnerWork #Taupō`,
+    caption: `Sunday is free. Every week. No cost. No catch. Come and see what Mindcast feels like â€” one theme, on the big screen, together. #Mindcast #MindcastNZ #InnerWork #TaupÅ`,
     filename: "mindcast-social-sunday-is-free.png",
     src: posterSundayIsFree,
   },
   {
     headline: "Your kids are in the next room.",
     subtitle: "They learn while you grow.",
-    caption: `Your kids are in the next room. They learn while you grow. One Sunday, the whole family doing the inner work — each in their own track. #Mindcast #MindcastNZ #FamilyGrowth #Taupō`,
+    caption: `Your kids are in the next room. They learn while you grow. One Sunday, the whole family doing the inner work â€” each in their own track. #Mindcast #MindcastNZ #FamilyGrowth #TaupÅ`,
     filename: "mindcast-social-kids-next-room.png",
     src: posterKidsNextRoom,
   },
   {
     headline: "No phones. Real talk.",
     subtitle: "Teens at Mindcast",
-    caption: `No phones. Real talk. Teens at Mindcast get a room of their own — honest conversations, zero cringe. #Mindcast #MindcastNZ #RealTalk #Teens`,
+    caption: `No phones. Real talk. Teens at Mindcast get a room of their own â€” honest conversations, zero cringe. #Mindcast #MindcastNZ #RealTalk #Teens`,
     filename: "mindcast-social-no-phones.png",
     src: posterNoPhones,
   },
@@ -252,23 +252,23 @@ const POSTERS: Poster[] = [
   },
   {
     headline: "Thoughtful conversations.",
-    subtitle: "Every Sunday in Taupō",
-    caption: `Thoughtful conversations. Every Sunday in Taupō. Not another app — a room full of people who show up for each other. #Mindcast #MindcastNZ #Community #Taupō`,
+    subtitle: "Every Sunday in TaupÅ",
+    caption: `Thoughtful conversations. Every Sunday in TaupÅ. Not another app â€” a room full of people who show up for each other. #Mindcast #MindcastNZ #Community #TaupÅ`,
     filename: "mindcast-social-thoughtful-conversations.png",
     src: posterThoughtful,
   },
   {
     headline: "One community. Many rooms.",
     subtitle: "Adults connect. Teens belong. Children play.",
-    caption: `One community. Many rooms. Adults connect. Teens belong. Children play. One theme every week, for the whole family. #Mindcast #MindcastNZ #OneCommunity #Taupō`,
+    caption: `One community. Many rooms. Adults connect. Teens belong. Children play. One theme every week, for the whole family. #Mindcast #MindcastNZ #OneCommunity #TaupÅ`,
     filename: "mindcast-social-one-community.png",
     src: posterOneCommunity,
   },
 ];
 
-const THREE_TRACKS_CAPTION = `Adults connect. Teens belong. Children play. Three tracks. One theme. One community. Membership is open now in Taupō. #Mindcast #MindcastNZ #InnerWork #Taupō`;
+const THREE_TRACKS_CAPTION = `Adults connect. Teens belong. Children play. Three tracks. One theme. One community. Membership is open now in TaupÅ. #Mindcast #MindcastNZ #InnerWork #TaupÅ`;
 
-/* ── Social content calendar ───────────────────────────────────────────── */
+/* â”€â”€ Social content calendar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 interface CalendarEntry {
   day: string;
@@ -289,29 +289,29 @@ const CALENDAR: CalendarWeek[] = [
     label: "Week 1",
     theme: "Awareness",
     entries: [
-      { day: "Mon", platform: "Instagram", icon: Instagram, title: "One community. Many rooms.", detail: "Poster + caption — introduce the three tracks." },
-      { day: "Tue", platform: "Facebook", icon: Facebook, title: "Facebook post", detail: "Copy kit — founder-voice intro post." },
-      { day: "Wed", platform: "Instagram", icon: Instagram, title: "Thoughtful conversations.", detail: "Poster + caption — Sunday sessions in Taupō." },
-      { day: "Thu", platform: "DM / Text", icon: MessageCircle, title: "Personal outreach", detail: "Copy kit — send to your first 20 names." },
-      { day: "Fri", platform: "Stories", icon: Instagram, title: "Instagram story script", detail: "Copy kit — 5 slides, run the poll + question box." },
+      { day: "Mon", platform: "Instagram", icon: Instagram, title: "One community. Many rooms.", detail: "Poster + caption â€” introduce the three tracks." },
+      { day: "Tue", platform: "Facebook", icon: Facebook, title: "Facebook post", detail: "Copy kit â€” founder-voice intro post." },
+      { day: "Wed", platform: "Instagram", icon: Instagram, title: "Thoughtful conversations.", detail: "Poster + caption â€” Sunday sessions in TaupÅ." },
+      { day: "Thu", platform: "DM / Text", icon: MessageCircle, title: "Personal outreach", detail: "Copy kit â€” send to your first 20 names." },
+      { day: "Fri", platform: "Stories", icon: Instagram, title: "Instagram story script", detail: "Copy kit â€” 5 slides, run the poll + question box." },
     ],
   },
   {
     label: "Week 2",
     theme: "Launch",
     entries: [
-      { day: "Mon", platform: "Instagram", icon: Instagram, title: "Sunday is free.", detail: "Poster + caption — open invite to come and see." },
-      { day: "Tue", platform: "LinkedIn", icon: Linkedin, title: "LinkedIn post", detail: "Copy kit — professional pivot angle." },
-      { day: "Wed", platform: "Instagram", icon: Instagram, title: "No phones. Real talk.", detail: "Poster + caption — teen track spotlight." },
-      { day: "Thu", platform: "Instagram", icon: Instagram, title: "Your kids are in the next room.", detail: "Poster + caption — children track spotlight." },
-      { day: "Fri", platform: "Email", icon: Mail, title: "Email template", detail: "Copy kit — send to your list." },
-      { day: "Sat", platform: "Twitter / X", icon: Twitter, title: "Twitter thread", detail: "Copy kit — 5 tweets." },
-      { day: "Sun", platform: "In person", icon: Clapperboard, title: "Live Sunday session", detail: "Run the session — post “Come back in seven days.” on Monday." },
+      { day: "Mon", platform: "Instagram", icon: Instagram, title: "Sunday is free.", detail: "Poster + caption â€” open invite to come and see." },
+      { day: "Tue", platform: "LinkedIn", icon: Linkedin, title: "LinkedIn post", detail: "Copy kit â€” professional pivot angle." },
+      { day: "Wed", platform: "Instagram", icon: Instagram, title: "No phones. Real talk.", detail: "Poster + caption â€” teen track spotlight." },
+      { day: "Thu", platform: "Instagram", icon: Instagram, title: "Your kids are in the next room.", detail: "Poster + caption â€” children track spotlight." },
+      { day: "Fri", platform: "Email", icon: Mail, title: "Email template", detail: "Copy kit â€” send to your list." },
+      { day: "Sat", platform: "Twitter / X", icon: Twitter, title: "Twitter thread", detail: "Copy kit â€” 5 tweets." },
+      { day: "Sun", platform: "In person", icon: Clapperboard, title: "Live Sunday session", detail: "Run the session â€” post â€œCome back in seven days.â€ on Monday." },
     ],
   },
 ];
 
-/* ── Helpers ───────────────────────────────────────────────────────────── */
+/* â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 function downloadFile(filename: string, content: string) {
   const blob = new Blob([content], { type: "text/plain" });
@@ -339,7 +339,7 @@ async function copyText(text: string, label: string) {
   }
 }
 
-/* ── Copy kit card ─────────────────────────────────────────────────────── */
+/* â”€â”€ Copy kit card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const AssetCard = ({ asset }: { asset: Asset }) => {
   const [downloaded, setDownloaded] = useState(false);
@@ -355,7 +355,7 @@ const AssetCard = ({ asset }: { asset: Asset }) => {
   return (
     <div className="bg-card border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-body font-bold text-foreground text-base">{asset.title}</h3>
+        <h3 className="font-body font-bold text-primary text-base">{asset.title}</h3>
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] tracking-[0.15em] font-semibold uppercase font-body">
           {asset.icon}
           {asset.platform}
@@ -394,14 +394,14 @@ const AssetCard = ({ asset }: { asset: Asset }) => {
   );
 };
 
-/* ── Poster card ───────────────────────────────────────────────────────── */
+/* â”€â”€ Poster card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 const PosterCard = ({ poster }: { poster: Poster }) => (
   <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col">
     <img src={poster.src} alt={poster.headline} className="w-full aspect-[4/5] object-cover" />
     <div className="p-5 flex flex-col gap-3">
       <div>
-        <h3 className="font-display text-xl text-foreground tracking-wide">{poster.headline}</h3>
+        <h3 className="font-display text-xl text-primary tracking-wide">{poster.headline}</h3>
         <p className="text-[11px] font-body text-muted-foreground mt-0.5">{poster.subtitle}</p>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -424,7 +424,7 @@ const PosterCard = ({ poster }: { poster: Poster }) => (
   </div>
 );
 
-/* ── Tab ───────────────────────────────────────────────────────────────── */
+/* â”€â”€ Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 type SubTab = "calendar" | "designs" | "copy";
 
@@ -440,9 +440,9 @@ const Marketing = () => {
   return (
     <div className="space-y-6 max-w-5xl">
       <div>
-        <h2 className="font-display text-2xl text-foreground tracking-wider">Marketing</h2>
+        <h2 className="font-display text-2xl text-primary tracking-wider">Marketing</h2>
         <p className="text-muted-foreground text-sm font-body mt-1">
-          Campaign 08 asset library — the social content calendar, Figma posters and the ready-to-post copy kit. In-house only, not public facing.
+          Campaign 08 asset library â€” the social content calendar, Figma posters and the ready-to-post copy kit. In-house only, not public facing.
         </p>
       </div>
 
@@ -460,7 +460,7 @@ const Marketing = () => {
           {CALENDAR.map((week) => (
             <div key={week.label}>
               <div className="flex items-baseline gap-3 mb-3">
-                <h3 className="font-body font-bold text-foreground text-sm">{week.label}</h3>
+                <h3 className="font-body font-bold text-primary text-sm">{week.label}</h3>
                 <span className="text-[10px] font-body tracking-[0.2em] uppercase text-primary">{week.theme}</span>
               </div>
               <div className="rounded-lg border border-border bg-card divide-y divide-border">
@@ -494,8 +494,8 @@ const Marketing = () => {
               <ThreeTracksCampaign />
               <div className="p-5 flex flex-col gap-3">
                 <div>
-                  <h3 className="font-display text-xl text-foreground tracking-wide">Three tracks. One theme. One community.</h3>
-                  <p className="text-[11px] font-body text-muted-foreground mt-0.5">Live component — scales to any width.</p>
+                  <h3 className="font-display text-xl text-primary tracking-wide">Three tracks. One theme. One community.</h3>
+                  <p className="text-[11px] font-body text-muted-foreground mt-0.5">Live component â€” scales to any width.</p>
                 </div>
                 <button
                   onClick={() => copyText(THREE_TRACKS_CAPTION, "Caption")}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CircleAlert, Loader2, LockKeyhole } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,14 +58,14 @@ const ResetPassword = () => {
     <AuthShell
       eyebrow="Account recovery"
       title="Choose a new password."
-      description="Create a password you don’t use elsewhere. Once it’s saved, you can return to your member space."
+      description="Create a password you donâ€™t use elsewhere. Once itâ€™s saved, you can return to your member space."
       asideTitle="A simple way back into your Mindcast space."
       asideCopy="Reset links are temporary and can only be used to update the account they were sent to."
     >
       {status === "checking" && (
         <div className="flex min-h-40 items-center justify-center rounded-2xl border border-foreground/[0.08] bg-white" role="status">
           <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
-          <span className="ml-3 font-body text-sm text-muted-foreground">Verifying your reset link…</span>
+          <span className="ml-3 font-body text-sm text-muted-foreground">Verifying your reset linkâ€¦</span>
         </div>
       )}
 
@@ -76,7 +76,7 @@ const ResetPassword = () => {
               <CircleAlert className="h-4 w-4" aria-hidden="true" />
             </span>
             <div>
-              <h2 className="font-body text-sm font-semibold text-foreground">This reset link is no longer active</h2>
+              <h2 className="font-body text-sm font-semibold text-primary">This reset link is no longer active</h2>
               <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">
                 It may have expired or already been used. Return to sign in and request a fresh link.
               </p>
@@ -121,7 +121,7 @@ const ResetPassword = () => {
           />
           <button type="submit" disabled={loading} className={`${authPrimaryButtonClass} mt-2`}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {loading ? "Updating password…" : "Update password"}
+            {loading ? "Updating passwordâ€¦" : "Update password"}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </button>
         </form>

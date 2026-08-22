@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ const STATUS_STYLES: Record<string, { dot: string; label: string }> = {
   achieved: { dot: "bg-foreground", label: "Achieved" },
   in_progress: { dot: "bg-foreground/50", label: "In Progress" },
   carried_forward: { dot: "bg-foreground/30", label: "Carried Fwd" },
-  not_started: { dot: "bg-foreground/[0.1]", label: "—" },
+  not_started: { dot: "bg-foreground/[0.1]", label: "â€”" },
 };
 
 const MemberManager = () => {
@@ -106,7 +106,7 @@ const MemberManager = () => {
     });
   };
 
-  // ─── Member detail view ───
+  // â”€â”€â”€ Member detail view â”€â”€â”€
   if (selected && detail) {
     const commitByWeek: Record<number, Tables<"commitments">> = {};
     detail.commitments.forEach(c => { commitByWeek[c.week_number] = c; });
@@ -119,7 +119,7 @@ const MemberManager = () => {
           onClick={() => { setSelected(null); setDetail(null); }}
           className="text-[11px] text-muted-foreground tracking-[0.1em] hover:text-foreground mb-5 inline-flex items-center gap-1 font-body transition-colors"
         >
-          ← Back to members
+          â† Back to members
         </button>
 
         <div className="flex items-center gap-4 mb-8">
@@ -128,11 +128,11 @@ const MemberManager = () => {
           </div>
           <div>
             <h2 className="portal-heading text-xl">{selected.name}</h2>
-            <p className="portal-label text-[9px]">{selected.role} · {selected.isActive ? "Active" : "Inactive"}</p>
+            <p className="portal-label text-[9px]">{selected.role} Â· {selected.isActive ? "Active" : "Inactive"}</p>
           </div>
         </div>
 
-        {/* ── Implementation Goals Table ── */}
+        {/* â”€â”€ Implementation Goals Table â”€â”€ */}
         <div className="portal-card mb-6">
           <div className="px-5 py-3 border-b border-foreground/[0.06]">
             <h3 className="portal-label">Implementation Goals & Check-ins</h3>
@@ -159,7 +159,7 @@ const MemberManager = () => {
                         {comm?.commitment_text ? (
                           <p className="text-xs text-foreground/70 font-light italic leading-relaxed">"{comm.commitment_text}"</p>
                         ) : (
-                          <span className="text-xs text-muted-foreground/30">—</span>
+                          <span className="text-xs text-muted-foreground/30">â€”</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -172,7 +172,7 @@ const MemberManager = () => {
                         {chk?.what_happened ? (
                           <p className="text-xs text-foreground/50 font-light leading-relaxed">{chk.what_happened}</p>
                         ) : (
-                          <span className="text-xs text-muted-foreground/30">—</span>
+                          <span className="text-xs text-muted-foreground/30">â€”</span>
                         )}
                       </td>
                     </tr>
@@ -218,7 +218,7 @@ const MemberManager = () => {
                   <span className="portal-label text-[9px]">Week {e.week_number}</span>
                   <span className="text-[9px] text-foreground/20 font-body">{e.question_key}</span>
                 </div>
-                <p className="text-xs text-foreground/70 font-body font-light">{e.answer_text || "—"}</p>
+                <p className="text-xs text-foreground/70 font-body font-light">{e.answer_text || "â€”"}</p>
               </div>
             ))}
           </div>
@@ -227,7 +227,7 @@ const MemberManager = () => {
     );
   }
 
-  // ─── Members list ───
+  // â”€â”€â”€ Members list â”€â”€â”€
   return (
     <div>
       <h2 className="portal-heading text-2xl mb-6">Members</h2>
@@ -242,7 +242,7 @@ const MemberManager = () => {
                   <User size={14} className={m.isActive ? "text-foreground/30" : "text-foreground/15"} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h3 className="font-serif text-sm text-foreground">{m.name}</h3>
+                  <h3 className="font-serif text-sm text-primary">{m.name}</h3>
                   <div className="flex items-center gap-3 mt-0.5">
                     <span className="text-[9px] text-muted-foreground/40 font-body">{m.role}</span>
                     <span className="text-[9px] text-muted-foreground/30 font-body">{m.entriesCount} entries</span>

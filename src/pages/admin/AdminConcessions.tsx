@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { HandHeart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
-// Concession queue — one step requested, no explanation asked (the schema has
+// Concession queue â€” one step requested, no explanation asked (the schema has
 // nowhere to store one). Approve applies the status here; the concession rate
 // itself is then applied to their subscription in Stripe. Concession status is
 // never shown anywhere a member could see it.
@@ -87,21 +87,21 @@ const AdminConcessions = ({ embedded = false }: { embedded?: boolean }) => {
 
   return (
     <div className={embedded ? "" : "p-8"}>
-      <h2 className="font-display text-2xl tracking-wider text-foreground flex items-center gap-2 mb-1">
+      <h2 className="font-display text-2xl tracking-wider text-primary flex items-center gap-2 mb-1">
         <HandHeart size={20} className="text-primary" /> CONCESSION PLACES
       </h2>
       <p className="text-xs text-muted-foreground font-body mb-6 max-w-2xl leading-relaxed">
-        Requested in one step from the membership page. No reason is collected and none is needed —
+        Requested in one step from the membership page. No reason is collected and none is needed â€”
         approve or decline, then apply the concession rate in Stripe. Status here is never visible
         to members.
       </p>
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse">Loading…</p>
+        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse">Loadingâ€¦</p>
       ) : (
         <div className="space-y-8">
           <section>
-            <h3 className="text-[10px] font-body tracking-[0.25em] uppercase text-foreground/60 mb-3">
+            <h3 className="text-[10px] font-body tracking-[0.25em] uppercase text-primary/60 mb-3">
               Waiting ({waiting.length})
             </h3>
             {waiting.length === 0 ? (
@@ -113,7 +113,7 @@ const AdminConcessions = ({ embedded = false }: { embedded?: boolean }) => {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-body font-semibold text-foreground truncate">{r.name}</p>
                       <p className="text-xs text-muted-foreground font-body truncate">
-                        {r.email} · requested {fmt(r.requested_at)}
+                        {r.email} Â· requested {fmt(r.requested_at)}
                       </p>
                     </div>
                     <button onClick={() => void decide(r, "active")} className={`${btn} bg-primary text-primary-foreground hover:bg-primary/90`}>
@@ -129,7 +129,7 @@ const AdminConcessions = ({ embedded = false }: { embedded?: boolean }) => {
           </section>
 
           <section>
-            <h3 className="text-[10px] font-body tracking-[0.25em] uppercase text-foreground/60 mb-3">
+            <h3 className="text-[10px] font-body tracking-[0.25em] uppercase text-primary/60 mb-3">
               Active ({active.length})
             </h3>
             {active.length === 0 ? (
@@ -141,7 +141,7 @@ const AdminConcessions = ({ embedded = false }: { embedded?: boolean }) => {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-body font-semibold text-foreground truncate">{r.name}</p>
                       <p className="text-xs text-muted-foreground font-body truncate">
-                        {r.email} · active since {r.decided_at ? fmt(r.decided_at) : fmt(r.requested_at)}
+                        {r.email} Â· active since {r.decided_at ? fmt(r.decided_at) : fmt(r.requested_at)}
                       </p>
                     </div>
                     <button onClick={() => void decide(r, "ended")} className={`${btn} border border-border text-muted-foreground hover:text-foreground`}>
@@ -155,14 +155,14 @@ const AdminConcessions = ({ embedded = false }: { embedded?: boolean }) => {
 
           {past.length > 0 && (
             <section>
-              <h3 className="text-[10px] font-body tracking-[0.25em] uppercase text-foreground/60 mb-3">
+              <h3 className="text-[10px] font-body tracking-[0.25em] uppercase text-primary/60 mb-3">
                 Past ({past.length})
               </h3>
               <ul className="space-y-1">
                 {past.map((r) => (
                   <li key={r.id} className="flex items-center justify-between gap-3 px-4 py-2">
                     <p className="text-xs font-body text-muted-foreground truncate">
-                      {r.name} · {r.status} {r.decided_at ? `· ${fmt(r.decided_at)}` : ""}
+                      {r.name} Â· {r.status} {r.decided_at ? `Â· ${fmt(r.decided_at)}` : ""}
                     </p>
                   </li>
                 ))}

@@ -1,6 +1,6 @@
-// CommerceProducts — catalogue management for commerce admins.
+﻿// CommerceProducts â€” catalogue management for commerce admins.
 // Create / edit / archive products and their variants; images are URLs in the
-// assets bucket (upload via any storage tool — the field takes the public URL).
+// assets bucket (upload via any storage tool â€” the field takes the public URL).
 // Every change is audited by the shop-products-admin function.
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,7 +128,7 @@ const CommerceProducts = () => {
     <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-2xl tracking-wider text-foreground mb-1">PRODUCTS</h2>
+          <h2 className="font-display text-2xl tracking-wider text-primary mb-1">PRODUCTS</h2>
           <p className="text-sm text-muted-foreground">Draft products never appear publicly.</p>
         </div>
         <button onClick={() => setEditing({ ...EMPTY })}
@@ -138,7 +138,7 @@ const CommerceProducts = () => {
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
       ) : (
         <div className="border border-border rounded-xl overflow-x-auto bg-card">
           <table className="w-full min-w-[820px] text-sm">
@@ -159,12 +159,12 @@ const CommerceProducts = () => {
                     <div className="flex items-center gap-3">
                       {p.image_url && <img src={p.image_url} alt="" className="w-10 h-10 object-cover rounded-sm" />}
                       <div>
-                        <p className="font-semibold">{p.name}{p.featured ? " ★" : ""}</p>
+                        <p className="font-semibold">{p.name}{p.featured ? " â˜…" : ""}</p>
                         <p className="text-[11px] text-muted-foreground">/{p.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.sku || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.sku || "â€”"}</td>
                   <td className="px-4 py-3 text-right">{formatMoney(p.price_cents)}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 text-[10px] tracking-widest uppercase rounded-sm border ${
@@ -219,7 +219,7 @@ const ProductEditor = ({ product, busy, onChange, onSave, onClose, call, onSaved
       <div className="absolute inset-0 bg-foreground/30" onClick={onClose} />
       <div className="relative w-full max-w-lg h-full bg-card border-l border-border overflow-y-auto p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-xl tracking-wider text-foreground">{product.id ? "EDIT PRODUCT" : "NEW PRODUCT"}</h3>
+          <h3 className="font-display text-xl tracking-wider text-primary">{product.id ? "EDIT PRODUCT" : "NEW PRODUCT"}</h3>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
         </div>
 
@@ -253,7 +253,7 @@ const ProductEditor = ({ product, busy, onChange, onSave, onClose, call, onSaved
         </Field>
         <div className="grid grid-cols-3 gap-3">
           <Field label="Weight (g)"><input className={inputCls} value={product.weight_g ?? ""} onChange={(e) => set("weight_g", e.target.value ? Number(e.target.value) : null)} /></Field>
-          <Field label="Dimensions"><input className={inputCls} value={product.dimensions_mm || ""} onChange={(e) => set("dimensions_mm", e.target.value)} placeholder="210×148×10 mm" /></Field>
+          <Field label="Dimensions"><input className={inputCls} value={product.dimensions_mm || ""} onChange={(e) => set("dimensions_mm", e.target.value)} placeholder="210Ã—148Ã—10 mm" /></Field>
           <Field label="Materials"><input className={inputCls} value={product.materials || ""} onChange={(e) => set("materials", e.target.value)} /></Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -329,8 +329,8 @@ const VariantManager = ({ productId, call, onSaved }: {
       {variants.map((v) => (
         <div key={v.id} className="flex items-center gap-2 text-sm">
           {v.image_url && <img src={v.image_url} alt="" className="w-6 h-6 object-cover rounded-sm border border-border" />}
-          <span className="flex-1">{v.name}{v.sku ? <span className="text-muted-foreground text-xs"> · {v.sku}</span> : ""}</span>
-          <span className="text-muted-foreground">stock {v.stock_available}{v.price_override_cents != null ? ` · ${formatMoney(v.price_override_cents)}` : ""}</span>
+          <span className="flex-1">{v.name}{v.sku ? <span className="text-muted-foreground text-xs"> Â· {v.sku}</span> : ""}</span>
+          <span className="text-muted-foreground">stock {v.stock_available}{v.price_override_cents != null ? ` Â· ${formatMoney(v.price_override_cents)}` : ""}</span>
         </div>
       ))}
       <div className="grid grid-cols-3 gap-2 pt-2">

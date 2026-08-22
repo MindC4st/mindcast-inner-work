@@ -1,4 +1,4 @@
-import { Clock3, Mail, MapPin, ShieldAlert } from "lucide-react";
+﻿import { Clock3, Mail, MapPin, ShieldAlert } from "lucide-react";
 import { LegalPage } from "@/components/legal/LegalPage";
 
 const contacts = [
@@ -12,7 +12,7 @@ export default function ContactPage() {
   return (
     <LegalPage title="How can we help?" lastUpdated="August 2026" eyebrow="Get in touch">
       <p className="lead">
-        We’re a small team in Taupō. Email is the best way to reach us — every message is read by a person.
+        Weâ€™re a small team in TaupÅ. Email is the best way to reach us â€” every message is read by a person.
       </p>
 
       <div className="not-prose my-9 grid gap-3">
@@ -40,7 +40,7 @@ export default function ContactPage() {
         <div className="flex items-start gap-4">
           <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-destructive" aria-hidden="true" />
           <div>
-            <h2 className="font-body text-sm font-semibold text-foreground">Is someone in immediate danger?</h2>
+            <h2 className="font-body text-sm font-semibold text-primary">Is someone in immediate danger?</h2>
             <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">Call New Zealand emergency services on <a href="tel:111" className="font-semibold text-foreground underline underline-offset-4">111</a>. Email is not monitored continuously.</p>
           </div>
         </div>
@@ -50,13 +50,13 @@ export default function ContactPage() {
       <div className="not-prose my-6 grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-foreground/[0.08] bg-ivory/50 p-5">
           <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-          <h3 className="mt-4 font-body text-sm font-semibold text-foreground">Sunday sessions</h3>
-          <address className="mt-2 not-italic font-body text-sm leading-6 text-muted-foreground">Great Lake Centre<br />5 Story Place<br />Taupō 3330</address>
+          <h3 className="mt-4 font-body text-sm font-semibold text-primary">Sunday sessions</h3>
+          <address className="mt-2 not-italic font-body text-sm leading-6 text-muted-foreground">Great Lake Centre<br />5 Story Place<br />TaupÅ 3330</address>
         </div>
         <div className="rounded-2xl border border-foreground/[0.08] bg-ivory/50 p-5">
           <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
-          <h3 className="mt-4 font-body text-sm font-semibold text-foreground">Postal address</h3>
-          <address className="mt-2 not-italic font-body text-sm leading-6 text-muted-foreground">Mindcast Limited<br />PO Box 1234<br />Taupō 3351<br />New Zealand</address>
+          <h3 className="mt-4 font-body text-sm font-semibold text-primary">Postal address</h3>
+          <address className="mt-2 not-italic font-body text-sm leading-6 text-muted-foreground">Mindcast Limited<br />PO Box 1234<br />TaupÅ 3351<br />New Zealand</address>
         </div>
       </div>
 

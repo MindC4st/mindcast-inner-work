@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Lock, Baby, Palette, BookOpen, Clock, Play } from "lucide-react";
@@ -19,7 +19,7 @@ const openColouringPdf = async (week: number): Promise<boolean> => {
   return true;
 };
 
-// Kids view for a paying adult with the kids add-on. Kids never log in — the
+// Kids view for a paying adult with the kids add-on. Kids never log in â€” the
 // adult accesses the Child-track lessons and downloadable colouring pages here.
 // Content is read-only (no journal). Gated on isMember + kidsAddon + unlock.
 
@@ -71,13 +71,13 @@ const PortalKids = () => {
   return (
     <PortalLayout>
       <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2 flex items-center gap-1.5"><Baby size={13} /> Kids</p>
-      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-2">KID SESSIONS</h1>
-      <p className="text-sm text-muted-foreground mb-8 font-body">The children's track — lessons and colouring pages to do together at home.</p>
+      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-2">KID SESSIONS</h1>
+      <p className="text-sm text-muted-foreground mb-8 font-body">The children's track â€” lessons and colouring pages to do together at home.</p>
 
       {gated ? (
         <div className="portal-card p-8 md:p-10 text-center">
           <div className="w-14 h-14 rounded-full bg-foreground/[0.05] grid place-items-center mx-auto mb-4 text-foreground/40"><Lock size={22} /></div>
-          <h2 className="heading-display text-lg text-foreground mb-2">Add a kids membership</h2>
+          <h2 className="heading-display text-lg text-primary mb-2">Add a kids membership</h2>
           <p className="text-sm text-muted-foreground font-body font-light max-w-sm mx-auto leading-relaxed">
             {isMember
               ? "Add a kids membership to your plan to unlock the children's lessons and colouring pages."
@@ -88,7 +88,7 @@ const PortalKids = () => {
           </Link>
         </div>
       ) : loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
+        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loadingâ€¦</p>
       ) : (
         <div className="space-y-3">
           {weeks.map((w, i) => {
@@ -101,8 +101,8 @@ const PortalKids = () => {
                 className={`border rounded-sm p-4 md:p-6 ${unlocked ? "border-primary/15 bg-foreground/[0.02]" : "border-foreground/[0.06] bg-foreground/[0.01]"}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-body uppercase tracking-widest text-primary/70 mb-1">Week {w.week_number}{w.block_theme ? ` · ${w.block_theme}` : ""}</p>
-                    <h2 className={`font-display text-base md:text-lg tracking-wider ${unlocked ? "text-foreground" : "text-foreground/50"}`}>{title.toUpperCase()}</h2>
+                    <p className="text-[10px] font-body uppercase tracking-widest text-primary/70 mb-1">Week {w.week_number}{w.block_theme ? ` Â· ${w.block_theme}` : ""}</p>
+                    <h2 className={`font-display text-base md:text-lg tracking-wider ${unlocked ? "text-primary" : "text-primary/50"}`}>{title.toUpperCase()}</h2>
                   </div>
                   {!unlocked && (
                     <span className="shrink-0 flex items-center gap-1.5 text-[10px] font-body tracking-widest uppercase text-foreground/40">
@@ -118,7 +118,7 @@ const PortalKids = () => {
                         <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
                         <span>
                           <span className="portal-label text-foreground/40 mr-2">PICTURE BOOK</span>
-                          {c.kids_picture_book}{c.kids_picture_book_author ? ` — ${c.kids_picture_book_author}` : ""}{c.kids_picture_book_note ? ` · ${c.kids_picture_book_note}` : ""}
+                          {c.kids_picture_book}{c.kids_picture_book_author ? ` â€” ${c.kids_picture_book_author}` : ""}{c.kids_picture_book_note ? ` Â· ${c.kids_picture_book_note}` : ""}
                           {c.kids_picture_book_question && <span className="block text-foreground/60 italic mt-1">Ask: {c.kids_picture_book_question}</span>}
                         </span>
                       </p>
@@ -128,7 +128,7 @@ const PortalKids = () => {
                         <BookOpen size={14} className="text-primary mt-0.5 shrink-0" />
                         <span>
                           <span className="portal-label text-foreground/40 mr-2">NZ BOOK</span>
-                          {c.kids_nz_alternative}{c.kids_nz_alternative_author ? ` — ${c.kids_nz_alternative_author}` : ""}
+                          {c.kids_nz_alternative}{c.kids_nz_alternative_author ? ` â€” ${c.kids_nz_alternative_author}` : ""}
                           {c.kids_nz_alternative_verified && <span className="ml-1.5 text-[9px] font-body uppercase tracking-widest text-primary">Verified</span>}
                           {c.kids_nz_alternative_note && <span className="block text-foreground/50 text-xs mt-0.5">{c.kids_nz_alternative_note}</span>}
                         </span>

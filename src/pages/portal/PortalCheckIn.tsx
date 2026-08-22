@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { UserCheck, Check, Loader2, Radio, ArrowLeft, EyeOff } from "lucide-react";
@@ -67,7 +67,7 @@ const PortalCheckIn = () => {
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Check-in</p>
-        <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-6">YOU'RE HERE</h1>
+        <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-6">YOU'RE HERE</h1>
 
         {loading ? (
           <div className="py-16 grid place-items-center text-muted-foreground"><Loader2 className="animate-spin" /></div>
@@ -81,7 +81,7 @@ const PortalCheckIn = () => {
             <p className="text-sm text-muted-foreground font-body">Your name is heading to the welcome wall now.</p>
             {today && (
               <Link to="/portal/dashboard" className="inline-block mt-6 text-[11px] tracking-widest uppercase font-body text-primary hover:underline">
-                Back to portal →
+                Back to portal â†’
               </Link>
             )}
           </motion.div>
@@ -89,10 +89,10 @@ const PortalCheckIn = () => {
           <>
             {today ? (
               <div className="mb-6 flex items-center gap-2 text-primary text-[11px] font-body tracking-widest uppercase">
-                <Radio size={13} /> {today.status === "live" ? "Live now" : "Today"} · {today.track} · Week {today.week_number}{today.room ? ` · ${today.room}` : ""}
+                <Radio size={13} /> {today.status === "live" ? "Live now" : "Today"} Â· {today.track} Â· Week {today.week_number}{today.room ? ` Â· ${today.room}` : ""}
               </div>
             ) : (
-              <p className="mb-6 text-sm text-muted-foreground font-body">No session is scheduled for your track today — you can still check yourself in below.</p>
+              <p className="mb-6 text-sm text-muted-foreground font-body">No session is scheduled for your track today â€” you can still check yourself in below.</p>
             )}
 
             <button onClick={() => checkIn(false)} disabled={saving}

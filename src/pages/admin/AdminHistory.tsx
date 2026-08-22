@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { db } from "@/lib/db";
 import { Search, ChevronDown, ChevronUp, CalendarDays } from "lucide-react";
@@ -54,7 +54,7 @@ const AdminHistory = ({ embedded = false }: { embedded?: boolean }) => {
   return (
     <div className={`${embedded ? "" : "min-h-screen "}bg-background text-foreground`}>
       <div className="max-w-4xl mx-auto px-6 pt-8">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-2">Session History</h1>
+        <h1 className="font-display text-2xl font-bold text-primary mb-2">Session History</h1>
         <p className="text-foreground/40 text-sm font-body mb-6">Every scheduled session across the three tracks, with live attendance.</p>
 
         <div className="flex gap-3 mb-6">
@@ -71,7 +71,7 @@ const AdminHistory = ({ embedded = false }: { embedded?: boolean }) => {
         </div>
 
         {loading ? (
-          <p className="text-foreground/30 text-sm font-body text-center py-8 animate-pulse">Loading sessions…</p>
+          <p className="text-foreground/30 text-sm font-body text-center py-8 animate-pulse">Loading sessionsâ€¦</p>
         ) : (
           <div className="space-y-1">
             {filtered.map((s) => (
@@ -87,15 +87,15 @@ const AdminHistory = ({ embedded = false }: { embedded?: boolean }) => {
                 </button>
                 {expanded === s.id && (
                   <div className="px-4 pb-4 pt-2 border-t border-foreground/[0.04] space-y-2 text-xs font-body">
-                    <p className="text-foreground/40">Status <span className="text-foreground/70">{s.status}</span>{s.room ? <> · Room <span className="text-foreground/70">{s.room}</span></> : null}{s.session_code ? <> · Join code <span className="text-foreground/70">{s.session_code}</span></> : null}</p>
+                    <p className="text-foreground/40">Status <span className="text-foreground/70">{s.status}</span>{s.room ? <> Â· Room <span className="text-foreground/70">{s.room}</span></> : null}{s.session_code ? <> Â· Join code <span className="text-foreground/70">{s.session_code}</span></> : null}</p>
                     <Link to={`/mindcast-live/facilitate/${s.week_number}?a=${s.track}`} className="inline-block text-blue-400/70 hover:text-blue-400">
-                      Open the Week {s.week_number} {s.track} deck →
+                      Open the Week {s.week_number} {s.track} deck â†’
                     </Link>
                   </div>
                 )}
               </div>
             ))}
-            {filtered.length === 0 && <p className="text-foreground/20 text-sm font-body text-center py-8">No scheduled sessions yet — set them up under Sessions → Schedule.</p>}
+            {filtered.length === 0 && <p className="text-foreground/20 text-sm font-body text-center py-8">No scheduled sessions yet â€” set them up under Sessions â†’ Schedule.</p>}
           </div>
         )}
       </div>

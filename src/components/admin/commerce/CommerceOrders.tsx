@@ -1,8 +1,8 @@
-// CommerceOrders — order list + full order detail.
+﻿// CommerceOrders â€” order list + full order detail.
 //
 // The detail drawer is the Shopify-style working screen: statuses, customer,
 // address, items, payment summary, immutable timeline, fulfilment actions
-// (pick → pack → ship with tracking), refunds (full/partial with optional
+// (pick â†’ pack â†’ ship with tracking), refunds (full/partial with optional
 // restock), email resends and a printable packing slip. All actions run
 // through the shop-admin edge function, which enforces roles and writes the
 // audit log + timeline.
@@ -195,7 +195,7 @@ const CommerceOrders = () => {
   return (
     <div className="space-y-5 max-w-6xl">
       <div>
-        <h2 className="font-display text-2xl tracking-wider text-foreground mb-1">ORDERS</h2>
+        <h2 className="font-display text-2xl tracking-wider text-primary mb-1">ORDERS</h2>
         <p className="text-sm text-muted-foreground">Payment and fulfilment status are tracked separately.</p>
       </div>
 
@@ -216,14 +216,14 @@ const CommerceOrders = () => {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Order #, name, email, SKU…"
+            placeholder="Order #, name, email, SKUâ€¦"
             className="pl-8 pr-3 py-1.5 text-sm bg-card border border-border rounded-sm w-64 focus:outline-none focus:border-primary"
           />
         </div>
       </div>
 
       {loading ? (
-        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
+        <p className="text-xs font-body uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
       ) : visible.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-12 text-center text-sm text-muted-foreground">
           No orders match.
@@ -246,7 +246,7 @@ const CommerceOrders = () => {
               {visible.map((o) => (
                 <tr key={o.id} onClick={() => setSelected(o)} className="border-b border-border last:border-0 hover:bg-foreground/[0.03] cursor-pointer">
                   <td className="px-4 py-3 font-semibold">
-                    {o.order_number || "—"}
+                    {o.order_number || "â€”"}
                     <span className="ml-2 text-[10px] uppercase tracking-widest text-muted-foreground">{o.fulfilment === "ship" ? "ship" : o.fulfilment}</span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{fmtDate(o.created_at)}</td>
@@ -272,7 +272,7 @@ const CommerceOrders = () => {
         </div>
       )}
 
-      {/* ── Order detail drawer ── */}
+      {/* â”€â”€ Order detail drawer â”€â”€ */}
       {selected && (
         <OrderDetail
           order={selected}
@@ -309,7 +309,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
   const fulfillments = order.shop_fulfillments ?? [];
   const fulfilledQty = new Map<string, number>();
   for (const f of fulfillments.filter((f) => f.status !== "cancelled")) {
-    // quantities live on fulfillment_items; not joined here — approximate via
+    // quantities live on fulfillment_items; not joined here â€” approximate via
     // the fulfilment status display below when partial.
     void f;
   }
@@ -331,7 +331,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
       <style>body{font-family:Georgia,serif;padding:32px;color:#102438;} h1{letter-spacing:0.2em;font-size:20px;} table{width:100%;border-collapse:collapse;margin-top:16px;} td,th{border:1px solid #ccc;padding:8px;text-align:left;font-size:14px;} .muted{color:#666;font-size:13px;}</style>
       </head><body>
       <h1>MINDCAST</h1>
-      <p class="muted">Order ${order.order_number || ""} · ${fmtDate(order.created_at)}</p>
+      <p class="muted">Order ${order.order_number || ""} Â· ${fmtDate(order.created_at)}</p>
       <p><strong>${order.ship_name || ""}</strong><br/>
       ${order.ship_line1 || ""}<br/>
       ${order.ship_line2 ? order.ship_line2 + "<br/>" : ""}
@@ -377,7 +377,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
           {/* Customer */}
           <section>
             <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mb-1.5">Customer</p>
-            <p className="text-sm">{[order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || order.ship_name || "—"}</p>
+            <p className="text-sm">{[order.customer_first_name, order.customer_last_name].filter(Boolean).join(" ") || order.ship_name || "â€”"}</p>
             {order.customer_email && <p className="text-sm text-muted-foreground">{order.customer_email}</p>}
             {order.customer_phone && <p className="text-sm text-muted-foreground">{order.customer_phone}</p>}
           </section>
@@ -387,7 +387,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
             <section>
               <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mb-1.5">Shipping address</p>
               <div className="text-sm leading-relaxed">
-                <p>{order.ship_name || "—"}</p>
+                <p>{order.ship_name || "â€”"}</p>
                 {order.ship_line1 && <p>{order.ship_line1}</p>}
                 {order.ship_line2 && <p>{order.ship_line2}</p>}
                 {(order.ship_city || order.ship_postcode) && <p>{[order.ship_city, order.ship_postcode].filter(Boolean).join(" ")}</p>}
@@ -408,7 +408,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
             <div className="space-y-1.5">
               {items.map((it) => (
                 <div key={it.id || it.product_name} className="flex justify-between gap-3 text-sm">
-                  <span>{it.product_name}{it.quantity > 1 ? ` ×${it.quantity}` : ""}{it.sku ? <span className="text-muted-foreground text-xs"> · {it.sku}</span> : ""}</span>
+                  <span>{it.product_name}{it.quantity > 1 ? ` Ã—${it.quantity}` : ""}{it.sku ? <span className="text-muted-foreground text-xs"> Â· {it.sku}</span> : ""}</span>
                   <span className="text-muted-foreground">{formatMoney(it.line_total_cents, order.currency)}</span>
                 </div>
               ))}
@@ -421,7 +421,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
             <div className="text-sm space-y-1">
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatMoney(order.amount_total_cents - order.shipping_cents + order.discount_cents, order.currency)}</span></div>
               {order.discount_cents > 0 && (
-                <div className="flex justify-between"><span className="text-muted-foreground">Discount{order.discount_code ? ` (${order.discount_code})` : ""}</span><span>−{formatMoney(order.discount_cents, order.currency)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Discount{order.discount_code ? ` (${order.discount_code})` : ""}</span><span>âˆ’{formatMoney(order.discount_cents, order.currency)}</span></div>
               )}
               {order.fulfilment === "ship" && (
                 <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{order.shipping_cents > 0 ? formatMoney(order.shipping_cents, order.currency) : "Free"}</span></div>
@@ -429,7 +429,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
               <div className="flex justify-between"><span className="text-muted-foreground">GST included</span><span>{formatMoney(order.gst_cents, order.currency)}</span></div>
               <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1"><span>Total</span><span>{formatMoney(order.amount_total_cents, order.currency)}</span></div>
               {order.refunded_cents > 0 && (
-                <div className="flex justify-between text-destructive"><span>Refunded</span><span>−{formatMoney(order.refunded_cents, order.currency)}</span></div>
+                <div className="flex justify-between text-destructive"><span>Refunded</span><span>âˆ’{formatMoney(order.refunded_cents, order.currency)}</span></div>
               )}
             </div>
           </section>
@@ -469,7 +469,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
                   <input value={trackingUrl} onChange={(e) => setTrackingUrl(e.target.value)} placeholder="Tracking URL (optional)"
                     className="w-full px-3 py-2 text-sm bg-background border border-border rounded-sm focus:outline-none focus:border-primary" />
                   <button
-                    onClick={() => run("create_fulfilment", { carrier, tracking_number: trackingNumber, tracking_url: trackingUrl }, "Fulfilment created — customer notified")}
+                    onClick={() => run("create_fulfilment", { carrier, tracking_number: trackingNumber, tracking_url: trackingUrl }, "Fulfilment created â€” customer notified")}
                     disabled={busy !== null}
                     className="w-full px-3 py-2.5 text-[11px] font-body font-semibold tracking-widest uppercase bg-foreground text-background rounded-sm disabled:opacity-50"
                   >
@@ -481,7 +481,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
                 <div className="text-xs text-muted-foreground space-y-1 pt-1">
                   {fulfillments.map((f) => (
                     <p key={f.id}>
-                      {f.status}{f.tracking_number ? ` · ${f.carrier || ""} ${f.tracking_number}` : ""}{f.shipped_at ? ` · ${fmtDate(f.shipped_at)}` : ""}
+                      {f.status}{f.tracking_number ? ` Â· ${f.carrier || ""} ${f.tracking_number}` : ""}{f.shipped_at ? ` Â· ${fmtDate(f.shipped_at)}` : ""}
                     </p>
                   ))}
                 </div>
@@ -495,7 +495,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
               <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">Refunds & cancellation</p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => setRefundOpen(true)} className="px-3 py-2 text-[11px] font-body tracking-widest uppercase border border-border rounded-sm text-foreground">
-                  Refund…
+                  Refundâ€¦
                 </button>
                 {!["shipped", "delivered"].includes(order.fulfilment_status) && (
                   <button
@@ -573,7 +573,7 @@ const OrderDetail = ({ order, items, roles, busy, onClose, onRefresh, act }: {
                     <span className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-primary" />
                     <p className="text-sm text-foreground">{e.note || e.type.replace(/_/g, " ")}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      {fmtDate(e.created_at)} {fmtTime(e.created_at)} · {e.actor_name || "SYSTEM"}
+                      {fmtDate(e.created_at)} {fmtTime(e.created_at)} Â· {e.actor_name || "SYSTEM"}
                     </p>
                   </div>
                 ))}

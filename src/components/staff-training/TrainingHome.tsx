@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -81,15 +81,15 @@ const TrainingHome = ({ embedded = false }: { embedded?: boolean }) => {
     <div className={embedded ? "" : "max-w-4xl mx-auto px-6 py-8"}>
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div>
-          <h2 className="font-display text-2xl text-foreground tracking-wider">Staff training</h2>
+          <h2 className="font-display text-2xl text-primary tracking-wider">Staff training</h2>
           <p className="text-muted-foreground text-sm font-body mt-1">
-            Your training path for the {role === "admin" ? "admin" : "facilitator"} role — the same ten modules for everyone, repeated annually.
+            Your training path for the {role === "admin" ? "admin" : "facilitator"} role â€” the same ten modules for everyone, repeated annually.
           </p>
         </div>
         <div className={`ml-auto flex items-center gap-2 rounded-md px-4 py-2.5 ${current ? "bg-primary/10 text-primary" : "bg-red-500/10 text-red-300"}`}>
           {current ? <ShieldCheck size={15} /> : <ShieldAlert size={15} />}
           <span className="text-xs font-body tracking-widest uppercase">
-            {current ? "Current for member-facing work" : "Not current — member-contact gate open"}
+            {current ? "Current for member-facing work" : "Not current â€” member-contact gate open"}
           </span>
         </div>
       </div>
@@ -109,17 +109,17 @@ const TrainingHome = ({ embedded = false }: { embedded?: boolean }) => {
             <span className="flex-1 min-w-0">
               <span className="block text-sm font-body text-foreground truncate">{mod.title}</span>
               <span className="block text-[11px] font-body text-muted-foreground mt-0.5">
-                {GATE_LABEL[mod.gate]} ·{" "}
-                {mod.pass_mark === null ? "Acknowledgement" : `${Math.round(mod.pass_mark * 100)}% pass`} ·{" "}
+                {GATE_LABEL[mod.gate]} Â·{" "}
+                {mod.pass_mark === null ? "Acknowledgement" : `${Math.round(mod.pass_mark * 100)}% pass`} Â·{" "}
                 ~{mod.est_minutes} min
                 {dueAt && status !== "passed" && status !== "acknowledged" && (
-                  <> · due {dueAt.toLocaleDateString("en-NZ", { day: "numeric", month: "short" })}</>
+                  <> Â· due {dueAt.toLocaleDateString("en-NZ", { day: "numeric", month: "short" })}</>
                 )}
                 {prog?.completed_at && (
-                  <> · completed {new Date(prog.completed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })} (v{prog.module_version})</>
+                  <> Â· completed {new Date(prog.completed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })} (v{prog.module_version})</>
                 )}
                 {prog?.expires_at && (
-                  <> · next due {new Date(prog.expires_at).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</>
+                  <> Â· next due {new Date(prog.expires_at).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</>
                 )}
               </span>
             </span>

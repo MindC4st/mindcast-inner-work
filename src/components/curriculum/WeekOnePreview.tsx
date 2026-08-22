@@ -1,4 +1,4 @@
-// Week 1, the same idea in three rooms — set on the worksheet page itself.
+﻿// Week 1, the same idea in three rooms â€” set on the worksheet page itself.
 //
 // Changing the tab turns the page rather than navigating, because the point
 // being made is that these are three translations of ONE week. A route change
@@ -42,7 +42,7 @@ import {
 import teenWorkbook from "@/assets/home-teen-workbook.jpg";
 import childColouring from "@/assets/home-child-colouring.jpg";
 
-/* ── page furniture ───────────────────────────────────────────────────────*/
+/* â”€â”€ page furniture â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 /** The sheet's own title block. */
 const PageTitle = ({ track }: { track: TrackKey }) => (
@@ -63,7 +63,7 @@ const PageTitle = ({ track }: { track: TrackKey }) => (
 );
 
 /**
- * Words set on the page as the worksheet sets them — spaced out on a rule,
+ * Words set on the page as the worksheet sets them â€” spaced out on a rule,
  * not as pills. Pills read as tags in a CMS; this reads as printed matter.
  */
 const WordRow = ({ words }: { words: readonly string[] }) => (
@@ -80,7 +80,7 @@ const WordRow = ({ words }: { words: readonly string[] }) => (
   </div>
 );
 
-/** A → B → C, set large. */
+/** A â†’ B â†’ C, set large. */
 const Steps = ({ steps }: { steps: readonly string[] }) => (
   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-5">
     {steps.map((s, i) => (
@@ -89,7 +89,7 @@ const Steps = ({ steps }: { steps: readonly string[] }) => (
           {s}
         </span>
         {i < steps.length - 1 && (
-          <span style={{ color: SIGNAL_DEEP }} aria-hidden>→</span>
+          <span style={{ color: SIGNAL_DEEP }} aria-hidden>â†’</span>
         )}
       </span>
     ))}
@@ -111,10 +111,10 @@ const Plate = ({ src, alt, caption }: { src: string; alt: string; caption: strin
   </figure>
 );
 
-/* ── ADULT ────────────────────────────────────────────────────────────────*/
+/* â”€â”€ ADULT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const AdultSheet = () => (
-  <WorkbookPage week={1} track="Adult" phase="Block 1 · See Clearly" page={3} pages={8}>
+  <WorkbookPage week={1} track="Adult" phase="Block 1 Â· See Clearly" page={3} pages={8}>
     <PageTitle track="adult" />
 
     <div className="mt-14">
@@ -161,7 +161,7 @@ const AdultSheet = () => (
                 <PageBody className="mt-1.5">{step.body}</PageBody>
 
                 {/* The Friday check-in is where the four rungs live. Labels
-                    only — a public visitor has nothing to record against, and
+                    only â€” a public visitor has nothing to record against, and
                     nothing they touch here is stored. */}
                 {step.day === "FRI" && (
                   <ul className="mt-5">
@@ -185,10 +185,10 @@ const AdultSheet = () => (
   </WorkbookPage>
 );
 
-/* ── TEEN ─────────────────────────────────────────────────────────────────*/
+/* â”€â”€ TEEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const TeenSheet = () => (
-  <WorkbookPage week={1} track="Teen" phase="Block 1 · See Clearly" page={3} pages={8}>
+  <WorkbookPage week={1} track="Teen" phase="Block 1 Â· See Clearly" page={3} pages={8}>
     <PageTitle track="teen" />
 
     <div className="mt-14">
@@ -211,7 +211,7 @@ const TeenSheet = () => (
       <Steps steps={WEEK1_TEEN.sources} />
 
       <PageBody className="mt-10">
-        Then decide what to do with it. All four are real answers — including the last one.
+        Then decide what to do with it. All four are real answers â€” including the last one.
       </PageBody>
       <div className="mt-5">
         {WEEK1_TEEN.outcomes.map((o) => (
@@ -243,7 +243,7 @@ const TeenSheet = () => (
         />
         <div>
           <PageBody>
-            Teen Mindcast is deliberately device-free. The room, the conversation and the paper —
+            Teen Mindcast is deliberately device-free. The room, the conversation and the paper â€”
             no app, no login, no digital journal. Nothing a teenager writes is typed, submitted or
             stored.
           </PageBody>
@@ -256,10 +256,10 @@ const TeenSheet = () => (
   </WorkbookPage>
 );
 
-/* ── CHILD ────────────────────────────────────────────────────────────────*/
+/* â”€â”€ CHILD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const ChildSheet = () => (
-  <WorkbookPage week={1} track="Child" phase="Block 1 · See Clearly" page={3} pages={6}>
+  <WorkbookPage week={1} track="Child" phase="Block 1 Â· See Clearly" page={3} pages={6}>
     <PageTitle track="child" />
 
     <div className="mt-14">
@@ -274,7 +274,7 @@ const ChildSheet = () => (
       <PageVoice>{WEEK1_CHILD.coreIdea}</PageVoice>
       <PageBody className="mt-5">
         A rumbling tummy might be hunger, or nerves, or nothing much at all. Children are never
-        told what a feeling in their body means — only that it is worth noticing.
+        told what a feeling in their body means â€” only that it is worth noticing.
       </PageBody>
     </div>
 
@@ -283,7 +283,7 @@ const ChildSheet = () => (
         <Plate
           src={childColouring}
           alt="A child colouring during a Mindcast children's session"
-          caption="A lighthouse shining through wind and waves — the light that keeps going in a storm is the child's version of the signal."
+          caption="A lighthouse shining through wind and waves â€” the light that keeps going in a storm is the child's version of the signal."
         />
         <div>
           <PageBody>{WEEK1_CHILD.colouring.thenWhat}</PageBody>
@@ -310,20 +310,20 @@ const ChildSheet = () => (
               {w}
             </span>
             {i < WEEK1_CHILD.learnsThrough.length - 1 && (
-              <span style={{ color: SIGNAL_DEEP, opacity: 0.6 }} aria-hidden>·</span>
+              <span style={{ color: SIGNAL_DEEP, opacity: 0.6 }} aria-hidden>Â·</span>
             )}
           </span>
         ))}
       </div>
       <PageBody>
         There is no children's app and no children's digital journal. Their responses are spoken,
-        drawn and played — never typed, submitted or stored.
+        drawn and played â€” never typed, submitted or stored.
       </PageBody>
     </div>
   </WorkbookPage>
 );
 
-/* ── the tabs ─────────────────────────────────────────────────────────────*/
+/* â”€â”€ the tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const SHEETS: Record<TrackKey, () => JSX.Element> = {
   adult: AdultSheet,
@@ -336,7 +336,7 @@ const WeekOnePreview = ({
   initialTrack = "adult",
 }: {
   weekOneTheme: string;
-  /** Which sheet is open first — the binder passes the lens being browsed. */
+  /** Which sheet is open first â€” the binder passes the lens being browsed. */
   initialTrack?: TrackKey;
 }) => {
   const [track, setTrack] = useState<TrackKey>(initialTrack);
@@ -350,9 +350,9 @@ const WeekOnePreview = ({
           className="font-body text-[10px] font-bold tracking-[0.32em] uppercase mb-5"
           style={{ color: SIGNAL_DEEP }}
         >
-          Block 1 · See Clearly
+          Block 1 Â· See Clearly
         </p>
-        <h2 className="font-display text-[48px] sm:text-7xl md:text-[84px] tracking-tight text-foreground leading-[0.9]">
+        <h2 className="font-display text-[48px] sm:text-7xl md:text-[84px] tracking-tight text-primary leading-[0.9]">
           WEEK 1
         </h2>
         <p className="font-display text-[28px] sm:text-4xl md:text-5xl tracking-tight text-foreground/45 leading-[1] mt-2">
@@ -369,7 +369,7 @@ const WeekOnePreview = ({
         </p>
       </div>
 
-      {/* Tabs sit on a rule above the sheet — a tabbed divider in a binder,
+      {/* Tabs sit on a rule above the sheet â€” a tabbed divider in a binder,
           not a segmented control. */}
       <div
         className="flex mt-16 border-b"

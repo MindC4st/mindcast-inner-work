@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ApplicationsList } from "@/components/admin/ApplicationsList";
 import { ApplicationDetail } from "@/components/admin/ApplicationDetail";
@@ -55,7 +55,7 @@ export default function AdminApplications() {
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl md:text-3xl text-foreground">Pilot Applications</h1>
+        <h1 className="font-display text-2xl md:text-3xl text-primary">Pilot Applications</h1>
       </div>
 
       <Tabs defaultValue="applications" className="w-full h-full flex flex-col">

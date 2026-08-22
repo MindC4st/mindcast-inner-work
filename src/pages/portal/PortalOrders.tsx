@@ -1,10 +1,10 @@
-// /portal/orders — the member's orders: pickup codes for counter buys,
+﻿// /portal/orders â€” the member's orders: pickup codes for counter buys,
 // shipping status and tracking for posted orders.
 //
 // A Stripe receipt is not a collection token: a screenshot can be re-used and
 // a refunded payment looks identical to a paid one. Counter orders show a
 // short pickup code here, and tapping "Collected" in front of the counter
-// spends it — no staff hardware needed. Shipped orders show their tracking
+// spends it â€” no staff hardware needed. Shipped orders show their tracking
 // instead. The database refuses a second collection outright (see the guard
 // trigger in 20260816140000_shop_products_orders.sql).
 
@@ -108,7 +108,7 @@ const PortalOrders = () => {
       .update({ status: "collected" })
       .eq("id", order.id);
     if (upErr) {
-      // The guard trigger rejects a second collection — surface that plainly
+      // The guard trigger rejects a second collection â€” surface that plainly
       // rather than pretending it worked.
       setError(upErr.message || "Could not mark that as collected");
     }
@@ -122,7 +122,7 @@ const PortalOrders = () => {
     <PortalLayout>
       <div className="max-w-lg mx-auto px-6 pt-12 pb-20">
         <p className="text-[10px] font-body tracking-[0.35em] uppercase text-primary mb-2">Shop</p>
-        <h1 className="font-display text-4xl tracking-wider text-[hsl(var(--navy))] mb-3">MY ORDERS</h1>
+        <h1 className="font-display text-4xl tracking-wider text-primary mb-3">MY ORDERS</h1>
         <p className="text-[hsl(var(--navy-mid))] text-sm font-body leading-relaxed mb-8">
           Counter orders: show your pickup code, then tap Collected. Shipped
           orders: track the delivery below.
@@ -130,7 +130,7 @@ const PortalOrders = () => {
 
         {loading || pending ? (
           <p className="text-xs font-body uppercase tracking-widest text-[hsl(var(--navy-mid))]/60">
-            {pending ? "Confirming your payment…" : "Loading…"}
+            {pending ? "Confirming your paymentâ€¦" : "Loadingâ€¦"}
           </p>
         ) : orders.length === 0 ? (
           <div className="border border-[hsl(var(--navy))]/10 bg-white rounded-sm p-10 text-center">
@@ -158,7 +158,7 @@ const PortalOrders = () => {
                     <div className="min-w-0">
                       <p className={`font-display text-lg tracking-wider leading-tight ${tone.label}`}>
                         {o.product_name.toUpperCase()}
-                        {!shipped && o.quantity > 1 && ` ×${o.quantity}`}
+                        {!shipped && o.quantity > 1 && ` Ã—${o.quantity}`}
                       </p>
                       {o.order_number && (
                         <p className={`text-[10px] font-body tracking-[0.15em] uppercase mt-1 ${tone.helper}`}>
@@ -180,7 +180,7 @@ const PortalOrders = () => {
                     <ul className={`text-[11px] font-body mb-3 space-y-0.5 ${tone.helper}`}>
                       {items.map((it, i) => (
                         <li key={i} className="flex justify-between gap-3">
-                          <span>{it.product_name}{it.quantity > 1 ? ` ×${it.quantity}` : ""}</span>
+                          <span>{it.product_name}{it.quantity > 1 ? ` Ã—${it.quantity}` : ""}</span>
                           <span>{formatMoney(it.line_total_cents, o.currency)}</span>
                         </li>
                       ))}
@@ -198,7 +198,7 @@ const PortalOrders = () => {
                           Tracking: <span className="font-semibold">{o.tracking_number}</span>
                           {o.tracking_url && (
                             <>
-                              {" · "}
+                              {" Â· "}
                               <a href={o.tracking_url} target="_blank" rel="noopener noreferrer" className="underline">
                                 Track delivery
                               </a>
@@ -207,7 +207,7 @@ const PortalOrders = () => {
                         </p>
                       )}
                       <p>
-                        {o.status === "paid" && "We're preparing your order — you'll get an email when it ships."}
+                        {o.status === "paid" && "We're preparing your order â€” you'll get an email when it ships."}
                         {o.status === "shipped" && "Your order is on its way."}
                         {o.status === "refunded" && "This order was refunded."}
                         {o.status === "cancelled" && "This order was cancelled."}
@@ -228,7 +228,7 @@ const PortalOrders = () => {
                           className="mt-5 w-full flex items-center justify-center gap-2 bg-[hsl(var(--ivory))] text-[hsl(var(--navy))] py-3.5 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
                           {busy === o.id ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-                          {busy === o.id ? "Marking…" : "Collected — tap at the counter"}
+                          {busy === o.id ? "Markingâ€¦" : "Collected â€” tap at the counter"}
                         </button>
                       )}
                     </>

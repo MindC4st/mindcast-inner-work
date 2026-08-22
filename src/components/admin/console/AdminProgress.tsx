@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid,
@@ -59,20 +59,20 @@ const AdminProgress = () => {
     return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load progress: {error}</p>;
   }
   if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading progress…</span></div>;
+    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading progressâ€¦</span></div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-2xl text-foreground tracking-wider">Progress</h2>
+        <h2 className="font-display text-2xl text-primary tracking-wider">Progress</h2>
         <p className="text-muted-foreground text-sm font-body mt-1">Attendance, lesson completion and journaling across the three tracks.</p>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-4">
-        <Stat icon={Users} label="Check-ins · Adult" value={stats.track_totals.Adult} />
-        <Stat icon={Users} label="Check-ins · Teen" value={stats.track_totals.Teen} tone="text-primary" />
-        <Stat icon={Users} label="Check-ins · Child" value={stats.track_totals.Child} tone="text-muted-foreground" />
+        <Stat icon={Users} label="Check-ins Â· Adult" value={stats.track_totals.Adult} />
+        <Stat icon={Users} label="Check-ins Â· Teen" value={stats.track_totals.Teen} tone="text-primary" />
+        <Stat icon={Users} label="Check-ins Â· Child" value={stats.track_totals.Child} tone="text-muted-foreground" />
       </div>
 
       <div className="rounded-lg border border-border bg-card p-5">

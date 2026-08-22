@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle, Clock, Circle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -159,7 +159,7 @@ const PortalProgress = () => {
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-3">
                             <span className="portal-label text-[9px]">Session {wp.weekNumber}</span>
-                            <h3 className="font-serif text-sm text-foreground">{week.title}</h3>
+                            <h3 className="font-serif text-sm text-primary">{week.title}</h3>
                           </div>
                           <ArrowRight size={13} className="text-foreground/15 group-hover:text-foreground/30 transition-colors" strokeWidth={1.5} />
                         </div>

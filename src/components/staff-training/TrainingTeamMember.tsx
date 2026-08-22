@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { stt } from "@/lib/stt";
@@ -60,7 +60,7 @@ const TrainingTeamMember = () => {
       { ...row, id: `${row.id}-new`, status: "in_progress", superseded: false, attempts: 0, score: null, completed_at: null, started_at: new Date().toISOString() },
       ...ps.filter((p) => p.id !== row.id),
     ]);
-    toast.success(`Recertification opened for ${modTitle(row.module_code)} — their history is preserved.`);
+    toast.success(`Recertification opened for ${modTitle(row.module_code)} â€” their history is preserved.`);
   };
 
   const addNote = async () => {
@@ -84,7 +84,7 @@ const TrainingTeamMember = () => {
       <Link to="/admin/staff-training/team" className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-[11px] font-body tracking-widest uppercase transition-colors mb-6">
         <ArrowLeft size={12} /> Team compliance
       </Link>
-      <h2 className="font-display text-2xl text-foreground tracking-wider mb-1">
+      <h2 className="font-display text-2xl text-primary tracking-wider mb-1">
         {profile?.display_name || profile?.name || profile?.email || "Team member"}
       </h2>
       <p className="text-muted-foreground text-sm font-body mb-6">{profile?.email}</p>
@@ -101,8 +101,8 @@ const TrainingTeamMember = () => {
                 {row.completed_at
                   ? `Completed ${new Date(row.completed_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}`
                   : `Started ${new Date(row.started_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}`}
-                {row.score !== null && <> · {Math.round(row.score * 100)}%</>}
-                {row.expires_at && <> · due again {new Date(row.expires_at).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</>}
+                {row.score !== null && <> Â· {Math.round(row.score * 100)}%</>}
+                {row.expires_at && <> Â· due again {new Date(row.expires_at).toLocaleDateString("en-NZ", { month: "short", year: "numeric" })}</>}
               </span>
             </span>
             <span className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">
@@ -140,7 +140,7 @@ const TrainingTeamMember = () => {
             <option value="staff_start">Staff start date</option>
           </select>
           <textarea value={detail} onChange={(e) => setDetail(e.target.value)} rows={3}
-            placeholder="Facts only — this record is administrative, not a safeguarding case file."
+            placeholder="Facts only â€” this record is administrative, not a safeguarding case file."
             className="w-full bg-transparent border border-border rounded-md px-3 py-2.5 text-sm font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary resize-y" />
           <button onClick={addNote} disabled={busy === "note" || !detail.trim()}
             className="px-4 py-2 rounded-sm bg-primary text-primary-foreground text-[10px] font-body tracking-widest uppercase hover:bg-primary/90 transition-colors disabled:opacity-40">
@@ -153,7 +153,7 @@ const TrainingTeamMember = () => {
         {compliance.map((c) => (
           <div key={c.id} className="rounded-lg border border-border bg-card px-4 py-3">
             <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">
-              {c.category.replace("_", " ")} · {new Date(c.created_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}
+              {c.category.replace("_", " ")} Â· {new Date(c.created_at).toLocaleDateString("en-NZ", { day: "numeric", month: "short", year: "numeric" })}
             </p>
             <p className="text-[13px] font-body text-foreground/80 mt-1">{c.detail}</p>
           </div>

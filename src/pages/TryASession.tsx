@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+﻿import { FormEvent, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -160,7 +160,7 @@ const Success = ({ email, minors }: { email: string; minors: number }) => (
               "Come to a Sunday session that works for your household.",
               minors > 0
                 ? "Arrive and check in together; under-18 passes only work with their adult."
-                : "Show the QR code at the door and we’ll take it from there.",
+                : "Show the QR code at the door and weâ€™ll take it from there.",
             ].map((item) => (
               <div key={item} className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--blue))]/10 text-[hsl(var(--blue))]">
@@ -360,7 +360,7 @@ const TryASession = () => {
           <div className="relative mx-auto grid max-w-7xl lg:grid-cols-[0.9fr_1.1fr]">
             <div className="flex flex-col justify-center px-6 py-16 sm:px-10 sm:py-20 lg:px-14 lg:py-24 xl:px-20">
               <p className={`${eyebrowClass} mb-5`}>One session. No pressure.</p>
-              <h1 className="max-w-xl font-display text-[clamp(3.5rem,7vw,6.7rem)] leading-[0.84] tracking-[-0.02em] text-[hsl(var(--navy))]">
+              <h1 className="max-w-xl font-display text-[clamp(3.5rem,7vw,6.7rem)] leading-[0.84] tracking-[-0.02em] text-primary">
                 COME AND SIT IN THE ROOM.
               </h1>
               <p className="mt-7 max-w-lg font-serif text-xl italic leading-8 text-[hsl(var(--navy-mid))] sm:text-2xl">
@@ -371,7 +371,7 @@ const TryASession = () => {
             <div className="relative min-h-[360px] overflow-hidden lg:min-h-[610px]">
               <img
                 src={membershipTrial}
-                alt="A Mindcast session in Taupō"
+                alt="A Mindcast session in TaupÅ"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--navy))]/60 via-transparent to-transparent" />
@@ -392,9 +392,9 @@ const TryASession = () => {
         <section className="px-5 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
             <aside className="lg:sticky lg:top-24 lg:self-start">
-              <p className={`${eyebrowClass} mb-4`}>What you’re saying yes to</p>
-              <h2 className="max-w-sm font-display text-4xl leading-[0.95] tracking-wide text-[hsl(var(--navy))] sm:text-5xl">
-                JUST ENOUGH TO KNOW IF IT’S FOR YOU.
+              <p className={`${eyebrowClass} mb-4`}>What youâ€™re saying yes to</p>
+              <h2 className="max-w-sm font-display text-4xl leading-[0.95] tracking-wide text-primary sm:text-5xl">
+                JUST ENOUGH TO KNOW IF ITâ€™S FOR YOU.
               </h2>
 
               <div className="mt-9 divide-y divide-[hsl(var(--warm-border))] border-y border-[hsl(var(--warm-border))]">
@@ -404,7 +404,7 @@ const TryASession = () => {
                       <Icon size={18} strokeWidth={1.6} />
                     </span>
                     <div>
-                      <h3 className="font-body text-sm font-bold text-[hsl(var(--navy))]">{title}</h3>
+                      <h3 className="font-body text-sm font-bold text-primary">{title}</h3>
                       <p className="mt-1 font-body text-xs leading-5 text-[hsl(var(--navy-mid))]/75">{copy}</p>
                     </div>
                   </div>
@@ -430,11 +430,11 @@ const TryASession = () => {
                         exit={reduceMotion ? undefined : { opacity: 0, x: 16 }}
                         transition={{ duration: 0.24 }}
                       >
-                        <h2 className="font-display text-4xl tracking-wide text-[hsl(var(--navy))]">
+                        <h2 className="font-display text-4xl tracking-wide text-primary">
                           FIRST, YOUR DETAILS.
                         </h2>
                         <p className="mt-2 max-w-xl font-body text-sm leading-6 text-[hsl(var(--navy-mid))]/75">
-                          The adult attending completes the booking. We’ll send every household pass to this email.
+                          The adult attending completes the booking. Weâ€™ll send every household pass to this email.
                         </p>
 
                         <div className="mt-8 grid gap-5 sm:grid-cols-2">
@@ -485,11 +485,11 @@ const TryASession = () => {
                       >
                         <div className="flex items-start justify-between gap-6">
                           <div>
-                            <h2 className="font-display text-4xl tracking-wide text-[hsl(var(--navy))]">
-                              WHO’S COMING WITH YOU?
+                            <h2 className="font-display text-4xl tracking-wide text-primary">
+                              WHOâ€™S COMING WITH YOU?
                             </h2>
                             <p className="mt-2 max-w-xl font-body text-sm leading-6 text-[hsl(var(--navy-mid))]/75">
-                              Leave this as “just me”, or add up to six children and teens from your household.
+                              Leave this as â€œjust meâ€, or add up to six children and teens from your household.
                             </p>
                           </div>
                           <button
@@ -579,7 +579,7 @@ const TryASession = () => {
                                     />
                                     <div className="sm:col-span-2">
                                       <Field
-                                        label="Date of birth — DD/MM/YYYY"
+                                        label="Date of birth â€” DD/MM/YYYY"
                                         type="text"
                                         inputMode="numeric"
                                         autoComplete="bday"
@@ -609,7 +609,7 @@ const TryASession = () => {
                                     {minor.group === "teen" && (
                                       <div className="sm:col-span-2">
                                         <Field
-                                          label="Teen’s email address"
+                                          label="Teenâ€™s email address"
                                           type="email"
                                           inputMode="email"
                                           autoComplete="off"
@@ -706,7 +706,7 @@ const TryASession = () => {
                         >
                           {busy ? (
                             <>
-                              <Loader2 size={15} className="animate-spin" /> Sending passes…
+                              <Loader2 size={15} className="animate-spin" /> Sending passesâ€¦
                             </>
                           ) : form.minors.length ? (
                             <>

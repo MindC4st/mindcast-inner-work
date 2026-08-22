@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Lock, FileText, Palette, Clock, Shield, Unlock, AlertCircle } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
@@ -11,7 +11,7 @@ import { resolveColouringUrl } from "@/lib/colouringUrl";
 import { toast } from "@/hooks/use-toast";
 import { db } from "@/lib/db";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type DownloadItem = {
   week_number: number;
@@ -61,7 +61,7 @@ type DownloadItem = {
 
 const AUDIENCES = ["Adult", "Teen", "Child"] as const;
 
-// ── Component ──────────────────────────────────────────────────────────────
+// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const PortalDownloads = () => {
   const { user, role, profile } = useAuth();
@@ -83,7 +83,7 @@ const PortalDownloads = () => {
     if (!isAdmin) setAudience(track);
   }, [isAdmin, track]);
 
-  // Direct DB fallback — catches cases where AuthContext isn't ready or lacks the flag
+  // Direct DB fallback â€” catches cases where AuthContext isn't ready or lacks the flag
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -164,7 +164,7 @@ const PortalDownloads = () => {
   // footer) is generated server-side by the generate-coloring-page edge
   // function and stored as `coloring_pdf_url` in the private `colouring`
   // bucket. We resolve the stored path to a short-lived signed URL and open
-  // it — never build a bare client-side PDF from the PNG.
+  // it â€” never build a bare client-side PDF from the PNG.
   const handleDownloadColoringPdf = async (pdfPath: string) => {
     try {
       const url = await resolveColouringUrl(pdfPath);
@@ -239,12 +239,12 @@ const PortalDownloads = () => {
           {isAdmin ? <Shield size={13} /> : <Download size={13} />}
           DOWNLOADS
         </p>
-        <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-1">
+        <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-1">
           {isAdmin ? "ALL DOWNLOADS" : "YOUR DOWNLOADS"}
         </h1>
         <p className="text-sm text-muted-foreground font-body">
           {isAdmin
-            ? "Admin view — all content is unlocked. Worksheets and colouring pages are available for every week."
+            ? "Admin view â€” all content is unlocked. Worksheets and colouring pages are available for every week."
             : canDownload
               ? track === "Teen"
                 ? "One-page teen worksheets unlock at 9:30am on each session day. Download them to print and complete on paper."
@@ -274,7 +274,7 @@ const PortalDownloads = () => {
       {loading && (
         <div className="text-center py-20">
           <p className="text-xs font-body uppercase tracking-widest text-muted-foreground/40 animate-pulse">
-            Loading downloads…
+            Loading downloadsâ€¦
           </p>
         </div>
       )}
@@ -295,7 +295,7 @@ const PortalDownloads = () => {
             const sorted = [...phaseItems].sort((a, b) => a.week_number - b.week_number);
             return (
               <div key={phaseName}>
-                <h2 className="font-display text-xl tracking-wider text-foreground/80 mb-4 border-b border-foreground/10 pb-2">
+                <h2 className="font-display text-xl tracking-wider text-primary/80 mb-4 border-b border-foreground/10 pb-2">
                   {phaseName.toUpperCase()}
                 </h2>
                 <div className="space-y-2">
@@ -344,7 +344,7 @@ const PortalDownloads = () => {
                               )}
                             </div>
 
-                            {/* Lock / unlock indicator — hidden for admins */}
+                            {/* Lock / unlock indicator â€” hidden for admins */}
                             {!isAdmin && (
                               <div className="shrink-0">
                                 {unlocked ? (
@@ -364,7 +364,7 @@ const PortalDownloads = () => {
                           {!unlocked && opensOn && (
                             <div className="flex items-center gap-1.5 mb-3 text-[10px] font-body tracking-widest uppercase text-muted-foreground/60">
                               <Clock size={11} />
-                              Unlocks {opensOn} · 9:30am
+                              Unlocks {opensOn} Â· 9:30am
                             </div>
                           )}
 

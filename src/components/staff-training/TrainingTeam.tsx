@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -98,7 +98,7 @@ const TrainingTeam = () => {
     a.download = "mindcast-training-compliance.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Compliance matrix exported — response content is never included.");
+    toast.success("Compliance matrix exported â€” response content is never included.");
   };
 
   if (loading) return <div className="py-24 flex justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>;
@@ -107,9 +107,9 @@ const TrainingTeam = () => {
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-center gap-4 mb-6">
         <div>
-          <h2 className="font-display text-2xl text-foreground tracking-wider">Team compliance</h2>
+          <h2 className="font-display text-2xl text-primary tracking-wider">Team compliance</h2>
           <p className="text-muted-foreground text-sm font-body mt-1">
-            Who is current, due soon or overdue — at a module level. Free-text answers stay private to each worker.
+            Who is current, due soon or overdue â€” at a module level. Free-text answers stay private to each worker.
           </p>
         </div>
         <button onClick={exportCsv}
@@ -174,9 +174,9 @@ const TrainingTeam = () => {
                   return (
                     <td key={r.mod.id} className="px-2 py-3 text-center" title={`${r.mod.title}: ${r.status}`}>
                       {completed ? (
-                        <span className="text-[10px] font-body text-primary">{r.score != null ? `${Math.round(r.score * 100)}%` : "✓"}</span>
+                        <span className="text-[10px] font-body text-primary">{r.score != null ? `${Math.round(r.score * 100)}%` : "âœ“"}</span>
                       ) : r.status === "failed" ? (
-                        <span className="text-[10px] font-body text-red-300">{r.score != null ? `${Math.round(r.score * 100)}%` : "✗"}</span>
+                        <span className="text-[10px] font-body text-red-300">{r.score != null ? `${Math.round(r.score * 100)}%` : "âœ—"}</span>
                       ) : (
                         <span className={`inline-block w-2.5 h-2.5 rounded-full ${DOT[r.status]}`} />
                       )}
@@ -195,7 +195,7 @@ const TrainingTeam = () => {
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-body text-muted-foreground">
         <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-foreground/10" /> Not started</span>
         <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-primary" /> In progress</span>
-        <span className="flex items-center gap-2 text-primary">% / ✓ — passed</span>
+        <span className="flex items-center gap-2 text-primary">% / âœ“ â€” passed</span>
         <span className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-400" /> Overdue / expired</span>
       </div>
     </div>

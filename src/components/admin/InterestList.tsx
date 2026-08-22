@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface InterestEntry {
@@ -34,7 +34,7 @@ export function InterestList() {
     const headers = ["Email", "Age Band", "Created At"];
     const rows = entries.map((e) => [
       e.email,
-      e.age_band || "—",
+      e.age_band || "â€”",
       new Date(e.created_at).toLocaleString("en-NZ"),
     ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
@@ -50,14 +50,14 @@ export function InterestList() {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-display text-xl text-foreground">Interest Registrations</h2>
+        <h2 className="font-display text-xl text-primary">Interest Registrations</h2>
         <button onClick={exportCSV} className="btn-outlined text-sm">
           Export CSV
         </button>
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-muted-foreground">Loading…</div>
+        <div className="py-8 text-center text-muted-foreground">Loadingâ€¦</div>
       ) : entries.length === 0 ? (
         <div className="py-8 text-center text-muted-foreground">No interest registrations yet</div>
       ) : (
@@ -88,7 +88,7 @@ export function InterestList() {
                     {entry.age_band === "under_30" && "Under 30"}
                     {entry.age_band === "over_45" && "Over 45"}
                     {entry.age_band === "after_close" && "After close"}
-                    {!entry.age_band && "—"}
+                    {!entry.age_band && "â€”"}
                   </td>
                   <td className="py-3 px-4 text-muted-foreground">
                     {new Date(entry.created_at).toLocaleString("en-NZ", {

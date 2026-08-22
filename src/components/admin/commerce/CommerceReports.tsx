@@ -1,4 +1,4 @@
-// CommerceReports — the accounting basics, exportable.
+﻿// CommerceReports â€” the accounting basics, exportable.
 // Gross/net sales, GST, refunds, shipping, units, per-product, AOV, orders
 // over time. Structured so an accounting integration (e.g. Xero) can read
 // the same numbers later.
@@ -123,7 +123,7 @@ const CommerceReports = () => {
     <div className="space-y-6 max-w-5xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-2xl tracking-wider text-foreground mb-1">REPORTS</h2>
+          <h2 className="font-display text-2xl tracking-wider text-primary mb-1">REPORTS</h2>
           <p className="text-sm text-muted-foreground">All figures NZD, GST included in totals and broken out as GST collected.</p>
         </div>
         <div className="flex gap-1.5">
@@ -139,7 +139,7 @@ const CommerceReports = () => {
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

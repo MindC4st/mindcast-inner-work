@@ -1,4 +1,4 @@
-// The block explorer — the nested UI inside the Phases tab of the master
+﻿// The block explorer â€” the nested UI inside the Phases tab of the master
 // Life Binder on /curriculum.
 //
 // Owns block + track state and the in-place page turn between them. The
@@ -6,7 +6,7 @@
 // shell in Curriculum.tsx; this component deliberately renders bare so it can
 // sit on the shell's paper without a binder-inside-a-binder effect.
 //
-// `blockExtra` lets the shell fold extra material into a block's page — the
+// `blockExtra` lets the shell fold extra material into a block's page â€” the
 // Week 1 preview lives there, so selecting Block 1 surfaces the full preview
 // in place instead of sending the visitor scrolling for it.
 //
@@ -29,13 +29,13 @@ const TRACKS: { key: Track; label: string }[] = [
 /** The surface a track works on. Teen and child are paper by design. */
 const TRACK_SURFACE: Record<Track, string> = {
   adult: "Live session, worksheet, and an optional digital journal.",
-  teen: "A paper track — their own room, their own words.",
-  child: "A paper track — movement, pictures, stories and play.",
+  teen: "A paper track â€” their own room, their own words.",
+  child: "A paper track â€” movement, pictures, stories and play.",
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/* ── Track toggle ─────────────────────────────────────────────────────────*/
+/* â”€â”€ Track toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const TrackToggle = ({ track, onChange }: { track: Track; onChange: (t: Track) => void }) => (
   <div className="flex flex-col items-start lg:items-end gap-2">
@@ -64,7 +64,7 @@ const TrackToggle = ({ track, onChange }: { track: Track; onChange: (t: Track) =
   </div>
 );
 
-/* ── One block's page ─────────────────────────────────────────────────────*/
+/* â”€â”€ One block's page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const BlockPage = ({
   blockNumber,
@@ -83,7 +83,7 @@ const BlockPage = ({
   const [from, to] = blockRange(block, weeks);
   const blockWeeks = weeks.filter((w) => w.block_number === blockNumber);
 
-  // The week's title in the selected track, falling back to the shared idea —
+  // The week's title in the selected track, falling back to the shared idea â€”
   // a week with no track title yet shows as what it is, not something invented.
   const titleFor = (w: CurriculumWeek): string | null => {
     const t = w.track_titles?.[track];
@@ -96,9 +96,9 @@ const BlockPage = ({
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 border-b border-[#efe9dd] pb-6 mb-8">
         <div>
           <p className="font-body text-[11px] font-bold tracking-[0.24em] uppercase text-primary mb-2">
-            Block {pad(block.number)} · Weeks {from}–{to}
+            Block {pad(block.number)} Â· Weeks {from}â€“{to}
           </p>
-          <h3 className="font-display text-5xl md:text-6xl text-foreground leading-[0.9] tracking-tight">
+          <h3 className="font-display text-5xl md:text-6xl text-primary leading-[0.9] tracking-tight">
             {block.name.toUpperCase()}
           </h3>
         </div>
@@ -124,12 +124,12 @@ const BlockPage = ({
 
       {/* The weeks, as an index page */}
       <p className="font-body text-[10px] font-bold tracking-[0.28em] uppercase text-muted-foreground mb-4">
-        The weeks · {TRACKS.find((t) => t.key === track)?.label} lens
+        The weeks Â· {TRACKS.find((t) => t.key === track)?.label} lens
       </p>
 
       {loading ? (
         <p className="font-body text-sm text-muted-foreground py-12 text-center" aria-live="polite">
-          Opening the year…
+          Opening the yearâ€¦
         </p>
       ) : blockWeeks.length === 0 ? (
         <p className="font-body text-sm text-muted-foreground py-12 text-center">
@@ -149,9 +149,9 @@ const BlockPage = ({
                 </span>
                 <span className="flex-1 min-w-0">
                   <span className="font-body text-[15px] font-semibold text-foreground leading-snug">
-                    {title || <span className="text-muted-foreground/40">—</span>}
+                    {title || <span className="text-muted-foreground/40">â€”</span>}
                   </span>
-                  {/* The shared idea under the track's own title — except where
+                  {/* The shared idea under the track's own title â€” except where
                       they are the same line, which would be a stutter. */}
                   {w.weekly_theme && w.weekly_theme !== title && (
                     <span className="block font-body text-xs text-muted-foreground mt-0.5">
@@ -168,7 +168,7 @@ const BlockPage = ({
   );
 };
 
-/* ── The explorer ─────────────────────────────────────────────────────────*/
+/* â”€â”€ The explorer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 
 const LifeBinder = ({
   weeks,
@@ -177,20 +177,20 @@ const LifeBinder = ({
 }: {
   weeks: CurriculumWeek[];
   loading: boolean;
-  /** Folded into a block's page when it returns something — the Week 1 preview. */
+  /** Folded into a block's page when it returns something â€” the Week 1 preview. */
   blockExtra?: (blockNumber: number) => ReactNode;
 }) => {
   const [blockNumber, setBlockNumber] = useState(1);
   const [track, setTrack] = useState<Track>("adult");
   const reduce = useReducedMotion();
 
-  // A flip carries the block AND the track — either one turning the page.
+  // A flip carries the block AND the track â€” either one turning the page.
   const flipKey = `${blockNumber}-${track}`;
   const extra = blockExtra?.(blockNumber) ?? null;
 
   return (
     <div>
-      {/* Block tabs: paper tabs along a rule, at every size — the master
+      {/* Block tabs: paper tabs along a rule, at every size â€” the master
           shell already carries the sticky tab row for its five sections. */}
       <div
         role="tablist"

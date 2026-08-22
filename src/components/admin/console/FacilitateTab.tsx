@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
 import { Clapperboard, Nfc, Printer, BookOpen, ArrowRight } from "lucide-react";
@@ -14,7 +14,7 @@ const FacilitateTab = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="font-display text-2xl text-foreground tracking-wider">Facilitate</h2>
+        <h2 className="font-display text-2xl text-primary tracking-wider">Facilitate</h2>
         <p className="text-muted-foreground text-sm font-body mt-1">Open and start a live session. Adults, teens and children run in parallel on the same slide format.</p>
       </div>
 
@@ -49,7 +49,7 @@ const FacilitateTab = () => {
         <button
           onClick={() => navigate(`/mindcast-live/facilitate/${week}?a=${track}`)}
           className="w-full flex items-center justify-center gap-3 py-4 bg-primary text-primary-foreground font-display text-lg tracking-[0.2em] rounded-md hover:bg-primary/90 transition-colors">
-          <Clapperboard size={18} /> OPEN WEEK {week} · {track.toUpperCase()} DECK <ArrowRight size={16} />
+          <Clapperboard size={18} /> OPEN WEEK {week} Â· {track.toUpperCase()} DECK <ArrowRight size={16} />
         </button>
 
         <p className="text-[11px] font-body text-muted-foreground text-center">

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+﻿import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -142,7 +142,7 @@ const AccessCheckoutButton = ({
         disabled={state === "busy"}
         className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 border border-primary bg-white px-4 font-body text-[9px] font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
-        {state === "busy" ? <><Loader2 size={14} className="animate-spin" /> Opening checkout…</> : label}
+        {state === "busy" ? <><Loader2 size={14} className="animate-spin" /> Opening checkoutâ€¦</> : label}
       </button>
 
       {state === "error" ? (
@@ -171,10 +171,10 @@ const MembershipHero = () => {
         >
           <div className="flex items-center gap-3">
             <Ripple size={24} />
-            <Eyebrow>Membership in Taupō</Eyebrow>
+            <Eyebrow>Membership in TaupÅ</Eyebrow>
           </div>
 
-          <h1 className="mt-7 max-w-4xl font-display text-[clamp(4rem,8.4vw,8.5rem)] leading-[0.82] tracking-[-0.025em] text-foreground">
+          <h1 className="mt-7 max-w-4xl font-display text-[clamp(4rem,8.4vw,8.5rem)] leading-[0.82] tracking-[-0.025em] text-primary">
             A PLACE IN
             <br />
             THE ROOM.
@@ -193,7 +193,7 @@ const MembershipHero = () => {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryLink to="/try">Try one Sunday—free</PrimaryLink>
+            <PrimaryLink to="/try">Try one Sundayâ€”free</PrimaryLink>
             <SecondaryLink to="#membership-options">See membership options</SecondaryLink>
           </div>
 
@@ -213,7 +213,7 @@ const MembershipHero = () => {
           <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-muted shadow-[0_28px_70px_rgba(16,36,56,0.18)] lg:aspect-[5/6]">
             <img
               src={membershipTrial}
-              alt="People arriving for a MINDCAST gathering in Taupō"
+              alt="People arriving for a MINDCAST gathering in TaupÅ"
               className="h-full w-full object-cover"
             />
           </div>
@@ -263,7 +263,7 @@ const EntryCard = ({
       <span className="font-display text-3xl leading-none text-primary/20">{number}</span>
     </div>
 
-    <h3 className="mt-6 font-display text-4xl leading-none tracking-wide text-foreground">
+    <h3 className="mt-6 font-display text-4xl leading-none tracking-wide text-primary">
       {title}
     </h3>
 
@@ -292,7 +292,7 @@ const EntryPaths = () => (
     <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
       <Reveal className="max-w-3xl">
         <Eyebrow>Three honest ways to begin</Eyebrow>
-        <h2 className="mt-4 font-display text-[clamp(3.1rem,7vw,6.3rem)] leading-[0.88] tracking-tight text-foreground">
+        <h2 className="mt-4 font-display text-[clamp(3.1rem,7vw,6.3rem)] leading-[0.88] tracking-tight text-primary">
           CHOOSE THE DOOR THAT FITS.
         </h2>
         <p className="mt-5 max-w-2xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
@@ -409,7 +409,7 @@ const WeeklyMembership = () => (
         <div>
           <Reveal>
             <Eyebrow>What the membership actually buys</Eyebrow>
-            <h2 className="mt-4 font-display text-[clamp(3.2rem,7vw,6.2rem)] leading-[0.88] tracking-tight text-foreground">
+            <h2 className="mt-4 font-display text-[clamp(3.2rem,7vw,6.2rem)] leading-[0.88] tracking-tight text-primary">
               NOT MORE CONTENT.
               <br />
               A REASON TO RETURN.
@@ -428,7 +428,7 @@ const WeeklyMembership = () => (
                     <p className="font-display text-2xl tracking-[0.14em] text-primary">{step.day}</p>
                     <span className="font-display text-xl text-primary/20">0{index + 1}</span>
                   </div>
-                  <h3 className="mt-4 font-display text-2xl tracking-wide text-foreground">
+                  <h3 className="mt-4 font-display text-2xl tracking-wide text-primary">
                     {step.title}
                   </h3>
                   <p className="mt-2 font-body text-xs leading-5 text-muted-foreground">{step.body}</p>
@@ -455,8 +455,8 @@ const HouseholdSection = () => (
     <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8">
       <div>
         <Reveal>
-          <Eyebrow>One household · age-appropriate rooms</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(3rem,6.6vw,5.8rem)] leading-[0.88] tracking-tight text-foreground">
+          <Eyebrow>One household Â· age-appropriate rooms</Eyebrow>
+          <h2 className="mt-4 font-display text-[clamp(3rem,6.6vw,5.8rem)] leading-[0.88] tracking-tight text-primary">
             BUILD THE MEMBERSHIP AROUND YOUR PEOPLE.
           </h2>
           <p className="mt-5 max-w-2xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
@@ -568,13 +568,13 @@ const FlexibleAccess = () => (
       <Reveal className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
         <div>
           <Eyebrow>Not looking for weekly membership?</Eyebrow>
-          <h2 className="mt-4 font-display text-[clamp(3rem,6vw,5.5rem)] leading-[0.88] tracking-tight text-foreground">
+          <h2 className="mt-4 font-display text-[clamp(3rem,6vw,5.5rem)] leading-[0.88] tracking-tight text-primary">
             KEEP IT FLEXIBLE.
           </h2>
         </div>
         <p className="max-w-2xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
           Concession Passes and one-off places keep the room accessible without app, journal or
-          Life Group access. Every visit still includes the week’s printed worksheet.
+          Life Group access. Every visit still includes the weekâ€™s printed worksheet.
         </p>
       </Reveal>
 
@@ -610,7 +610,7 @@ const FlexibleAccess = () => (
       </Reveal>
 
       <p className="mt-6 text-center font-body text-xs leading-5 text-muted-foreground">
-        Prefer to follow the year on paper? The day’s worksheet is {formatWeekly(PRICING.worksheet)}
+        Prefer to follow the year on paper? The dayâ€™s worksheet is {formatWeekly(PRICING.worksheet)}
         {" "}at the door or online. No account required.
       </p>
     </div>
@@ -665,8 +665,8 @@ const Inclusions = () => (
     <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
       <Reveal className="mx-auto max-w-3xl text-center">
         <Eyebrow>What sits behind the weekly price</Eyebrow>
-        <h2 className="mt-4 font-display text-[clamp(3rem,6.4vw,5.8rem)] leading-[0.88] tracking-tight text-foreground">
-          THE ROOM—AND THE PRACTICE AROUND IT.
+        <h2 className="mt-4 font-display text-[clamp(3rem,6.4vw,5.8rem)] leading-[0.88] tracking-tight text-primary">
+          THE ROOMâ€”AND THE PRACTICE AROUND IT.
         </h2>
       </Reveal>
 
@@ -677,7 +677,7 @@ const Inclusions = () => (
             <Reveal key={benefit.title} delay={index * 0.04}>
               <article className="h-full bg-white p-6">
                 <Icon size={24} strokeWidth={1.6} className="text-primary" />
-                <h3 className="mt-5 font-display text-2xl tracking-wide text-foreground">
+                <h3 className="mt-5 font-display text-2xl tracking-wide text-primary">
                   {benefit.title.toUpperCase()}
                 </h3>
                 <p className="mt-2 font-body text-xs leading-5 text-muted-foreground sm:text-sm sm:leading-6">
@@ -708,7 +708,7 @@ const Inclusions = () => (
             <p className="mt-3 font-body text-sm leading-6 text-white/65">
               Choose monthly or annual billing and see the exact household total before paying.
               Rolling memberships can be managed or cancelled through the member portal. Choose
-              “Cancel membership”, then confirm in Stripe.
+              â€œCancel membershipâ€, then confirm in Stripe.
             </p>
           </article>
         </Reveal>
@@ -735,7 +735,7 @@ const QUESTIONS = [
   {
     question: "How does household billing work?",
     answer:
-      `The member portal lets you choose the number of adults, teens and children joining. Stripe applies ${FAMILY_DISCOUNT_PERCENT}% off automatically for two or more adults plus two young people in any mix. You can cancel any time: choose “Cancel membership”, then confirm in Stripe.`,
+      `The member portal lets you choose the number of adults, teens and children joining. Stripe applies ${FAMILY_DISCOUNT_PERCENT}% off automatically for two or more adults plus two young people in any mix. You can cancel any time: choose â€œCancel membershipâ€, then confirm in Stripe.`,
   },
   {
     question: "What is a Concession Pass?",
@@ -749,7 +749,7 @@ const Questions = () => (
     <div className="mx-auto grid max-w-6xl gap-10 px-5 sm:px-6 lg:grid-cols-[0.68fr_1.32fr] lg:gap-16 lg:px-8">
       <Reveal>
         <Eyebrow>Before you decide</Eyebrow>
-        <h2 className="mt-4 font-display text-[clamp(3rem,6vw,5.2rem)] leading-[0.88] tracking-tight text-foreground">
+        <h2 className="mt-4 font-display text-[clamp(3rem,6vw,5.2rem)] leading-[0.88] tracking-tight text-primary">
           CLEAR ANSWERS.
           <br />
           NO SMALL PRINT.
@@ -805,7 +805,7 @@ const ShopStrip = () => (
 
       <Reveal delay={0.06}>
         <Eyebrow>Already building the practice at home?</Eyebrow>
-        <h2 className="mt-4 font-display text-4xl leading-[0.92] tracking-tight text-foreground sm:text-5xl">
+        <h2 className="mt-4 font-display text-4xl leading-[0.92] tracking-tight text-primary sm:text-5xl">
           TAKE THE TOOLS HOME.
         </h2>
         <p className="mt-4 max-w-xl font-body text-sm leading-7 text-muted-foreground">

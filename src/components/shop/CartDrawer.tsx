@@ -1,4 +1,4 @@
-// CartDrawer — the shared cart panel used by /shop and /shop/:slug.
+﻿// CartDrawer â€” the shared cart panel used by /shop and /shop/:slug.
 // Discounts are validated server-side at checkout; the code travels with the
 // request and the reduced total is what Stripe charges.
 
@@ -94,7 +94,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
             aria-labelledby="cart-title"
           >
             <div className="flex items-center justify-between px-5 sm:px-6 py-5 border-b border-[hsl(var(--navy))]/10">
-              <h2 id="cart-title" className="font-serif text-2xl text-[hsl(var(--navy))]">Your cart</h2>
+              <h2 id="cart-title" className="font-serif text-2xl text-primary">Your cart</h2>
               <button ref={closeButtonRef} type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-lg text-[hsl(var(--navy-mid))] transition hover:bg-[hsl(var(--navy))]/5 hover:text-[hsl(var(--navy))] focus:outline-none focus:ring-2 focus:ring-primary/30" aria-label="Close cart">
                 <X size={18} />
               </button>
@@ -205,10 +205,10 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                   className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3.5 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {checkingOut ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-                  {checkingOut ? "Opening checkout…" : "Checkout"}
+                  {checkingOut ? "Opening checkoutâ€¦" : "Checkout"}
                 </button>
                 <p className="text-[10px] font-body text-[hsl(var(--navy-mid))]/60 text-center mt-2">
-                  No account needed — guests can check out with card, Apple Pay or Google Pay.
+                  No account needed â€” guests can check out with card, Apple Pay or Google Pay.
                 </p>
                 {error && <p className="text-sm text-red-700 font-body mt-3" role="alert">{error}</p>}
               </div>
@@ -272,7 +272,7 @@ export const startCheckout = async (
         if (parsed?.error === "membership_required") {
           detail = parsed.message || "An active MINDCAST membership is required for this product";
         } else if (parsed?.error === "use_free_claim") {
-          detail = "This bracelet is free — claim it from the bracelet page instead";
+          detail = "This bracelet is free â€” claim it from the bracelet page instead";
         } else if (parsed?.error) {
           detail = parsed.error;
         }

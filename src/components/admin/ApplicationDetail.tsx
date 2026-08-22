@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDateNZ, parseDob, ageAtStart } from "@/lib/applyValidation";
 
@@ -82,7 +82,7 @@ export function ApplicationDetail({
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="font-display text-2xl md:text-3xl text-foreground">
+        <h1 className="font-display text-2xl md:text-3xl text-primary">
           {application.first_name} {application.last_name}
         </h1>
       </div>
@@ -129,13 +129,13 @@ export function ApplicationDetail({
         </div>
         <div className="space-y-1">
           <span className="text-muted-foreground">IP hash</span>
-          <span className="font-mono text-xs text-muted-foreground">{application.ip_hash || "—"}</span>
+          <span className="font-mono text-xs text-muted-foreground">{application.ip_hash || "â€”"}</span>
         </div>
       </div>
 
       {/* Status workflow */}
       <div className="border-t border-border pt-6">
-        <h2 className="font-display text-xl text-foreground mb-4">Status</h2>
+        <h2 className="font-display text-xl text-primary mb-4">Status</h2>
         <div className="flex flex-wrap gap-2">
           {STATUS_ORDER.map((s) => (
             <button
@@ -156,26 +156,26 @@ export function ApplicationDetail({
 
       {/* Notes (internal) */}
       <div className="border-t border-border pt-6">
-        <h2 className="font-display text-xl text-foreground mb-4">Internal notes</h2>
+        <h2 className="font-display text-xl text-primary mb-4">Internal notes</h2>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
           className="input-underline w-full font-body resize-y"
-          placeholder="Internal notes — not visible to applicant"
+          placeholder="Internal notes â€” not visible to applicant"
         />
         <button
           onClick={handleSaveNotes}
           disabled={saving}
           className="mt-3 btn-outlined text-sm disabled:opacity-50"
         >
-          {saving ? "Saving…" : "Save notes"}
+          {saving ? "Savingâ€¦" : "Save notes"}
         </button>
       </div>
 
       {/* Answers - full width, unstyled for reading */}
       <div className="border-t border-border pt-6 space-y-8">
-        <h2 className="font-display text-xl text-foreground">Answers</h2>
+        <h2 className="font-display text-xl text-primary">Answers</h2>
 
         <div className="space-y-2">
           <p className="font-serif italic text-lg text-foreground leading-relaxed">
@@ -200,7 +200,7 @@ export function ApplicationDetail({
         <div className="space-y-2">
           <p className="font-serif italic text-lg text-foreground leading-relaxed">
             <span className="font-display font-medium mr-2">3.</span>
-            Tell us about something you once believed you weren't the kind of person who could do — until you did it.
+            Tell us about something you once believed you weren't the kind of person who could do â€” until you did it.
           </p>
           <p className="text-foreground whitespace-pre-wrap text-base leading-relaxed">
             {application.q3_didnt_think_could}

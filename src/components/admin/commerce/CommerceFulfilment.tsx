@@ -1,5 +1,5 @@
-// CommerceFulfilment — the packing queue, built for a phone in one hand.
-// Paid shipped orders, fewest clicks to picked → packed → tracking → shipped.
+﻿// CommerceFulfilment â€” the packing queue, built for a phone in one hand.
+// Paid shipped orders, fewest clicks to picked â†’ packed â†’ tracking â†’ shipped.
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { db } from "@/lib/db";
@@ -83,16 +83,16 @@ const CommerceFulfilment = () => {
   return (
     <div className="space-y-4 max-w-2xl">
       <div>
-        <h2 className="font-display text-2xl tracking-wider text-foreground mb-1">FULFILMENT</h2>
+        <h2 className="font-display text-2xl tracking-wider text-primary mb-1">FULFILMENT</h2>
         <p className="text-sm text-muted-foreground">Paid orders waiting to be picked, packed and shipped.</p>
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
       ) : orders.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-10 text-center">
           <Check className="mx-auto mb-3 text-muted-foreground/40" size={26} strokeWidth={1.5} />
-          <p className="text-sm text-muted-foreground">Nothing to fulfil — the queue is clear.</p>
+          <p className="text-sm text-muted-foreground">Nothing to fulfil â€” the queue is clear.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -107,8 +107,8 @@ const CommerceFulfilment = () => {
                   className="w-full flex items-center justify-between px-4 py-3.5 text-left"
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-sm">{o.order_number} <span className="text-muted-foreground font-normal">· {fmtDate(o.created_at)}</span></p>
-                    <p className="text-xs text-muted-foreground truncate">{o.ship_name || "—"} · {o.items.length} line{o.items.length === 1 ? "" : "s"} · {formatMoney(o.amount_total_cents, o.currency)}</p>
+                    <p className="font-semibold text-sm">{o.order_number} <span className="text-muted-foreground font-normal">Â· {fmtDate(o.created_at)}</span></p>
+                    <p className="text-xs text-muted-foreground truncate">{o.ship_name || "â€”"} Â· {o.items.length} line{o.items.length === 1 ? "" : "s"} Â· {formatMoney(o.amount_total_cents, o.currency)}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className={`px-2 py-0.5 text-[10px] tracking-widest uppercase rounded-sm border ${
@@ -126,13 +126,13 @@ const CommerceFulfilment = () => {
                     <div className="space-y-1">
                       {o.items.map((it) => (
                         <div key={it.id} className="flex justify-between text-sm">
-                          <span>{it.product_name}{it.quantity > 1 ? ` ×${it.quantity}` : ""}{it.sku ? <span className="text-muted-foreground text-xs"> · {it.sku}</span> : ""}</span>
+                          <span>{it.product_name}{it.quantity > 1 ? ` Ã—${it.quantity}` : ""}{it.sku ? <span className="text-muted-foreground text-xs"> Â· {it.sku}</span> : ""}</span>
                         </div>
                       ))}
                     </div>
                     {o.ship_line1 && (
                       <p className="text-xs text-muted-foreground">
-                        {o.ship_name} · {o.ship_line1}{o.ship_line2 ? `, ${o.ship_line2}` : ""} · {o.ship_city} {o.ship_postcode}
+                        {o.ship_name} Â· {o.ship_line1}{o.ship_line2 ? `, ${o.ship_line2}` : ""} Â· {o.ship_city} {o.ship_postcode}
                       </p>
                     )}
 
@@ -164,7 +164,7 @@ const CommerceFulfilment = () => {
                       <input className={inputCls} placeholder="Tracking number" value={t.number} onChange={(e) => setT({ number: e.target.value })} />
                       <input className={inputCls} placeholder="Tracking URL (optional)" value={t.url} onChange={(e) => setT({ url: e.target.value })} />
                       <button
-                        onClick={() => act(o.id, "create_fulfilment", { carrier: t.carrier, tracking_number: t.number, tracking_url: t.url }, "Shipped — customer notified")}
+                        onClick={() => act(o.id, "create_fulfilment", { carrier: t.carrier, tracking_number: t.number, tracking_url: t.url }, "Shipped â€” customer notified")}
                         disabled={busy !== null}
                         className="w-full flex items-center justify-center gap-2 py-3 text-[11px] font-body font-semibold tracking-widest uppercase bg-[hsl(152_48%_30%)] text-white rounded-sm disabled:opacity-50"
                       >

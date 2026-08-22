@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, Lock } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
@@ -10,7 +10,7 @@ const PortalGroup = () => (
         <Users size={20} className="text-foreground/30" strokeWidth={1.5} />
       </div>
       <p className="portal-label mb-3">Your community</p>
-      <h1 className="font-serif text-4xl text-foreground mb-4">Life Group</h1>
+      <h1 className="font-serif text-4xl text-primary mb-4">Life Group</h1>
       <p className="text-sm text-muted-foreground font-body leading-7 mb-6">
         Shared reflections from your Life Group will appear here once sessions begin.
       </p>

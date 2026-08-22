@@ -1,4 +1,4 @@
-// CommerceSettings — shipping methods and store configuration.
+﻿// CommerceSettings â€” shipping methods and store configuration.
 // Carriers are data, not code: nothing here hard-codes a courier.
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,12 +43,12 @@ const CommerceSettings = () => {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h2 className="font-display text-2xl tracking-wider text-foreground mb-1">SETTINGS</h2>
+        <h2 className="font-display text-2xl tracking-wider text-primary mb-1">SETTINGS</h2>
         <p className="text-sm text-muted-foreground">Shipping and store configuration. New Zealand only at launch.</p>
       </div>
 
       <div className="border border-border rounded-sm p-5 space-y-4 bg-card">
-        <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">Shipping — New Zealand</p>
+        <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">Shipping â€” New Zealand</p>
         <div>
           <p className="text-sm text-foreground mb-1">Standard shipping rate (NZD)</p>
           <div className="flex items-center gap-2">
@@ -96,10 +96,10 @@ const CommerceSettings = () => {
 
       <div className="border border-border rounded-sm p-5 bg-card">
         <p className="text-[10px] font-body tracking-widest uppercase text-muted-foreground mb-2">Store</p>
-        <p className="text-sm text-foreground mb-2">Currency: NZD · all prices GST inclusive (15%)</p>
+        <p className="text-sm text-foreground mb-2">Currency: NZD Â· all prices GST inclusive (15%)</p>
         <p className="text-xs text-muted-foreground">
           Rural surcharges, NZ Post / courier integrations and automated labels
-          are deliberately out of scope for launch — the shipping model is
+          are deliberately out of scope for launch â€” the shipping model is
           data-driven so they can be added without rework.
         </p>
       </div>

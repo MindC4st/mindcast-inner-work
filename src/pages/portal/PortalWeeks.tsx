@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+﻿import { Link, useNavigate } from "react-router-dom";
 import { Lock, PlayCircle, CheckCircle2, Shield, Pencil } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,17 +65,17 @@ const PortalWeeks = () => {
         {isAdmin && <Shield size={13} className="inline mr-1.5" />}
         Coursebook
       </p>
-      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-foreground mb-2">
+      <h1 className="font-display text-3xl md:text-4xl tracking-wider text-primary mb-2">
         {isAdmin ? "ALL SESSIONS" : "MY SESSIONS"}
       </h1>
       <p className="text-sm text-muted-foreground mb-8 font-body">
         {isAdmin
-          ? `Admin view — all 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track are unlocked.`
+          ? `Admin view â€” all 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track are unlocked.`
           : `All 52 weeks of the ${track === "teen" ? "Teen" : track === "child" ? "Child" : "Adult"} track.`}
       </p>
 
       {loading && (
-        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loading…</p>
+        <p className="text-xs font-body uppercase tracking-widest text-foreground/40 animate-pulse">Loadingâ€¦</p>
       )}
 
       {!loading && weeks.length === 0 && (
@@ -93,7 +93,7 @@ const PortalWeeks = () => {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] font-body uppercase tracking-widest text-foreground/40 mb-1">Week {w.week_number}</p>
-                    <h2 className="font-display text-base md:text-lg tracking-wider text-foreground/50">COMING SOON</h2>
+                    <h2 className="font-display text-base md:text-lg tracking-wider text-primary/50">COMING SOON</h2>
                   </div>
                   <Lock size={13} strokeWidth={1.5} className="text-foreground/30 shrink-0" />
                 </div>
@@ -107,7 +107,7 @@ const PortalWeeks = () => {
           let status: { icon: JSX.Element; label: string; cls: string };
           if (!effectiveMember) status = { icon: <Lock size={13} />, label: "Members only", cls: "text-foreground/40" };
           else if (unlocked) status = { icon: <PlayCircle size={16} strokeWidth={1.5} />, label: isCurrent ? "This week" : "Open", cls: "text-primary" };
-          else status = { icon: <Lock size={13} />, label: opensOn ? `Opens ${opensOn.toLocaleDateString(undefined, { day: "numeric", month: "short" })} · 9:30am` : "Locked", cls: "text-foreground/40" };
+          else status = { icon: <Lock size={13} />, label: opensOn ? `Opens ${opensOn.toLocaleDateString(undefined, { day: "numeric", month: "short" })} Â· 9:30am` : "Locked", cls: "text-foreground/40" };
 
           return (
             <Link key={w.week_number} to={`/portal/week/${w.week_number}`}
@@ -115,9 +115,9 @@ const PortalWeeks = () => {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] font-body uppercase tracking-widest text-primary/70 mb-1">
-                    Week {w.week_number}{w.block_theme ? ` · ${w.block_theme}` : ""}
+                    Week {w.week_number}{w.block_theme ? ` Â· ${w.block_theme}` : ""}
                   </p>
-                  <h2 className={`font-display text-base md:text-lg tracking-wider line-clamp-1 ${unlocked && effectiveMember ? "text-foreground" : "text-foreground/60"}`}>
+                  <h2 className={`font-display text-base md:text-lg tracking-wider line-clamp-1 ${unlocked && effectiveMember ? "text-primary" : "text-primary/60"}`}>
                     {w.title!.toUpperCase()}
                   </h2>
                   {w.source && <p className="text-xs text-muted-foreground mt-1 font-body line-clamp-1">{w.source}</p>}

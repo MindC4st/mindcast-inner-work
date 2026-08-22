@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import PortalLayout from "@/components/portal/PortalLayout";
@@ -124,7 +124,7 @@ const PortalSettings = () => {
   return (
     <PortalLayout>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="portal-heading text-3xl text-foreground mb-2">Profile</h1>
+        <h1 className="portal-heading text-3xl text-primary mb-2">Profile</h1>
         <p className="text-sm text-muted-foreground mb-8 font-body font-light">Manage your account.</p>
 
         <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg">
@@ -153,7 +153,7 @@ const PortalSettings = () => {
                 if (tier === "none" || status === "none") return "No active membership";
                 const tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
                 const statusLabel = status === "active" ? "Active" : status === "trialing" ? "Trial" : status === "past_due" ? "Past Due" : status === "paused" ? "Paused" : status === "lapsed" ? "Lapsed" : status.replace("_", " ");
-                let detail = `${tierLabel} — ${statusLabel}`;
+                let detail = `${tierLabel} â€” ${statusLabel}`;
                 if (bundle && typeof bundle === "object") {
                   const parts = [];
                   if (bundle.adults) parts.push(`${bundle.adults} Adult${bundle.adults > 1 ? "s" : ""}`);
@@ -179,7 +179,7 @@ const PortalSettings = () => {
             live screen, so only adult accounts receive display-name controls. */}
         {!isTeen && <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg mt-6">
           <div>
-            <h2 className="portal-heading text-xl text-foreground mb-1">Live session display</h2>
+            <h2 className="portal-heading text-xl text-primary mb-1">Live session display</h2>
             <p className="text-xs text-muted-foreground font-body font-light leading-relaxed">
               Choose how your name appears on screen when you share a reflection during Mindcast LIVE sessions.
               You can also change this from the live join screen.
@@ -251,11 +251,11 @@ const PortalSettings = () => {
         {/* ===== PRACTICE REMINDERS ===== */}
         <div className="border border-foreground/[0.08] p-6 md:p-8 space-y-6 max-w-lg mt-6">
           <div>
-            <h2 className="portal-heading text-xl text-foreground mb-1">Practice reminders</h2>
+            <h2 className="portal-heading text-xl text-primary mb-1">Practice reminders</h2>
             <p className="text-xs text-muted-foreground font-body font-light leading-relaxed">
               {isTeen
                 ? "Choose whether to receive reminders about upcoming sessions and newly available paper worksheets."
-                : "We send your weekly practice prompts on Monday and Wednesday evenings, plus a gentle Sunday morning nudge before the live session. Two channels — pick whichever feels right."}
+                : "We send your weekly practice prompts on Monday and Wednesday evenings, plus a gentle Sunday morning nudge before the live session. Two channels â€” pick whichever feels right."}
             </p>
           </div>
 
@@ -268,7 +268,7 @@ const PortalSettings = () => {
               <Mail size={18} className="text-foreground/60" />
               <div>
                 <p className="text-sm text-foreground font-body">Email reminders</p>
-                <p className="text-[11px] text-muted-foreground font-body font-light">Works everywhere — the reliable floor.</p>
+                <p className="text-[11px] text-muted-foreground font-body font-light">Works everywhere â€” the reliable floor.</p>
               </div>
             </div>
             <span className={`w-9 h-5 rounded-full relative transition-colors shrink-0 ${emailReminders ? "bg-primary" : "bg-foreground/15"}`}>
@@ -316,7 +316,7 @@ const PortalSettings = () => {
                 )}
                 {pushState.status === "subscribed" && (
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-[11px] text-foreground font-body">✓ This device is subscribed.</p>
+                    <p className="text-[11px] text-foreground font-body">âœ“ This device is subscribed.</p>
                     <button
                       onClick={handleDisablePush}
                       className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground tracking-widest uppercase font-body"
@@ -337,26 +337,26 @@ const PortalSettings = () => {
             {saving ? "SAVING..." : "SAVE CHANGES"}
           </button>
 
-          {/* Your data — export everything we hold about you */}
+          {/* Your data â€” export everything we hold about you */}
           <div className="mt-12 pt-8 border-t border-foreground/10">
-            <h2 className="portal-heading text-xl text-foreground mb-1 flex items-center gap-2">
+            <h2 className="portal-heading text-xl text-primary mb-1 flex items-center gap-2">
               <Download size={16} /> Your data
             </h2>
             <p className="text-sm text-muted-foreground font-body font-light mb-4 max-w-md">
               {isTeen
-                ? "Download everything Mindcast holds about your teen account — profile, attendance and preferences — as a single JSON file. Teen accounts have no digital journal or submission history."
-                : "Download everything Mindcast holds about you — profile, journal, reflections, attendance and preferences — as a single JSON file."}
+                ? "Download everything Mindcast holds about your teen account â€” profile, attendance and preferences â€” as a single JSON file. Teen accounts have no digital journal or submission history."
+                : "Download everything Mindcast holds about you â€” profile, journal, reflections, attendance and preferences â€” as a single JSON file."}
             </p>
             <button
               onClick={handleExport}
               disabled={exporting}
               className="flex items-center gap-2 border border-primary/40 text-primary px-5 py-2.5 text-[11px] tracking-[0.2em] font-body hover:bg-primary/5 transition-colors disabled:opacity-40"
             >
-              {exporting ? <><Loader2 size={13} className="animate-spin" /> PREPARING…</> : "DOWNLOAD MY DATA"}
+              {exporting ? <><Loader2 size={13} className="animate-spin" /> PREPARINGâ€¦</> : "DOWNLOAD MY DATA"}
             </button>
           </div>
 
-          {/* Danger zone — permanent account + data deletion */}
+          {/* Danger zone â€” permanent account + data deletion */}
           <div className="mt-12 pt-8 border-t border-destructive/20">
             <h2 className="portal-heading text-xl text-destructive mb-1 flex items-center gap-2">
               <AlertTriangle size={16} /> Delete account
@@ -390,7 +390,7 @@ const PortalSettings = () => {
                     disabled={deleting || confirmText.trim().toUpperCase() !== "DELETE"}
                     className="flex items-center gap-2 bg-destructive text-destructive-foreground px-5 py-2.5 text-[11px] tracking-[0.2em] font-body hover:bg-destructive/90 transition-colors disabled:opacity-40"
                   >
-                    {deleting ? <><Loader2 size={13} className="animate-spin" /> DELETING…</> : "PERMANENTLY DELETE"}
+                    {deleting ? <><Loader2 size={13} className="animate-spin" /> DELETINGâ€¦</> : "PERMANENTLY DELETE"}
                   </button>
                   <button
                     onClick={() => { setConfirmDelete(false); setConfirmText(""); }}

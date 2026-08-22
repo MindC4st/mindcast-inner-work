@@ -1,4 +1,4 @@
-// /shop — public browsing and checkout. Products are always framed as useful,
+﻿// /shop â€” public browsing and checkout. Products are always framed as useful,
 // optional tools; all prices are NZD with GST included.
 
 import { useEffect, useState } from "react";
@@ -110,8 +110,8 @@ const Shop = () => {
 
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-cream/10 pt-5 font-body text-xs leading-5 text-cream/50">
               <span className="flex items-center gap-2"><Truck className="h-4 w-4" aria-hidden="true" /> New Zealand-wide delivery</span>
-              <span>NZD · GST included</span>
-              <span>$8 shipping · free over $120</span>
+              <span>NZD Â· GST included</span>
+              <span>$8 shipping Â· free over $120</span>
               <Link to="/portal/orders" className="underline decoration-cream/25 underline-offset-4 hover:text-cream">Member orders</Link>
             </div>
           </div>
@@ -121,7 +121,7 @@ const Shop = () => {
           <div className="mb-9 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="portal-label mb-2">The physical range</p>
-              <h2 id="shop-range-heading" className="font-serif text-4xl text-foreground">Browse the collection</h2>
+              <h2 id="shop-range-heading" className="font-serif text-4xl text-primary">Browse the collection</h2>
             </div>
             <p className="max-w-sm font-body text-xs leading-6 text-muted-foreground">Choose only what feels useful. There is no required kit or complete set.</p>
           </div>
@@ -129,7 +129,7 @@ const Shop = () => {
           {SHOP_COMING_SOON && (
             <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/[0.05] p-5 font-body text-sm leading-6 text-foreground">
               <span className="mr-2 font-semibold text-primary">Ordering opens shortly.</span>
-              You’re welcome to browse the range now.
+              Youâ€™re welcome to browse the range now.
             </div>
           )}
 
@@ -151,8 +151,8 @@ const Shop = () => {
           ) : products.length === 0 ? (
             <div className="rounded-2xl border border-foreground/[0.08] bg-white p-10 text-center sm:p-14">
               <ShoppingBag className="mx-auto mb-4 h-8 w-8 text-foreground/20" aria-hidden="true" />
-              <h3 className="font-serif text-2xl text-foreground">The shelves are being prepared.</h3>
-              <p className="mt-2 font-body text-sm text-muted-foreground">Products will appear here as they’re ready.</p>
+              <h3 className="font-serif text-2xl text-primary">The shelves are being prepared.</h3>
+              <p className="mt-2 font-body text-sm text-muted-foreground">Products will appear here as theyâ€™re ready.</p>
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -174,7 +174,7 @@ const Shop = () => {
                     </div>
                     <div className="flex flex-1 flex-col p-5 sm:p-6">
                       <div className="flex items-start justify-between gap-4">
-                        <h3 className="font-body text-base font-semibold leading-6 text-foreground">{product.name}</h3>
+                        <h3 className="font-body text-base font-semibold leading-6 text-primary">{product.name}</h3>
                         <span className="shrink-0 font-body text-sm font-semibold text-foreground">{formatMoney(product.price_cents, product.currency)}</span>
                       </div>
                       {taglines[product.slug] && <p className="mt-3 flex-1 font-body text-sm leading-6 text-muted-foreground">{taglines[product.slug]}</p>}

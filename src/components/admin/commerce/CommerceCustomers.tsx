@@ -1,6 +1,6 @@
-// CommerceCustomers — commerce customer records only.
+﻿// CommerceCustomers â€” commerce customer records only.
 // Deliberately separated from programme data: no reflections, no session
-// history, no participation — purchasing only.
+// history, no participation â€” purchasing only.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { db } from "@/lib/db";
 import { formatMoney } from "@/lib/shop";
@@ -48,22 +48,22 @@ const CommerceCustomers = () => {
     <div className="space-y-5 max-w-4xl">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2 className="font-display text-2xl tracking-wider text-foreground mb-1">CUSTOMERS</h2>
-          <p className="text-sm text-muted-foreground">Commerce records only — purchasing is kept separate from programme participation.</p>
+          <h2 className="font-display text-2xl tracking-wider text-primary mb-1">CUSTOMERS</h2>
+          <p className="text-sm text-muted-foreground">Commerce records only â€” purchasing is kept separate from programme participation.</p>
         </div>
         <div className="relative">
           <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Name or email…"
+            placeholder="Name or emailâ€¦"
             className="pl-8 pr-3 py-1.5 text-sm bg-card border border-border rounded-sm w-56 focus:outline-none focus:border-primary"
           />
         </div>
       </div>
 
       {loading ? (
-        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loading…</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse py-12 text-center">Loadingâ€¦</p>
       ) : visible.length === 0 ? (
         <div className="border border-border bg-card rounded-sm p-10 text-center text-sm text-muted-foreground">No customers yet.</div>
       ) : (
@@ -85,10 +85,10 @@ const CommerceCustomers = () => {
                 return (
                   <tr key={c.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-3 font-semibold">
-                      {[c.first_name, c.last_name].filter(Boolean).join(" ") || "—"}
+                      {[c.first_name, c.last_name].filter(Boolean).join(" ") || "â€”"}
                       {c.profile_id && <span className="ml-2 text-[10px] uppercase tracking-widest text-muted-foreground">member</span>}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{c.email || "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{c.email || "â€”"}</td>
                     <td className="px-4 py-3 text-right">{c.orders.length}</td>
                     <td className="px-4 py-3 text-right">{formatMoney(spend)}</td>
                     <td className="px-4 py-3 text-muted-foreground">{fmtDate(c.created_at)}</td>

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Clock3 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -35,7 +35,7 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
               <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to Mindcast
             </Link>
             <p className="portal-label mb-3">{eyebrow}</p>
-            <h1 className="max-w-4xl break-words font-serif text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl">{title}</h1>
+            <h1 className="max-w-4xl break-words font-serif text-4xl leading-tight text-primary sm:text-5xl lg:text-6xl">{title}</h1>
             <p className="mt-5 flex items-center gap-2 font-body text-xs text-muted-foreground">
               <Clock3 className="h-3.5 w-3.5" aria-hidden="true" /> Last updated {lastUpdated}
             </p>

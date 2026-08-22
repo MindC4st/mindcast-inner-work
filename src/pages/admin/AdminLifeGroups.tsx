@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+﻿import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { db } from "@/lib/db";
 import { useAuth } from "@/contexts/AuthContext";
@@ -439,10 +439,10 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
         <p className="text-[10px] font-body tracking-[0.3em] uppercase text-primary mb-2">Admin</p>
         <h1 className="font-display text-3xl md:text-4xl tracking-wider mb-2">LIFE GROUPS</h1>
         <p className="text-foreground/50 text-sm font-body mb-1">
-          Tuesday evenings 5:30–7:30pm. Adults ~{adultGroupSize}/group, Teens ~{teenGroupSize}/group.
+          Tuesday evenings 5:30â€“7:30pm. Adults ~{adultGroupSize}/group, Teens ~{teenGroupSize}/group.
         </p>
         <p className="text-foreground/40 text-xs font-body mb-10">
-          Adults: ≤5yr spread, even gender, households split. Teens: same age together, even boys/girls, labelled by age (12A, 12B…).
+          Adults: â‰¤5yr spread, even gender, households split. Teens: same age together, even boys/girls, labelled by age (12A, 12Bâ€¦).
         </p>
 
         {/* Assignment controls */}
@@ -462,7 +462,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
                     : "border-foreground/10 text-foreground/50 hover:text-foreground/80 hover:border-foreground/25"
                 }`}
               >
-                {t === "all" ? "All" : t === "adult" ? "Adults (19+)" : "Teens (10–18)"}
+                {t === "all" ? "All" : t === "adult" ? "Adults (19+)" : "Teens (10â€“18)"}
               </button>
             ))}
           </div>
@@ -519,21 +519,21 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
                   disabled={saving}
                   className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-40"
                 >
-                  {saving ? <><Loader2 size={13} className="animate-spin" /> SAVING…</> : <><Save size={13} /> APPLY TO DATABASE</>}
+                  {saving ? <><Loader2 size={13} className="animate-spin" /> SAVINGâ€¦</> : <><Save size={13} /> APPLY TO DATABASE</>}
                 </button>
               </div>
               <div className="grid md:grid-cols-2 gap-3">
                 {preview.groups.map((g, i) => (
                   <div key={i} className="border border-foreground/10 rounded-sm p-4 bg-foreground/[0.02]">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-display text-sm tracking-wider text-foreground">
+                      <h4 className="font-display text-sm tracking-wider text-primary">
                         {g.name}
                         {g.track === "teen" && (
                           <span className="ml-2 text-[9px] font-body tracking-[0.12em] uppercase text-orange-400/70 bg-orange-400/10 px-1.5 py-0.5 rounded-sm">Teen</span>
                         )}
                       </h4>
                       <div className="flex items-center gap-3 text-[10px] text-foreground/50 font-body">
-                        <span>{g.ageMin}–{g.ageMax}y</span>
+                        <span>{g.ageMin}â€“{g.ageMax}y</span>
                         <span>{g.members.length}p</span>
                         <span>M:{g.males} F:{g.females}</span>
                       </div>
@@ -576,13 +576,13 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
                   <div className="flex items-center gap-4">
                     <Users size={16} className="text-foreground/30" strokeWidth={1.5} />
                     <div>
-                      <h3 className="font-display text-sm tracking-wider text-foreground">{g.name}</h3>
+                      <h3 className="font-display text-sm tracking-wider text-primary">{g.name}</h3>
                       <div className="flex items-center gap-3 text-[10px] text-foreground/40 font-body mt-0.5">
                         {g.meeting_space && (
                           <span className="flex items-center gap-1"><MapPin size={10} /> {g.meeting_space}</span>
                         )}
-                        <span className="flex items-center gap-1"><Clock size={10} /> {g.day_of_week}s {g.start_time?.slice(0, 5)}–{g.end_time?.slice(0, 5)}</span>
-                        {g.age_min !== null && <span>{g.age_min}–{g.age_max}y</span>}
+                        <span className="flex items-center gap-1"><Clock size={10} /> {g.day_of_week}s {g.start_time?.slice(0, 5)}â€“{g.end_time?.slice(0, 5)}</span>
+                        {g.age_min !== null && <span>{g.age_min}â€“{g.age_max}y</span>}
                       </div>
                     </div>
                   </div>
@@ -612,7 +612,7 @@ const AdminLifeGroups = ({ embedded = false }: { embedded?: boolean }) => {
                           <div key={m.id} className="flex items-center justify-between px-3 py-2 border border-foreground/[0.06] rounded-sm hover:bg-foreground/[0.03]">
                             <div>
                               <span className="text-xs font-body text-foreground">{m.display_name || m.name}</span>
-                              <span className="text-[10px] text-foreground/30 font-body ml-2">{m.gender || "—"}</span>
+                              <span className="text-[10px] text-foreground/30 font-body ml-2">{m.gender || "â€”"}</span>
                             </div>
                             <button
                               onClick={() => removeMember(g.id, m.id)}

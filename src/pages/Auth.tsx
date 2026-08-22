@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Facebook, Loader2, Mail } from "lucide-react";
@@ -99,9 +99,9 @@ const Auth = () => {
     setLoading(false);
     if (error) {
       const friendly = /invalid login credentials/i.test(error.message)
-        ? "Hmm, that email or password doesn't look right — try again."
+        ? "Hmm, that email or password doesn't look right â€” try again."
         : /email not confirmed/i.test(error.message)
-          ? "Please confirm your email first — check your inbox for the confirmation link."
+          ? "Please confirm your email first â€” check your inbox for the confirmation link."
           : "We couldn't sign you in just now. Check your details and try again.";
       toast({ title: "Sign in failed", description: friendly, variant: "destructive" });
     } else {
@@ -182,7 +182,7 @@ const Auth = () => {
 
         {emailSent ? (
           <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-5">
-            <h2 className="font-serif text-2xl text-foreground">Check your email.</h2>
+            <h2 className="font-serif text-2xl text-primary">Check your email.</h2>
             <p className="mt-2 font-body text-sm leading-6 text-muted-foreground">
               We sent a confirmation link to <strong className="text-foreground">{email}</strong>. Open it to finish creating your account.
             </p>
@@ -246,7 +246,7 @@ const Auth = () => {
 
           <button type="submit" disabled={loading} className={authPrimaryButtonClass}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {loading ? (mode === "signup" ? "Creating account…" : "Signing in…") : (mode === "signup" ? "Sign up with email" : "Sign in with email")}
+            {loading ? (mode === "signup" ? "Creating accountâ€¦" : "Signing inâ€¦") : (mode === "signup" ? "Sign up with email" : "Sign in with email")}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </button>
         </form>
@@ -265,7 +265,7 @@ const Auth = () => {
             className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-foreground/10 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-primary/30 hover:bg-primary/[0.03] focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:opacity-45"
           >
             {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <GoogleMark />}
-            {oauthLoading === "google" ? "Connecting…" : mode === "signup" ? "Sign up with Google" : "Continue with Google"}
+            {oauthLoading === "google" ? "Connectingâ€¦" : mode === "signup" ? "Sign up with Google" : "Continue with Google"}
           </button>
           <button
             type="button"
@@ -274,7 +274,7 @@ const Auth = () => {
             className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#1877F2]/20 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-[#1877F2]/50 hover:bg-[#1877F2]/[0.04] focus:outline-none focus:ring-4 focus:ring-[#1877F2]/10 disabled:opacity-45"
           >
             {oauthLoading === "facebook" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Facebook className="h-5 w-5 text-[#1877F2]" aria-hidden="true" />}
-            {oauthLoading === "facebook" ? "Connecting…" : mode === "signup" ? "Sign up with Facebook" : "Continue with Facebook"}
+            {oauthLoading === "facebook" ? "Connectingâ€¦" : mode === "signup" ? "Sign up with Facebook" : "Continue with Facebook"}
           </button>
         </div>
         </>}

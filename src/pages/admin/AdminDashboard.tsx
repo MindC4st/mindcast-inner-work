@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+﻿import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { db } from "@/lib/db";
@@ -260,7 +260,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                         </td>
                         <td className="py-3 px-2 text-foreground">
                           <div className="font-medium">{m.display_name || m.name}</div>
-                          <div className="text-[10px] text-foreground/40">{m.email || "—"}</div>
+                          <div className="text-[10px] text-foreground/40">{m.email || "â€”"}</div>
                         </td>
                         <td className="py-3 px-2 hidden md:table-cell"><TierLabel tier={m.membership_tier} /></td>
                         <td className="py-3 px-2"><StatusPill status={m.membership_status || "none"} /></td>
@@ -270,8 +270,8 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                             {memberCIs.length}
                           </span>
                         </td>
-                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.age_group || "—"}</td>
-                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.gender || "—"}</td>
+                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.age_group || "â€”"}</td>
+                        <td className="py-3 px-2 hidden md:table-cell text-foreground/50 text-xs">{m.gender || "â€”"}</td>
                       </tr>
                       {/* Expanded check-in log */}
                       <AnimatePresence>
@@ -286,11 +286,11 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                             <td colSpan={7} className="p-0">
                               <div className="bg-foreground/[0.02] border-t border-foreground/[0.04] px-6 py-4">
                                 <div className="flex items-center gap-4 mb-3">
-                                  <h4 className="text-[10px] font-body tracking-[0.15em] uppercase text-foreground/50">
+                                  <h4 className="text-[10px] font-body tracking-[0.15em] uppercase text-primary/50">
                                     CHECK-IN HISTORY ({memberCIs.length} total)
                                   </h4>
                                   <span className="text-[9px] text-foreground/30 font-body">
-                                    ID: {m.id.slice(0, 8)}…
+                                    ID: {m.id.slice(0, 8)}â€¦
                                   </span>
                                   {m.date_of_birth && (
                                     <span className="text-[9px] text-foreground/30 font-body">
@@ -319,7 +319,7 @@ const AdminDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                                           </span>
                                         )}
                                         <span className="text-foreground/30 text-[10px] capitalize ml-auto shrink-0">
-                                          {ci.source?.replace("_", " ") || "—"}
+                                          {ci.source?.replace("_", " ") || "â€”"}
                                         </span>
                                       </div>
                                     ))}

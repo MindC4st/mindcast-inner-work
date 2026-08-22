@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import {
   ArrowDown,
   ArrowRight,
-  ChevronDown,
+  Check,
   Quote,
 } from "lucide-react";
 
@@ -408,65 +408,63 @@ const FoundationsSection = () => {
 /* -------------------------------------------------------------------------- */
 
 const AiDisclosure = () => (
-  <section className="bg-white py-16 sm:py-20">
-    <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
-      <details className="group overflow-hidden rounded-2xl border border-border bg-card shadow-[0_12px_35px_rgba(16,36,56,0.06)]">
-        <summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-6 p-5 marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:p-7 [&::-webkit-details-marker]:hidden">
-          <span>
-            <span className="block font-body text-[10px] font-bold uppercase tracking-[0.22em] text-primary/60">
-              Transparency note
-            </span>
+  <section className="relative overflow-hidden py-20 sm:py-24 lg:py-32">
+    {/* Warm ambient loop behind the whole band. */}
+    <AmbientVideo
+      src="/videos/podcast_tv.mp4"
+      className="absolute inset-0 h-full w-full object-cover opacity-[0.14]"
+    />
+    <div className="absolute inset-0 bg-[#FDFBF7]/70" aria-hidden="true" />
 
-            <span className="mt-2 block font-display text-3xl tracking-wide text-primary sm:text-4xl">
-              HOW MINDCAST USES AI
-            </span>
-          </span>
+    <div className="relative z-10 mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
+      <Reveal>
+        <div className="rounded-3xl border border-border bg-[#FDFBF7]/95 p-7 shadow-[0_18px_55px_rgba(16,36,56,0.10)] backdrop-blur-sm sm:p-10 lg:p-14">
+          <h2 className="text-center font-display text-3xl leading-[1.05] tracking-tight text-primary sm:text-4xl md:text-5xl">
+            WE USE AI. HERE&apos;S WHY WE&apos;RE PROUD OF THAT.
+          </h2>
 
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-primary/20 text-primary transition-transform group-open:rotate-180">
-            <ChevronDown size={20} aria-hidden="true" />
-          </span>
-        </summary>
+          <p className="mx-auto mt-6 max-w-2xl text-center font-body text-base leading-7 text-foreground/80 sm:text-lg sm:leading-8">
+            &ldquo;AI didn&apos;t replace the human work. It made the human
+            work possible.&rdquo;
+          </p>
 
-        <div className="border-t border-border px-5 py-7 sm:px-7 sm:py-9">
-          <div className="grid gap-7 md:grid-cols-3 md:gap-9">
-            <div>
-              <h3 className="font-display text-2xl tracking-wide text-primary">
-                CREATION
-              </h3>
-
-              <p className="mt-3 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                Some images and videos on this website were created with AI. We
-                use it to make a small team capable of expressing a much larger
-                vision.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-display text-2xl tracking-wide text-primary">
-                RESEARCH
-              </h3>
-
-              <p className="mt-3 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                Our curriculum draws from published research and established
-                thinkers. AI helps us search, organise, and synthesise; human
-                judgement decides what belongs in the room.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-display text-2xl tracking-wide text-primary">
-                THE BOUNDARY
-              </h3>
-
-              <p className="mt-3 font-body text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                AI supports the work. It does not replace live facilitation,
-                human connection, or responsibility for what MINDCAST publishes
-                and teaches.
-              </p>
-            </div>
+          <div className="mt-10 space-y-5 font-body text-base leading-7 text-foreground/85">
+            <p>
+              The images and videos on this website were generated using AI.
+              The resources we share are researched and written by leading
+              experts — and AI helps us surface, synthesise, and apply that
+              knowledge faster than any team of researchers could alone.
+            </p>
+            <p>
+              We believe AI should make us more human, not less. It should free
+              up the hours we waste on things that don&apos;t require a human
+              touch — so we can spend more time in rooms with real people,
+              having conversations that actually matter.
+            </p>
+            <p>Mindcast exists because of AI. Not in spite of it.</p>
+            <p>
+              Without it, this idea would still be a note on my phone. I
+              didn&apos;t have a team, a budget, or a background in tech. What I
+              had was a clear vision and access to tools that meant I
+              didn&apos;t need any of those things to get started. AI levelled
+              that playing field completely.
+            </p>
+            <p>
+              Our resources are evidence-based because AI lets us stand on the
+              shoulders of the researchers, scientists, and authors who have
+              spent decades studying human behaviour, healing, and connection.
+              We don&apos;t make things up. We find the best thinking that
+              exists, translate it into something you can actually use, and
+              bring it into the room with us every week.
+            </p>
+            <p>
+              That&apos;s the version of AI we&apos;re interested in: the one
+              that makes human experience richer, more accessible, and more
+              honest.
+            </p>
           </div>
         </div>
-      </details>
+      </Reveal>
     </div>
   </section>
 );
@@ -475,50 +473,86 @@ const AiDisclosure = () => (
 /* CTA                                                                         */
 /* -------------------------------------------------------------------------- */
 
-const AboutCta = ({ membershipHref }: { membershipHref: string }) => (
-  <section className="section-cream border-t border-border py-20 sm:py-24 lg:py-32">
-    <div className="mx-auto max-w-4xl px-5 text-center sm:px-6 lg:px-8">
-      <Reveal>
-        <p className="font-body text-[11px] font-bold uppercase tracking-[0.34em] text-primary">
-          The next question
+const AboutCta = () => (
+  <section className="border-t border-border py-20 sm:py-24 lg:py-28" style={{ background: "hsl(var(--cream))" }}>
+    <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-12 px-5 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+      {/* Left: copy + CTA */}
+      <div className="order-2 space-y-6 lg:order-1">
+        <p className="font-body text-xs font-bold uppercase tracking-[0.28em] text-primary">
+          Inside the Practice
         </p>
 
-        <h2 className="mt-5 font-display text-[clamp(3.4rem,9vw,7.5rem)] leading-[0.86] tracking-tight text-primary">
-          WHAT DOES A WEEK ACTUALLY LOOK LIKE?
+        <h2 className="font-display text-4xl leading-tight tracking-tight text-primary md:text-5xl">
+          OPEN THE FIRST PAGE.
         </h2>
 
-        <p className="mx-auto mt-7 max-w-2xl font-body text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-          Look inside the curriculum, follow the Sunday-to-Friday rhythm, and
-          see how one theme is adapted for adults, teens, and children.
+        <p className="font-body text-lg leading-relaxed text-foreground/80">
+          Take a look inside the 52-week coursebook. See how quiet reflection
+          translates into simple, weekly intentions across every stage of the
+          journey.
         </p>
 
-        <div className="mt-9 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+        <ul className="space-y-3 font-body font-medium text-foreground/85">
+          {[
+            "52 Structured Weekly Themes",
+            "“Notice It. Name It. Do It.” Reflection Prompts",
+            "Interactive Midweek Action Trackers",
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-3">
+              <Check size={17} className="shrink-0 text-primary" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <div className="pt-4">
           <Link
             to="/curriculum"
-            className="inline-flex min-h-[52px] items-center justify-center gap-2 bg-primary px-7 py-4 font-body text-xs font-bold tracking-[0.14em] text-primary-foreground shadow-[0_10px_30px_rgba(53,133,175,0.22)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+            className="inline-flex items-center gap-3 rounded-lg bg-primary px-8 py-4 font-body font-semibold text-primary-foreground shadow-lg transition-all hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
-            LOOK INSIDE THE CURRICULUM
+            EXPLORE THE FULL CURRICULUM
             <ArrowRight size={17} aria-hidden="true" />
           </Link>
-
-          <Link
-            to="/try"
-            className="inline-flex min-h-[52px] items-center justify-center gap-2 border border-primary/40 bg-white px-7 py-4 font-body text-xs font-bold tracking-[0.14em] text-primary transition-[transform,border-color] hover:-translate-y-0.5 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
-          >
-            TRY A SESSION FIRST
-          </Link>
         </div>
+      </div>
 
-        <p className="mt-6 font-body text-sm text-muted-foreground">
-          Already ready?{" "}
-          <Link
-            to={membershipHref}
-            className="font-semibold text-primary underline decoration-primary/25 underline-offset-4 hover:decoration-primary"
-          >
-            View membership options.
-          </Link>
-        </p>
-      </Reveal>
+      {/* Right: open-book mockup on a white card */}
+      <div className="order-1 lg:order-2">
+        <Reveal>
+          <div className="relative rounded-2xl border border-border bg-white p-6 shadow-[0_20px_40px_-15px_rgba(16,36,56,0.15)] sm:p-8">
+            <div className="flex aspect-[4/3] gap-6 rounded-lg border border-amber-100/60 bg-amber-50/50 p-6">
+              <div className="w-1/2 space-y-3 border-r border-amber-200/50 pr-4">
+                <div className="h-3 w-1/3 rounded bg-slate-300" />
+                <div className="h-6 w-3/4 rounded bg-slate-800" />
+                <div className="space-y-2 pt-4">
+                  <div className="h-2 w-full rounded bg-slate-200" />
+                  <div className="h-2 w-5/6 rounded bg-slate-200" />
+                  <div className="h-2 w-4/6 rounded bg-slate-200" />
+                </div>
+              </div>
+              <div className="w-1/2 space-y-3 pl-4">
+                <div className="h-3 w-1/4 rounded bg-primary/40" />
+                <div className="h-20 rounded-lg border border-primary/10 bg-primary/5 p-3">
+                  <div className="mb-2 h-2 w-1/2 rounded bg-primary/40" />
+                  <div className="h-2 w-full rounded bg-primary/20" />
+                </div>
+                <div className="h-2 w-full rounded bg-slate-200" />
+              </div>
+            </div>
+
+            <div className="absolute bottom-4 right-4 rounded-full bg-primary px-3 py-1.5 font-body text-xs font-medium text-primary-foreground shadow-md">
+              Click to Flip Through
+            </div>
+          </div>
+
+          {/* Pagination dot indicator */}
+          <div className="mt-6 flex justify-center" aria-hidden="true">
+            <span className="grid h-9 w-9 place-items-center rounded-full border border-border bg-white">
+              <span className="h-2 w-2 rounded-full bg-foreground" />
+            </span>
+          </div>
+        </Reveal>
+      </div>
     </div>
   </section>
 );
@@ -530,17 +564,13 @@ const AboutCta = ({ membershipHref }: { membershipHref: string }) => (
 // Kept as an export so existing imports continue to compile.
 // Home should link to /about rather than rendering this full page
 // inside the homepage.
-export const AboutContent = ({
-  membershipHref = "/membership",
-}: {
-  membershipHref?: string;
-}) => (
+export const AboutContent = () => (
   <>
     <AboutHero />
     <StorySection />
     <FoundationsSection />
     <AiDisclosure />
-    <AboutCta membershipHref={membershipHref} />
+    <AboutCta />
   </>
 );
 

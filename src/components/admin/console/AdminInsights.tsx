@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -60,7 +60,7 @@ const AdminInsights = () => {
     return <p className="text-muted-foreground text-sm font-body py-12 text-center">Couldn't load insights: {error}</p>;
   }
   if (!stats) {
-    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading insights…</span></div>;
+    return <div className="py-24 flex justify-center"><span className="text-muted-foreground text-xs font-body tracking-widest uppercase animate-pulse">Loading insightsâ€¦</span></div>;
   }
 
   const { totals, status_mix } = stats;
@@ -69,7 +69,7 @@ const AdminInsights = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-2xl text-foreground tracking-wider">Insights</h2>
+        <h2 className="font-display text-2xl text-primary tracking-wider">Insights</h2>
         <p className="text-muted-foreground text-sm font-body mt-1">Membership health and community growth at a glance.</p>
       </div>
 
@@ -102,7 +102,7 @@ const AdminInsights = () => {
             {status_mix.map((s) => (
               <span key={s.name} className="flex items-center gap-2 text-[11px] font-body text-muted-foreground">
                 <span className="w-2.5 h-2.5 rounded-sm" style={{ background: STATUS_COLORS[s.name] || "#64748B" }} />
-                {s.name} · {s.value}
+                {s.name} Â· {s.value}
               </span>
             ))}
           </div>

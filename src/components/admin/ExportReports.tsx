@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { db } from "@/lib/db";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -126,12 +126,12 @@ const ExportReports = () => {
           <div key={ex.key} className="border border-border rounded-lg p-5 bg-card">
             <div className="flex items-center gap-2 mb-2">
               <FileSpreadsheet size={14} className="text-primary" />
-              <h3 className="text-[11px] font-body tracking-[0.15em] text-foreground">{ex.title}</h3>
+              <h3 className="text-[11px] font-body tracking-[0.15em] text-primary">{ex.title}</h3>
             </div>
             <p className="text-[11px] font-body text-muted-foreground mb-4">{ex.desc}</p>
             <Button variant="outline" size="sm" onClick={ex.fn} disabled={loading !== null}
               className="gap-2">
-              <Download size={13} /> {loading === ex.key ? "Exporting…" : "Export CSV"}
+              <Download size={13} /> {loading === ex.key ? "Exportingâ€¦" : "Export CSV"}
             </Button>
           </div>
         ))}

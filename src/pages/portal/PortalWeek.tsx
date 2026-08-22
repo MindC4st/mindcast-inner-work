@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+﻿import { useState, useEffect, lazy, Suspense } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Check, ChevronLeft, Save, Loader2, Lock, Sparkles, PenLine, BookOpen, Lightbulb, Shield, Users, Eye } from "lucide-react";
 import PortalLayout from "@/components/portal/PortalLayout";
@@ -121,12 +121,12 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
           <ChevronLeft size={16} /> Back
         </Link>
 
-        {/* Header — always visible (title + description are free to browse) */}
+        {/* Header â€” always visible (title + description are free to browse) */}
         <section className="mb-6">
           <span className="portal-label text-foreground/40 block mb-2">
-            WEEK {String(weekNum).padStart(2, "0")}{blockTheme ? ` · ${blockTheme}` : ""}
+            WEEK {String(weekNum).padStart(2, "0")}{blockTheme ? ` Â· ${blockTheme}` : ""}
           </span>
-          <h1 className="heading-display text-2xl md:text-3xl text-foreground mb-3 leading-snug">{heading}</h1>
+          <h1 className="heading-display text-2xl md:text-3xl text-primary mb-3 leading-snug">{heading}</h1>
           {coreLearning && (
             <p className="text-sm text-muted-foreground font-body font-light leading-relaxed">{coreLearning}</p>
           )}
@@ -160,7 +160,7 @@ const WeekView = ({ weekNum }: { weekNum: number }) => {
 const LockedPanel = ({ icon, title, body, cta }: { icon: React.ReactNode; title: string; body: string; cta?: boolean }) => (
   <div className="portal-card p-8 md:p-10 text-center">
     <div className="w-14 h-14 rounded-full bg-foreground/[0.05] grid place-items-center mx-auto mb-4 text-foreground/40">{icon}</div>
-    <h2 className="heading-display text-lg text-foreground mb-2">{title}</h2>
+    <h2 className="heading-display text-lg text-primary mb-2">{title}</h2>
     <p className="text-sm text-muted-foreground font-body font-light max-w-sm mx-auto leading-relaxed">{body}</p>
     {cta && (
       <Link to="/membership" className="inline-block mt-6 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors">
@@ -216,7 +216,7 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
 
     {(row?.interactive_activity || wsRow?.experiential_exercise) && (
       <section className="mb-10">
-        <h2 className="portal-heading text-lg text-foreground mb-2 flex items-center gap-2"><BookOpen size={16} /> This week's activity</h2>
+        <h2 className="portal-heading text-lg text-primary mb-2 flex items-center gap-2"><BookOpen size={16} /> This week's activity</h2>
         <p className="text-sm text-foreground/70 font-body font-light leading-relaxed">{wsRow?.experiential_exercise || row?.interactive_activity}</p>
       </section>
     )}
@@ -246,7 +246,7 @@ const UnlockedContent = ({ weekNum, track, row, vid, kidsAddon, profileId, wsRow
   );
 };
 
-// Session record — the approved, on-screen shared reflections from the live
+// Session record â€” the approved, on-screen shared reflections from the live
 // session, plus the facilitator's saved whiteboard. Read-only for everyone.
 const SessionRecord = ({ weekNum, track }: { weekNum: number; track: string }) => {
   const [responses, setResponses] = useState<{ id: string; display_name: string; response_text: string }[]>([]);
@@ -302,9 +302,9 @@ const SessionRecord = ({ weekNum, track }: { weekNum: number; track: string }) =
 
   return (
     <section className="mb-10 portal-card p-5 md:p-6">
-      <h2 className="portal-heading text-lg text-foreground mb-1 flex items-center gap-2"><Users size={16} /> Shared in the session</h2>
+      <h2 className="portal-heading text-lg text-primary mb-1 flex items-center gap-2"><Users size={16} /> Shared in the session</h2>
       <p className="text-xs text-muted-foreground font-body mb-4">
-        Reflections and facilitator input saved with this room{recordedAt ? ` · ${new Date(recordedAt).toLocaleDateString()}` : ""}.
+        Reflections and facilitator input saved with this room{recordedAt ? ` Â· ${new Date(recordedAt).toLocaleDateString()}` : ""}.
       </p>
       {responses.length === 0 ? (
         <p className="text-sm text-muted-foreground font-body font-light">No shared reflections were displayed this week.</p>
@@ -400,10 +400,10 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
   if (loading) return <div className="py-8 flex justify-center"><Loader2 size={18} className="animate-spin text-muted-foreground" /></div>;
 
   const reflectionLabel = wsRow?.journaling_prompt
-    ? `REFLECTION · ${wsRow.journaling_prompt}`
+    ? `REFLECTION Â· ${wsRow.journaling_prompt}`
     : "REFLECTION";
   const activityLabel = wsRow?.experiential_exercise
-    ? `ACTIVITY · ${wsRow.experiential_exercise}`
+    ? `ACTIVITY Â· ${wsRow.experiential_exercise}`
     : "FROM THE ACTIVITY";
   const practiceMon = wsRow?.practice_sun_today;
   const practiceWed = wsRow?.practice_midweek;
@@ -412,7 +412,7 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
 
   return (
     <section className="mb-12 portal-card p-6 md:p-8 border-2 border-foreground/10">
-      <h2 className="portal-heading text-lg text-foreground mb-1 flex items-center gap-2"><PenLine size={16} /> My journal</h2>
+      <h2 className="portal-heading text-lg text-primary mb-1 flex items-center gap-2"><PenLine size={16} /> My journal</h2>
       <p className="text-xs text-muted-foreground font-body font-light mb-6">Private to you. Only a linked guardian can read a child's entries.</p>
 
       {/* The accountability loop: every session opens by returning to the
@@ -425,16 +425,16 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
         </div>
       )}
 
-      {/* Journal fields follow the slide order: Video → Reflect & Share →
-          Together → notes, then Practice + Affirmation, then the intention
+      {/* Journal fields follow the slide order: Video â†’ Reflect & Share â†’
+          Together â†’ notes, then Practice + Affirmation, then the intention
           they carry into the week (the closing commitment slide). */}
       <div className="space-y-6">
-        {videoQs.q1 && field("video_question_1_response", `WHILE YOU WATCH · ${videoQs.q1}`, "Your answer while watching the video…", 3)}
-        {videoQs.q2 && field("video_question_2_response", `WHILE YOU WATCH · ${videoQs.q2}`, "Your answer while watching the video…", 3)}
-        {field("reflection_answer", reflectionLabel, "Your answer to this week's question…", 4)}
-        {field("activity_response", activityLabel, "What you took from the interactive activity…")}
-        {field("personal_notes", "SUNDAY NOTES", "Anything else from the session…")}
-        {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Group…")}
+        {videoQs.q1 && field("video_question_1_response", `WHILE YOU WATCH Â· ${videoQs.q1}`, "Your answer while watching the videoâ€¦", 3)}
+        {videoQs.q2 && field("video_question_2_response", `WHILE YOU WATCH Â· ${videoQs.q2}`, "Your answer while watching the videoâ€¦", 3)}
+        {field("reflection_answer", reflectionLabel, "Your answer to this week's questionâ€¦", 4)}
+        {field("activity_response", activityLabel, "What you took from the interactive activityâ€¦")}
+        {field("personal_notes", "SUNDAY NOTES", "Anything else from the sessionâ€¦")}
+        {field("life_group_notes", "LIFE GROUP NOTES", "Deeper notes from your midweek Life Groupâ€¦")}
       </div>
 
       {/* Weekly practice prompts (from worksheet) */}
@@ -472,11 +472,11 @@ const JournalPanel = ({ weekNum, track, profileId, wsRow }: {
       )}
 
       <div className="space-y-6 mt-6">
-        {field("weekly_intention", "MY INTENTION THIS WEEK · one specific thing I will do", "e.g. I'll put my phone in another room after 9pm…", 3)}
+        {field("weekly_intention", "MY INTENTION THIS WEEK Â· one specific thing I will do", "e.g. I'll put my phone in another room after 9pmâ€¦", 3)}
       </div>
       <button onClick={save} disabled={saving}
         className="mt-6 flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 text-[11px] tracking-[0.2em] font-body hover:bg-primary/90 transition-colors disabled:opacity-60">
-        {saving ? <><Loader2 size={14} className="animate-spin" /> SAVING…</> : saved ? <><Check size={14} /> SAVED</> : <><Save size={14} /> SAVE JOURNAL</>}
+        {saving ? <><Loader2 size={14} className="animate-spin" /> SAVINGâ€¦</> : saved ? <><Check size={14} /> SAVED</> : <><Save size={14} /> SAVE JOURNAL</>}
       </button>
     </section>
   );

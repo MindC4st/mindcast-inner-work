@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { CalendarDays, ShieldAlert, Trash2, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Roster — who is staffing which room on a given Sunday, and the staffed
+// Roster â€” who is staffing which room on a given Sunday, and the staffed
 // capacity the roll call's ratio check measures against. Admin-writable;
 // facilitators can see it (RLS enforces the difference).
 
@@ -116,11 +116,11 @@ const AdminRoster = ({ embedded = false }: { embedded?: boolean }) => {
     <div className={embedded ? "" : "p-8"}>
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="font-display text-2xl tracking-wider text-foreground flex items-center gap-2">
+          <h2 className="font-display text-2xl tracking-wider text-primary flex items-center gap-2">
             <CalendarDays size={20} className="text-primary" /> SUNDAY ROSTER
           </h2>
           <p className="text-xs text-muted-foreground font-body mt-1">
-            Who runs each room — and the capacity the roll call checks against.
+            Who runs each room â€” and the capacity the roll call checks against.
           </p>
         </div>
         <input
@@ -140,7 +140,7 @@ const AdminRoster = ({ embedded = false }: { embedded?: boolean }) => {
           return (
             <div key={room} className="border border-border bg-card rounded-md p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-display text-lg tracking-wider text-foreground">{room.toUpperCase()} ROOM</h3>
+                <h3 className="font-display text-lg tracking-wider text-primary">{room.toUpperCase()} ROOM</h3>
                 {room !== "Adult" && (
                   <span className="text-[10px] font-body tracking-widest uppercase text-muted-foreground">
                     {roomRows.length} staff
@@ -190,7 +190,7 @@ const AdminRoster = ({ embedded = false }: { embedded?: boolean }) => {
                   aria-label={`Add staff to ${room} room`}
                   className="flex-1 min-w-0 bg-transparent border border-border rounded-sm px-2 py-2 text-xs font-body text-foreground focus:outline-none focus:border-primary"
                 >
-                  <option value="">Add staff…</option>
+                  <option value="">Add staffâ€¦</option>
                   {staff
                     .filter((s) => !roomAssigned(room).has(s.profile_id))
                     .map((s) => (
