@@ -4,6 +4,7 @@ import { Download, Lock, FileText, Palette, Clock, Shield, Unlock, AlertCircle }
 import PortalLayout from "@/components/portal/PortalLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProgramSchedule } from "@/hooks/useProgramSchedule";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadWorksheetPdf, WorksheetSession } from "@/lib/generateWorksheetPdf";
 import { resolveColouringUrl } from "@/lib/colouringUrl";
@@ -52,6 +53,10 @@ type DownloadItem = {
   kids_game: string | null;
   kids_game_equipment: string | null;
   kids_game_under5: string | null;
+  workbook_activity: string | null;
+  activity_type: string | null;
+  kids_activity_type: string | null;
+  activity_options: string | null;
 };
 
 const AUDIENCES = ["Adult", "Teen", "Child"] as const;
@@ -60,6 +65,7 @@ const AUDIENCES = ["Adult", "Teen", "Child"] as const;
 
 const PortalDownloads = () => {
   const { user, role, profile } = useAuth();
+  const { isMember, track } = useEntitlement();
   const { isUnlocked, unlockDate } = useProgramSchedule();
   const [audience, setAudience] = useState<"Adult" | "Teen" | "Child">("Adult");
   const [items, setItems] = useState<DownloadItem[]>([]);
@@ -67,6 +73,14 @@ const PortalDownloads = () => {
   const [adminFallback, setAdminFallback] = useState(false);
 
   const isAdmin = role === "admin" || role === "facilitator" || profile?.is_admin === true || adminFallback;
+  const canDownload = isAdmin || isMember;
+
+  // A teen account should land on Teen worksheets, not an empty Adult tab.
+  // Adult guardians may still switch tracks; the server RPC decides which
+  // household tracks they are entitled to read.
+  useEffect(() => {
+    if (!isAdmin) setAudience(track);
+  }, [isAdmin, track]);
 
   // Direct DB fallback — catches cases where AuthContext isn't ready or lacks the flag
   useEffect(() => {
@@ -91,9 +105,7 @@ const PortalDownloads = () => {
           .select("week_number, audience, phase_name, theme_title, session_title, opening_hook, previous_week_callback, core_concept, ancient_wisdom_reframe, signal_metaphor, video_description, video_question_1, video_question_2, thought_provoking_question, private_write_prompt, journaling_prompt, experiential_exercise, intention_prompt, practice_sun_today, practice_midweek, practice_fri, core_affirmation, closing_quote, closing_quote_attribution, coloring_page_url, coloring_pdf_url")
           .eq("audience", audience)
           .order("week_number", { ascending: true }),
-        db
-          .from("curriculum_weeks")
-          .select("week_number, opening_question, kids_signal_metaphor, kids_picture_book, kids_picture_book_author, kids_picture_book_question, kids_colouring_prompt, kids_game, kids_game_equipment, kids_game_under5"),
+        db.rpc("curriculum_for_track", { p_audience: audience }),
       ]);
 
       if (!active) return;
@@ -121,18 +133,11 @@ const PortalDownloads = () => {
     audience: item.audience,
     opening_hook: item.opening_hook || undefined,
     opening_question: item.opening_question || undefined,
-    previous_week_callback: item.previous_week_callback || undefined,
-    core_concept: item.core_concept || undefined,
-    ancient_wisdom_reframe: item.ancient_wisdom_reframe || undefined,
     signal_metaphor: item.signal_metaphor || undefined,
     kids_signal_metaphor: item.kids_signal_metaphor || undefined,
-    video_description: item.video_description || undefined,
     video_question_1: item.video_question_1 || undefined,
     video_question_2: item.video_question_2 || undefined,
-    kids_picture_book: item.kids_picture_book || undefined,
-    kids_picture_book_author: item.kids_picture_book_author || undefined,
     kids_picture_book_question: item.kids_picture_book_question || undefined,
-    kids_colouring_prompt: item.kids_colouring_prompt || undefined,
     thought_provoking_question: item.thought_provoking_question || undefined,
     private_write_prompt: item.private_write_prompt || undefined,
     journaling_prompt: item.journaling_prompt || undefined,
@@ -141,12 +146,9 @@ const PortalDownloads = () => {
     practice_sun_today: item.practice_sun_today || undefined,
     practice_midweek: item.practice_midweek || undefined,
     practice_fri: item.practice_fri || undefined,
-    core_affirmation: item.core_affirmation || undefined,
-    closing_quote: item.closing_quote || undefined,
-    closing_quote_attribution: item.closing_quote_attribution || undefined,
-    kids_game: item.kids_game || undefined,
-    kids_game_equipment: item.kids_game_equipment || undefined,
-    kids_game_under5: item.kids_game_under5 || undefined,
+    workbook_activity: item.workbook_activity || undefined,
+    activity_type: (item.audience === "Child" ? item.kids_activity_type : item.activity_type) || item.activity_type || undefined,
+    activity_options: item.activity_options || undefined,
   });
 
   // Handle worksheet download
@@ -193,7 +195,7 @@ const PortalDownloads = () => {
   };
 
   // Is a given week unlocked for this audience?
-  const weekIsUnlocked = (week: number) => isAdmin || isUnlocked(week);
+  const weekIsUnlocked = (week: number) => canDownload && (isAdmin || isUnlocked(week));
 
   // The stored colouring-page values for a week, or null if there aren't any.
   //
@@ -242,7 +244,9 @@ const PortalDownloads = () => {
         <p className="text-sm text-muted-foreground font-body">
           {isAdmin
             ? "Admin view — all content is unlocked. Worksheets and colouring pages are available for every week."
-            : "Worksheets unlock at 9:30am on each session day. Colour the journey."}
+            : canDownload
+              ? "One-page worksheets unlock at 9:30am on each session day. Print at home or keep using your digital journal."
+              : "Weekly worksheet downloads are included with an active membership."}
         </p>
       </div>
 

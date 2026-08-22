@@ -1,5 +1,5 @@
 /**
- * Generate and upload every Mindcast workbook using the same renderer as the
+ * Generate and upload every one-page Mindcast worksheet using the same renderer as the
  * member portal and Facilitate Live download button.
  *
  * Usage:
@@ -24,13 +24,13 @@ if (!serviceKey) {
 const supabase = createClient(supabaseUrl, serviceKey);
 
 async function main() {
-  console.log("Mindcast workbook batch generator");
+  console.log("Mindcast one-page worksheet batch generator");
 
   const [{ data: sessions, error: sessionError }, { data: curriculum, error: curriculumError }] = await Promise.all([
     supabase.from("mindcast_live_sessions").select("*").order("week_number", { ascending: true }),
     supabase
       .from("curriculum_weeks")
-      .select("week_number, opening_question, kids_signal_metaphor, kids_picture_book, kids_picture_book_author, kids_picture_book_question, kids_colouring_prompt, kids_game, kids_game_equipment, kids_game_under5"),
+      .select("week_number, opening_question, kids_signal_metaphor, kids_picture_book_question, thought_provoking_question, workbook_activity, activity_type, activity_options, kids_activity_type"),
   ]);
 
   if (sessionError) throw sessionError;
@@ -44,7 +44,7 @@ async function main() {
   for (const row of sessions) {
     const session = { ...curriculumByWeek.get(row.week_number), ...row };
     const track = (session.audience || "Adult").toLowerCase();
-    const filename = `week-${String(session.week_number).padStart(2, "0")}-${track}-workbook.pdf`;
+    const filename = `week-${String(session.week_number).padStart(2, "0")}-${track}-worksheet.pdf`;
     const storagePath = `worksheet-pdfs/${filename}`;
 
     try {
@@ -70,7 +70,7 @@ async function main() {
     }
   }
 
-  console.log(`Done. ${success} workbooks generated; ${failed} failed.`);
+  console.log(`Done. ${success} one-page worksheets generated; ${failed} failed.`);
   if (failed) process.exitCode = 1;
 }
 

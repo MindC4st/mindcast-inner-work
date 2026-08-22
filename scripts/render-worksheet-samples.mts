@@ -24,6 +24,8 @@ const base: WorksheetSession = {
   core_concept: "Attention is not the same as control. The practice is to notice what is competing for attention, name the signal that matters, and make one deliberate choice.",
   thought_provoking_question: "What invisible load have you been carrying silently - and what would it take to name it?",
   experiential_exercise: "Make the invisible visible. List what you are carrying, seen and unseen. Sort it into what belongs to you, what can be shared, and what can be put down. Choose one small next action.",
+  workbook_activity: "Make the invisible visible. Two columns: “Visible tasks” and “Invisible load”. Write what you carry, then choose one thing to share or set down.",
+  activity_type: "whiteboard",
   private_write_prompt: "What is one load you have not named out loud yet?",
   journaling_prompt: "What is the loudest noise in your head right now - and what quiet signal is it drowning out?",
   intention_prompt: "Choose one specific signal to follow this week. Make the action small enough to do even on a noisy day.",
@@ -56,6 +58,9 @@ const samples: WorksheetSession[] = [
     kids_colouring_prompt: "Colour the feelings you can notice today. There is no right colour.",
     kids_game: "Signal statues: move while the room is noisy, freeze when the signal sounds, then name one thing you noticed.",
     kids_game_equipment: "A bell or gentle sound maker.",
+    experiential_exercise: "Draw the quiet signal you noticed in the story, or write one word for it.",
+    workbook_activity: "Draw or write the signal you noticed today.",
+    activity_type: "whiteboard",
     journaling_prompt: "What does your picture want to say?",
     intention_prompt: "One thing I want to practise this week is...",
     practice_sun_today: "Name one feeling colour with a trusted grown-up.",
@@ -66,7 +71,7 @@ const samples: WorksheetSession[] = [
 ];
 
 for (const session of samples) {
-  const filename = `mindcast-week-01-${session.audience.toLowerCase()}-workbook.pdf`;
+  const filename = `mindcast-week-01-${session.audience.toLowerCase()}-worksheet.pdf`;
   const output = resolve(outputDir, filename);
   const bytes = Buffer.from(generateWorksheetPdf(session).output("arraybuffer"));
   writeFileSync(output, bytes);

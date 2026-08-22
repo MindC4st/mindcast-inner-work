@@ -58,6 +58,7 @@ function escapeHtml(s: string): string {
 // ─── Shell ────────────────────────────────────────────────────────────────
 
 function head(title: string): string {
+  const fonts = T.fontsLink ? `<link href="${T.fontsLink}" rel="stylesheet">` : "";
   return `<!DOCTYPE html>
 <html lang="en-NZ">
 <head>
@@ -66,7 +67,7 @@ function head(title: string): string {
 <meta name="x-apple-disable-message-reformatting">
 <meta name="color-scheme" content="light only">
 <meta name="supported-color-schemes" content="light only">
-<link href="${T.fontsLink}" rel="stylesheet">
+${fonts}
 <title>${escapeHtml(title)}</title>
 <style>
   :root { color-scheme:light only; supported-color-schemes:light only; }
@@ -132,10 +133,11 @@ function toPlainText(html: string): string {
 
 // ─── renderEmail ──────────────────────────────────────────────────────────
 
-export function renderEmail(template: EmailTemplate, payload: Payload): RenderedEmail {
-  const subject = resolveMerge(template.subject(payload), payload);
-  const preview = resolveMerge(template.previewText(payload), payload);
-  const bodyHtml = resolveMerge(template.body(payload), payload);
+export function renderEmail<P extends object>(template: EmailTemplate<P>, payload: P): RenderedEmail {
+  const fields = payload as Payload;
+  const subject = resolveMerge(template.subject(payload), fields);
+  const preview = resolveMerge(template.previewText(payload), fields);
+  const bodyHtml = resolveMerge(template.body(payload), fields);
 
   const html = `${head(subject)}
 <body style="margin:0;padding:0;background:${T.pageBg};">
@@ -154,7 +156,7 @@ ${masthead()}
 ${bodyHtml}
   </td></tr>
 
-${footer(template.transactional, typeof payload.unsubscribe_url === "string" ? payload.unsubscribe_url : undefined)}
+${footer(template.transactional, typeof fields.unsubscribe_url === "string" ? fields.unsubscribe_url : undefined)}
 
 </table>
 </td></tr></table>

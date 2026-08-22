@@ -95,7 +95,7 @@ const AdminDownloadsTab = () => {
           className="flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-5 hover:border-border transition-colors">
           <Printer size={16} className="text-primary" />
           <span className="text-sm font-body text-foreground">Coursebook (print)</span>
-          <span className="text-[11px] font-body text-muted-foreground">All 52 weeks with workbook activities — print-ready.</span>
+          <span className="text-[11px] font-body text-muted-foreground">All 52 weeks with one-page worksheet activities - print-ready.</span>
         </Link>
         <Link to="/portal/downloads"
           className="flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-5 hover:border-border transition-colors">

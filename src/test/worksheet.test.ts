@@ -1,5 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import {
   generateWorksheetPdf,
   worksheetPageKeysForTrack,
@@ -21,7 +23,6 @@ async function pdfjsLib(): Promise<PdfJs> {
   return pdfjsReady;
 }
 
-const PAGE_AREA = 595.28 * 841.89;
 const sessions = fixture as WorksheetSession[];
 const flat = (value: string) => value.replace(/\s+/g, "").toUpperCase();
 
@@ -46,129 +47,136 @@ async function extractPages(session: WorksheetSession) {
   return pages;
 }
 
-describe("worksheet template - live sequence parity", () => {
+describe("one-page worksheet contract", () => {
   it("has the full 52 week x three track curriculum fixture", () => {
     expect(sessions).toHaveLength(156);
   });
 
-  it("maps Adult and Teen to eight pages and Child to nine", () => {
-    expect(worksheetPageKeysForTrack("Adult")).toEqual([
-      "welcome", "voices", "ancient", "video", "deeper", "reflection", "intention", "affirmation",
-    ]);
-    expect(worksheetPageKeysForTrack("Teen")).toHaveLength(8);
-    expect(worksheetPageKeysForTrack("Child")).toEqual([
-      "welcome", "voices", "ancient", "video", "coloring", "deeper", "reflection", "intention", "closing_game",
-    ]);
+  it("maps every track to one A4 worksheet rather than one page per slide", () => {
+    for (const track of ["Adult", "Teen", "Child"]) {
+      expect(worksheetPageKeysForTrack(track)).toEqual(["worksheet"]);
+    }
   });
 
   for (const session of sessions) {
-    it(`week ${session.week_number} ${session.audience} renders the exact live page count`, () => {
-      const pages = generateWorksheetPdf(session).getNumberOfPages();
-      expect(pages).toBe(session.audience === "Child" ? 9 : 8);
+    it(`week ${session.week_number} ${session.audience} renders one page`, () => {
+      expect(generateWorksheetPdf(session).getNumberOfPages()).toBe(1);
     });
   }
 });
 
-describe("worksheet print design", () => {
+describe("print-cost and binder rules", () => {
+  const source = readFileSync(resolve(__dirname, "../lib/generateWorksheetPdf.ts"), "utf8");
   const sample = sessions[0];
 
-  it("uses pale writing surfaces without a full-page background fill", () => {
-    const doc = generateWorksheetPdf(sample);
-    const raw = doc.output();
-    let filled = 0;
-    const rectangles = /(-?[\d.]+) (-?[\d.]+) ([\d.]+) ([\d.]+) re\s*([fFbB])/g;
-    let match: RegExpExecArray | null;
-    while ((match = rectangles.exec(raw))) {
-      const area = parseFloat(match[3]) * parseFloat(match[4]);
-      filled += area;
-      expect(area).toBeLessThan(PAGE_AREA * 0.5);
-    }
-    expect(filled / (PAGE_AREA * doc.getNumberOfPages())).toBeLessThan(0.55);
+  it("does not draw binder holes, slide tabs or coloured panel fills", () => {
+    expect(source).not.toContain("drawBinderHoles");
+    expect(source).not.toContain("drawTabs");
+    expect(source).not.toContain("PALE_BLUE");
+    expect(source).not.toContain("WORKBOOK PAGE");
+    const raw = generateWorksheetPdf(sample).output();
+    expect(raw).not.toMatch(/[\d.]+ [\d.]+ [\d.]+ [\d.]+ re\s*[fF]/);
   });
 
   it("keeps every text item inside the printable page", async () => {
-    const pages = await extractPages(sample);
-    for (const page of pages) {
-      for (const y of page.ys) {
-        expect(y).toBeGreaterThan(20);
-        expect(y).toBeLessThan(825);
-      }
+    const [page] = await extractPages(sample);
+    for (const y of page.ys) {
+      expect(y).toBeGreaterThan(20);
+      expect(y).toBeLessThan(825);
     }
   });
 });
 
-describe("worksheet text layer and page order", () => {
+describe("connected fields and adaptive activity space", () => {
   const adult: WorksheetSession = {
     ...sessions[0],
-    opening_question: "What are you actually receiving?",
-    previous_week_callback: "Notice one signal beneath the noise.",
-    ancient_wisdom_reframe: "Attention has always shaped experience.",
-    video_question_1: "What was the speaker's central idea?",
-    video_question_2: "Where does it show up in your life?",
-    thought_provoking_question: "What changes when you choose the signal?",
-    private_write_prompt: "Name one invisible load you have been carrying.",
-    intention_prompt: "Choose one specific signal to follow this week.",
+    theme_title: "The Signal and the Noise",
+    session_title: "What Are You Actually Receiving?",
+    signal_metaphor: "Your mind is a phone with many tabs open. Choose the one signal that matters.",
+    journaling_prompt: "What quiet signal is the noise drowning out?",
+    workbook_activity: "Make the invisible visible. Two columns: “Visible tasks” and “Invisible load”.",
+    activity_type: "whiteboard",
     practice_sun_today: "Catch the hum once today.",
-    practice_midweek: "Name one visible responsibility.",
-    practice_fri: "Move from helping to owning.",
-    closing_quote: "My attention is mine to direct.",
+    practice_midweek: "Name one invisible responsibility.",
+    practice_fri: "Choose one concrete next step.",
   };
 
-  it("renders one live beat per Adult page in the signed-off order", async () => {
-    const pages = await extractPages(adult);
-    const titles = [
-      "WELCOME + OPENING QUESTION",
-      "RETURN TO YOUR INTENTION",
-      "INNER WISDOM + IN TODAY'S WORLD",
-      "THIS WEEK'S LISTEN",
-      "GO DEEPER + TOGETHER",
-      "REFLECT & SHARE",
-      "BEFORE YOU LEAVE",
-      "CLOSING AFFIRMATION",
-    ];
-    expect(pages).toHaveLength(8);
-    pages.forEach((page, index) => {
-      expect(flat(page.text)).toContain(flat(titles[index]));
-      expect(flat(page.text)).toContain(flat(`${index + 1} / 8`));
-    });
+  it("puts only the compact worksheet sections on one page", async () => {
+    const [page] = await extractPages(adult);
+    const text = flat(page.text);
+    for (const heading of ["THE SIGNAL", "YOUR REFLECTION", "ACTIVITY", "THIS WEEK'S PRACTICE", "1 / 1"]) {
+      expect(text).toContain(flat(heading));
+    }
+    expect(text).toContain(flat("VISIBLE TASKS"));
+    expect(text).toContain(flat("INVISIBLE LOAD"));
+    expect(text).not.toContain(flat("CLOSING AFFIRMATION"));
   });
 
-  it("inserts colouring before Go Deeper in the nine-page Child workbook", async () => {
+  it("renders scale and choice controls from the connected activity fields", async () => {
+    const scale = flat((await extractPages({ ...adult, activity_type: "scale", workbook_activity: "Rate yourself from 1 to 10." }))[0].text);
+    expect(scale).toContain(flat("NOT AT ALL"));
+    expect(scale).toContain(flat("VERY MUCH"));
+
+    const choice = flat((await extractPages({
+      ...adult,
+      activity_type: "choice",
+      activity_options: "Pause | Ask | Share | Rest",
+      workbook_activity: "Choose the response you want to practise.",
+    }))[0].text);
+    for (const option of ["Pause", "Ask", "Share", "Rest"]) expect(choice).toContain(flat(option));
+  });
+
+  it("keeps the Child colouring page and closing game out of the worksheet", async () => {
     const child: WorksheetSession = {
       ...adult,
       audience: "Child",
-      kids_picture_book: "The Colour Monster",
-      kids_picture_book_author: "Anna Llenas",
       kids_picture_book_question: "Which colour feels most like today?",
-      kids_colouring_prompt: "Colour the feelings you can notice.",
-      kids_game: "Match a colour to a feeling, then choose a safe action.",
-      kids_game_equipment: "Colour cards and a clear space to move.",
-      kids_game_under5: "Use two colours and let children copy the facilitator.",
+      workbook_activity: "Draw the signal you noticed in the story.",
     };
-    const pages = await extractPages(child);
-    expect(pages).toHaveLength(9);
-    expect(flat(pages[4].text)).toContain(flat("COLOURING ACTIVITY"));
-    expect(flat(pages[5].text)).toContain(flat("GO DEEPER + TOGETHER"));
-    expect(flat(pages[8].text)).toContain(flat("THE CLOSING GAME / ACTIVITY"));
-    expect(flat(pages[8].text)).toContain(flat("WHAT YOU NEED"));
-    expect(flat(pages[8].text)).toContain(flat("9 / 9"));
+    const all = flat((await extractPages(child))[0].text);
+    expect(all).toContain(flat("DRAW OR WRITE YOUR REFLECTION"));
+    expect(all).not.toContain(flat("COLOURING ACTIVITY"));
+    expect(all).not.toContain(flat("THE CLOSING GAME"));
   });
 
   it("renders macrons correctly", async () => {
-    const session: WorksheetSession = {
+    const all = (await extractPages({
       ...adult,
       theme_title: "Taupō whānau kōrero - Ā Ē Ī Ō Ū",
       signal_metaphor: "Te ao Māori: whānau, kōrero, ātea. Ā ē ī ō ū.",
-    };
-    const all = (await extractPages(session)).map((page) => page.text).join(" ");
+    }))[0].text;
     for (const character of ["ā", "ē", "ī", "ō", "ū", "Ā", "Ē", "Ī", "Ō", "Ū"]) {
       expect(all).toContain(character);
     }
   });
 
   it("does not restore the retired tagline", async () => {
-    const all = flat((await extractPages(adult)).map((page) => page.text).join(" "));
+    const all = flat((await extractPages(adult))[0].text);
     expect(all).not.toContain(flat("notice.name.rewire."));
     expect(all).toContain(flat("NOTICE IT. NAME IT. DO IT."));
+  });
+});
+
+describe("paid portal worksheet access", () => {
+  const root = resolve(__dirname, "../..");
+  const downloads = readFileSync(resolve(root, "src/pages/portal/PortalDownloads.tsx"), "utf8");
+  const migration = readFileSync(
+    resolve(root, "supabase/migrations/20260830140000_curriculum_worksheet_fields.sql"),
+    "utf8",
+  );
+
+  it("defaults teen accounts to their own track and gates downloads on membership", () => {
+    expect(downloads).toContain("useEntitlement");
+    expect(downloads).toContain("setAudience(track)");
+    expect(downloads).toContain("const canDownload = isAdmin || isMember");
+    expect(downloads).toContain("db.rpc(\"curriculum_for_track\"");
+  });
+
+  it("whitelists the worksheet activity fields in the track-safe RPC", () => {
+    for (const field of ["workbook_activity", "activity_type", "activity_options", "kids_activity_type"]) {
+      expect(migration).toContain(`'${field}'`);
+    }
+    expect(migration).toContain("public.can_access_track(v_audience)");
+    expect(migration).toContain("public.lesson_unlocked(c.week_number)");
   });
 });

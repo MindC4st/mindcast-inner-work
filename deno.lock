@@ -81,6 +81,7 @@
     "npm:next-themes@0.3": "0.3.0_react@18.3.1_react-dom@18.3.1__react@18.3.1",
     "npm:pdf-lib@*": "1.17.1",
     "npm:pdfjs-dist@^6.2.108": "6.2.108",
+    "npm:pngjs@7.0.0": "7.0.0",
     "npm:postcss@^8.5.6": "8.5.26",
     "npm:posthog-js@^1.160.0": "1.417.0",
     "npm:qrcode@^1.5.4": "1.5.4",
@@ -4558,6 +4559,9 @@
     "pngjs@5.0.0": {
       "integrity": "sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw=="
     },
+    "pngjs@7.0.0": {
+      "integrity": "sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow=="
+    },
     "postcss-import@15.1.0_postcss@8.5.26": {
       "integrity": "sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==",
       "dependencies": [
@@ -4804,7 +4808,7 @@
       "integrity": "sha512-1ca71Zgiu6ORjHqFBDpnSMTR2ReToX4l1Au1VFLyVeBTFavzQnv5JxMFr3ukHVKpSrSA2MCk0lNJSykjUfz7Zg==",
       "dependencies": [
         "dijkstrajs",
-        "pngjs",
+        "pngjs@5.0.0",
         "yargs"
       ],
       "bin": true

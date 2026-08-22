@@ -17,6 +17,7 @@ import {
   StandardFonts,
 } from "npm:pdf-lib";
 import { LOGO_PNG_B64 } from "./logo.ts";
+import { containArtwork, cropWhiteMargins } from "./image-layout.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -157,18 +158,24 @@ serve(async (req: Request) => {
         (sessionTitle ? ` (this week's children's lesson: ${sessionTitle})` : "") +
         (metaphor ? ` The week's idea in child-friendly terms: ${metaphor}` : "") +
         `. Cute characters, nature, and everyday objects; thick uniform line weight suited to crayons. ` +
-        `Centred composition with a clear border margin. NO text, NO words, NO letters, NO numbers. ` +
+        `Use the full canvas with only a narrow safe margin. Do not draw a frame or border around the illustration. ` +
+        `NO text, NO words, NO letters, NO numbers. ` +
         `Style: classic kids' activity-book colouring page. ` +
         (orientation === "landscape" ? "Aspect ratio 4:3 (A4 landscape)." : "Aspect ratio 3:4 (A4 portrait).");
     }
 
     // 3. Try Gemini models for image generation (fallback chain)
+    const generationAspectRatio = orientation === "landscape" ? "16:9" : "4:5";
+    const generationPrompt = `${prompt}\n\nPRINT LAYOUT REQUIREMENT: Fill the full ${generationAspectRatio} canvas with the illustration. Keep only a narrow outer safety margin and do not place the artwork inside a decorative frame.`;
     const geminiBody = {
       contents: [{
-        parts: [{ text: prompt }],
+        parts: [{ text: generationPrompt }],
       }],
       generationConfig: {
         responseModalities: ["Text", "Image"],
+        responseFormat: {
+          image: { aspectRatio: generationAspectRatio },
+        },
       },
     };
 
@@ -215,7 +222,15 @@ serve(async (req: Request) => {
       return json({ error: `No image generated — ${summary}`, detail: summary }, 502);
     }
 
-    const imageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
+    const generatedImageBytes = Uint8Array.from(atob(imageB64), (c) => c.charCodeAt(0));
+    let imageBytes = generatedImageBytes;
+    try {
+      imageBytes = cropWhiteMargins(generatedImageBytes).bytes;
+    } catch (error) {
+      // A valid image should never be withheld because optional whitespace
+      // trimming failed. pdf-lib will still validate the original PNG below.
+      console.warn("Colouring-page margin trim skipped:", error);
+    }
 
     // 4. Upload PNG to storage
     const pngPath = `week-${String(week_number).padStart(2, "0")}/coloring-page.png`;
@@ -281,13 +296,15 @@ serve(async (req: Request) => {
     // read aloud to their child while they colour.
     let imageTop = pageH - margin - 62;
     if (metaphor) {
-      const lines = wrapText(metaphor, helvetica, 9, pageW - margin * 2);
+      // Keep context for the grown-up, but cap it so the colouring activity is
+      // the clear focus of the printed page.
+      const lines = wrapText(metaphor, helvetica, 8, pageW - margin * 2).slice(0, 2);
       lines.forEach((line, i) => {
         page.drawText(line, {
-          x: margin, y: imageTop - i * 12, size: 9, font: helvetica, color: GREY,
+          x: margin, y: imageTop - i * 10, size: 8, font: helvetica, color: GREY,
         });
       });
-      imageTop = imageTop - lines.length * 12 - 6;
+      imageTop = imageTop - lines.length * 10 - 5;
     }
 
     // Embed the PNG.
@@ -304,31 +321,28 @@ serve(async (req: Request) => {
     }
 
     // Image area: between the title/metaphor block and the name line.
-    const top = imageTop;
-    const bottom = margin + 58;
-    const maxW = pageW - margin * 2;
-    const maxH = top - bottom;
-    const scale = Math.min(maxW / pngImage.width, maxH / pngImage.height);
-    const scaledW = pngImage.width * scale;
-    const scaledH = pngImage.height * scale;
-    const x = (pageW - scaledW) / 2;
-    const y = bottom + (maxH - scaledH) / 2;
-    page.drawImage(pngImage, { x, y, width: scaledW, height: scaledH });
+    const artwork = containArtwork(pngImage.width, pngImage.height, {
+      left: 24,
+      right: pageW - 24,
+      bottom: 56,
+      top: imageTop,
+    });
+    page.drawImage(pngImage, artwork);
 
     // "Your Name" line.
-    const nameY = margin + 26;
+    const nameY = 40;
     page.drawText("Your Name:", { x: margin, y: nameY, size: 9, font: helveticaBold, color: BLACK });
     const lineStart = margin + helveticaBold.widthOfTextAtSize("Your Name:", 9) + 10;
     page.drawLine({
       start: { x: lineStart, y: nameY - 2 },
-      end: { x: Math.min(lineStart + 220, pageW - margin), y: nameY - 2 },
+      end: { x: Math.min(lineStart + 220, pageW - 24), y: nameY - 2 },
       thickness: 0.8,
       color: BLACK,
     });
 
     // Footer.
     const footerText = "mindcast.co.nz  |  NOTICE IT, NAME IT, DO IT";
-    page.drawText(footerText, { x: margin, y: margin - 4, size: 6, font: helvetica, color: GREY });
+    page.drawText(footerText, { x: margin, y: 18, size: 6, font: helvetica, color: GREY });
 
     const pdfBytes = await pdfDoc.save();
 

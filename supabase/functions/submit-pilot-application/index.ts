@@ -3,6 +3,12 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { renderEmail } from "../_shared/email/layout.ts";
+import { mindcastFrom } from "../_shared/email/sender.ts";
+import {
+  pilotAdminTemplate,
+  pilotApplicantTemplate,
+} from "../_shared/email/templates/pilot-application.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,7 +24,7 @@ const json = (body: unknown, status = 200) =>
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") ?? "Mindcast <hello@mindcast.co.nz>";
+const FROM_EMAIL = mindcastFrom(Deno.env.get("FROM_EMAIL"));
 
 // ─── Cutoff: 9am Tuesday 29 Sep 2026, Pacific/Auckland (NZDT = UTC+13) ─────────
 const CUTOFF_ISO = "2026-09-29T09:00:00+13:00";
@@ -110,94 +116,24 @@ async function sendApplicantEmail(data: {
   q3: string;
   anythingElse: string;
 }): Promise<void> {
-  const subject = "Your Mindcast pilot group application";
-  const preview = "A copy of what you sent, and what happens next.";
-
-  const html = `
-<!DOCTYPE html>
-<html lang="en-NZ">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="x-apple-disable-message-reformatting">
-<meta name="color-scheme" content="light only">
-<meta name="supported-color-schemes" content="light only">
-<title>${subject}</title>
-<style>
-  body { margin:0; padding:0; background:#fffaf6; font-family:Montserrat,-apple-system,sans-serif; }
-  .wrap { max-width:560px; margin:0 auto; padding:32px 24px; }
-  .masthead { background:#3585af; padding:24px; text-align:center; }
-  .masthead img { width:140px; height:auto; }
-  .content { background:#fff; padding:32px 24px; }
-  h1 { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.05em; color:#0a1120; margin:0 0 16px; }
-  p { font-size:15px; line-height:1.7; color:#1a2d45; margin:0 0 16px; }
-  .question { font-family:'Cormorant Garamond',Georgia,serif; font-style:italic; font-weight:500; font-size:17px; color:#0a1120; margin:24px 0 8px; }
-  .answer { font-size:15px; line-height:1.7; color:#1a2d45; margin:0 0 24px; white-space:pre-wrap; }
-  .footer { margin-top:32px; font-size:12px; color:#7a8a9a; border-top:1px solid #e8e0d8; padding-top:24px; }
-  @media only screen and (max-width:620px) {
-    .wrap { padding:16px 12px; }
-    .content { padding:24px 16px; }
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="masthead">
-    <img src="https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/logo-cream.png" width="140" alt="Mindcast">
-  </div>
-  <div class="content">
-    <h1>Thanks for applying, ${data.firstName}.</h1>
-    <p>Your application has been received — here's a copy of exactly what you sent:</p>
-
-    <div class="question">1. If money were no barrier, what would you actually be doing with your life?</div>
-    <div class="answer">${data.q1}</div>
-
-    <div class="question">2. What would the version of you from ten years ago be most surprised to hear about your life now?</div>
-    <div class="answer">${data.q2}</div>
-
-    <div class="question">3. Tell us about something you once believed you weren't the kind of person who could do — until you did it.</div>
-    <div class="answer">${data.q3}</div>
-
-    <div class="question">Anything else you'd like Ash to know?</div>
-    <div class="answer">${data.anythingElse || "—"}</div>
-
-    <p>Applications close at 9am on Tuesday 29 September. Ashleigh reads every application herself and will reach out to you personally before then, either way.</p>
-  </div>
-  <div class="footer">
-    <p>Mindcast Limited · Taupō, Aotearoa New Zealand<br>
-    Reply to this email and a person will read it.</p>
-  </div>
-</div>
-</body>
-</html>`;
-
-  const text = `Thanks for applying, ${data.firstName}.
-
-Your application has been received — here's a copy of exactly what you sent:
-
-1. If money were no barrier, what would you actually be doing with your life?
-${data.q1}
-
-2. What would the version of you from ten years ago be most surprised to hear about your life now?
-${data.q2}
-
-3. Tell us about something you once believed you weren't the kind of person who could do — until you did it.
-${data.q3}
-
-Anything else you'd like Ash to know?
-${data.anythingElse || "—"}
-
-Applications close at 9am on Tuesday 29 September. Ashleigh reads every application herself and will reach out to you personally before then, either way.
-
---
-Mindcast Limited
-Taupō, Aotearoa New Zealand
-Reply to this email and a person will read it.`;
+  const message = renderEmail(pilotApplicantTemplate, {
+    first_name: data.firstName,
+    q1: data.q1,
+    q2: data.q2,
+    q3: data.q3,
+    anything_else: data.anythingElse || "—",
+  });
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM_EMAIL, to: [data.email], subject, html, text }),
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: [data.email],
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+    }),
   });
 
   if (!res.ok) {
@@ -226,97 +162,32 @@ async function sendAdminEmail(data: {
       : data.gender.charAt(0).toUpperCase() + data.gender.slice(1)
     : "Not provided";
 
-  const subject = `New pilot application — ${data.firstName} ${data.lastName}, ${data.age}`;
-  const preview = `Application from ${data.firstName} ${data.lastName}, age ${data.age}`;
-
-  const html = `
-<!DOCTYPE html>
-<html lang="en-NZ">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="x-apple-disable-message-reformatting">
-<meta name="color-scheme" content="light only">
-<meta name="supported-color-schemes" content="light only">
-<title>${subject}</title>
-<style>
-  body { margin:0; padding:0; background:#fffaf6; font-family:Montserrat,-apple-system,sans-serif; }
-  .wrap { max-width:600px; margin:0 auto; padding:24px 16px; }
-  .masthead { background:#3585af; padding:24px; text-align:center; }
-  .masthead img { width:140px; height:auto; }
-  .content { background:#fff; padding:24px 16px; }
-  h1 { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.05em; color:#0a1120; margin:0 0 16px; }
-  .meta { font-size:13px; line-height:1.8; color:#1a2d45; margin:0 0 16px; }
-  .meta strong { color:#0a1120; }
-  .question { font-family:'Cormorant Garamond',Georgia,serif; font-style:italic; font-weight:500; font-size:16px; color:#0a1120; margin:20px 0 6px; }
-  .answer { font-size:14px; line-height:1.6; color:#1a2d45; margin:0 0 16px; white-space:pre-wrap; }
-  .footer { margin-top:24px; font-size:11px; color:#7a8a9a; border-top:1px solid #e8e0d8; padding-top:16px; }
-  @media only screen and (max-width:620px) { .wrap { padding:12px 8px; } }
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="masthead">
-    <img src="https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/logo-cream.png" width="140" alt="Mindcast">
-  </div>
-  <div class="content">
-    <h1>New pilot application</h1>
-    <div class="meta">
-      <strong>Name:</strong> ${data.firstName} ${data.lastName}<br>
-      <strong>Age at 13 Oct 2026:</strong> ${data.age}<br>
-      <strong>Email:</strong> ${data.email}<br>
-      <strong>Phone:</strong> ${data.phone}<br>
-      <strong>Gender:</strong> ${genderLabel}<br>
-      <strong>Submitted:</strong> ${new Date(data.submittedAt).toLocaleString("en-NZ", { timeZone: "Pacific/Auckland" })}
-    </div>
-
-    <div class="question">1. If money were no barrier, what would you actually be doing with your life?</div>
-    <div class="answer">${data.q1}</div>
-
-    <div class="question">2. What would the version of you from ten years ago be most surprised to hear about your life now?</div>
-    <div class="answer">${data.q2}</div>
-
-    <div class="question">3. Tell us about something you once believed you weren't the kind of person who could do — until you did it.</div>
-    <div class="answer">${data.q3}</div>
-
-    <div class="question">Anything else you'd like Ash to know?</div>
-    <div class="answer">${data.anythingElse || "—"}</div>
-  </div>
-  <div class="footer">
-    <p>View in admin: <a href="https://mindcast.co.nz/admin?tab=applications" style="color:#3585af;">mindcast.co.nz/admin?tab=applications</a></p>
-  </div>
-</div>
-</body>
-</html>`;
-
-  const text = `New pilot application
-
-Name: ${data.firstName} ${data.lastName}
-Age at 13 Oct 2026: ${data.age}
-Email: ${data.email}
-Phone: ${data.phone}
-Gender: ${genderLabel}
-Submitted: ${new Date(data.submittedAt).toLocaleString("en-NZ", { timeZone: "Pacific/Auckland" })}
-
-1. If money were no barrier, what would you actually be doing with your life?
-${data.q1}
-
-2. What would the version of you from ten years ago be most surprised to hear about your life now?
-${data.q2}
-
-3. Tell us about something you once believed you weren't the kind of person who could do — until you did it.
-${data.q3}
-
-Anything else you'd like Ash to know?
-${data.anythingElse || "—"}
-
---
-View in admin: https://mindcast.co.nz/admin?tab=applications`;
+  const message = renderEmail(pilotAdminTemplate, {
+    first_name: data.firstName,
+    last_name: data.lastName,
+    age: data.age,
+    email: data.email,
+    phone: data.phone,
+    gender: genderLabel,
+    submitted_at: new Date(data.submittedAt).toLocaleString("en-NZ", {
+      timeZone: "Pacific/Auckland",
+    }),
+    q1: data.q1,
+    q2: data.q2,
+    q3: data.q3,
+    anything_else: data.anythingElse || "—",
+  });
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM_EMAIL, to: ["applications@mindcast.co.nz"], subject, html, text }),
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: ["applications@mindcast.co.nz"],
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+    }),
   });
 
   if (!res.ok) {

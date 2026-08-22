@@ -96,5 +96,5 @@ export const T = {
 
   // ─── Sending ───────────────────────────────────────────────────────────
 
-  from: "Mindcast <hello@mindcast.co.nz>",
+  from: "M🎙️N D C A S T <hello@mindcast.co.nz>",
 } as const;

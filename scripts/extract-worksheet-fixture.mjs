@@ -84,6 +84,9 @@ const base = parseInsertTuples(read("20260711160000_curriculum_content_v2.sql"))
 const signal = new Map();
 const question = new Map();
 const activity = new Map();
+const workbookActivity = new Map();
+const activityType = new Map();
+const activityOptions = new Map();
 for (const f of files) {
   const sql = read(f);
   for (const [w, v] of parseUpdates(sql, "signal_metaphor")) signal.set(w, v);
@@ -91,6 +94,9 @@ for (const f of files) {
   for (const [w, v] of parseUpdates(sql, "kids_signal_metaphor")) signal.set(`kids-${w}`, v);
   for (const [w, v] of parseUpdates(sql, "reflective_question")) question.set(w, v);
   for (const [w, v] of parseUpdates(sql, "interactive_activity")) activity.set(w, v);
+  for (const [w, v] of parseUpdates(sql, "workbook_activity")) workbookActivity.set(w, v);
+  for (const [w, v] of parseUpdates(sql, "activity_type")) activityType.set(w, v);
+  for (const [w, v] of parseUpdates(sql, "activity_options")) activityOptions.set(w, v);
 }
 
 const pick = (a, b) => (a && String(a).trim() ? String(a) : b || "");
@@ -116,6 +122,9 @@ for (const cur of base) {
       video_question_2: "",
       journaling_prompt: question.get(week) ?? cur.reflective_question ?? "",
       experiential_exercise: activity.get(week) ?? cur.interactive_activity ?? "",
+      workbook_activity: workbookActivity.get(week) ?? "",
+      activity_type: activityType.get(week) ?? "reflection",
+      activity_options: activityOptions.get(week) ?? "",
       weekly_practice_mon: "",
       weekly_practice_wed: "",
       weekly_practice_sun: "",
