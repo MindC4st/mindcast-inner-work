@@ -1206,17 +1206,42 @@ const ShopPage = () => {
         .select(
           "id, slug, name, description, image_url, price_cents, currency",
         )
-        .eq("is_active", true)
-        .order("sort_order", {
-          ascending: true,
-        })
-        .limit(3);
+        .in("slug", [
+          "home-practice-bundle",
+          "life-binder",
+          "highlighter-set",
+        ])
+        .eq("is_active", true);
 
       if (!active) return;
 
-      setProducts(
-        (data ?? []) as ShopProduct[],
+      const order = [
+        "home-practice-bundle",
+        "life-binder",
+        "highlighter-set",
+      ];
+      const rows = ((data ?? []) as ShopProduct[]).sort(
+        (a, b) => order.indexOf(a.slug) - order.indexOf(b.slug),
       );
+
+      // Life Binder — show the cream variant as the thumbnail.
+      const lifeBinder = rows.find((p) => p.slug === "life-binder");
+      if (lifeBinder) {
+        const { data: creamVariant } = (await db
+          .from("shop_product_variants")
+          .select("image_url")
+          .eq("product_id", lifeBinder.id)
+          .eq("name", "Cream")
+          .maybeSingle()) as {
+          data: { image_url: string | null } | null;
+        };
+        if (!active) return;
+        if (creamVariant?.image_url) {
+          lifeBinder.image_url = creamVariant.image_url;
+        }
+      }
+
+      setProducts(rows);
 
       setError(Boolean(productError));
       setLoading(false);
