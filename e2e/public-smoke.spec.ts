@@ -40,7 +40,7 @@ test("trial pass form renders", async ({ page }) => {
   await page.goto("/try");
   await expect(page.getByLabel(/name/i).first()).toBeVisible();
   await expect(page.getByLabel(/email/i).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: /ticket|session/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /continue|free pass/i })).toBeVisible();
 });
 
 test("member login renders", async ({ page }) => {

@@ -15,7 +15,7 @@ type Group = { label: string; links: [string, string][] };
 const GROUPS: Group[] = [
   { label: "Public / Marketing", links: [
     ["/", "Home"], ["/about", "About"], ["/membership", "Membership"],
-    ["/auth", "Sign in"], ["/onboarding", "Onboarding"],
+    ["/auth", "Sign in"],
   ]},
   { label: "Portal (member)", links: [
     ["/portal/dashboard", "Dashboard"], ["/portal/weeks", "Weeks"], ["/portal/week/1", "Week (1)"],

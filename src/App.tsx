@@ -13,7 +13,7 @@ import DevPageMenu from "@/components/DevPageMenu";
 // ships the shell (React, router, auth). Heavy deps (gsap, recharts, tldraw,
 // jspdf) stay inside the chunks of the pages that use them.
 const Home = lazy(() => import("./pages/Home"));
-const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Apply = lazy(() => import("./pages/Apply"));
 const AdminConsole = lazy(() => import("./pages/admin/AdminConsole"));
 const AdminFramework = lazy(() => import("./pages/admin/AdminFramework"));
 const StaffTrainingHome = lazy(() => import("@/components/staff-training/TrainingHome"));
@@ -120,7 +120,6 @@ const AppRoutes = () => (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<LegacyRedirect to="/portal/login" />} />
-      <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/try" element={<TryASession />} />
 
       {/* Admin — one console; old deep links forward to the right tab.
