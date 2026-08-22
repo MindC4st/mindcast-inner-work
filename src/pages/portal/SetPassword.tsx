@@ -47,8 +47,6 @@ const SetPassword = () => {
       eyebrow="Account invitation"
       title="Create your password."
       description="Choose a password for your new Mindcast account. We’ll take you straight to your member space when it’s ready."
-      asideTitle="A private space for your own Mindcast journey."
-      asideCopy="Your invitation connects this account to the right membership and session track."
     >
       {authLoading ? (
         <div className="flex min-h-40 items-center justify-center rounded-2xl border border-foreground/[0.08] bg-white" role="status">

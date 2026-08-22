@@ -99,9 +99,9 @@ const Auth = () => {
     setLoading(false);
     if (error) {
       const friendly = /invalid login credentials/i.test(error.message)
-        ? "Hmm, that email or password doesn't look right â€” try again."
+        ? "Hmm, that email or password doesn't look right — try again."
         : /email not confirmed/i.test(error.message)
-          ? "Please confirm your email first â€” check your inbox for the confirmation link."
+          ? "Please confirm your email first — check your inbox for the confirmation link."
           : "We couldn't sign you in just now. Check your details and try again.";
       toast({ title: "Sign in failed", description: friendly, variant: "destructive" });
     } else {
@@ -159,22 +159,22 @@ const Auth = () => {
         : "Sign in to access your sessions, worksheets and membership."}
     >
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-        <div className="mb-5 grid grid-cols-2 rounded-xl bg-foreground/[0.045] p-1" role="tablist" aria-label="Account access">
+        {/* Mode switch: two toggle buttons, not tabs — there is no tabpanel
+            relationship here, just one form that changes shape. */}
+        <div className="mb-5 grid grid-cols-2 rounded-xl bg-foreground/[0.045] p-1" aria-label="Account access">
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === "signin"}
+            aria-pressed={mode === "signin"}
             onClick={() => changeMode("signin")}
-            className={`min-h-11 rounded-lg px-4 font-body text-sm font-semibold transition ${mode === "signin" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`min-h-11 rounded-lg px-4 font-body text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${mode === "signin" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             Sign in
           </button>
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === "signup"}
+            aria-pressed={mode === "signup"}
             onClick={() => changeMode("signup")}
-            className={`min-h-11 rounded-lg px-4 font-body text-sm font-semibold transition ${mode === "signup" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`min-h-11 rounded-lg px-4 font-body text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${mode === "signup" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
             Create account
           </button>
@@ -246,7 +246,7 @@ const Auth = () => {
 
           <button type="submit" disabled={loading} className={authPrimaryButtonClass}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {loading ? (mode === "signup" ? "Creating accountâ€¦" : "Signing inâ€¦") : (mode === "signup" ? "Sign up with email" : "Sign in with email")}
+            {loading ? (mode === "signup" ? "Creating account…" : "Signing in…") : (mode === "signup" ? "Sign up with email" : "Sign in with email")}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </button>
         </form>
@@ -265,7 +265,7 @@ const Auth = () => {
             className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-foreground/10 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-primary/30 hover:bg-primary/[0.03] focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:opacity-45"
           >
             {oauthLoading === "google" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <GoogleMark />}
-            {oauthLoading === "google" ? "Connectingâ€¦" : mode === "signup" ? "Sign up with Google" : "Continue with Google"}
+            {oauthLoading === "google" ? "Connecting…" : mode === "signup" ? "Sign up with Google" : "Continue with Google"}
           </button>
           <button
             type="button"
@@ -274,7 +274,7 @@ const Auth = () => {
             className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#1877F2]/20 bg-white px-6 py-3 font-body text-sm font-semibold text-foreground shadow-sm transition hover:border-[#1877F2]/50 hover:bg-[#1877F2]/[0.04] focus:outline-none focus:ring-4 focus:ring-[#1877F2]/10 disabled:opacity-45"
           >
             {oauthLoading === "facebook" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Facebook className="h-5 w-5 text-[#1877F2]" aria-hidden="true" />}
-            {oauthLoading === "facebook" ? "Connectingâ€¦" : mode === "signup" ? "Sign up with Facebook" : "Continue with Facebook"}
+            {oauthLoading === "facebook" ? "Connecting…" : mode === "signup" ? "Sign up with Facebook" : "Continue with Facebook"}
           </button>
         </div>
         </>}

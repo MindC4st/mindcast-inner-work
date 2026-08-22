@@ -1,8 +1,8 @@
-﻿import type { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, Clock3 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 interface LegalPageProps {
   title: string;
@@ -24,7 +24,7 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
 
   return (
     <div className="min-h-screen bg-ivory">
-      <Navbar />
+      <SiteHeader />
       <main>
         <header className="border-b border-foreground/[0.07] bg-white px-5 pb-12 pt-28 sm:px-8 sm:pb-16 lg:px-12 lg:pt-32">
           <div className="mx-auto max-w-6xl">
@@ -87,7 +87,7 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
           </article>
         </div>
       </main>
-      <Footer />
+      <SiteFooter />
     </div>
   );
 }

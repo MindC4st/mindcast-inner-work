@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const pageContent: Record<string, { title: string; message: string }> = {
   "/live": {
@@ -14,7 +14,7 @@ const pageContent: Record<string, { title: string; message: string }> = {
   },
   "/ecosystem": {
     title: "THE ECOSYSTEM",
-    message: "The full 52-week Mindcast journey is rolling out. Become a member to begin.",
+    message: "The full 52-week Mindcast curriculum is rolling out. Become a member to begin.",
   },
 };
 
@@ -27,7 +27,7 @@ const ComingSoon = () => {
 
   return (
     <>
-      <Navbar />
+      <SiteHeader />
       <section className="section-cream min-h-[80vh] flex items-center pt-16">
         <div className="container mx-auto px-6 text-center py-24">
           <motion.span
@@ -75,7 +75,7 @@ const ComingSoon = () => {
           </motion.div>
         </div>
       </section>
-      <Footer />
+      <SiteFooter />
     </>
   );
 };

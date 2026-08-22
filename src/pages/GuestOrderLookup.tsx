@@ -1,4 +1,4 @@
-﻿// Secure guest order lookup. The edge function only returns an order when the
+// Secure guest order lookup. The edge function only returns an order when the
 // supplied checkout email matches; an order number alone reveals nothing.
 
 import { useState } from "react";
@@ -7,8 +7,8 @@ import { ArrowLeft, ExternalLink, Loader2, Search, ShieldCheck, Truck } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/shop";
 import { FULFILMENT_STATUS_LABEL, PAYMENT_STATUS_LABEL } from "@/lib/commerce";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 type LookupOrder = {
   order_number: string;
@@ -62,7 +62,7 @@ const GuestOrderLookup = () => {
 
   return (
     <div className="min-h-screen bg-ivory">
-      <Navbar />
+      <SiteHeader />
       <main className="px-5 pb-20 pt-28 sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-5xl">
           <Link
@@ -112,7 +112,7 @@ const GuestOrderLookup = () => {
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-navy px-6 py-3 font-body text-sm font-semibold text-cream shadow-sm transition hover:bg-navy-mid focus:outline-none focus:ring-4 focus:ring-navy/15 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
-                  {busy ? "Looking for your orderâ€¦" : "Find order"}
+                  {busy ? "Looking for your order…" : "Find order"}
                 </button>
                 {error && <p className="rounded-xl border border-destructive/15 bg-destructive/[0.04] p-4 font-body text-sm leading-6 text-destructive" role="alert">{error}</p>}
               </form>
@@ -136,7 +136,7 @@ const GuestOrderLookup = () => {
               {busy && (
                 <div className="flex min-h-[320px] items-center justify-center rounded-3xl border border-foreground/[0.07] bg-white" role="status">
                   <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
-                  <span className="ml-3 font-body text-sm text-muted-foreground">Checking securelyâ€¦</span>
+                  <span className="ml-3 font-body text-sm text-muted-foreground">Checking securely…</span>
                 </div>
               )}
 
@@ -169,7 +169,7 @@ const GuestOrderLookup = () => {
                     <ul className="divide-y divide-foreground/[0.07] border-y border-foreground/[0.07]">
                       {order.items.map((item, index) => (
                         <li key={index} className="flex justify-between gap-4 py-3 font-body text-sm text-muted-foreground">
-                          <span>{item.product_name}{item.quantity > 1 ? ` Ã— ${item.quantity}` : ""}</span>
+                          <span>{item.product_name}{item.quantity > 1 ? ` × ${item.quantity}` : ""}</span>
                           <span className="font-semibold text-foreground">{formatMoney(item.line_total_cents, order.currency)}</span>
                         </li>
                       ))}
@@ -196,7 +196,7 @@ const GuestOrderLookup = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      <SiteFooter />
     </div>
   );
 };

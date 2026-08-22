@@ -58,14 +58,12 @@ const ResetPassword = () => {
     <AuthShell
       eyebrow="Account recovery"
       title="Choose a new password."
-      description="Create a password you donâ€™t use elsewhere. Once itâ€™s saved, you can return to your member space."
-      asideTitle="A simple way back into your Mindcast space."
-      asideCopy="Reset links are temporary and can only be used to update the account they were sent to."
+      description="Create a password you don’t use elsewhere. Once it’s saved, you can return to your member space."
     >
       {status === "checking" && (
         <div className="flex min-h-40 items-center justify-center rounded-2xl border border-foreground/[0.08] bg-white" role="status">
           <Loader2 className="h-5 w-5 animate-spin text-primary" aria-hidden="true" />
-          <span className="ml-3 font-body text-sm text-muted-foreground">Verifying your reset linkâ€¦</span>
+          <span className="ml-3 font-body text-sm text-muted-foreground">Verifying your reset link…</span>
         </div>
       )}
 
@@ -121,7 +119,7 @@ const ResetPassword = () => {
           />
           <button type="submit" disabled={loading} className={`${authPrimaryButtonClass} mt-2`}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-            {loading ? "Updating passwordâ€¦" : "Update password"}
+            {loading ? "Updating password…" : "Update password"}
             {!loading && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
           </button>
         </form>

@@ -1,4 +1,5 @@
 import { ApplyForm } from "@/components/apply/ApplyForm";
+import SiteHeader from "@/components/SiteHeader";
 
 export default function Apply() {
   const handleShowInterest = (ageBand: "under_30" | "over_45" | "after_close") => {
@@ -6,13 +7,10 @@ export default function Apply() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 md:py-20 px-4 md:px-6">
+    <div className="min-h-screen bg-background px-4 pb-12 pt-28 md:px-6 md:pb-20 md:pt-32">
+      <SiteHeader variant="minimal" />
+
       <header className="max-w-2xl mx-auto mb-12 text-center">
-        <img
-          src="/logo-blue-wordmark.png"
-          alt="Mindcast"
-          className="h-10 md:h-12 mx-auto mb-6"
-        />
         <p className="font-display text-2xl md:text-3xl tracking-widest text-primary">
           TAUPŌ · PILOT GROUP · 2026
         </p>

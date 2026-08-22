@@ -1,4 +1,4 @@
-﻿// CartDrawer â€” the shared cart panel used by /shop and /shop/:slug.
+﻿// CartDrawer — the shared cart panel used by /shop and /shop/:slug.
 // Discounts are validated server-side at checkout; the code travels with the
 // request and the reduced total is what Stripe charges.
 
@@ -39,6 +39,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState("");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const subtotal = useMemo(
     () => entries.reduce((sum, e) => sum + e.unitPrice * e.line.quantity, 0),
@@ -53,13 +54,34 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     closeButtonRef.current?.focus();
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+      // Focus trap: aria-modal promises focus stays inside the dialog, so
+      // Tab at the edges wraps instead of escaping into the page behind.
+      if (event.key === "Tab" && panelRef.current) {
+        const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (event.shiftKey && (active === first || !panelRef.current.contains(active))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     };
-    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("keydown", onKeyDown);
       previousFocus?.focus();
     };
   }, [open, onClose]);
@@ -86,6 +108,7 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
             aria-hidden="true"
           />
           <motion.div
+            ref={panelRef}
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.25 }}
             className="fixed top-0 right-0 h-full w-full max-w-md bg-[hsl(var(--ivory))] z-50 flex flex-col shadow-2xl"
@@ -205,10 +228,10 @@ const CartDrawer = ({ open, onClose, entries, setQuantity, onCheckout }: {
                   className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3.5 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {checkingOut ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-                  {checkingOut ? "Opening checkoutâ€¦" : "Checkout"}
+                  {checkingOut ? "Opening checkout…" : "Checkout"}
                 </button>
                 <p className="text-[10px] font-body text-[hsl(var(--navy-mid))]/60 text-center mt-2">
-                  No account needed â€” guests can check out with card, Apple Pay or Google Pay.
+                  No account needed — guests can check out with card, Apple Pay or Google Pay.
                 </p>
                 {error && <p className="text-sm text-red-700 font-body mt-3" role="alert">{error}</p>}
               </div>
@@ -272,7 +295,7 @@ export const startCheckout = async (
         if (parsed?.error === "membership_required") {
           detail = parsed.message || "An active MINDCAST membership is required for this product";
         } else if (parsed?.error === "use_free_claim") {
-          detail = "This bracelet is free â€” claim it from the bracelet page instead";
+          detail = "This bracelet is free — claim it from the bracelet page instead";
         } else if (parsed?.error) {
           detail = parsed.error;
         }
