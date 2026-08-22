@@ -1,15 +1,6 @@
 import { ApplyForm } from "@/components/apply/ApplyForm";
-import { isBeforeCutoff } from "@/lib/timezone";
 
 export default function Apply() {
-  const isClosed = !isBeforeCutoff();
-
-  const handleSubmitSuccess = (email: string) => {
-    // The form component handles showing the confirmation screen
-    // This is just a hook for any additional tracking if needed
-    console.log("Application submitted for:", email);
-  };
-
   const handleShowInterest = (ageBand: "under_30" | "over_45" | "after_close") => {
     console.log("Interest registered for age band:", ageBand);
   };
@@ -28,10 +19,7 @@ export default function Apply() {
       </header>
 
       <main className="max-w-2xl mx-auto">
-        <ApplyForm
-          onSubmitSuccess={handleSubmitSuccess}
-          onShowInterest={handleShowInterest}
-        />
+        <ApplyForm onShowInterest={handleShowInterest} />
       </main>
 
       <footer className="max-w-2xl mx-auto mt-12 text-center">

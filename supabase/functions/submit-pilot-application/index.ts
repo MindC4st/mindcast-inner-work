@@ -443,36 +443,40 @@ serve(async (req) => {
     return json({ error: "Failed to save application" }, 500);
   }
 
-  // Send emails (fire-and-forget style, but await for error visibility)
-  try {
-    await Promise.all([
-      sendApplicantEmail({
-        email: email.trim().toLowerCase(),
-        firstName: first_name.trim(),
-        q1: q1_money_no_barrier.trim(),
-        q2: q2_ten_years_ago.trim(),
-        q3: q3_didnt_think_could.trim(),
-        anythingElse: anything_else?.trim() || "",
-      }),
-      sendAdminEmail({
-        firstName: first_name.trim(),
-        lastName: last_name.trim(),
-        age: ageAtStart(dob!),
-        email: email.trim().toLowerCase(),
-        phone: normalizedPhone,
-        gender: gender || "undisclosed",
-        genderSelfDescribed: gender === "another" ? gender_self_described?.trim() || null : null,
-        q1: q1_money_no_barrier.trim(),
-        q2: q2_ten_years_ago.trim(),
-        q3: q3_didnt_think_could.trim(),
-        anythingElse: anything_else?.trim() || "",
-        submittedAt,
-      }),
-    ]);
-  } catch (e) {
-    console.error("Email send failed (application saved):", e);
-    // Don't fail the request — application is saved
+  // Send emails. The application is already saved, so a send failure never
+  // loses the submission — but we surface the exact error per email in the
+  // response so delivery problems are diagnosable instead of silent.
+  const emails: Record<string, { sent: boolean; error?: string }> = {};
+
+  const applicant = await sendApplicantEmail({
+    email: email.trim().toLowerCase(),
+    firstName: first_name.trim(),
+    q1: q1_money_no_barrier.trim(),
+    q2: q2_ten_years_ago.trim(),
+    q3: q3_didnt_think_could.trim(),
+    anythingElse: anything_else?.trim() || "",
+  }).then(() => ({ sent: true })).catch((e) => ({ sent: false, error: String(e?.message ?? e).slice(0, 500) }));
+  emails.applicant = applicant;
+
+  const admin = await sendAdminEmail({
+    firstName: first_name.trim(),
+    lastName: last_name.trim(),
+    age: ageAtStart(dob!),
+    email: email.trim().toLowerCase(),
+    phone: normalizedPhone,
+    gender: gender || "undisclosed",
+    genderSelfDescribed: gender === "another" ? gender_self_described?.trim() || null : null,
+    q1: q1_money_no_barrier.trim(),
+    q2: q2_ten_years_ago.trim(),
+    q3: q3_didnt_think_could.trim(),
+    anythingElse: anything_else?.trim() || "",
+    submittedAt,
+  }).then(() => ({ sent: true })).catch((e) => ({ sent: false, error: String(e?.message ?? e).slice(0, 500) }));
+  emails.admin = admin;
+
+  if (!applicant.sent || !admin.sent) {
+    console.error("Email send failed (application saved):", JSON.stringify(emails));
   }
 
-  return json({ ok: true, id: inserted.id });
+  return json({ ok: true, id: inserted.id, emails });
 });

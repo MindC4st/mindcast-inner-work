@@ -26,10 +26,8 @@ const QUESTIONS = [
 ] as const;
 
 export function ApplyForm({
-  onSubmitSuccess,
   onShowInterest,
 }: {
-  onSubmitSuccess: (email: string) => void;
   onShowInterest: (ageBand: "under_30" | "over_45") => void;
 }) {
   const {
@@ -39,6 +37,7 @@ export function ApplyForm({
     isSubmitting,
     submitError,
     isClosed,
+    submitted,
     handleChange,
     handleDobChange,
     handleBlur,
@@ -60,6 +59,34 @@ export function ApplyForm({
   })() : null;
 
   const ageBand = age !== null && age < 30 ? "under_30" : age !== null && age > 45 ? "over_45" : null;
+
+  // Confirmation replaces the form in place — no navigation, no toast.
+  if (submitted) {
+    return (
+      <div className="w-full max-w-2xl mx-auto text-center py-16">
+        <h2 className="font-display text-5xl md:text-6xl text-foreground mb-6">
+          Thank you.
+        </h2>
+        <p className="font-serif italic text-2xl text-foreground/85 mb-8">
+          Your application is in.
+        </p>
+        <p className="text-muted-foreground mb-4 max-w-md mx-auto leading-relaxed">
+          Applications close at 9am on Tuesday 29 September, so you'll hear back
+          from us before then.
+        </p>
+        {submitted.emailWarning ? (
+          <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-5 py-4 max-w-md mx-auto leading-relaxed" role="alert">
+            {submitted.emailWarning}
+          </p>
+        ) : (
+          <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+            A copy of your answers is on its way to{" "}
+            <strong className="text-foreground">{submitted.email}</strong>.
+          </p>
+        )}
+      </div>
+    );
+  }
 
   if (isClosed) {
     return (

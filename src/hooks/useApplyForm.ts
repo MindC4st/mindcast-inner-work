@@ -1,7 +1,7 @@
 // Form state and submission logic for pilot application
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { env } from "@/lib/env";
 import { isBeforeCutoff } from "@/lib/timezone";
 import { validateForm, type DobParts, type ValidationErrors } from "@/lib/applyValidation";
 
@@ -35,6 +35,12 @@ const initialFormData: FormData = {
   anything_else: "",
 };
 
+export interface SubmittedResult {
+  email: string;
+  /** Set when the application saved but the confirmation email failed. */
+  emailWarning: string | null;
+}
+
 export interface UseApplyFormReturn {
   formData: FormData;
   errors: ValidationErrors;
@@ -42,6 +48,8 @@ export interface UseApplyFormReturn {
   isSubmitting: boolean;
   submitError: string | null;
   isClosed: boolean;
+  /** Set once a submission succeeds; the form swaps to the confirmation. */
+  submitted: SubmittedResult | null;
   handleChange: (field: keyof FormData, value: string) => void;
   handleDobChange: (part: keyof DobParts, value: string) => void;
   handleBlur: (field: keyof FormData) => void;
@@ -65,6 +73,7 @@ export function useApplyForm(): UseApplyFormReturn {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isClosed, setIsClosed] = useState(!isBeforeCutoff());
+  const [submitted, setSubmitted] = useState<SubmittedResult | null>(null);
 
   // Persist to sessionStorage on change
   useEffect(() => {
@@ -138,12 +147,12 @@ export function useApplyForm(): UseApplyFormReturn {
     try {
       const dob = formData.dob;
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-pilot-application`,
+        `${env.VITE_SUPABASE_URL}/functions/v1/submit-pilot-application`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            Authorization: `Bearer ${env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
             first_name: formData.first_name,
@@ -178,11 +187,19 @@ export function useApplyForm(): UseApplyFormReturn {
         return;
       }
 
-      // Success - clear storage and show confirmation
+      // Success - clear the draft and swap the form for the confirmation.
+      // The application is saved even if the confirmation email failed; the
+      // warning tells the applicant to get in touch instead of waiting.
+      const emailWarning =
+        result?.emails?.applicant?.sent === false
+          ? "Your application is in, but we couldn't send your confirmation email. Please email hello@mindcast.co.nz so we know you applied."
+          : null;
       sessionStorage.removeItem(STORAGE_KEY);
       setFormData(initialFormData);
       setTouched({});
       setErrors({});
+      setSubmitError(null);
+      setSubmitted({ email: formData.email.trim().toLowerCase(), emailWarning });
     } catch {
       setSubmitError("Network error. Please check your connection and try again.");
     } finally {
@@ -196,6 +213,7 @@ export function useApplyForm(): UseApplyFormReturn {
     setErrors({});
     setTouched({});
     setSubmitError(null);
+    setSubmitted(null);
   }, []);
 
   return {
@@ -205,6 +223,7 @@ export function useApplyForm(): UseApplyFormReturn {
     isSubmitting,
     submitError,
     isClosed,
+    submitted,
     handleChange,
     handleDobChange,
     handleBlur,
