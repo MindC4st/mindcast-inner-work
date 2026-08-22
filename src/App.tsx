@@ -7,7 +7,6 @@ import { lazy, Suspense, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import InstallPrompt from "@/components/InstallPrompt";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import DevPageMenu from "@/components/DevPageMenu";
 import { authPathFor } from "@/lib/authRoutes";
 
 // Route-level code splitting: every page loads on demand so first paint only
@@ -323,7 +322,6 @@ const App = () => (
             <AppRoutes />
           </ErrorBoundary>
           <InstallPrompt />
-          <DevPageMenu />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
