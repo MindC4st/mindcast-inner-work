@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
   Baby,
@@ -11,7 +11,6 @@ import {
   Home as HomeIcon,
   Info,
   LogIn,
-  MapPin,
   ShoppingBag,
   Users,
 } from "lucide-react";
@@ -196,118 +195,94 @@ const SectionIntro = ({
 
 const HeroSection = () => {
   const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Scroll-fade: as the visitor scrolls through the hero, the full-bleed
+  // background image dissolves toward the solid ivory beneath it, so the photo
+  // never bleeds into (or distracts from) the content block that follows.
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const imageOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
 
   return (
-    <section className="bg-white pt-16 lg:pt-[72px]">
-      <div className="grid min-h-[calc(100svh-4rem)] lg:min-h-[calc(100svh-4.5rem)] lg:grid-cols-[minmax(0,0.92fr)_minmax(560px,1.08fr)]">
-        <div className="order-2 flex items-center lg:order-1">
-          <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: reduceMotion ? 0 : 0.65,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="mx-auto w-full max-w-3xl px-5 py-12 sm:px-8 md:py-16 lg:px-12 xl:px-16"
-          >
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-2 font-body text-[10px] font-bold uppercase tracking-[0.2em] text-primary sm:text-[11px]">
-              <span className="relative flex h-2 w-2" aria-hidden="true">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-40 motion-reduce:animate-none" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
+    <section
+      ref={sectionRef}
+      className="relative h-[100svh] w-full overflow-hidden bg-[hsl(var(--ivory))]"
+    >
+      {/* Full-bleed background image (fades to ivory on scroll). */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={reduceMotion ? { opacity: 1 } : { opacity: imageOpacity }}
+      >
+        <img
+          src={GLC_FRONT_ENTRANCE}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          width={1920}
+          height={1280}
+          loading="eager"
+          fetchPriority="high"
+        />
+        {/* Dark scrim so the centered white type stays legible on the photo. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#102438]/62 via-[#102438]/38 to-[#102438]/66" />
+      </motion.div>
 
-              Founding programme · Taupō
-            </div>
-
-            <h1 className="font-display text-[clamp(3.9rem,11vw,8.5rem)] leading-[0.82] tracking-[-0.025em] text-primary">
-              STOP
-              <br />
-              CONSUMING.
-              <br />
-              START DOING.
-            </h1>
-
-            <p className="mt-7 max-w-xl font-body text-base leading-7 text-foreground/80 sm:text-lg sm:leading-8">
-              MINDCAST is a weekly live practice for people who already know a
-              lot—and want a room that helps them follow through. One theme. One
-              honest intention. The same people coming back each week.
-            </p>
-
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-              <GlowButton to="/curriculum">
-                LOOK INSIDE THE CURRICULUM
-              </GlowButton>
-
-              <Link
-                to="/try"
-                className="inline-flex min-h-12 items-center justify-center gap-2 px-5 font-body text-xs font-bold tracking-[0.14em] text-primary transition-colors hover:text-primary/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-              >
-                GET A FREE SESSION PASS
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-
-            <dl className="mt-10 grid grid-cols-3 divide-x divide-border border-y border-border py-5">
-              {[
-                ["52", "weekly themes"],
-                ["3", "age tracks"],
-                ["1", "intention"],
-              ].map(([value, label]) => (
-                <div
-                  key={label}
-                  className="px-2 text-center first:pl-0 last:pr-0 sm:text-left"
-                >
-                  <dt className="font-display text-3xl leading-none text-primary sm:text-4xl">
-                    {value}
-                  </dt>
-
-                  <dd className="mt-1 font-body text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-[10px]">
-                    {label}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </motion.div>
-        </div>
-
+      {/* Centered content. */}
+      <div className="relative z-10 flex h-full items-center justify-center px-5 sm:px-8">
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, scale: 1.02 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{
-            duration: reduceMotion ? 0 : 0.8,
+            duration: reduceMotion ? 0 : 0.65,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="relative order-1 min-h-[44svh] overflow-hidden bg-muted lg:order-2 lg:min-h-full"
+          className="mx-auto w-full max-w-3xl pt-16 text-center lg:pt-[72px]"
         >
-          <img
-            src={GLC_FRONT_ENTRANCE}
-            alt="Families and members arriving at the Great Lake Centre for MINDCAST"
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            width={1920}
-            height={1280}
-            loading="eager"
-            fetchPriority="high"
-          />
+          <p
+            className="mb-6 font-body text-[11px] font-bold uppercase tracking-[0.32em] text-white/85 sm:text-xs"
+            style={{ textShadow: "0 1px 12px rgba(16,36,56,0.55)" }}
+          >
+            COMING SOON · TAUPŌ, AOTEAROA NEW ZEALAND
+          </p>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-[#102438]/50 via-transparent to-transparent" />
+          <h1
+            className="font-display leading-[0.85] tracking-[-0.02em] text-white text-[clamp(3.4rem,10vw,7.5rem)]"
+            style={{ textShadow: "0 2px 24px rgba(16,36,56,0.45)" }}
+          >
+            STOP CONSUMING.
+            <br />
+            START DOING.
+          </h1>
 
-          <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4 rounded-2xl border border-white/25 bg-white/10 p-4 text-white shadow-xl backdrop-blur-md sm:inset-x-6 sm:bottom-6 sm:p-5">
-            <div>
-              <p className="font-body text-[10px] font-bold uppercase tracking-[0.22em] text-white/75">
-                Great Lake Centre
-              </p>
+          <p
+            className="mx-auto mt-7 max-w-2xl font-body text-base leading-7 text-white/90 sm:text-lg sm:leading-8"
+            style={{ textShadow: "0 1px 16px rgba(16,36,56,0.55)" }}
+          >
+            We consume more self-development than any generation before
+            us—and apply almost none of it. MINDCAST is a weekly live practice
+            for people who want a room that actually helps them follow through.
+            One theme. One honest intention. The same people coming back each
+            week.
+          </p>
 
-              <p className="mt-1 font-display text-2xl tracking-wide">
-                TAUPŌ · SUNDAYS
-              </p>
-            </div>
-
-            <MapPin
-              className="shrink-0"
-              size={24}
-              aria-hidden="true"
-            />
+          <div className="mt-9 flex justify-center">
+            <GlowButton to="/membership">JOIN THE FOUNDING WAITLIST</GlowButton>
           </div>
+
+          <p
+            className="mx-auto mt-5 max-w-xl text-sm italic leading-6 text-white/85 sm:text-[15px]"
+            style={{
+              fontFamily: "var(--font-serif)",
+              textShadow: "0 1px 14px rgba(16,36,56,0.55)",
+            }}
+          >
+            The first 100 to register receive a complimentary NFC
+            smart-bracelet—your physical key for tap-and-go room entry and
+            instant session access.
+          </p>
         </motion.div>
       </div>
     </section>
