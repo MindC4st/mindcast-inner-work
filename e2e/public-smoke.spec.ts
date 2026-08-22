@@ -7,11 +7,9 @@ import { test, expect } from "@playwright/test";
 
 const URGENCY = ["hurry", "countdown", "only X spots", "spots left", "subscribe now", "click here"];
 
-test("home renders the cinematic hero and CTAs", async ({ page }) => {
+test("home renders the hero and CTAs", async ({ page }) => {
   await page.goto("/");
-  // The homepage now carries three h1s (hero + in-page About/Membership bands);
-  // target the hero specifically.
-  await expect(page.getByRole("heading", { name: /TUNE INTO YOUR INNER SELF/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /STOP CONSUMING/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /MEMBERSHIP/i }).first()).toBeVisible();
 });
 
