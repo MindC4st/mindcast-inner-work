@@ -23,7 +23,7 @@ import {
 
 import Navbar from "@/components/Navbar";
 import Ripple from "@/components/brand/Ripple";
-import WeekOnePreview from "@/components/curriculum/WeekOnePreview";
+import LessonOnePreview from "@/components/curriculum/LessonOnePreview";
 import {
   useCurriculumWeeks,
   type CurriculumWeek,
@@ -549,10 +549,6 @@ const PhasesPage = ({
     week.title ||
     `Week ${week.week_number}`;
 
-  const weekOneTheme =
-    weeks.find((week) => week.week_number === 1)?.weekly_theme ||
-    WEEK1_THEME;
-
   const phaseWeeks = useMemo(
     () =>
       weeks.filter(
@@ -788,15 +784,11 @@ const PhasesPage = ({
         </section>
       </div>
 
-      {/* Week 1 opens into the full lesson preview — the same idea set three
-          ways, exactly as the slides run it. */}
+      {/* Week 1 opens into the full lesson preview — what the room actually
+          covers, pulled from the current lesson boards. */}
       {selectedWeekNumber === 1 ? (
         <div className="mt-6 border-t border-[#e4dccf] pt-8">
-          <WeekOnePreview
-            key={track}
-            weekOneTheme={weekOneTheme}
-            initialTrack={track}
-          />
+          <LessonOnePreview track={track} />
         </div>
       ) : null}
     </div>

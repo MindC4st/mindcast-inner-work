@@ -152,16 +152,20 @@ function parseLesson(raw) {
   return lesson;
 }
 
-/** Find a section by fuzzy heading match (Notion headings drift a little). */
+/** Find a section by fuzzy heading match. Notion headings carry suffixes
+ *  like "— VERBATIM" / "— STRUCTURED", so h3 matches are prefix-based and
+ *  the tracks restructure their slides (child lessons especially). */
 const section = (lesson, h2Pattern, h3Pattern = null) => {
   for (const [key, value] of lesson.sections) {
     const [h2, h3] = key.split("/");
     if (!h2Pattern.test(h2)) continue;
-    if (h3Pattern && (!h3 || !h3Pattern.test(h3))) continue;
-    if (!h3Pattern && h3) continue; // exact h2-only section
-    return value;
+    if (h3Pattern) {
+      if (h3 && h3Pattern.test(h3)) return value;
+    } else if (!h3) {
+      return value; // exact h2-only section
+    }
   }
-  // Fallback: h3 under any h2
+  // Fallback: the h3 under any h2 (heading order drifts between tracks).
   if (h3Pattern) {
     for (const [key, value] of lesson.sections) {
       const [, h3] = key.split("/");
@@ -181,12 +185,16 @@ function publicPreview(lesson) {
     sharedCoreConcept: lesson.sharedCoreConcept,
     trackTranslation: lesson.trackTranslation,
     territory: lesson.territory,
-    openingQuestion: section(lesson, /^Opening$/, /^Opening Question$/),
-    ancientWisdom: section(lesson, /^Slide 3/, /^Ancient Wisdom Quote$/),
-    todaysWorld: section(lesson, /^Slide 3/, /^In Today.s World Quote$/),
+    openingQuestion:
+      section(lesson, /^Opening$/, /^Opening Question/) ||
+      section(lesson, /^Slide 1/, /^Opening Question/),
+    ancientWisdom: section(lesson, /^Slide 3/, /^Ancient Wisdom Quote/),
+    todaysWorld: section(lesson, /^Slide 3/, /^In Today.s World Quote/),
     coreConcept: section(lesson, /^Core concept/),
     videoDescription: section(lesson, /^Slide 4/, /^Video Description/),
-    reflectiveQuestions: section(lesson, /^Reflective Questions/),
+    reflectiveQuestions:
+      section(lesson, /^Reflective Questions/) ||
+      section(lesson, /^Slide 6/, /^Reflection Questions/),
     intentionPrompt: section(lesson, /^Slide 7/, /^Intention/),
     weeklyPractice: section(lesson, /^Weekly practice/),
     affirmation: section(lesson, /^Slide 8/, /^Affirmation/),

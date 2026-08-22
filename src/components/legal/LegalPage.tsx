@@ -70,13 +70,13 @@ export function LegalPage({ title, lastUpdated, children, eyebrow = "Mindcast po
           <article
             className="min-w-0 rounded-3xl border border-foreground/[0.07] bg-white p-6 shadow-sm sm:p-9 lg:p-12"
           >
-            <div className="prose prose-base max-w-none break-words
+            <div className="prose prose-base max-w-3xl break-words
               prose-headings:scroll-mt-28 prose-headings:text-foreground prose-headings:font-serif prose-headings:font-semibold prose-headings:break-words
-              prose-h2:text-2xl prose-h2:leading-tight prose-h2:mt-12 prose-h2:mb-4
+              prose-h2:text-2xl prose-h2:leading-tight prose-h2:mt-12 prose-h2:mb-6
               prose-h3:text-xl prose-h3:leading-tight prose-h3:mt-10 prose-h3:mb-3
-              prose-p:text-muted-foreground prose-p:leading-[1.85] prose-p:font-body prose-p:my-5
-              prose-li:text-muted-foreground prose-li:font-body prose-li:leading-[1.75] prose-li:my-2.5
-              prose-a:text-primary prose-a:font-medium prose-a:underline prose-a:decoration-primary/30 prose-a:underline-offset-4 prose-a:break-words hover:prose-a:decoration-primary
+              prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:font-body prose-p:my-6
+              prose-li:text-muted-foreground prose-li:font-body prose-li:leading-[1.7] prose-li:my-3
+              prose-a:text-primary prose-a:font-medium prose-a:underline prose-a:decoration-primary/30 prose-a:underline-offset-4 prose-a:break-all hover:prose-a:decoration-primary
               prose-strong:text-foreground prose-strong:font-semibold
               prose-hr:border-border prose-hr:my-8
               prose-ul:text-muted-foreground prose-ul:pl-5
