@@ -1,4 +1,4 @@
-﻿import { useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -15,8 +15,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import Ripple from "@/components/brand/Ripple";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,7 +142,7 @@ const AccessCheckoutButton = ({
         disabled={state === "busy"}
         className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 border border-primary bg-white px-4 font-body text-[9px] font-bold uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
-        {state === "busy" ? <><Loader2 size={14} className="animate-spin" /> Opening checkoutâ€¦</> : label}
+        {state === "busy" ? <><Loader2 size={14} className="animate-spin" /> Opening checkout…</> : label}
       </button>
 
       {state === "error" ? (
@@ -171,7 +171,7 @@ const MembershipHero = () => {
         >
           <div className="flex items-center gap-3">
             <Ripple size={24} />
-            <Eyebrow>Membership in TaupÅ</Eyebrow>
+            <Eyebrow>Membership in Taupō</Eyebrow>
           </div>
 
           <h1 className="mt-7 max-w-4xl font-display text-[clamp(4rem,8.4vw,8.5rem)] leading-[0.82] tracking-[-0.025em] text-primary">
@@ -193,7 +193,7 @@ const MembershipHero = () => {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryLink to="/try">Try one Sundayâ€”free</PrimaryLink>
+            <PrimaryLink to="/try">Try one Sunday—free</PrimaryLink>
             <SecondaryLink to="#membership-options">See membership options</SecondaryLink>
           </div>
 
@@ -213,16 +213,16 @@ const MembershipHero = () => {
           <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-muted shadow-[0_28px_70px_rgba(16,36,56,0.18)] lg:aspect-[5/6]">
             <img
               src={membershipTrial}
-              alt="People arriving for a MINDCAST gathering in TaupÅ"
+              alt="People arriving for a MINDCAST gathering in Taupō"
               className="h-full w-full object-cover"
             />
           </div>
 
-          <div className="absolute inset-x-4 bottom-4 rounded-xl border border-white/15 bg-[#102438]/82 p-5 text-white backdrop-blur-md sm:inset-x-6 sm:bottom-6 sm:p-6">
-            <p className="font-body text-[9px] font-bold uppercase tracking-[0.26em] text-white/60">
+          <div className="paper-card absolute inset-x-4 bottom-4 p-5 sm:inset-x-6 sm:bottom-6 sm:p-6">
+            <p className="font-body text-[9px] font-bold uppercase tracking-[0.26em] text-[hsl(var(--silver))]">
               The first decision is smaller than joining
             </p>
-            <p className="mt-2 font-display text-3xl tracking-wide sm:text-4xl">
+            <p className="mt-2 font-display text-3xl tracking-wide text-foreground sm:text-4xl">
               COME ONCE. DECIDE AFTER.
             </p>
           </div>
@@ -455,7 +455,7 @@ const HouseholdSection = () => (
     <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8">
       <div>
         <Reveal>
-          <Eyebrow>One household Â· age-appropriate rooms</Eyebrow>
+          <Eyebrow>One household · age-appropriate rooms</Eyebrow>
           <h2 className="mt-4 font-display text-[clamp(3rem,6.6vw,5.8rem)] leading-[0.88] tracking-tight text-primary">
             BUILD THE MEMBERSHIP AROUND YOUR PEOPLE.
           </h2>
@@ -574,7 +574,7 @@ const FlexibleAccess = () => (
         </div>
         <p className="max-w-2xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
           Concession Passes and one-off places keep the room accessible without app, journal or
-          Life Group access. Every visit still includes the weekâ€™s printed worksheet.
+          Life Group access. Every visit still includes the week’s printed worksheet.
         </p>
       </Reveal>
 
@@ -610,7 +610,7 @@ const FlexibleAccess = () => (
       </Reveal>
 
       <p className="mt-6 text-center font-body text-xs leading-5 text-muted-foreground">
-        Prefer to follow the year on paper? The dayâ€™s worksheet is {formatWeekly(PRICING.worksheet)}
+        Prefer to follow the year on paper? The day’s worksheet is {formatWeekly(PRICING.worksheet)}
         {" "}at the door or online. No account required.
       </p>
     </div>
@@ -666,7 +666,7 @@ const Inclusions = () => (
       <Reveal className="mx-auto max-w-3xl text-center">
         <Eyebrow>What sits behind the weekly price</Eyebrow>
         <h2 className="mt-4 font-display text-[clamp(3rem,6.4vw,5.8rem)] leading-[0.88] tracking-tight text-primary">
-          THE ROOMâ€”AND THE PRACTICE AROUND IT.
+          THE ROOM—AND THE PRACTICE AROUND IT.
         </h2>
       </Reveal>
 
@@ -691,10 +691,10 @@ const Inclusions = () => (
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <Reveal>
-          <article className="h-full rounded-2xl bg-[#102438] p-6 text-white sm:p-7">
-            <Eyebrow light>What MINDCAST is not</Eyebrow>
-            <h3 className="mt-4 font-display text-3xl tracking-wide">NOT THERAPY OR COUNSELLING.</h3>
-            <p className="mt-3 font-body text-sm leading-6 text-white/65">
+          <article className="deboss h-full rounded-2xl border border-[var(--paper-edge)] p-6 sm:p-7">
+            <Eyebrow>What MINDCAST is not</Eyebrow>
+            <h3 className="mt-4 font-display text-3xl tracking-wide text-foreground">NOT THERAPY OR COUNSELLING.</h3>
+            <p className="mt-3 font-body text-sm leading-6 text-muted-foreground">
               MINDCAST is a personal-development and community experience, not a clinical or
               medical service. We say that boundary plainly before anyone joins.
             </p>
@@ -702,13 +702,13 @@ const Inclusions = () => (
         </Reveal>
 
         <Reveal delay={0.05}>
-          <article className="h-full rounded-2xl bg-[#102438] p-6 text-white sm:p-7">
-            <Eyebrow light>What MINDCAST does not use</Eyebrow>
-            <h3 className="mt-4 font-display text-3xl tracking-wide">NO LOCK-IN OR PRESSURE.</h3>
-            <p className="mt-3 font-body text-sm leading-6 text-white/65">
+          <article className="deboss h-full rounded-2xl border border-[var(--paper-edge)] p-6 sm:p-7">
+            <Eyebrow>What MINDCAST does not use</Eyebrow>
+            <h3 className="mt-4 font-display text-3xl tracking-wide text-foreground">NO LOCK-IN OR PRESSURE.</h3>
+            <p className="mt-3 font-body text-sm leading-6 text-muted-foreground">
               Choose monthly or annual billing and see the exact household total before paying.
               Rolling memberships can be managed or cancelled through the member portal. Choose
-              â€œCancel membershipâ€, then confirm in Stripe.
+              “Cancel membership”, then confirm in Stripe.
             </p>
           </article>
         </Reveal>
@@ -735,7 +735,7 @@ const QUESTIONS = [
   {
     question: "How does household billing work?",
     answer:
-      `The member portal lets you choose the number of adults, teens and children joining. Stripe applies ${FAMILY_DISCOUNT_PERCENT}% off automatically for two or more adults plus two young people in any mix. You can cancel any time: choose â€œCancel membershipâ€, then confirm in Stripe.`,
+      `The member portal lets you choose the number of adults, teens and children joining. Stripe applies ${FAMILY_DISCOUNT_PERCENT}% off automatically for two or more adults plus two young people in any mix. You can cancel any time: choose “Cancel membership”, then confirm in Stripe.`,
   },
   {
     question: "What is a Concession Pass?",
@@ -839,11 +839,11 @@ export const MembershipContent = () => (
 
 const Membership = () => (
   <div className="min-h-screen bg-background">
-    <Navbar />
+    <SiteHeader />
     <main>
       <MembershipContent />
     </main>
-    <Footer />
+    <SiteFooter />
   </div>
 );
 

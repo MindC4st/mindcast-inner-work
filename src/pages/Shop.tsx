@@ -1,4 +1,4 @@
-﻿// /shop â€” public browsing and checkout. Products are always framed as useful,
+// /shop — public browsing and checkout. Products are always framed as useful,
 // optional tools; all prices are NZD with GST included.
 
 import { useEffect, useState } from "react";
@@ -10,8 +10,8 @@ import { formatMoney } from "@/lib/shop";
 import { SHOP_COMING_SOON } from "@/lib/commerce";
 import { useCart } from "@/hooks/useCart";
 import CartDrawer, { resolveEntries, startCheckout, type CartProduct } from "@/components/shop/CartDrawer";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const Shop = () => {
   const [searchParams] = useSearchParams();
@@ -63,24 +63,16 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-ivory">
-      <Navbar />
+      <SiteHeader />
 
       <main>
-        <section className="relative overflow-hidden border-b border-foreground/[0.07] bg-navy px-5 pb-16 pt-28 text-cream sm:px-8 sm:pb-20 lg:px-12 lg:pt-32">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-80"
-            aria-hidden="true"
-            style={{
-              background:
-                "radial-gradient(circle at 85% 0%, hsl(var(--blue) / .45), transparent 35%), radial-gradient(circle at 5% 100%, hsl(var(--primary) / .25), transparent 40%)",
-            }}
-          />
+        <section className="linen-panel relative overflow-hidden border-x-0 border-t-0 px-5 pb-16 pt-28 sm:px-8 sm:pb-20 lg:px-12 lg:pt-32">
           <div className="relative mx-auto max-w-6xl">
             <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
-                <p className="mb-4 font-body text-xs font-semibold uppercase tracking-[0.24em] text-blue-light/75">Mindcast shop</p>
-                <h1 className="font-serif text-5xl leading-[0.98] sm:text-6xl lg:text-7xl">Tools to take the practice with you.</h1>
-                <p className="mt-6 max-w-xl font-body text-sm leading-7 text-cream/65 sm:text-base">
+                <p className="mb-4 font-body text-xs font-semibold uppercase tracking-[0.24em] text-primary">Mindcast shop</p>
+                <h1 className="font-serif text-5xl leading-[0.98] text-foreground sm:text-6xl lg:text-7xl">Tools to take the practice with you.</h1>
+                <p className="mt-6 max-w-xl font-body text-sm leading-7 text-muted-foreground sm:text-base">
                   Workbooks, cards and practical objects for people who want them. Everything required in a weekly Mindcast session is already provided.
                 </p>
               </div>
@@ -88,19 +80,19 @@ const Shop = () => {
               <div className="flex flex-wrap gap-3">
                 <Link
                   to="/orders/lookup"
-                  className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-cream/15 bg-cream/[0.06] px-5 font-body text-sm font-semibold text-cream transition hover:border-cream/30 hover:bg-cream/10 focus:outline-none focus:ring-2 focus:ring-cream/50"
+                  className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-primary/30 bg-transparent px-5 font-body text-sm font-semibold text-primary transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 >
                   <PackageSearch className="h-4 w-4" aria-hidden="true" /> Find an order
                 </Link>
                 <button
                   type="button"
                   onClick={() => setCartOpen(true)}
-                  className="relative inline-flex min-h-12 items-center gap-2 rounded-xl bg-cream px-5 font-body text-sm font-semibold text-navy transition hover:bg-cream/90 focus:outline-none focus:ring-4 focus:ring-cream/20"
+                  className="relative inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-5 font-body text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   aria-label={`Open cart, ${cart.count} ${cart.count === 1 ? "item" : "items"}`}
                 >
                   <ShoppingBag className="h-4 w-4" aria-hidden="true" /> Cart
                   {cart.count > 0 && (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-[10px] font-bold text-primary">
                       {cart.count}
                     </span>
                   )}
@@ -108,10 +100,10 @@ const Shop = () => {
               </div>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-cream/10 pt-5 font-body text-xs leading-5 text-cream/50">
+            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-[var(--linen-edge)] pt-5 font-body text-xs leading-5 text-muted-foreground">
               <span className="flex items-center gap-2"><Truck className="h-4 w-4" aria-hidden="true" /> New Zealand-wide delivery</span>
-              <span>NZD Â· GST included</span>
-              <span>$8 shipping Â· free over $120</span>
+              <span>NZD · GST included</span>
+              <span>$8 shipping · free over $120</span>
               <Link to="/portal/orders" className="underline decoration-cream/25 underline-offset-4 hover:text-cream">Member orders</Link>
             </div>
           </div>
@@ -129,7 +121,7 @@ const Shop = () => {
           {SHOP_COMING_SOON && (
             <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/[0.05] p-5 font-body text-sm leading-6 text-foreground">
               <span className="mr-2 font-semibold text-primary">Ordering opens shortly.</span>
-              Youâ€™re welcome to browse the range now.
+              You’re welcome to browse the range now.
             </div>
           )}
 
@@ -152,7 +144,7 @@ const Shop = () => {
             <div className="rounded-2xl border border-foreground/[0.08] bg-white p-10 text-center sm:p-14">
               <ShoppingBag className="mx-auto mb-4 h-8 w-8 text-foreground/20" aria-hidden="true" />
               <h3 className="font-serif text-2xl text-primary">The shelves are being prepared.</h3>
-              <p className="mt-2 font-body text-sm text-muted-foreground">Products will appear here as theyâ€™re ready.</p>
+              <p className="mt-2 font-body text-sm text-muted-foreground">Products will appear here as they’re ready.</p>
             </div>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -197,7 +189,7 @@ const Shop = () => {
         setQuantity={cart.setQuantity}
         onCheckout={(discountCode) => startCheckout(entries, discountCode)}
       />
-      <Footer />
+      <SiteFooter />
     </div>
   );
 };

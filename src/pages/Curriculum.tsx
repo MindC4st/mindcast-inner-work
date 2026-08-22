@@ -2,6 +2,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  type KeyboardEvent,
   type ReactNode,
 } from "react";
 import {
@@ -22,7 +23,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import Navbar from "@/components/Navbar";
+import SiteHeader from "@/components/SiteHeader";
 import Ripple from "@/components/brand/Ripple";
 import LessonOnePreview from "@/components/curriculum/LessonOnePreview";
 import logoWordmark from "@/assets/logo-blue-wordmark.png";
@@ -182,7 +183,7 @@ const Eyebrow = ({
 }: {
   children: ReactNode;
 }) => (
-  <p className="font-body text-[9px] font-bold uppercase tracking-[0.32em] text-[#987747] sm:text-[10px]">
+  <p className="font-body text-[9px] font-bold uppercase tracking-[0.32em] text-[hsl(var(--silver))] sm:text-[10px]">
     {children}
   </p>
 );
@@ -195,7 +196,7 @@ const EmbossedWordmark = ({
   <span
     role="img"
     aria-label="Mindcast"
-    className={`curriculum-gold-emboss block ${className}`}
+    className={`curriculum-emboss block ${className}`}
     style={{
       WebkitMaskImage: `url(${logoWordmark})`,
       maskImage: `url(${logoWordmark})`,
@@ -272,11 +273,11 @@ const BinderRings = () => (
     {[20, 50, 80].map((top) => (
       <div
         key={top}
-        className="absolute right-[-18px] h-11 w-11 -translate-y-1/2 rounded-full border border-[#9b825a] shadow-[0_4px_9px_rgba(92,67,31,0.2)]"
+        className="absolute right-[-18px] h-11 w-11 -translate-y-1/2 rounded-full border border-[#b5a88d] shadow-[0_4px_9px_rgba(92,67,31,0.2)]"
         style={{
           top: `${top}%`,
           background:
-            "linear-gradient(135deg,#7c6848 0%,#f8ecd4 24%,#b39665 47%,#fff9eb 70%,#8a724c 100%)",
+            "linear-gradient(135deg,#b3a68c 0%,#f4ecdd 24%,#d3c7ac 47%,#fffaf0 70%,#c0b298 100%)",
         }}
       >
         <span className="absolute inset-[7px] rounded-full bg-[#efe4d3] shadow-[inset_0_2px_4px_rgba(96,70,35,0.28),0_1px_0_rgba(255,255,255,0.85)]" />
@@ -284,6 +285,45 @@ const BinderRings = () => (
     ))}
   </div>
 );
+
+/* WAI-ARIA tabs keyboard pattern for the bespoke binder tablists: roving
+   tabindex plus Arrow/Home/End activation. The visual structure is too
+   page-specific for the ui/tabs primitive, so the behaviour is restored
+   by hand. */
+const moveTabFocus = (
+  event: KeyboardEvent,
+  tab: TabKey,
+  onChange: (tab: TabKey) => void,
+  idPrefix: string,
+) => {
+  const keys = TABS.map((item) => item.key);
+  const index = keys.indexOf(tab);
+  let next: number;
+
+  switch (event.key) {
+    case "ArrowRight":
+    case "ArrowDown":
+      next = (index + 1) % keys.length;
+      break;
+    case "ArrowLeft":
+    case "ArrowUp":
+      next = (index - 1 + keys.length) % keys.length;
+      break;
+    case "Home":
+      next = 0;
+      break;
+    case "End":
+      next = keys.length - 1;
+      break;
+    default:
+      return;
+  }
+
+  event.preventDefault();
+  const key = keys[next];
+  onChange(key);
+  document.getElementById(`${idPrefix}${key}`)?.focus();
+};
 
 const BinderTabs = ({
   tab,
@@ -310,7 +350,9 @@ const BinderTabs = ({
           id={`binder-tab-${item.key}`}
           aria-selected={active}
           aria-controls="binder-page"
+          tabIndex={active ? 0 : -1}
           onClick={() => onChange(item.key)}
+          onKeyDown={(event) => moveTabFocus(event, tab, onChange, "binder-tab-")}
           className={`group relative min-h-0 flex-1 rounded-r-2xl border px-4 py-2 text-left transition-[transform,background-color,border-color,box-shadow] focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             active
               ? "-translate-x-3 border-[#d9c8ad] bg-[#fffaf2] shadow-[7px_9px_20px_rgba(92,67,31,0.11)]"
@@ -321,7 +363,7 @@ const BinderTabs = ({
             <span
               className={`font-display text-lg leading-none ${
                 active
-                  ? "text-[#9a7846]"
+                  ? "text-primary"
                   : "text-[#5a5044]/25"
               }`}
             >
@@ -333,7 +375,7 @@ const BinderTabs = ({
               strokeWidth={1.7}
               className={
                 active
-                  ? "text-[#9a7846]"
+                  ? "text-primary"
                   : "text-[#5a5044]/25"
               }
             />
@@ -369,12 +411,15 @@ const MobileTabs = ({
           key={item.key}
           type="button"
           role="tab"
+          id={`binder-tab-m-${item.key}`}
           aria-selected={active}
           aria-controls="binder-page"
+          tabIndex={active ? 0 : -1}
           onClick={() => onChange(item.key)}
+          onKeyDown={(event) => moveTabFocus(event, tab, onChange, "binder-tab-m-")}
           className={`flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-3 font-body text-[9px] font-bold uppercase tracking-[0.12em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             active
-              ? "bg-[#fffaf2] text-[#947142] shadow-sm"
+              ? "bg-[#fffaf2] text-primary shadow-sm"
               : "text-[#6d6255]"
           }`}
         >
@@ -407,7 +452,7 @@ const PaperPage = ({
       <div className="flex h-full min-h-0 flex-col">
         <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#eadfce] px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <span className="font-display text-lg text-[#9a7846]">
+            <span className="font-display text-lg text-primary">
               {tabMeta.number}
             </span>
 
@@ -478,7 +523,7 @@ const NotesPage = ({
         <button
           type="button"
           onClick={onOpenPhases}
-          className="inline-flex min-h-12 items-center justify-center gap-2 bg-[#8b6d40] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-[#fffaf1] shadow-[0_8px_18px_-12px_rgba(88,62,27,0.65)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-[#765a34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          className="inline-flex min-h-12 items-center justify-center gap-2 bg-primary px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-primary-foreground shadow-[0_8px_18px_-12px_rgba(16,36,56,0.55)] transition-[transform,background-color] hover:-translate-y-0.5 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
           Open phase one
           <ArrowRight size={15} />
@@ -487,7 +532,7 @@ const NotesPage = ({
         <button
           type="button"
           onClick={onOpenWorksheets}
-          className="inline-flex min-h-12 items-center justify-center gap-2 border border-[#b69a70] bg-[#fffaf2] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-[#765b36] transition-colors hover:border-[#8b6d40] hover:bg-[#f8efe1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+          className="inline-flex min-h-12 items-center justify-center gap-2 border border-primary/40 bg-[#fffaf2] px-6 font-body text-[10px] font-bold uppercase tracking-[0.18em] text-primary transition-colors hover:border-primary hover:bg-[#f8efe1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
         >
           See a worksheet
         </button>
@@ -673,7 +718,7 @@ const PhasesPage = ({
               className={`min-h-12 rounded-lg border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 active
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-[#dfd1bc] bg-[#f5ede1] text-[#4e463c] hover:border-[#b69a70]"
+                  : "border-[#dfd1bc] bg-[#f5ede1] text-[#4e463c] hover:border-primary/50"
               }`}
             >
               <span className="block font-body text-[8px] font-bold uppercase tracking-[0.18em] opacity-65">
@@ -924,7 +969,7 @@ const WorksheetPreview = ({
   theme: string;
 }) => (
   <div className="mx-auto flex h-full max-h-[520px] w-full max-w-[410px] flex-col overflow-hidden rounded-sm border border-[#ddcfbb] bg-[#fffaf2] shadow-[0_18px_38px_rgba(92,67,31,0.13)]">
-    <div className="flex items-start justify-between border-b border-[#b99e73] px-5 py-4">
+    <div className="flex items-start justify-between border-b border-[#d8cbb7] px-5 py-4">
       <div>
         <p className="font-body text-[8px] font-bold uppercase tracking-[0.26em] text-primary">
           Week 01 · {track}
@@ -1137,7 +1182,7 @@ const ReflectionPage = () => (
     </div>
 
     <div className="mt-5 grid min-h-0 flex-1 gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-      <section className="rounded-2xl border border-[#d9c4a3] bg-[#f7efe2] p-5 sm:p-6">
+      <section className="rounded-2xl border border-[#ddd4c7] bg-[#f7efe2] p-5 sm:p-6">
         <div className="flex items-center gap-3">
           <Ripple size={24} />
 
@@ -1454,7 +1499,7 @@ const Curriculum = () => {
 
   return (
     <div className="curriculum-room h-[100svh] overflow-hidden">
-      <Navbar />
+      <SiteHeader />
 
       <main className="h-full px-2 pb-2 pt-[72px] sm:px-4 sm:pb-4 lg:px-6">
         <section

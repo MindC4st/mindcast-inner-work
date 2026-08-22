@@ -1,4 +1,4 @@
-﻿import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -15,8 +15,8 @@ import {
   X,
 } from "lucide-react";
 
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import Ripple from "@/components/brand/Ripple";
 import { supabase } from "@/integrations/supabase/client";
 import { MinorDraft, ageGroupForDob, maskEmail } from "@/lib/familyTrial";
@@ -132,18 +132,18 @@ const StepMarker = ({ step }: { step: Step }) => (
 
 const Success = ({ email, minors }: { email: string; minors: number }) => (
   <div className="min-h-screen bg-[hsl(var(--ivory))]">
-    <Navbar />
+    <SiteHeader />
     <main className="px-5 pb-20 pt-32 sm:px-6 sm:pt-36">
       <div className="mx-auto max-w-2xl overflow-hidden rounded-[2rem] border border-[hsl(var(--warm-border))] bg-white shadow-[0_24px_80px_rgba(16,36,56,0.08)]">
-        <div className="relative overflow-hidden bg-[hsl(var(--navy))] px-7 py-12 text-center sm:px-14 sm:py-16">
-          <Ripple className="absolute -right-12 -top-12 h-52 w-52 text-white/10" />
-          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white">
+        <div className="linen-panel relative overflow-hidden border-x-0 border-t-0 px-7 py-12 text-center sm:px-14 sm:py-16">
+          <Ripple className="absolute -right-12 -top-12 h-52 w-52 text-primary/10" />
+          <div className="relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-primary">
             <TicketCheck size={28} strokeWidth={1.5} />
           </div>
-          <p className="relative mb-3 font-body text-[10px] font-bold uppercase tracking-[0.34em] text-[hsl(var(--mist))]">
+          <p className="relative mb-3 font-body text-[10px] font-bold uppercase tracking-[0.34em] text-[hsl(var(--silver))]">
             Your place is held
           </p>
-          <h1 className="relative font-display text-5xl leading-[0.9] tracking-wide text-white sm:text-6xl">
+          <h1 className="relative font-display text-5xl leading-[0.9] tracking-wide text-foreground sm:text-6xl">
             CHECK YOUR EMAIL.
           </h1>
         </div>
@@ -160,7 +160,7 @@ const Success = ({ email, minors }: { email: string; minors: number }) => (
               "Come to a Sunday session that works for your household.",
               minors > 0
                 ? "Arrive and check in together; under-18 passes only work with their adult."
-                : "Show the QR code at the door and weâ€™ll take it from there.",
+                : "Show the QR code at the door and we’ll take it from there.",
             ].map((item) => (
               <div key={item} className="flex gap-3">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--blue))]/10 text-[hsl(var(--blue))]">
@@ -194,7 +194,7 @@ const Success = ({ email, minors }: { email: string; minors: number }) => (
         </div>
       </div>
     </main>
-    <Footer />
+    <SiteFooter />
   </div>
 );
 
@@ -352,7 +352,7 @@ const TryASession = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <Navbar />
+      <SiteHeader />
 
       <main className="pb-24 pt-16">
         <section className="relative overflow-hidden border-b border-[hsl(var(--warm-border))]">
@@ -371,7 +371,7 @@ const TryASession = () => {
             <div className="relative min-h-[360px] overflow-hidden lg:min-h-[610px]">
               <img
                 src={membershipTrial}
-                alt="A Mindcast session in TaupÅ"
+                alt="A Mindcast session in Taupō"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--navy))]/60 via-transparent to-transparent" />
@@ -392,9 +392,9 @@ const TryASession = () => {
         <section className="px-5 py-16 sm:px-6 sm:py-24">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
             <aside className="lg:sticky lg:top-24 lg:self-start">
-              <p className={`${eyebrowClass} mb-4`}>What youâ€™re saying yes to</p>
+              <p className={`${eyebrowClass} mb-4`}>What you’re saying yes to</p>
               <h2 className="max-w-sm font-display text-4xl leading-[0.95] tracking-wide text-primary sm:text-5xl">
-                JUST ENOUGH TO KNOW IF ITâ€™S FOR YOU.
+                JUST ENOUGH TO KNOW IF IT’S FOR YOU.
               </h2>
 
               <div className="mt-9 divide-y divide-[hsl(var(--warm-border))] border-y border-[hsl(var(--warm-border))]">
@@ -434,7 +434,7 @@ const TryASession = () => {
                           FIRST, YOUR DETAILS.
                         </h2>
                         <p className="mt-2 max-w-xl font-body text-sm leading-6 text-[hsl(var(--navy-mid))]/75">
-                          The adult attending completes the booking. Weâ€™ll send every household pass to this email.
+                          The adult attending completes the booking. We’ll send every household pass to this email.
                         </p>
 
                         <div className="mt-8 grid gap-5 sm:grid-cols-2">
@@ -486,10 +486,10 @@ const TryASession = () => {
                         <div className="flex items-start justify-between gap-6">
                           <div>
                             <h2 className="font-display text-4xl tracking-wide text-primary">
-                              WHOâ€™S COMING WITH YOU?
+                              WHO’S COMING WITH YOU?
                             </h2>
                             <p className="mt-2 max-w-xl font-body text-sm leading-6 text-[hsl(var(--navy-mid))]/75">
-                              Leave this as â€œjust meâ€, or add up to six children and teens from your household.
+                              Leave this as “just me”, or add up to six children and teens from your household.
                             </p>
                           </div>
                           <button
@@ -579,7 +579,7 @@ const TryASession = () => {
                                     />
                                     <div className="sm:col-span-2">
                                       <Field
-                                        label="Date of birth â€” DD/MM/YYYY"
+                                        label="Date of birth — DD/MM/YYYY"
                                         type="text"
                                         inputMode="numeric"
                                         autoComplete="bday"
@@ -609,7 +609,7 @@ const TryASession = () => {
                                     {minor.group === "teen" && (
                                       <div className="sm:col-span-2">
                                         <Field
-                                          label="Teenâ€™s email address"
+                                          label="Teen’s email address"
                                           type="email"
                                           inputMode="email"
                                           autoComplete="off"
@@ -706,7 +706,7 @@ const TryASession = () => {
                         >
                           {busy ? (
                             <>
-                              <Loader2 size={15} className="animate-spin" /> Sending passesâ€¦
+                              <Loader2 size={15} className="animate-spin" /> Sending passes…
                             </>
                           ) : form.minors.length ? (
                             <>
@@ -736,7 +736,7 @@ const TryASession = () => {
         </section>
       </main>
 
-      <Footer />
+      <SiteFooter />
     </div>
   );
 };

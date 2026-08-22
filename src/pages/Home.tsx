@@ -1,5 +1,5 @@
-import { useRef, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import {
   motion,
   useMotionValueEvent,
@@ -7,18 +7,13 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import {
-  BookOpenText,
-  Home as HomeIcon,
-  Info,
-  LogIn,
-  ShoppingBag,
-} from "lucide-react";
 
 import logoBlue from "@/assets/logo-blue-wordmark.png";
-import Footer from "@/components/Footer";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 import Ripple from "@/components/brand/Ripple";
-import { GlowButton, Reveal } from "@/components/glow";
+import SignalBar from "@/components/brand/SignalBar";
+import { CtaButton, Reveal } from "@/components/glow";
 
 const HOME_HOW_IT_WORKS =
   "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/home-howitworks.jpg";
@@ -37,127 +32,6 @@ const HOME_IN_THE_ROOMS =
   "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-intherooms.png";
 const HOME_BEFORE_YOU_LEAVE =
   "https://pjyelgogdsuiugaudecc.supabase.co/storage/v1/object/public/assets/homepage-beforeyouleave.png";
-
-const NAV_ITEMS = [
-  { label: "HOME", mobileLabel: "Home", to: "/", icon: HomeIcon },
-  { label: "ABOUT", mobileLabel: "About", to: "/about", icon: Info },
-  {
-    label: "HOW IT WORKS",
-    mobileLabel: "How",
-    to: "/curriculum",
-    icon: BookOpenText,
-  },
-  { label: "SHOP", mobileLabel: "Shop", to: "/shop", icon: ShoppingBag },
-  {
-    label: "SIGN IN",
-    mobileLabel: "Sign in",
-    to: "/auth",
-    icon: LogIn,
-  },
-] as const;
-
-const isActiveRoute = (pathname: string, to: string) => {
-  if (to === "/") return pathname === "/";
-  return pathname === to || pathname.startsWith(`${to}/`);
-};
-
-const SiteNavigation = () => {
-  const { pathname } = useLocation();
-
-  return (
-    <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/80 bg-white/95 shadow-[0_1px_0_rgba(16,36,56,0.03)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/90">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:h-[72px] lg:px-8">
-          <Link
-            to="/"
-            aria-label="MINDCAST home"
-            className="inline-flex min-h-11 items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          >
-            <img
-              src={logoBlue}
-              alt="MINDCAST"
-              className="h-8 w-auto sm:h-9"
-              width={286}
-              height={48}
-            />
-          </Link>
-
-          <nav
-            className="hidden items-center gap-1 lg:flex"
-            aria-label="Main navigation"
-          >
-            {NAV_ITEMS.map((item) => {
-              const active = isActiveRoute(pathname, item.to);
-
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  aria-current={active ? "page" : undefined}
-                  className={`group relative inline-flex min-h-11 items-center px-4 font-body text-[11px] font-bold tracking-[0.18em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-                    active
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-primary"
-                  }`}
-                >
-                  {item.label}
-
-                  <span
-                    aria-hidden="true"
-                    className={`absolute inset-x-4 bottom-1 h-0.5 origin-left bg-primary transition-transform duration-200 ${
-                      active
-                        ? "scale-x-100"
-                        : "scale-x-0 group-hover:scale-x-100"
-                    }`}
-                  />
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="lg:hidden">
-            <span className="inline-flex min-h-9 items-center rounded-full border border-primary/20 bg-primary/5 px-3 font-body text-[10px] font-bold tracking-[0.14em] text-primary">
-              TAUPŌ · SUNDAYS
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <nav
-        aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgba(16,36,56,0.08)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/90 lg:hidden"
-      >
-        <div className="mx-auto grid max-w-md grid-cols-5">
-          {NAV_ITEMS.map((item) => {
-            const active = isActiveRoute(pathname, item.to);
-            const Icon = item.icon;
-
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                aria-label={item.label}
-                aria-current={active ? "page" : undefined}
-                className={`flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl px-1 font-body text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-primary"
-                }`}
-              >
-                <Icon
-                  size={20}
-                  strokeWidth={active ? 2.25 : 1.75}
-                  aria-hidden="true"
-                />
-                <span>{item.mobileLabel}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-    </>
-  );
-};
 
 type SectionIntroProps = {
   eyebrow: string;
@@ -183,7 +57,7 @@ const SectionIntro = ({
       {eyebrow}
     </p>
 
-    <h2 className="font-display text-[clamp(2.6rem,7vw,5.8rem)] leading-[0.94] tracking-tight text-primary">
+    <h2 className="font-display text-[clamp(2.6rem,7vw,5.8rem)] leading-[0.94] tracking-tight text-foreground">
       {title}
     </h2>
 
@@ -195,96 +69,123 @@ const SectionIntro = ({
   </div>
 );
 
+/* ── Hero — the binder resting on the table ──────────────────────────────
+   Full-bleed photograph; an ivory paper card sits over it carrying the
+   wordmark, thesis and CTAs. The card means no text ever fights the photo,
+   so the image needs no scrim. Scroll gives the recovered choreography:
+   the photo scales up gently and dissolves to ivory as the card leaves. */
+
+const heroStagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.15 } },
+};
+const heroRise = {
+  hidden: { opacity: 0, y: 22 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
 const HeroSection = () => {
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Scroll-fade: as the visitor scrolls through the hero, the full-bleed
-  // background image dissolves toward the solid ivory beneath it, so the photo
-  // never bleeds into (or distracts from) the content block that follows.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
   const imageOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
 
   return (
     <section
       ref={sectionRef}
-      className="relative h-[100svh] w-full overflow-hidden bg-[hsl(var(--ivory))]"
+      className="relative min-h-[100svh] w-full overflow-hidden bg-[hsl(var(--ivory))]"
     >
-      {/* Full-bleed background image (fades to ivory on scroll). */}
+      {/* Full-bleed background image (scales and fades to ivory on scroll). */}
       <motion.div
         aria-hidden="true"
         className="absolute inset-0"
         style={reduceMotion ? { opacity: 1 } : { opacity: imageOpacity }}
       >
-        <img
+        <motion.img
           src={GLC_FRONT_ENTRANCE}
           alt=""
           className="absolute inset-0 h-full w-full object-cover object-center"
+          style={reduceMotion ? undefined : { scale: imageScale }}
           width={1920}
           height={1280}
           loading="eager"
           fetchPriority="high"
         />
-        {/* Dark scrim so the centered white type stays legible on the photo. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#102438]/62 via-[#102438]/38 to-[#102438]/66" />
       </motion.div>
 
-      {/* Centered content. */}
-      <div className="relative z-10 flex h-full items-center justify-center px-5 sm:px-8">
+      {/* The paper card. */}
+      <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 pb-14 pt-24 sm:px-8 lg:pt-28">
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: reduceMotion ? 0 : 0.65,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="mx-auto w-full max-w-3xl pt-16 text-center lg:pt-[72px]"
+          variants={heroStagger}
+          initial={reduceMotion ? false : "hidden"}
+          animate="show"
+          className="paper-card w-full max-w-2xl px-7 py-10 text-center sm:px-12 sm:py-14"
         >
-          <p
-            className="mb-6 font-body text-[11px] font-bold uppercase tracking-[0.32em] text-white/85 sm:text-xs"
-            style={{ textShadow: "0 1px 12px rgba(16,36,56,0.55)" }}
+          <motion.div variants={heroRise}>
+            <img
+              src={logoBlue}
+              alt="Mindcast"
+              className="mx-auto h-8 w-auto sm:h-9"
+              width={286}
+              height={48}
+            />
+            <SignalBar className="mx-auto mt-4 max-w-[240px]" />
+          </motion.div>
+
+          <motion.p
+            variants={heroRise}
+            className="mt-7 font-body text-[11px] font-bold uppercase tracking-[0.32em] text-[hsl(var(--silver))] sm:text-xs"
           >
             COMING SOON · TAUPŌ, AOTEAROA NEW ZEALAND
-          </p>
+          </motion.p>
 
-          <h1
-            className="font-display leading-[0.85] tracking-[-0.02em] text-white text-[clamp(3.4rem,10vw,7.5rem)]"
-            style={{ textShadow: "0 2px 24px rgba(16,36,56,0.45)" }}
+          <motion.h1
+            variants={heroRise}
+            className="mt-5 font-display leading-[0.88] tracking-[-0.01em] text-foreground text-[clamp(3rem,8vw,5.6rem)]"
           >
             STOP CONSUMING.
             <br />
             START DOING.
-          </h1>
+          </motion.h1>
 
-          <p
-            className="mx-auto mt-7 max-w-2xl font-body text-base leading-7 text-white/90 sm:text-lg sm:leading-8"
-            style={{ textShadow: "0 1px 16px rgba(16,36,56,0.55)" }}
+          <motion.p
+            variants={heroRise}
+            className="mx-auto mt-6 max-w-xl font-body text-base leading-7 text-muted-foreground"
           >
             We consume more self-development than any generation before
-            us—and apply almost none of it. MINDCAST is a weekly live practice
+            us—and apply almost none of it. Mindcast is a weekly live practice
             for people who want a room that actually helps them follow through.
             One theme. One honest intention. The same people coming back each
             week.
-          </p>
+          </motion.p>
 
-          <div className="mt-9 flex justify-center">
-            <GlowButton to="/membership">JOIN THE FOUNDING WAITLIST</GlowButton>
-          </div>
+          <motion.div
+            variants={heroRise}
+            className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
+          >
+            <CtaButton to="/membership">JOIN THE FOUNDING WAITLIST</CtaButton>
+            <CtaButton to="/curriculum" variant="outline">
+              SEE THE CURRICULUM
+            </CtaButton>
+          </motion.div>
 
-          <p
-            className="mx-auto mt-5 max-w-xl text-sm italic leading-6 text-white/85 sm:text-[15px]"
-            style={{
-              fontFamily: "var(--font-serif)",
-              textShadow: "0 1px 14px rgba(16,36,56,0.55)",
-            }}
+          <motion.p
+            variants={heroRise}
+            className="mx-auto mt-6 max-w-xl font-serif text-sm italic leading-6 text-navy-mid sm:text-[15px]"
           >
             The first 100 to register receive a complimentary NFC
             smart-bracelet—your physical key for tap-and-go room entry and
             instant session access.
-          </p>
+          </motion.p>
         </motion.div>
       </div>
     </section>
@@ -308,15 +209,25 @@ const ManifestoLine = ({ children }: { children: string }) => {
     offset: ["start 85%", "start 45%"],
   });
   const opacity = useTransform(scrollYProgress, [0, 1], [0.2, 1]);
+  const ruleScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <motion.p
-      ref={ref}
-      style={reduceMotion ? undefined : { opacity }}
-      className="mb-10 font-display text-4xl leading-[1.05] tracking-[-0.01em] text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
-    >
-      {children}
-    </motion.p>
+    <div className="mb-10">
+      <motion.p
+        ref={ref}
+        style={reduceMotion ? undefined : { opacity }}
+        className="font-display text-4xl leading-[1.05] tracking-[-0.01em] text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
+      >
+        {children}
+      </motion.p>
+      {/* Hairline blue rule that draws in as the line reaches reading
+          position — the accent as a drawn line, not a fill. */}
+      <motion.div
+        aria-hidden="true"
+        className="rule-blue mt-4 w-24 origin-left"
+        style={reduceMotion ? undefined : { scaleX: ruleScale }}
+      />
+    </div>
   );
 };
 
@@ -380,9 +291,9 @@ const HowItWorksSection = () => (
           </p>
 
           <div className="mt-8">
-            <GlowButton to="/about" variant="outline">
+            <CtaButton to="/about" variant="outline">
               READ THE STORY
-            </GlowButton>
+            </CtaButton>
           </div>
         </div>
       </Reveal>
@@ -653,9 +564,27 @@ const TrackSlide = ({
   </div>
 );
 
-/** Sticky-scroll slider: the section pins while the rooms slide across. */
+/** Sticky-scroll slider: the section pins while the rooms slide across.
+ *  Three rendering branches:
+ *    reduced motion — no pinning or sliding, the rooms simply stack
+ *    coarse pointer — native horizontal overflow with scroll-snap (a pinned
+ *                     scrub on touch fights the browser)
+ *    fine pointer   — the pinned horizontal-on-vertical scrub */
+const useCoarsePointer = () => {
+  const [coarse, setCoarse] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(pointer: coarse)");
+    const update = () => setCoarse(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  return coarse;
+};
+
 const TracksSection = () => {
   const reduceMotion = useReducedMotion();
+  const coarsePointer = useCoarsePointer();
   const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState(0);
 
@@ -713,6 +642,29 @@ const TracksSection = () => {
               <TrackSlide key={slide.title} slide={slide} index={index} />
             ))}
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Touch: native horizontal overflow with scroll-snap — a pinned scrub on
+  // mobile fights the browser.
+  if (coarsePointer) {
+    return (
+      <section className="section-cream border-y border-border py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
+          {header}
+        </div>
+
+        <div className="scrollbar-none mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 sm:px-6">
+          {TRACK_SLIDES.map((slide, index) => (
+            <div
+              key={slide.title}
+              className="w-[86%] max-w-xl shrink-0 snap-center"
+            >
+              <TrackSlide slide={slide} index={index} />
+            </div>
+          ))}
         </div>
       </section>
     );
@@ -868,7 +820,7 @@ const FinalCTA = () => (
         </p>
 
         <div className="mt-10 flex justify-center">
-          <GlowButton to="/membership">JOIN THE FOUNDING WAITLIST</GlowButton>
+          <CtaButton to="/membership">JOIN THE FOUNDING WAITLIST</CtaButton>
         </div>
       </Reveal>
     </div>
@@ -876,8 +828,8 @@ const FinalCTA = () => (
 );
 
 const Home = () => (
-  <div className="min-h-screen bg-white pb-[76px] lg:pb-0">
-    <SiteNavigation />
+  <div className="min-h-screen bg-background">
+    <SiteHeader />
 
     <main>
       <HeroSection />
@@ -891,7 +843,7 @@ const Home = () => (
       <FinalCTA />
     </main>
 
-    <Footer variant="light" />
+    <SiteFooter />
   </div>
 );
 

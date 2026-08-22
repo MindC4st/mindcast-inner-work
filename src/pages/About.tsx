@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 
 import AmbientVideo from "@/components/AmbientVideo";
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import SiteFooter from "@/components/SiteFooter";
+import SiteHeader from "@/components/SiteHeader";
 
 /* -------------------------------------------------------------------------- */
 /* Content                                                                     */
@@ -489,7 +489,7 @@ const AboutCta = () => (
         <p className="font-body text-lg leading-relaxed text-foreground/80">
           Take a look inside the 52-week coursebook. See how quiet reflection
           translates into simple, weekly intentions across every stage of the
-          journey.
+          year.
         </p>
 
         <ul className="space-y-3 font-body font-medium text-foreground/85">
@@ -576,13 +576,13 @@ export const AboutContent = () => (
 
 const About = () => (
   <div className="min-h-screen bg-white">
-    <Navbar />
+    <SiteHeader />
 
     <main>
       <AboutContent />
     </main>
 
-    <Footer />
+    <SiteFooter />
   </div>
 );
 

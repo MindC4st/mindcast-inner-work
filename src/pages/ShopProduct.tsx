@@ -1,9 +1,9 @@
-﻿// /shop/:slug â€” product page. Gallery, variant selector, stock status,
+// /shop/:slug — product page. Gallery, variant selector, stock status,
 // quantity, full description, practical details, shipping note.
 //
 // Members-only products (the NFC bracelet): the page gate mirrors the
-// server-side gate in create-shop-checkout â€” signed out â†’ sign in first;
-// signed in without an active membership â†’ membership CTA; active member â†’
+// server-side gate in create-shop-checkout — signed out → sign in first;
+// signed in without an active membership → membership CTA; active member →
 // choose who the bracelet is for. A member holding an unclaimed founding
 // entitlement claims free (no Stripe); everyone else pays $5.
 
@@ -19,8 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/observability";
 import { normalizeEmail, isValidEmail, braceletPurchaseGate, BRACELET_SLUG, type EntitlementState } from "@/lib/foundingBracelets";
 import CartDrawer, { resolveEntries, startCheckout, type CartProduct } from "@/components/shop/CartDrawer";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 type Variant = {
   id: string;
@@ -101,7 +101,7 @@ const ShopProduct = () => {
   const gate = braceletPurchaseGate({ signedIn: Boolean(user), membershipStatus });
   const gateReason = gate.allowed ? null : gate.reason;
 
-  // Membership gate analytics â€” once per view.
+  // Membership gate analytics — once per view.
   useEffect(() => {
     if (membersOnly && !loading && gateReason) {
       track("nfc_bracelet_membership_gate_shown", { reason: gateReason });
@@ -206,7 +206,7 @@ const ShopProduct = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))] flex items-center justify-center" role="status">
-        <p className="text-sm font-body text-[hsl(var(--navy-mid))]/60 animate-pulse">Loading productâ€¦</p>
+        <p className="text-sm font-body text-[hsl(var(--navy-mid))]/60 animate-pulse">Loading product…</p>
       </div>
     );
   }
@@ -214,21 +214,21 @@ const ShopProduct = () => {
   if (!product) {
     return (
       <div className="min-h-screen bg-[hsl(var(--ivory))]">
-        <Navbar />
+        <SiteHeader />
         <main className="max-w-3xl mx-auto px-6 py-32 text-center">
           <p className="portal-label mb-3">Mindcast shop</p>
-          <h1 className="font-serif text-4xl text-primary mb-4">We couldnâ€™t find that product.</h1>
+          <h1 className="font-serif text-4xl text-primary mb-4">We couldn’t find that product.</h1>
           <p className="mb-6 font-body text-sm text-muted-foreground">It may have moved or is no longer available.</p>
-          <Link to="/shop" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-navy px-5 font-body text-sm font-semibold text-cream"><ArrowLeft size={14} /> Back to the shop</Link>
+          <Link to="/shop" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 font-body text-sm font-semibold text-primary-foreground"><ArrowLeft size={14} /> Back to the shop</Link>
         </main>
-        <Footer />
+        <SiteFooter />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-[hsl(var(--ivory))]">
-      <Navbar />
+      <SiteHeader />
 
       <main className="max-w-6xl mx-auto px-5 sm:px-8 lg:px-12 pt-28 lg:pt-32 pb-24">
         <div className="flex items-center justify-between mb-8">
@@ -316,7 +316,7 @@ const ShopProduct = () => {
                       aria-checked={variantId === v.id}
                       className={`flex min-h-11 items-center gap-2 px-3 py-2 text-xs font-body rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
                         variantId === v.id
-                          ? "bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] border-[hsl(var(--navy))]"
+                          ? "bg-primary text-primary-foreground border-primary"
                           : "bg-white text-[hsl(var(--navy))] border-[hsl(var(--navy))]/20 hover:border-[hsl(var(--navy))]/50"
                       }`}
                     >
@@ -343,7 +343,7 @@ const ShopProduct = () => {
                     </p>
                     <Link
                       to="/auth"
-                      className="inline-flex items-center justify-center bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] px-6 py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90"
+                      className="inline-flex items-center justify-center bg-primary text-primary-foreground px-6 py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90"
                     >
                       Sign in
                     </Link>
@@ -379,7 +379,7 @@ const ShopProduct = () => {
                       recipientMode === "self" ? "border-primary bg-primary/5 text-[hsl(var(--navy))]" : "border-[hsl(var(--navy))]/15 text-[hsl(var(--navy-mid))] hover:border-[hsl(var(--navy))]/40"
                     }`}
                   >
-                    Me {profile?.first_name || profile?.name ? `â€” ${profile.first_name || profile.name}` : ""}
+                    Me {profile?.first_name || profile?.name ? `— ${profile.first_name || profile.name}` : ""}
                   </button>
                   <button
                     type="button"
@@ -425,24 +425,24 @@ const ShopProduct = () => {
                 {isValidEmail(recipientEmail) && (
                   canClaimFree ? (
                     <p className="text-[11px] font-body text-primary mb-3">
-                      Founding member â€” this bracelet is free. One per person, ever.
+                      Founding member — this bracelet is free. One per person, ever.
                     </p>
                   ) : recipientState === "claimed" ? (
                     <p className="text-[11px] font-body text-[hsl(var(--navy-mid))] mb-3">
-                      This member's free founding bracelet has already been claimed â€” replacements are $5.00.
+                      This member's free founding bracelet has already been claimed — replacements are $5.00.
                     </p>
                   ) : recipientState === "exhausted" ? (
                     <p className="text-[11px] font-body text-[hsl(var(--navy-mid))] mb-3">
-                      The first 100 founding bracelets are gone â€” this one is $5.00.
+                      The first 100 founding bracelets are gone — this one is $5.00.
                     </p>
                   ) : null
                 )}
 
                 {SHOP_COMING_SOON ? (
-                  <p className="text-sm font-body text-[hsl(var(--navy-mid))]">Bracelets are coming soon â€” check back shortly to claim yours.</p>
+                  <p className="text-sm font-body text-[hsl(var(--navy-mid))]">Bracelets are coming soon — check back shortly to claim yours.</p>
                 ) : claimResult ? (
                   <div className="border border-primary/30 bg-primary/5 rounded-sm p-4">
-                    <p className="font-display text-base tracking-wider text-[hsl(var(--navy))] mb-1">CLAIMED â€” IT'S YOURS</p>
+                    <p className="font-display text-base tracking-wider text-[hsl(var(--navy))] mb-1">CLAIMED — IT'S YOURS</p>
                     <p className="text-sm font-body text-[hsl(var(--navy-mid))] leading-relaxed">
                       Order {claimResult.order_number}. Show pickup code <strong className="text-[hsl(var(--navy))]">{claimResult.pickup_code}</strong> at the counter.
                     </p>
@@ -453,7 +453,7 @@ const ShopProduct = () => {
                     disabled={claimBusy}
                     className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 disabled:opacity-50"
                   >
-                    {claimBusy ? "Claimingâ€¦" : "Claim free bracelet â€” $0.00"}
+                    {claimBusy ? "Claiming…" : "Claim free bracelet — $0.00"}
                   </button>
                 ) : (
                   <div className="flex items-center gap-3">
@@ -468,10 +468,10 @@ const ShopProduct = () => {
                     </div>
                     <button
                       onClick={addBraceletToCart}
-                      className="flex-1 flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity"
+                      className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity"
                     >
                       {added ? <Check size={13} /> : <ShoppingBag size={13} />}
-                      {added ? "Added" : `Add to cart â€” ${formatMoney(unitPrice, product?.currency)}`}
+                      {added ? "Added" : `Add to cart — ${formatMoney(unitPrice, product?.currency)}`}
                     </button>
                   </div>
                 )}
@@ -495,7 +495,7 @@ const ShopProduct = () => {
                 <button
                   onClick={addToCart}
                   disabled={SHOP_COMING_SOON || blocked || (hasOptions && !variantId)}
-                  className="flex-1 flex items-center justify-center gap-2 bg-[hsl(var(--navy))] text-[hsl(var(--ivory))] py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40"
+                  className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 text-[11px] font-body font-semibold tracking-[0.18em] uppercase rounded-sm hover:opacity-90 transition-opacity disabled:opacity-40"
                 >
                   {added ? <Check size={13} /> : <ShoppingBag size={13} />}
                   {SHOP_COMING_SOON ? "Coming soon" : blocked ? "Out of stock" : added ? "Added" : hasOptions && !variantId ? "Choose an option" : "Add to cart"}
@@ -504,7 +504,7 @@ const ShopProduct = () => {
             )}
 
             <p className="text-[10px] font-body text-[hsl(var(--navy-mid))]/70 flex items-center gap-1.5 mb-6">
-              <Truck size={12} strokeWidth={1.6} /> Ships New Zealand-wide Â· $8 flat, free over $120 Â· or collect at the counter
+              <Truck size={12} strokeWidth={1.6} /> Ships New Zealand-wide · $8 flat, free over $120 · or collect at the counter
             </p>
 
             {product.description && (
@@ -521,9 +521,9 @@ const ShopProduct = () => {
             {/* Practical details */}
             {(product.dimensions_mm || product.materials || product.weight_g) && (
               <div className="border-t border-[hsl(var(--navy))]/10 pt-4 text-xs font-body text-[hsl(var(--navy-mid))] space-y-1">
-                {product.dimensions_mm && <p><span className="text-[hsl(var(--navy))]/60 uppercase tracking-widest text-[10px]">Dimensions Â· </span>{product.dimensions_mm}</p>}
-                {product.materials && <p><span className="text-[hsl(var(--navy))]/60 uppercase tracking-widest text-[10px]">Materials Â· </span>{product.materials}</p>}
-                {product.weight_g != null && <p><span className="text-[hsl(var(--navy))]/60 uppercase tracking-widest text-[10px]">Weight Â· </span>{product.weight_g} g</p>}
+                {product.dimensions_mm && <p><span className="text-[hsl(var(--navy))]/60 uppercase tracking-widest text-[10px]">Dimensions · </span>{product.dimensions_mm}</p>}
+                {product.materials && <p><span className="text-[hsl(var(--navy))]/60 uppercase tracking-widest text-[10px]">Materials · </span>{product.materials}</p>}
+                {product.weight_g != null && <p><span className="text-[hsl(var(--navy))]/60 uppercase tracking-widest text-[10px]">Weight · </span>{product.weight_g} g</p>}
               </div>
             )}
           </div>
@@ -558,7 +558,7 @@ const ShopProduct = () => {
         }}
       />
 
-      <Footer />
+      <SiteFooter />
     </div>
   );
 };
