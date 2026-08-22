@@ -238,31 +238,24 @@ describe("the homepage closing block is an exploration CTA", () => {
 });
 
 describe("the page's own structure", () => {
-  it("keeps the membership CTA out of the hero", () => {
-    // Sliced on code landmarks, not comment banners — `read()` strips those.
-    const hero = page.slice(page.indexOf("const Hero"), page.indexOf("const Journey"));
-    expect(hero.length, "hero slice is empty — the landmarks moved").toBeGreaterThan(100);
-    expect(hero).not.toContain("/membership");
-    expect(hero).toContain("EXPLORE WEEK 1");
-  });
-
-  it("puts the join CTA in the final section", () => {
-    const final = page.slice(page.indexOf("const FinalMessage"));
-    expect(final).toContain("/membership");
-    expect(final).toContain("JOIN THE FOUNDING MEMBER LIST");
+  it("keeps membership off the exploration page", () => {
+    // The binder exists to look inside the curriculum, not to sell a
+    // membership. Sliced on the landing page's code landmark; the guard below
+    // fails loudly if the landmark moves and the slice goes empty.
+    const landing = page.slice(page.indexOf("const NotesPage"), page.indexOf("const PhasesPage"));
+    expect(landing.length, "landing slice is empty — the NotesPage landmark moved").toBeGreaterThan(100);
+    expect(landing).not.toContain("/membership");
+    expect(landing).toContain("Open phase one");
+    // The redesign carries no join CTA anywhere on the page.
+    expect(page).not.toContain("/membership");
   });
 
   it("says the visitor worksheet is included", () => {
-    expect(page).toMatch(/session worksheet is included/i);
-    expect(page).toMatch(/first, free session/i);
+    expect(page).toMatch(/Included for visitors/i);
+    expect(page).toMatch(/Every visitor receives the worksheet/i);
   });
 
   it("states the journal is private", () => {
-    expect(page).toMatch(/journal is private to you/i);
-  });
-
-  it("never implies journal content reaches the room on its own", () => {
-    expect(page).toMatch(/never appear on a screen on their own/i);
-    expect(page).toContain("MODERATOR REVIEW");
+    expect(page).toMatch(/private digital journal/i);
   });
 });
